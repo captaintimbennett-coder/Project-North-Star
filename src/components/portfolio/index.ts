@@ -1,0 +1,1 @@
+export { PortfolioCollectionGrid } from "./PortfolioCollectionGrid";
