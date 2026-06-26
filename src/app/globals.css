@@ -20,6 +20,15 @@
   border-bottom-color: var(--line);
 }
 .site-header-interior .wordmark small { color: var(--bronze); }
+.site-header-menu-open {
+  color: var(--color-text-inverse);
+  border-bottom-color: var(--color-rule-inverse-strong);
+}
+.site-header-menu-open .wordmark small { color: var(--champagne); }
+
+body.menu-open {
+  overflow: hidden;
+}
 
 .wordmark { display: flex; flex-direction: column; text-transform: uppercase; }
 .wordmark span {
@@ -531,6 +540,7 @@
     flex-direction: column;
     justify-content: center;
     gap: 1.5rem;
+    color: var(--color-text-inverse);
     background: var(--color-menu-overlay);
     opacity: 0;
     visibility: hidden;

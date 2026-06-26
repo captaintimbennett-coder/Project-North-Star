@@ -31,13 +31,15 @@ Also consult `content-strategy.md`, `roadmap.md`, and
 | --- | --- | --- |
 | 00 | Project foundation and governing context | Complete |
 | 01 | Luxury public website foundation | Complete |
-| 02 | Centralized design system and scalable repository | Complete |
+| 02 | Design system, imagery, typography, and visual refinement | In progress |
 | 03 | Content management and secure administration | Planned |
 | 04 | Experience and Lone Star Retreat management | Planned |
 | 05 | Applications and review workflows | Planned |
 | 06 | Payments, automation, and CRM integration | Planned |
 
-The current implementation frontier is **Sprint 03 — Content Management**.
+The current implementation frontier remains **Sprint 02 — Design System and
+Visual Refinement**. Sprint 03 should not begin until Tim approves the finished
+public design direction and Sprint 02 acceptance criteria are complete.
 Planning does not authorize creating external accounts, purchasing services,
 deploying, or connecting production systems. Those actions require Tim’s
 explicit approval.

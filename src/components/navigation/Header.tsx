@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { primaryNavigation } from "@/data/navigation";
 import { siteConfig } from "@/data/site";
 
@@ -11,8 +11,22 @@ export function Header() {
   const pathname = usePathname();
   const isHome = pathname === "/";
 
+  useEffect(() => {
+    document.body.classList.toggle("menu-open", open);
+
+    return () => {
+      document.body.classList.remove("menu-open");
+    };
+  }, [open]);
+
   return (
-    <header className={`site-header ${isHome ? "" : "site-header-interior"}`}>
+    <header
+      className={[
+        "site-header",
+        isHome ? "" : "site-header-interior",
+        open ? "site-header-menu-open" : "",
+      ].filter(Boolean).join(" ")}
+    >
       <Link className="wordmark" href="/" aria-label="Tim Bennett — home">
         <span>{siteConfig.name}</span>
         <small>{siteConfig.projectName}</small>
