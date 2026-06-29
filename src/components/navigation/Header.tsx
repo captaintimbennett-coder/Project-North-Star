@@ -9,7 +9,7 @@ import { siteConfig } from "@/data/site";
 export function Header() {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
-  const isHome = pathname === "/";
+  const isHome = pathname === "/" || pathname.startsWith("/opening-studies");
 
   useEffect(() => {
     document.body.classList.toggle("menu-open", open);

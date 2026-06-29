@@ -41,6 +41,21 @@
   --color-hero-overlay-bottom: rgb(7 7 6 / 58%);
   --color-focus: var(--color-gold);
 
+  /* Phase 1 proof tokens: defined globally, activated on the homepage only */
+  --phase-one-color-ink: #0b0a08;
+  --phase-one-color-charcoal: #171411;
+  --phase-one-color-bronze: #8f6840;
+  --phase-one-color-gold: #c8a66a;
+  --phase-one-color-champagne: #ddc9a6;
+  --phase-one-color-ivory: #f1ece2;
+  --phase-one-color-paper: #faf7f1;
+  --phase-one-color-taupe: #675f56;
+  --phase-one-color-rule: rgb(23 20 17 / 14%);
+  --phase-one-color-rule-inverse: rgb(221 201 166 / 24%);
+  --phase-one-color-hero-shadow: rgb(8 7 5 / 88%);
+  --phase-one-color-hero-mid: rgb(12 10 8 / 57%);
+  --phase-one-color-hero-warm: rgb(71 48 27 / 18%);
+
   /* Legacy aliases retained during migration */
   --ink: var(--color-ink);
   --charcoal: var(--color-charcoal);
@@ -55,6 +70,7 @@
   /* Typography */
   --font-display: "Iowan Old Style", "Baskerville", "Times New Roman", serif;
   --font-body: "Helvetica Neue", "Avenir Next", Helvetica, Arial, sans-serif;
+  --phase-one-font-display: "Baskerville", "Iowan Old Style", "Palatino Linotype", serif;
   --serif: var(--font-display);
   --sans: var(--font-body);
 
@@ -69,6 +85,8 @@
   --font-size-heading-md: clamp(3rem, 5.5vw, 6rem);
   --font-size-heading-lg: clamp(5rem, 12vw, 12rem);
   --font-size-display: clamp(4rem, 8.2vw, 8.4rem);
+  --phase-one-font-size-display: clamp(4.35rem, 7.7vw, 8rem);
+  --phase-one-font-size-heading: clamp(3.15rem, 5.1vw, 5.65rem);
 
   --line-height-tight: 0.9;
   --line-height-heading: 0.98;
@@ -77,6 +95,8 @@
   --tracking-label: 0.19em;
   --tracking-eyebrow: 0.28em;
   --tracking-nav: 0.15em;
+  --phase-one-tracking-display: -0.025em;
+  --phase-one-tracking-heading: -0.018em;
 
   /* Spacing: 4px base scale */
   --space-1: 0.25rem;

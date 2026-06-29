@@ -12,11 +12,17 @@ Pages should compose existing tokens and primitives. They should not introduce
 new colors, type scales, button styles, breakpoints, or animation timings unless
 the design system itself is intentionally revised.
 
+Sprint 02 visual refinement is evolving the brand away from a modern SaaS feel
+and toward a premium editorial luxury identity. `docs/brand/design-philosophy.md`
+and `docs/brand/visual-language.md` define that atmosphere. This document
+continues to define how the interface should be implemented.
+
 ## Source of truth
 
 | Concern | Source |
 | --- | --- |
 | Brand and semantic tokens | `src/styles/tokens.css` |
+| Brand philosophy and visual direction | `docs/brand/` |
 | Reset, typography, focus, and layout foundations | `src/styles/foundation.css` |
 | Buttons, links, cards, media, forms, and sections | `src/styles/components.css` |
 | Reusable React primitives | `src/components/` |

@@ -1,6 +1,5 @@
 import Image from "next/image";
 import { ActionLink } from "@/components/buttons/Action";
-import { Eyebrow } from "@/components/layout/Typography";
 import type { homeContent } from "@/data/home";
 
 type HomeHeroProps = {
@@ -20,11 +19,11 @@ export function HomeHero({ content }: HomeHeroProps) {
       />
       <div className="hero-shade" />
       <div className="hero-content">
-        <Eyebrow>{content.eyebrow}</Eyebrow>
-        <h1>
-          {content.headline}
-          <span>{content.emphasis}</span>
-        </h1>
+        <h1>{content.name}</h1>
+        <p className="hero-roles">{content.roles}</p>
+        <p className="hero-brand-statement">
+          {content.statement.map((line) => <span key={line}>{line}</span>)}
+        </p>
         <p className="hero-intro">{content.introduction}</p>
         <ActionLink href={content.action.href} variant="light">
           {content.action.label}

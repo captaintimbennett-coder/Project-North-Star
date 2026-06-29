@@ -33,6 +33,8 @@ experience until Tim approves the design as ready for content-management work.
 - Categorized `public/images` folders
 - Design-system documentation
 - Architecture, roadmap, content strategy, master vision, and Codex instructions
+- Brand design philosophy and visual-language documentation
+- Brand reference library documentation
 - Clean production build after migration
 - Approved font direction and implementation
 - Curated final or approved interim photography
@@ -52,6 +54,63 @@ experience until Tim approves the design as ready for content-management work.
 - The current visual foundation is strong but is not considered final.
 - Typography, photography, crops, spacing, and page composition remain open to
   deliberate refinement within the approved luxury editorial direction.
+- The refined Sprint 02 direction should move away from a modern SaaS aesthetic
+  toward a premium editorial luxury brand while preserving the existing UX,
+  navigation, responsiveness, component structure, and accessibility foundation.
+- The goal is not a dark website. Dark tones should create atmosphere, light
+  surfaces should provide balance, and gold should remain an accent.
+- Future visual refinements should be guided by `docs/brand/design-philosophy.md`
+  `docs/brand/visual-language.md`, and the documented assets in
+  `docs/brand/references/`.
+- The architect review approved the design-direction report’s emphasis on
+  visual refinement rather than structural redesign. Future implementation
+  should treat the current application as a mature architectural foundation and
+  refine the experience incrementally.
+- Future visual decisions should be evaluated as part of the visitor’s emotional
+  journey, not only as isolated component improvements.
+- Every visual refinement should support the visitor’s journey from curiosity
+  to confidence.
+- Page-level emotional objectives are lightweight review aids for future visual
+  decisions, not requirements to redesign approved page architecture: Home →
+  inspiration, About → trust, Portfolio → wonder, Workshops → confidence, Lone
+  Star Retreat → anticipation, and Contact → simplicity.
+- The Phase 1 construction strategy is approved for implementation. Phase 1A
+  must approve the final palette, display typography, Approved Hero Study
+  (Temporary Creative Asset), and wordmark treatment before Phase 1B begins.
+- The approved hero study validates the design system and is not expected to
+  become the permanent homepage image. The approved homepage proof should
+  define the creative requirements for the future Project North Star production
+  shoot.
+- The homepage remains the required Phase 1 proof-of-concept before approved
+  refinements are propagated across the application.
+- Phase 1A and Phase 1B have produced a homepage-only proof for architectural
+  review. The proof uses `homepage-hero-study-v1.jpg` as the Approved Hero Study
+  (Temporary Creative Asset), defines the refined Phase 1 palette and display
+  roles as shared tokens, and activates those tokens only within the homepage.
+- The homepage proof has passed linting, type checking, production build,
+  browser-console, overflow, semantic-structure, compact-navigation, and visual
+  checks at 1280px, 980px, and 390px widths. Broader propagation remains blocked
+  pending architectural approval.
+- Architect review approved Homepage Proof v1 as the Phase 1 direction and
+  requested a refinement pass centered on unmistakable Project North Star
+  identity. Three additional temporary hero studies explore threshold,
+  craftsmanship, and ascent. The craftsmanship-led Maker study advances to the
+  next proof with a purpose-and-direction narrative; the other studies remain
+  comparison assets rather than production photography.
+- Homepage Proof v2 clarifies the public brand hierarchy: Tim Bennett is the
+  primary brand, and Project North Star is the philosophy guiding his work. The
+  homepage now introduces Tim first, uses a feminine editorial-glamour hero
+  study closer to his portrait style, and positions Project North Star beneath
+  the artist rather than in place of him.
+- The final brand-architecture correction establishes Tim Bennett as the
+  photographer, educator, creator, mentor, and primary public brand. Project
+  North Star represents his philosophy and standard: direction, purpose,
+  excellence, craftsmanship, and legacy. Homepage Proof v2 now follows the
+  sequence: meet Tim, understand his beliefs, discover his experiences, and
+  choose how to work with him.
+- No implementation redesign should begin until reference assets are added to
+  `docs/brand/references/`, documented in `docs/brand/references/README.md`,
+  and reviewed.
 - Compact navigation must preserve inverse contrast on both home and interior
   pages when the full-screen menu is open, and background page scroll should be
   locked while the menu is active.
@@ -72,6 +131,10 @@ experience until Tim approves the design as ready for content-management work.
 - Documented ownership boundaries between routes, components, data, and styles
 - Tim’s font preferences and any required licensing decisions
 - Tim’s selected final photography and usage metadata
+- Reference assets for the Project North Star mood board, logo, and visual
+  inspiration
+- Reference-library descriptions explaining the purpose of each asset
+- Design Direction Report and architect review approval
 - Visual review and approval of each principal public route
 
 ## Acceptance Criteria
@@ -81,12 +144,21 @@ experience until Tim approves the design as ready for content-management work.
 - [x] Application code is organized under `src/`.
 - [x] Navigation, copy, collections, and image paths have predictable sources.
 - [x] Required architecture and governance documents exist.
+- [x] Brand documentation area exists for the updated design direction.
+- [x] Brand reference library README exists.
+- [x] Design Direction Report exists and has received architect review.
 - [x] Linting, type checking, and production build pass.
 - [x] Desktop and mobile visual checks show no unintended design change.
 - [ ] Display and body fonts are reviewed and approved.
 - [ ] Final or approved interim Tim Bennett photography replaces prototype
   imagery.
+- [ ] Reference assets are added to `docs/brand/references/`, documented, and
+  reviewed before visual redesign implementation begins.
 - [ ] Hero and portfolio focal points, crops, and sequencing are approved.
+- [x] Phase 1 homepage proof is implemented and verified at desktop, tablet,
+  and mobile approval widths.
+- [ ] Phase 1 homepage proof receives architectural approval before tokens are
+  propagated beyond the homepage.
 - [ ] Homepage and principal public routes receive final visual review at
   desktop, tablet, and mobile widths.
 - [ ] Tim explicitly approves Sprint 02 as complete before Sprint 03 begins.
@@ -100,6 +172,67 @@ checking the established system. Treat the existing site as an approved
 foundation, not a frozen final design. Continue refining it within Sprint 02
 until Tim explicitly approves the typography, photography, imagery treatment,
 and overall public presentation.
+
+June 26 design-direction update: brand documentation was added under
+`docs/brand/` to clarify that Sprint 02 should evolve toward a premium
+editorial luxury identity rather than a modern SaaS aesthetic. The current UX,
+component architecture, responsive behavior, and accessibility foundation remain
+valid. Do not begin visual redesign implementation until Tim adds and reviews
+the reference assets.
+
+June 26 brand-reference update: `docs/brand/references/README.md` was added as
+the permanent reference-library catalog. Future reference assets should be
+documented there with their purpose and influence before significant visual
+design work begins. Reference assets are brand guidance, not templates to copy.
+
+June 26 architect review: the Design Direction Report was accepted as aligned
+with the intended Project North Star direction. Future implementation should
+proceed from the report’s prioritized roadmap, preserve the existing
+architecture, and refine the site as an emotional journey through inspiration,
+trust, wonder, confidence, anticipation, and simplicity.
+
+June 26 Phase 1 homepage proof: Phase 1A creative direction and Phase 1B token
+refinement were implemented as a homepage-only proof. The temporary hero study
+was generated specifically to validate composition, typography, atmosphere,
+negative space, overlay treatment, emotional impact, and responsive behavior.
+The proof is verified and implementation is paused for architectural review.
+
+June 26 Homepage Proof v1 architect review: the atmosphere, architecture, and
+Phase 1 direction were approved. The next bounded refinement strengthens
+identity without redesigning the page. Hero Study v3 (Maker) was selected from
+three new studies because it most clearly joins disciplined photography,
+creative vision, purpose, and legacy. The headline direction now centers the
+idea that direction begins with purpose.
+
+June 26 Homepage Proof v2 direction: the architect clarified that Tim Bennett
+is the primary public-facing brand and Project North Star is the guiding
+philosophy. The v2 proof preserves the approved architecture and visual system
+while strengthening Tim’s presence, adopting an editorial-glamour portrait
+study, and reframing the hero around the art and confidence of being fully seen.
+
+June 27 Homepage Proof v2 creative reset: the platform is now explicitly
+understood as Tim Bennett's digital headquarters—not simply an introduction to
+Tim as a photographer. The homepage narrative should move from the world Tim
+has built, to the vision behind it, to Project North Star as the philosophy, to
+the experiences created through that philosophy, and finally to an invitation
+to participate. The Tim Bennett Platform Ecosystem infographic is a hierarchy
+and narrative reference only; its diagrammatic layout, boxes, icons, and
+connectors must not be reproduced in the interface.
+
+June 27 hero-content correction: the homepage hero no longer begins with a
+marketing headline. It begins with the canonical Tim Bennett identity, the
+roles Photographer · Educator · Creator · Mentor, and the five-line brand
+statement beginning “I create images.” Project North Star follows as the
+guiding philosophy. This content order is foundational and should not be
+replaced with campaign language in future refinements.
+
+June 27 Homepage Proof v3 opening chapter: the opening image now establishes
+Tim Bennett as the real person behind the platform. His editorial portrait,
+canonical roles, and foundational manifesto form the first chapter. The
+temporary glamour study moves into the body of the homepage, where it
+demonstrates the work and experiences created through the brand. The sequence
+is person, belief, Project North Star, experiences, then invitation; the
+approved architecture and design system remain unchanged.
 
 June 25 refinement pass: production preview checks covered the homepage,
 Portfolio, Experiences, Project North Star, About, and Contact at desktop and

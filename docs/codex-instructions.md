@@ -4,9 +4,15 @@ Read this file before making material changes.
 
 ## North star
 
-This is a long-term digital headquarters for Tim Bennett’s creative brand. It
-must remain premium, editorial, cinematic, maintainable, accessible, and able to
-expand beyond photography.
+This is the long-term digital home of Tim Bennett. Tim Bennett is the primary
+public-facing brand; Project North Star is his guiding philosophy and standard.
+The platform must remain premium, editorial, cinematic, maintainable,
+accessible, and able to expand beyond photography.
+
+Evaluate public-facing decisions in this order:
+
+1. Does this help the visitor understand who Tim Bennett is?
+2. Does this express the Project North Star philosophy?
 
 ## Required context
 
@@ -17,8 +23,12 @@ Before implementation work, review:
 3. `docs/master-vision.md`
 4. `docs/architecture.md`
 5. `docs/design-system.md`
-6. `docs/roadmap.md`
-7. `docs/content-strategy.md`
+6. `docs/brand/design-philosophy.md`
+7. `docs/brand/visual-language.md`
+8. `docs/brand/references/README.md`
+9. every documented asset in `docs/brand/references/`
+10. `docs/roadmap.md`
+11. `docs/content-strategy.md`
 
 ## Working rules
 
@@ -37,6 +47,9 @@ Before implementation work, review:
 10. Preserve user changes and inspect the working tree before editing.
 11. Keep the current sprint file updated when scope, decisions, dependencies,
     deferred items, or acceptance status materially change.
+12. Do not begin the next Sprint 02 visual redesign pass until the reference
+    assets in `docs/brand/references/` have been added, documented in
+    `docs/brand/references/README.md`, and reviewed.
 
 ## Where changes belong
 

@@ -7,7 +7,7 @@ import { homeContent } from "@/data/home";
 
 export default function HomePage() {
   return (
-    <main id="main-content">
+    <main className="home-proof" id="main-content">
       <HomeHero content={homeContent.hero} />
 
       <Container as="section" className="manifesto">
