@@ -9,6 +9,23 @@ single-purpose portfolio. The architecture separates routes, reusable
 presentation, configurable content, design rules, and future service
 integrations so each can evolve independently.
 
+## Brand architecture
+
+The platform name and repository history do not determine the public brand
+hierarchy. The public experience must follow this order:
+
+1. **Tim Bennett** — the primary brand and person visitors choose to work with
+2. **Project North Star** — Tim’s guiding philosophy and standard
+3. **Experiences** — portraiture, retreats, workshops, mentoring, editorial,
+   and publications
+4. **Shared services** — CRM, client portal, scheduling, contracts, payments,
+   galleries, email, analytics, and automation
+
+Homepage decisions should first answer, “Does this help the visitor understand
+who Tim Bennett is?” and then, “Does this express the Project North Star
+philosophy?” This hierarchy changes content emphasis, not the approved route,
+component, responsive, or service architecture.
+
 ## Repository map
 
 ```text

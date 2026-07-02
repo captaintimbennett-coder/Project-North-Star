@@ -2,14 +2,32 @@
 
 ## Mission
 
-Project North Star is the digital foundation for everything Tim Bennett will
-build over the next decade. It is not merely a photography website.
+This platform is the digital home of Tim Bennett and the foundation for
+everything he will build over the next decade. It is not merely a photography
+website.
+
+Tim Bennett is the primary public-facing brand: the photographer, educator,
+mentor, creator, and person visitors choose to work with. Project North Star is
+the philosophy guiding every experience he creates. It represents direction,
+purpose, excellence, craftsmanship, and legacy.
 
 The platform should communicate excellence, discipline, artistry,
 professionalism, trust, warmth, and purpose. Every design and architecture
 decision should support those values.
 
 ## Brand idea
+
+The brand hierarchy is:
+
+1. **Tim Bennett** — Photographer, Educator, Creator, Mentor
+2. **Project North Star** — Tim’s philosophy, standard, and North Star
+3. **Experiences** — Private client boudoir and glamour, Lone Star Retreat,
+   workshops and education, one-on-one mentoring, editorial and publications
+4. **Shared platform services** — CRM, client portal, scheduling, contracts,
+   payments, galleries, email, analytics, and automation
+
+Project North Star should unify these experiences without replacing the
+individual behind them.
 
 Tim’s most distinctive position is the intersection of two worlds:
 
@@ -74,6 +92,8 @@ The architecture should eventually support:
 
 ## Definition of success
 
-Visitors should immediately understand that Tim operates at a high level and is
-building something larger than photography alone. The platform should evolve
-for years without requiring a complete redesign.
+Visitors should first understand who Tim Bennett is, then understand what he
+believes, discover the experiences he has created, and choose how to work with
+him. They should recognize that Tim operates at a high level and is building
+something larger than photography alone. The platform should evolve for years
+without requiring a complete redesign.
