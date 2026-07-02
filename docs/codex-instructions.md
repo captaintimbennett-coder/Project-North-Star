@@ -2,6 +2,15 @@
 
 Read this file before making material changes.
 
+## Foundation Pack precedence
+
+The files in `docs/foundation/` supersede every earlier creative direction.
+The North Star Constitution v1.0 governs mission, values, experience, brand,
+builder, design, and technical decisions. North Star Visual Reference v1.0 is
+the approved design language. When older documentation conflicts with the
+Foundation Pack, follow the Foundation Pack and flag the older text for
+revision.
+
 ## North star
 
 This is the long-term digital home of Tim Bennett. Tim Bennett is the primary

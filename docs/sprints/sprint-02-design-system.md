@@ -157,7 +157,7 @@ experience until Tim approves the design as ready for content-management work.
 - [ ] Hero and portfolio focal points, crops, and sequencing are approved.
 - [x] Phase 1 homepage proof is implemented and verified at desktop, tablet,
   and mobile approval widths.
-- [ ] Phase 1 homepage proof receives architectural approval before tokens are
+- [x] Phase 1 homepage proof receives architectural approval before tokens are
   propagated beyond the homepage.
 - [ ] Homepage and principal public routes receive final visual review at
   desktop, tablet, and mobile widths.
@@ -219,6 +219,16 @@ to participate. The Tim Bennett Platform Ecosystem infographic is a hierarchy
 and narrative reference only; its diagrammatic layout, boxes, icons, and
 connectors must not be reproduced in the interface.
 
+July 1 Homepage Design Lock v1.0: Tim approved the homepage structure, visual
+language, production portrait treatment, North Star symbol, signature, and
+editorial hierarchy as the production-quality baseline for the rest of the
+platform. The final polish lowered the hero portrait optically without changing
+its scale, refined a small set of tracking and line-height values, and preserved
+the existing black/charcoal palette to retain shadow detail. Future routes should
+extend this locked system; the homepage should not be redesigned without Tim's
+explicit direction. Sprint 02 remains open while the principal public routes are
+built and reviewed against this baseline.
+
 June 27 hero-content correction: the homepage hero no longer begins with a
 marketing headline. It begins with the canonical Tim Bennett identity, the
 roles Photographer · Educator · Creator · Mentor, and the five-line brand
@@ -239,3 +249,12 @@ Portfolio, Experiences, Project North Star, About, and Contact at desktop and
 tablet and compact widths. A compact-menu contrast issue on interior pages was
 corrected. Final font, photography, crop, and overall presentation approval
 remain open.
+
+June 30 Foundation Pack fidelity correction: North Star Visual Reference v1.0
+is the production target, not general inspiration. Homepage v1.0 follows the
+approved sequence: Hero; Portfolio / Lone Star / Private Client pathways; The
+Experience; three bordered feature cards; and the centered closing quote. The
+reference governs composition, proportions, spacing, portrait treatment,
+typographic hierarchy, black-charcoal environment, warm-gold accents, and
+section rhythm. Earlier homepage narrative notes remain historical context but
+do not override the Foundation Pack.

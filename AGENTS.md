@@ -14,20 +14,27 @@ Evaluate public-facing decisions in this order:
 1. Does this help the visitor understand who Tim Bennett is?
 2. Does this express the Project North Star philosophy?
 
+## Governing source of truth
+
+The Foundation Pack in `docs/foundation/` replaces all earlier creative
+direction. The Constitution governs product decisions and the approved visual
+reference governs the homepage design language. Do not reinterpret or dilute
+that direction.
+
 ## Required context
 
 Before substantial work, read:
 
-1. `docs/codex-instructions.md`
-2. `docs/sprints/README.md` and the current sprint file
-3. `docs/master-vision.md`
-4. `docs/architecture.md`
-5. `docs/design-system.md`
-6. `docs/brand/design-philosophy.md`
-7. `docs/brand/visual-language.md`
-8. `docs/brand/references/README.md`
-9. `docs/roadmap.md`
-10. `docs/content-strategy.md`
+1. `docs/foundation/README.md`
+2. `docs/foundation/the-north-star-constitution-v1.0.docx`
+3. `docs/foundation/north-star-visual-reference-v1.0.png`
+4. `docs/foundation/founder-portrait-tim-bennett.png`
+5. `docs/foundation/foundation-review-implementation-brief.docx`
+6. `docs/codex-instructions.md`
+7. `docs/sprints/README.md` and the current sprint file
+8. `docs/master-vision.md`
+9. `docs/architecture.md`
+10. `docs/design-system.md`
 
 ## Repository map
 
@@ -48,7 +55,8 @@ See `docs/project-blueprint.md` for the reusable new-project structure.
 
 ## Working rules
 
-- Preserve the approved visual direction unless Tim explicitly changes it.
+- Faithfully implement the Foundation Pack; do not redesign or substitute its
+  approved visual language unless Tim explicitly changes it.
 - Never move or rename the project folder without Tim's explicit approval.
 - Preserve user changes and inspect Git status and the relevant diff first.
 - Keep route files thin and server-rendered by default.

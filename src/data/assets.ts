@@ -1,6 +1,11 @@
 export const images = {
+  brand: {
+    northStarSymbol: "/images/brand/north-star-symbol-v1.0.png",
+    signature: "/images/brand/tim-bennett-signature-v1.0.png",
+  },
   hero: {
     homepage: "/images/hero/homepage-hero-study-v6-glamour.jpg",
+    founderPortrait: "/images/hero/founder-portrait-v1.0.png",
     studies: {
       atmosphere: "/images/hero/homepage-hero-study-v1.jpg",
       threshold: "/images/hero/homepage-hero-study-v2-threshold.jpg",

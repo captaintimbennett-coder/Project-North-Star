@@ -56,6 +56,17 @@
   --phase-one-color-hero-mid: rgb(12 10 8 / 57%);
   --phase-one-color-hero-warm: rgb(71 48 27 / 18%);
 
+  /* Foundation Pack v1.0 Hero tokens */
+  --north-star-black: #050607;
+  --north-star-charcoal: #0c0d0e;
+  --north-star-ivory: #f2eee6;
+  --north-star-gold: #c58a2b;
+  --north-star-gold-bright: #e1a23c;
+  --north-star-gold-muted: rgb(197 138 43 / 38%);
+  --north-star-rule: rgb(197 138 43 / 28%);
+  --north-star-font-display: "Baskerville", "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif;
+  --north-star-font-signature: "Snell Roundhand", "Segoe Script", "Bradley Hand", cursive;
+
   /* Legacy aliases retained during migration */
   --ink: var(--color-ink);
   --charcoal: var(--color-charcoal);
