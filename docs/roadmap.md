@@ -3,6 +3,10 @@
 This roadmap is directional. Each phase should be approved before its scope is
 expanded.
 
+Future platform phases must follow the canonical-record, privacy, portal, and
+shared-service boundaries in
+[`north-star-platform-architecture.md`](north-star-platform-architecture.md).
+
 ## Phase 1 — Foundation
 
 Status: in progress

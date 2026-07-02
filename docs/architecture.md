@@ -154,6 +154,12 @@ part of the component contract.
 
 ## Future service architecture
 
+The approved long-term record, portal, event, booking, media, consent, and
+security boundaries are defined in
+[`north-star-platform-architecture.md`](north-star-platform-architecture.md).
+That document governs future platform expansion while preserving the current
+sprint's explicit non-implementation boundary.
+
 - Hosting and deployment: Vercel
 - Content, authentication, and relational data: Supabase
 - Initial media storage: Supabase Storage
@@ -188,3 +194,9 @@ Service-role credentials must never reach the browser.
 6. Treat accessibility, responsive behavior, and performance as baseline
    requirements.
 7. Record material architecture changes in this document.
+
+## Legacy public routes
+
+- `/photography` is intentionally retained as a permanent compatibility
+  redirect to `/portfolio`. It is excluded from the sitemap and has no separate
+  canonical identity.
