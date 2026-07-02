@@ -1,5 +1,13 @@
 .next/
 node_modules/
+.pnpm-store/
+tmp/
+.cache/
+.turbo/
+.vercel/
+coverage/
+dist/
+out/
 .env*
 !.env.example
 *.log
