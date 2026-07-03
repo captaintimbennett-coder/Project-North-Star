@@ -22,6 +22,14 @@ Then open `http://localhost:3000`.
 - `public/images/` — categorized, locally optimized visual assets
 - `docs/` — vision, architecture, design, content, roadmap, and Codex guidance
 
+## Repository Asset Policy
+
+- Small foundation exports and important project deliverables may remain
+  committed to git.
+- Large future exports—high-resolution mockups, large image collections,
+  videos, repeated design deliverables, and similar files—should be stored
+  externally or moved to Git LFS to prevent unnecessary repository growth.
+
 The first release intentionally keeps content local and the dependency surface
 small. Supabase, authentication, Stripe, applications, and administrative tools
 should be introduced as separate service layers when their workflows are

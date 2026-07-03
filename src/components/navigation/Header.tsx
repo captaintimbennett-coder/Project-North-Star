@@ -12,6 +12,14 @@ export function Header() {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
   const isHome = pathname === "/";
+  const hasDarkHero = [
+    "/portfolio",
+    "/private-client",
+    "/lone-star-retreat",
+    "/workshops-education",
+    "/about",
+    "/contact",
+  ].some((route) => pathname === route || pathname.startsWith(`${route}/`));
 
   useEffect(() => {
     document.body.classList.toggle("menu-open", open);
@@ -26,6 +34,7 @@ export function Header() {
       className={[
         "site-header",
         isHome ? "" : "site-header-interior",
+        hasDarkHero ? "site-header-dark" : "",
         open ? "site-header-menu-open" : "",
       ].filter(Boolean).join(" ")}
     >
@@ -75,7 +84,16 @@ export function Header() {
         aria-label="Primary navigation"
       >
         {primaryNavigation.map((item) => (
-          <Link key={item.href} href={item.href} onClick={() => setOpen(false)}>
+          <Link
+            key={item.href}
+            href={item.href}
+            aria-current={
+              item.href === "/"
+                ? pathname === "/" ? "page" : undefined
+                : pathname.startsWith(item.href) ? "page" : undefined
+            }
+            onClick={() => setOpen(false)}
+          >
             {item.label}
           </Link>
         ))}

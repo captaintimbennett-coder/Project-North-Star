@@ -1,22 +1,20 @@
 import type { Metadata } from "next";
-import { Button } from "@/components/buttons";
-import { InputField, TextAreaField } from "@/components/forms";
-import { Container, SectionIntro } from "@/components/layout";
+import { Container } from "@/components/layout";
+import { EditorialBlocks, EditorialHero } from "@/components/marketing";
 import { contactContent } from "@/data/pages";
 import { siteConfig } from "@/data/site";
 
-export const metadata: Metadata = { title: "Contact" };
+export const metadata: Metadata = {
+  title: "Contact",
+  description: contactContent.hero.introduction,
+  alternates: { canonical: "/contact" },
+};
 
 export default function ContactPage() {
   return (
     <main id="main-content">
-      <SectionIntro
-        className="editorial-intro contact-intro"
-        eyebrow={contactContent.introduction.eyebrow}
-        title={contactContent.introduction.title}
-      >
-        {contactContent.introduction.body}
-      </SectionIntro>
+      <EditorialHero content={contactContent.hero} />
+      <EditorialBlocks {...contactContent.overview} />
 
       <Container as="section" className="contact-layout">
         <div className="contact-details">
@@ -24,14 +22,14 @@ export default function ContactPage() {
           <a href={`mailto:${siteConfig.email}`}>{siteConfig.email}</a>
           <p>{contactContent.location}</p>
         </div>
-        <form className="contact-form">
-          <InputField label="Name" name="name" autoComplete="name" />
-          <InputField label="Email" name="email" type="email" autoComplete="email" />
-          <InputField label="Subject" name="subject" />
-          <TextAreaField label="How can we help?" name="message" />
-          <Button>Send inquiry</Button>
-          <p className="form-note">{contactContent.formNote}</p>
-        </form>
+        <div className="contact-fallback" aria-labelledby="contact-fallback-title">
+          <p className="ds-caption">Online inquiries</p>
+          <h2 id="contact-fallback-title">{contactContent.formUnavailableTitle}</h2>
+          <p>{contactContent.formUnavailableBody}</p>
+          <a className="ds-button ds-button--primary" href={`mailto:${siteConfig.email}`}>
+            {contactContent.emailActionLabel}
+          </a>
+        </div>
       </Container>
     </main>
   );

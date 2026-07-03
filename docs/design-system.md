@@ -123,6 +123,18 @@ Approved variants are `primary`, `light`, `dark`, and `ghost`.
 
 This is the default introduction for major interior pages.
 
+### Public marketing pages
+
+Principal public routes use the shared `EditorialHero`, `EditorialBlocks`, and
+`EditorialCta` components from `src/components/marketing`. Together they carry
+Homepage Design Lock v1.1 into interior pages through the same cinematic
+black/charcoal environment, warm-gold accents, editorial typography, restrained
+image treatment, and generous section rhythm.
+
+Use `MarketingPage` when a route follows the complete hero → overview → CTA
+sequence. Routes with established specialized content may compose the three
+parts directly. Owner-editable copy and imagery remain in `src/data`.
+
 ### Media
 
 Use `<MediaFrame>` around `next/image`. Add `interactive` only when the image is

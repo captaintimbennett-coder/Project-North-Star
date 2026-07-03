@@ -1,6 +1,6 @@
 # Sprint 02 — Design System and Visual Refinement
 
-Status: In progress
+Status: Complete
 
 ## Goal
 
@@ -23,6 +23,9 @@ experience until Tim approves the design as ready for content-management work.
 - Refine image crops, focal points, sequencing, and responsive presentation.
 - Review page composition, rhythm, hierarchy, and transitions across routes.
 - Complete desktop, tablet, and mobile visual refinement.
+- Build the principal public multi-page marketing foundation for Portfolio,
+  Private Client, Lone Star Retreat, Workshops & Education, About Tim, and
+  Contact.
 
 ## Deliverables
 
@@ -114,6 +117,9 @@ experience until Tim approves the design as ready for content-management work.
 - Compact navigation must preserve inverse contrast on both home and interior
   pages when the full-screen menu is open, and background page scroll should be
   locked while the menu is active.
+- Principal marketing routes inherit Homepage Design Lock v1.1 through a shared
+  editorial hero, preview-block, and closing-CTA composition. Future services
+  remain clearly labeled as forthcoming and are not simulated.
 
 ## Deferred Items
 
@@ -149,19 +155,20 @@ experience until Tim approves the design as ready for content-management work.
 - [x] Design Direction Report exists and has received architect review.
 - [x] Linting, type checking, and production build pass.
 - [x] Desktop and mobile visual checks show no unintended design change.
-- [ ] Display and body fonts are reviewed and approved.
-- [ ] Final or approved interim Tim Bennett photography replaces prototype
+- [x] Display and body fonts are reviewed and approved.
+- [x] Final or approved interim Tim Bennett photography replaces prototype
   imagery.
-- [ ] Reference assets are added to `docs/brand/references/`, documented, and
+- [x] Reference assets are added to `docs/brand/references/`, documented, and
   reviewed before visual redesign implementation begins.
-- [ ] Hero and portfolio focal points, crops, and sequencing are approved.
+- [x] Hero and portfolio focal points, crops, and sequencing are approved.
 - [x] Phase 1 homepage proof is implemented and verified at desktop, tablet,
   and mobile approval widths.
 - [x] Phase 1 homepage proof receives architectural approval before tokens are
   propagated beyond the homepage.
-- [ ] Homepage and principal public routes receive final visual review at
+- [x] Homepage and principal public routes receive final visual review at
   desktop, tablet, and mobile widths.
-- [ ] Tim explicitly approves Sprint 02 as complete before Sprint 03 begins.
+- [x] Principal marketing routes receive Tim's visual and content approval.
+- [x] Tim explicitly approves Sprint 02 as complete before Sprint 03 begins.
 
 ## Notes for Future Codex Sessions
 
@@ -258,3 +265,29 @@ reference governs composition, proportions, spacing, portrait treatment,
 typographic hierarchy, black-charcoal environment, warm-gold accents, and
 section rhythm. Earlier homepage narrative notes remain historical context but
 do not override the Foundation Pack.
+
+July 1 Homepage Design Lock v1.1: the locked homepage pathway row was refined
+to represent the platform's four permanent business pillars: Portfolio, Private
+Client, Lone Star Retreat, and Workshops & Education. This is a business-
+alignment update only. The approved Hero, typography, spacing, palette,
+cinematic treatment, experience section, closing quote, and overall composition
+remain unchanged. Homepage Design Lock v1.1 supersedes v1.0 only for the pathway
+count, labels, descriptions, destinations, and responsive four-card balance.
+
+July 2 public marketing foundation: Portfolio, Private Client, Lone Star
+Retreat, Workshops & Education, About Tim, and Contact now share a responsive
+editorial interior-page system derived from Homepage Design Lock v1.1. The
+routes include cinematic heroes, concise introductions, structured preview
+blocks, honest calls to action, and route metadata. No booking, applications,
+enrollment, authentication, payment, CRM, dashboard, or backend behavior is
+present. Automated checks pass, and browser review at 1280px, 980px, and 390px
+confirmed responsive structure, loaded imagery, compact-navigation contrast,
+no console errors, and no horizontal overflow. Final approval is recorded in
+the Sprint 02 acceptance entry below.
+
+July 2 Sprint 02 acceptance: Tim accepted the completed public implementation
+and authorized final repository housekeeping. The approved homepage export was
+moved into `docs/foundation/exports/pdf/`; the repository asset policy and
+executive changelog were added. Sprint 02 is closed. Sprint 03 requires
+separate scope confirmation before any external service, authentication, or CMS
+work begins.

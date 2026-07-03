@@ -3,7 +3,11 @@ import { JournalCard } from "@/components/cards";
 import { Container, Eyebrow, SectionIntro } from "@/components/layout";
 import { northStarContent } from "@/data/north-star";
 
-export const metadata: Metadata = { title: "Project North Star" };
+export const metadata: Metadata = {
+  title: "Project North Star",
+  description: northStarContent.introduction.body,
+  alternates: { canonical: "/project-north-star" },
+};
 
 export default function NorthStarPage() {
   return (

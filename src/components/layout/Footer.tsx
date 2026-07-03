@@ -1,5 +1,6 @@
+import Image from "next/image";
 import Link from "next/link";
-import { Eyebrow } from "@/components/layout/Typography";
+import { images } from "@/data/assets";
 import { primaryNavigation } from "@/data/navigation";
 import { siteConfig } from "@/data/site";
 
@@ -7,8 +8,20 @@ export function Footer() {
   return (
     <footer className="site-footer">
       <div className="footer-lead">
-        <Eyebrow>{siteConfig.footer.eyebrow}</Eyebrow>
-        <h2>{siteConfig.footer.headline}<br />{siteConfig.footer.headlineEmphasis}</h2>
+        <Image
+          src={images.brand.northStarSymbol}
+          alt=""
+          width={64}
+          height={69}
+        />
+        <h2>
+          {siteConfig.footer.signature.firstLine.lead}
+          <em>{siteConfig.footer.signature.firstLine.emphasis}</em>
+          <br />
+          {siteConfig.footer.signature.secondLine.lead}
+          <em>{siteConfig.footer.signature.secondLine.emphasis}</em>
+        </h2>
+        <span aria-hidden="true" />
       </div>
       <div className="footer-grid">
         <div>

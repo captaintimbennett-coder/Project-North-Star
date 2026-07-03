@@ -11,21 +11,27 @@ export const homeContent = {
     paths: [
       {
         title: "Portfolio",
-        description: "Explore my work",
+        description: "The body of work that establishes the North Star standard.",
         href: "/portfolio",
         icon: "camera",
       },
       {
-        title: "Lone Star",
-        description: "Model photography events",
+        title: "Private Client",
+        description: "Luxury portrait, glamour, boudoir, and commissioned photography experiences.",
+        href: "/private-client",
+        icon: "person",
+      },
+      {
+        title: "Lone Star Retreat",
+        description: "Curated creative retreats for photographers and models.",
         href: "/lone-star-retreat",
         icon: "star",
       },
       {
-        title: "Private Client",
-        description: "Personal & exclusive sessions",
-        href: "/contact",
-        icon: "person",
+        title: "Workshops & Education",
+        description: "Mentoring, workshops, and educational experiences · Coming soon.",
+        href: "/workshops-education",
+        icon: "education",
       },
     ],
   },
@@ -51,7 +57,7 @@ export const homeContent = {
         title: "Private Sessions",
         description:
           "Personalized sessions designed around your vision.",
-        href: "/contact",
+        href: "/private-client",
         image: images.portfolio.silkBeauty,
       },
     ],

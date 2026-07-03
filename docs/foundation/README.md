@@ -16,6 +16,12 @@ June 30, 2026. They replace all previous creative direction.
 4. `foundation-review-implementation-brief.docx` defines the review,
    implementation rules, technical expectations, and success criteria.
 
+## Foundation exports
+
+Approved presentation exports and other small, important Foundation Pack
+deliverables live in [`exports/`](exports/). The Homepage Design Lock v1.0 PDF
+is cataloged in [`exports/README.md`](exports/README.md).
+
 ## Approved implementation clarifications
 
 - Use the supplied founder portrait for Version 1.0 and do not delay for a new

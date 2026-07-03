@@ -4,7 +4,10 @@ import { Button } from "@/components/buttons";
 import { Eyebrow } from "@/components/layout";
 import { adminContent } from "@/data/admin";
 
-export const metadata: Metadata = { title: "Content Studio" };
+export const metadata: Metadata = {
+  title: "Content Studio",
+  robots: { index: false, follow: false },
+};
 
 export default function AdminPage() {
   return (

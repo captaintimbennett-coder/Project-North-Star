@@ -16,6 +16,7 @@ export function PortfolioCollectionGrid({
     <Container
       as="section"
       className="collection-grid"
+      id="collections"
       aria-label="Portfolio collections"
     >
       {collections.map((collection, index) => (

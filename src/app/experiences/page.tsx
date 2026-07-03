@@ -3,7 +3,11 @@ import { ExperienceCard } from "@/components/cards";
 import { SectionIntro } from "@/components/layout";
 import { experiencesContent } from "@/data/experiences";
 
-export const metadata: Metadata = { title: "Experiences" };
+export const metadata: Metadata = {
+  title: "Experiences",
+  description: experiencesContent.introduction.body,
+  alternates: { canonical: "/experiences" },
+};
 
 export default function ExperiencesPage() {
   return (

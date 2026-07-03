@@ -1,4 +1,5 @@
 export const siteConfig = {
+  url: process.env.NEXT_PUBLIC_SITE_URL ?? "https://timbennett.com",
   name: "Tim Bennett",
   projectName: "Project North Star",
   location: "Dallas–Fort Worth · Texas",
@@ -10,9 +11,10 @@ export const siteConfig = {
       "Photography, creative experiences, and a life built with intention by Tim Bennett.",
   },
   footer: {
-    eyebrow: "Dallas–Fort Worth · Texas",
-    headline: "Built with purpose.",
-    headlineEmphasis: "Created to endure.",
+    signature: {
+      firstLine: { lead: "Create with ", emphasis: "intention." },
+      secondLine: { lead: "Build something worth ", emphasis: "remembering." },
+    },
     note: "Photography, experiences, and a life shaped with intention.",
   },
 } as const;

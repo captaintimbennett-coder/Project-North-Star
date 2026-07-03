@@ -49,6 +49,7 @@ component, responsive, or service architecture.
     │   ├── layout/
     │   ├── navigation/
     │   ├── hero/
+    │   ├── marketing/
     │   ├── portfolio/
     │   ├── cards/
     │   ├── forms/
@@ -74,6 +75,8 @@ Reusable React presentation organized by responsibility:
   and media frames
 - `navigation` — primary navigation and future navigation variants
 - `hero` — hero compositions
+- `marketing` — shared public-route heroes, editorial preview grids, and
+  closing calls to action
 - `portfolio` — portfolio-specific grids and gallery presentation
 - `cards` — repeatable content-card patterns
 - `forms` — labeled form controls and future form assemblies
@@ -118,6 +121,24 @@ to be redesigned when content moves to Supabase.
 Shared utilities, external clients, validation, formatting, and server-side
 helpers. It is intentionally empty until a genuine shared utility exists.
 Avoid creating miscellaneous helper files without a clear responsibility.
+
+## Public marketing routes
+
+The Sprint 02 public marketing foundation is organized around six principal
+routes:
+
+- `/portfolio`
+- `/private-client`
+- `/lone-star-retreat`
+- `/workshops-education`
+- `/about`
+- `/contact`
+
+These routes share a content-driven editorial hero, preview-block, and closing
+action vocabulary. Portfolio, About, and Contact may compose specialized
+sections around those shared patterns. Calls to future applications, booking,
+enrollment, or forms must remain clearly informational until their supporting
+services are implemented and approved.
 
 ### `public/images`
 

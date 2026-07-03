@@ -31,6 +31,13 @@ Curated collections rather than one large gallery:
 Selection should prioritize consistency, craft, trust, and artistic point of
 view over volume.
 
+### Private Client
+
+Private Client content should describe luxury portrait, glamour, boudoir, and
+commissioned experiences through preparation, trust, comfort, collaboration,
+and confidence. Until booking infrastructure is approved, calls to action must
+lead to honest direct correspondence rather than imply online availability.
+
 ### Experiences
 
 An expandable umbrella for:
@@ -42,6 +49,13 @@ An expandable umbrella for:
 
 Experience content must clearly communicate professionalism, safety, respect,
 creative ambition, logistics, and who the experience is for.
+
+### Workshops & Education
+
+Education content may preview workshops, private mentoring, and focused
+creative intensives. Program dates, enrollment, pricing, and availability must
+remain explicitly forthcoming until those offerings and workflows are
+approved.
 
 ### Project North Star
 

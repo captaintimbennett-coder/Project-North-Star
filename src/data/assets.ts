@@ -21,6 +21,10 @@ export const images = {
     redEditorial: "/images/portfolio/red-editorial.jpg",
     silkBeauty: "/images/portfolio/silk-beauty.jpg",
   },
+  retreat: {
+    texasHillCountryHero:
+      "/images/lone-star-retreat/texas-hill-country-hero-v1.jpg",
+  },
   people: {
     timBennett: "/images/behind-the-scenes/tim-bennett-portrait.jpg",
   },

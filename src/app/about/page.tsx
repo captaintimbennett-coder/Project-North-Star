@@ -1,21 +1,22 @@
 import type { Metadata } from "next";
-import { Container, Eyebrow, SectionIntro } from "@/components/layout";
+import { Container, Eyebrow } from "@/components/layout";
+import { EditorialBlocks, EditorialCta, EditorialHero } from "@/components/marketing";
 import { aboutContent } from "@/data/pages";
 
-export const metadata: Metadata = { title: "About Tim" };
+export const metadata: Metadata = {
+  title: "About Tim",
+  description: aboutContent.hero.introduction,
+  alternates: { canonical: "/about" },
+};
 
 export default function AboutPage() {
   return (
     <main id="main-content">
-      <SectionIntro
-        className="editorial-intro about-intro"
-        eyebrow={aboutContent.introduction.eyebrow}
-        title={aboutContent.introduction.title}
-      >
-        {aboutContent.introduction.body}
-      </SectionIntro>
+      <EditorialHero content={aboutContent.hero} />
 
-      <section className="about-story">
+      <EditorialBlocks {...aboutContent.overview} />
+
+      <section className="about-story" id="about-overview">
         <Container className="about-story-grid">
           <Eyebrow>{aboutContent.story.eyebrow}</Eyebrow>
           <div>
@@ -26,6 +27,7 @@ export default function AboutPage() {
           </div>
         </Container>
       </section>
+      <EditorialCta content={aboutContent.cta} />
     </main>
   );
 }

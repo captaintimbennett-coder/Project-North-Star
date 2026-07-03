@@ -45,7 +45,7 @@ export function HomeHero({ content }: HomeHeroProps) {
           />
         </div>
       </div>
-      <nav className="north-star-paths" aria-label="Explore Tim Bennett Photography">
+      <nav className="north-star-paths" aria-label="Explore Project North Star">
         {content.paths.map((path) => (
           <Link className="north-star-path" href={path.href} key={path.title}>
             <PathIcon name={path.icon} />
@@ -76,6 +76,9 @@ function PathIcon({ name }: { name: string }) {
   }
   if (name === "person") {
     return <svg aria-hidden="true" viewBox="0 0 32 32"><circle cx="16" cy="10" r="5"/><path d="M6 28c0-6 4-10 10-10s10 4 10 10"/></svg>;
+  }
+  if (name === "education") {
+    return <svg aria-hidden="true" viewBox="0 0 32 32"><path d="M4 7h8c2.2 0 4 1.8 4 4v16c0-2.2-1.8-4-4-4H4Z"/><path d="M28 7h-8c-2.2 0-4 1.8-4 4v16c0-2.2 1.8-4 4-4h8Z"/></svg>;
   }
   return <svg aria-hidden="true" viewBox="0 0 32 32"><path d="m16 3 3.6 8.2 8.9.9-6.7 5.9 2 8.7-7.8-4.5-7.8 4.5 2-8.7-6.7-5.9 8.9-.9Z"/></svg>;
 }

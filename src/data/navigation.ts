@@ -6,8 +6,9 @@ export type NavigationItem = {
 export const primaryNavigation: NavigationItem[] = [
   { label: "Home", href: "/" },
   { label: "Portfolio", href: "/portfolio" },
-  { label: "Experiences", href: "/experiences" },
-  { label: "Project North Star", href: "/project-north-star" },
-  { label: "About", href: "/about" },
+  { label: "Private Client", href: "/private-client" },
+  { label: "Lone Star Retreat", href: "/lone-star-retreat" },
+  { label: "Workshops", href: "/workshops-education" },
+  { label: "About Tim", href: "/about" },
   { label: "Contact", href: "/contact" },
 ];

@@ -9,7 +9,7 @@ shared-service boundaries in
 
 ## Phase 1 — Foundation
 
-Status: in progress
+Status: complete
 
 - approved luxury editorial direction
 - centralized design system
