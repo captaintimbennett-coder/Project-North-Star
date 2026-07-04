@@ -31,14 +31,14 @@ Then open `http://localhost:3000`.
   externally or moved to Git LFS to prevent unnecessary repository growth.
 
 The first release intentionally keeps content local and the dependency surface
-small. Supabase, authentication, Stripe, applications, and administrative tools
+small. Payload, PostgreSQL, authentication, Stripe, applications, and administrative tools
 should be introduced as separate service layers when their workflows are
 defined—not preemptively coupled to the marketing site.
 
 The `/admin` route is a non-functional Content Studio prototype demonstrating
 the intended owner experience. See
 [`docs/architecture.md`](docs/architecture.md) for the proposed
-Supabase content model, roles, and implementation sequence.
+Payload content model, roles, and implementation sequence.
 
 The visual system is documented in
 [`docs/design-system.md`](docs/design-system.md). New pages should use the
@@ -62,4 +62,4 @@ Future Codex sessions should begin with
 2. Refine brand copy and confirm the public contact address.
 3. Build portfolio taxonomy and image-management workflow.
 4. Define Lone Star Retreat application and registration requirements.
-5. Add Supabase only when the first persistent-data workflow is approved.
+5. Extend Payload and PostgreSQL only through approved persistent-data workflows.

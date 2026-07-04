@@ -17,7 +17,7 @@ export function Footer() {
         <h2>
           {siteConfig.footer.signature.firstLine.lead}
           <em>{siteConfig.footer.signature.firstLine.emphasis}</em>
-          <br />
+          {" "}
           {siteConfig.footer.signature.secondLine.lead}
           <em>{siteConfig.footer.signature.secondLine.emphasis}</em>
         </h2>

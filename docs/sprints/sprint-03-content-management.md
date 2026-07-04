@@ -1,6 +1,6 @@
 # Sprint 03 — Content Management
 
-Status: Planned
+Status: In progress — Payload/PostgreSQL foundation authorized July 3, 2026
 
 ## Goal
 
@@ -9,7 +9,7 @@ code while preserving the current public design and content shapes.
 
 ## Scope
 
-- Define and create the Supabase project and schema migrations.
+- Configure Payload CMS and connect an owner-controlled PostgreSQL project.
 - Implement secure administrative authentication.
 - Establish Owner, Editor, and Reviewer permissions.
 - Connect media, portfolio, homepage, About, Experiences, and journal content.
@@ -19,7 +19,7 @@ code while preserving the current public design and content shapes.
 
 ## Deliverables
 
-- Version-controlled Supabase migrations
+- Version-controlled Payload/PostgreSQL migrations
 - Authentication and protected administrative routes
 - Row Level Security policies
 - Typed content repositories
@@ -32,8 +32,10 @@ code while preserving the current public design and content shapes.
 
 ## Decisions Made
 
-- Supabase is the preferred initial content, authentication, and relational data
-  platform.
+- Payload CMS is the approved content and administrative platform.
+- PostgreSQL is the approved relational database.
+- Lone Star Retreat is the initial implementation test bed.
+- SendGrid and Stripe remain later, separately verified integrations.
 - The public website and administrative studio remain separate surfaces.
 - Existing `src/data` structures are the interim content contracts.
 - Service-role credentials must never reach the browser.
@@ -51,7 +53,7 @@ code while preserving the current public design and content shapes.
 
 ## Dependencies
 
-- Explicit authorization to create or connect a Supabase project
+- An owner-controlled PostgreSQL database and secure connection string
 - Approved database and permission model
 - Confirmed administrator accounts
 - Final media metadata requirements
@@ -75,5 +77,18 @@ code while preserving the current public design and content shapes.
 This is the current implementation frontier. Before coding, validate the
 content model and administrative workflow with Tim. Do not create external
 accounts or production resources without explicit permission. Preserve a clean
-adapter boundary so the public pages do not depend directly on raw Supabase
-response shapes.
+adapter boundary so public pages do not depend directly on raw Payload response
+shapes.
+
+## Foundation progress — July 3, 2026
+
+- [x] Payload packages installed at a supported version.
+- [x] Next.js pinned to a Payload-supported release.
+- [x] Payload admin and REST route contracts added.
+- [x] PostgreSQL adapter configured through environment variables.
+- [x] Private-by-default administrator, media, and retreat-event collections added.
+- [x] Payload types generated.
+- [x] Public routes preserved in a separate route group.
+- [x] Owner PostgreSQL database provisioned and connected.
+- [x] Initial Payload owner account created.
+- [x] First mock retreat saved and verified in PostgreSQL.

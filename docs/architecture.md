@@ -114,7 +114,7 @@ Structured local content and configuration:
 
 These modules are the temporary local content layer. Future CMS repositories or
 queries should implement equivalent typed shapes so page components do not need
-to be redesigned when content moves to Supabase.
+to be redesigned when content moves to Payload.
 
 ### `src/lib`
 
@@ -182,8 +182,10 @@ That document governs future platform expansion while preserving the current
 sprint's explicit non-implementation boundary.
 
 - Hosting and deployment: Vercel
-- Content, authentication, and relational data: Supabase
-- Initial media storage: Supabase Storage
+- Content administration and authentication: Payload CMS
+- Relational data: PostgreSQL through Payload's database adapter
+- Initial development media storage: Payload local uploads
+- Production media storage: an approved object-storage provider, selected before deployment
 - Payments: Stripe when paid workflows are approved
 - Transactional email: a dedicated provider called from secure server actions
 
@@ -201,8 +203,9 @@ backed by one content model.
 - `pages`
 - `contact_submissions`
 
-Supabase Row Level Security should enforce Owner, Editor, and Reviewer roles.
-Service-role credentials must never reach the browser.
+Payload access controls must enforce Owner, Editor, and Reviewer roles on the
+server. Database credentials and the Payload secret must never reach browser
+code. PostgreSQL migrations remain version controlled.
 
 ## Architectural rules
 

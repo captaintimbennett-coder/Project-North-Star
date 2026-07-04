@@ -20,6 +20,8 @@ export const images = {
     goldEditorial: "/images/portfolio/gold-editorial.jpg",
     redEditorial: "/images/portfolio/red-editorial.jpg",
     silkBeauty: "/images/portfolio/silk-beauty.jpg",
+    heroReal: "/images/portfolio/portfolio-hero-real.jpg",
+    artisticNudeReal: "/images/portfolio/artistic-nude-real.jpg",
   },
   retreat: {
     texasHillCountryHero:

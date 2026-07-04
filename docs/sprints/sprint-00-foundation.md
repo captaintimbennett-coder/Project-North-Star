@@ -32,6 +32,8 @@ long-term standards for Project North Star.
 - The brand position is the intersection of precision and imagination.
 - The preferred stack is Next.js, React, TypeScript, Supabase, Vercel, Stripe,
   and GitHub.
+  - Historical clarification, July 3, 2026: Payload CMS and PostgreSQL replace
+    Supabase for content administration, authentication, and relational data.
 - Ownership, maintainability, performance, security, and scalability take
   priority over restrictive short-term convenience.
 - Safety, respect, and professionalism are foundational values for Lone Star

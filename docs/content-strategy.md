@@ -98,7 +98,7 @@ work.
 ## Local content and future CMS
 
 Editable content currently lives in `src/data`. This is a deliberate adapter
-layer for future CMS content. When Supabase is connected, preserve the same
+layer for future CMS content. When Payload content is connected, preserve the same
 content shapes and replace local imports with repository/query functions.
 
 Avoid embedding owner-editable prose, contact details, navigation, image paths,

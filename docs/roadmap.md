@@ -31,7 +31,7 @@ Status: complete
 
 ## Phase 3 — Content management
 
-- create Supabase project and migrations
+- connect the approved PostgreSQL project and create Payload migrations
 - implement authentication and administrative roles
 - connect media library and portfolio management
 - add draft, preview, schedule, and publish workflows

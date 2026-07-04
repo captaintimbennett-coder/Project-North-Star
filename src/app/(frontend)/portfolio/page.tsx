@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
-import { EditorialBlocks, EditorialCta, EditorialHero } from "@/components/marketing";
-import { PortfolioCollectionGrid } from "@/components/portfolio";
+import { PortfolioCollectionGrid, PortfolioHero } from "@/components/portfolio";
 import { portfolioContent } from "@/data/portfolio";
 
 export const metadata: Metadata = {
@@ -11,14 +10,12 @@ export const metadata: Metadata = {
 
 export default function PortfolioPage() {
   return (
-    <main id="main-content">
-      <EditorialHero content={portfolioContent.hero} />
+    <main id="main-content" className="portfolio-page">
+      <PortfolioHero content={portfolioContent.hero} />
       <PortfolioCollectionGrid
         collections={portfolioContent.collections}
-        status={portfolioContent.collectionStatus}
+        eyebrow={portfolioContent.collectionsEyebrow}
       />
-      <EditorialBlocks {...portfolioContent.overview} />
-      <EditorialCta content={portfolioContent.cta} />
     </main>
   );
 }
