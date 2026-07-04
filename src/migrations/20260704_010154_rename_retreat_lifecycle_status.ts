@@ -1,6 +1,6 @@
 import { MigrateUpArgs, MigrateDownArgs, sql } from '@payloadcms/db-postgres'
 
-export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
+export async function up({ db }: MigrateUpArgs): Promise<void> {
   await db.execute(sql`
    CREATE TYPE "public"."enum_retreat_events_lifecycle_status" AS ENUM('draft', 'prototype', 'published', 'closed', 'archived');
   CREATE TYPE "public"."enum__retreat_events_v_version_lifecycle_status" AS ENUM('draft', 'prototype', 'published', 'closed', 'archived');
@@ -14,7 +14,7 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   ALTER TABLE "_retreat_events_v" ALTER COLUMN "version_lifecycle_status" SET DEFAULT 'draft';`)
 }
 
-export async function down({ db, payload, req }: MigrateDownArgs): Promise<void> {
+export async function down({ db }: MigrateDownArgs): Promise<void> {
   await db.execute(sql`
    ALTER TABLE "retreat_events" ALTER COLUMN "lifecycle_status" DROP DEFAULT;
   ALTER TABLE "retreat_events" ALTER COLUMN "lifecycle_status" TYPE "public"."enum_retreat_events_status" USING (CASE WHEN "lifecycle_status"::text = 'published' THEN 'published' ELSE 'draft' END)::"public"."enum_retreat_events_status";

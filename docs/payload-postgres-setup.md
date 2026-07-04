@@ -25,6 +25,20 @@ On July 3, 2026:
 - the first Payload Owner account was created; and
 - the `Texas Hill Country Creative Retreat` prototype record was saved and
   verified through Payload's draft/version workflow.
+- the canonical `Models / Featured Artists` and `Photographers / Participants`
+  collections were migrated; and
+- one clearly labeled draft prototype was saved and verified in each profile
+  collection through Payload Admin.
+
+The next approved CMS layer defines private `Model Applications` and
+`Photographer Applications` review records. These records are intentionally
+separate from the canonical profiles. An accepted application may be linked to
+a master profile by an administrator later, but acceptance does not create,
+update, or publish a profile automatically.
+
+Model application uploads use the authenticated Media collection. New media
+starts with platform usage approval disabled, so an uploaded preferred image
+cannot appear publicly without a separate administrator review and approval.
 
 ## What Tim needs to do
 
@@ -65,6 +79,6 @@ before any production deployment.
 - Local media uploads are suitable for development only.
 - Production object storage must be selected before deployment.
 - SendGrid and Stripe are not connected in this foundation step.
-- Applications, registration, payments, member portals, and public publishing
-  remain non-functional until their dedicated workflows are implemented and
-  verified.
+- Public application forms, automated application promotion, registration,
+  payments, member portals, and public publishing remain non-functional until
+  their dedicated workflows are implemented and verified.

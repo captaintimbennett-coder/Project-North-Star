@@ -44,7 +44,7 @@ code while preserving the current public design and content shapes.
 ## Deferred Items
 
 - Payments
-- Application workflows
+- Public application forms and automated application-to-profile promotion
 - Retreat registration
 - CRM synchronization
 - Advanced analytics
@@ -92,3 +92,21 @@ shapes.
 - [x] Owner PostgreSQL database provisioned and connected.
 - [x] Initial Payload owner account created.
 - [x] First mock retreat saved and verified in PostgreSQL.
+- [x] Canonical Model / Featured Artist collection created and migrated.
+- [x] Canonical Photographer / Participant collection created and migrated.
+- [x] Prototype records created through Payload Admin and verified in PostgreSQL.
+- [x] Private Model Application and Photographer Application collection schemas created.
+- [x] Application records kept separate from canonical master profiles.
+- [x] Application imagery routed through private Media records with approval off by default.
+- [x] Application migration applied and prototype submissions verified in PostgreSQL.
+
+## Application review boundary — July 3, 2026
+
+- Applications are private, versioned review records and are not publishable content.
+- Public submissions must never write directly to canonical Model or Photographer profiles.
+- Acceptance does not automatically create, update, or publish a master profile.
+- Administrators may optionally link a reviewed application to a canonical profile later.
+- Model application imagery remains in the authenticated Media collection. Uploading an
+  image does not set `usageApproved`; public use requires a separate administrator decision.
+- Public forms, automated promotion, dashboards, payments, messaging, and matching remain
+  outside this implementation.

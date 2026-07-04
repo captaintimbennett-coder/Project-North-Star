@@ -70,6 +70,10 @@ export interface Config {
     users: User;
     media: Media;
     'retreat-events': RetreatEvent;
+    'model-profiles': ModelProfile;
+    'photographer-profiles': PhotographerProfile;
+    'model-applications': ModelApplication;
+    'photographer-applications': PhotographerApplication;
     'payload-kv': PayloadKv;
     'payload-jobs': PayloadJob;
     'payload-locked-documents': PayloadLockedDocument;
@@ -81,6 +85,10 @@ export interface Config {
     users: UsersSelect<false> | UsersSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     'retreat-events': RetreatEventsSelect<false> | RetreatEventsSelect<true>;
+    'model-profiles': ModelProfilesSelect<false> | ModelProfilesSelect<true>;
+    'photographer-profiles': PhotographerProfilesSelect<false> | PhotographerProfilesSelect<true>;
+    'model-applications': ModelApplicationsSelect<false> | ModelApplicationsSelect<true>;
+    'photographer-applications': PhotographerApplicationsSelect<false> | PhotographerApplicationsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-jobs': PayloadJobsSelect<false> | PayloadJobsSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
@@ -215,6 +223,170 @@ export interface RetreatEvent {
   _status?: ('draft' | 'published') | null;
 }
 /**
+ * Canonical model records. Event participation will reference these profiles rather than duplicate them.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "model-profiles".
+ */
+export interface ModelProfile {
+  id: number;
+  displayName: string;
+  slug: string;
+  approvalStatus: 'draft' | 'review' | 'approved' | 'archived';
+  publicIntroduction?: string | null;
+  biography?: string | null;
+  featuredImage?: (number | null) | Media;
+  portfolioImages?: (number | Media)[] | null;
+  modelingCategories?:
+    ('glamour' | 'boudoir' | 'fashion' | 'editorial' | 'fine-art' | 'lifestyle' | 'commercial')[] | null;
+  city?: string | null;
+  state?: string | null;
+  website?: string | null;
+  instagram?: string | null;
+  usagePermissionConfirmed?: boolean | null;
+  adminNotes?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * Canonical photographer records. Registrations and event participation will reference these profiles later.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "photographer-profiles".
+ */
+export interface PhotographerProfile {
+  id: number;
+  displayName: string;
+  slug: string;
+  approvalStatus: 'draft' | 'review' | 'approved' | 'archived';
+  publicIntroduction?: string | null;
+  biography?: string | null;
+  profileImage?: (number | null) | Media;
+  experienceLevel?: ('developing' | 'intermediate' | 'advanced' | 'professional') | null;
+  equipmentSummary?: string | null;
+  city?: string | null;
+  state?: string | null;
+  website?: string | null;
+  instagram?: string | null;
+  adminNotes?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * Private review records. Accepted applications may later be used to create or update a canonical model profile; nothing is published automatically.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "model-applications".
+ */
+export interface ModelApplication {
+  id: number;
+  legalName: string;
+  stageName: string;
+  email: string;
+  phone: string;
+  city: string;
+  state: string;
+  country: string;
+  instagramURL?: string | null;
+  websiteURL?: string | null;
+  portfolioURL?: string | null;
+  agencyRepresentation?: string | null;
+  modelingExperienceLevel: 'aspiring' | 'developing' | 'experienced' | 'professional';
+  travelAvailability: 'local-only' | 'regional' | 'domestic' | 'international' | 'case-by-case';
+  homeAirport?: string | null;
+  availabilityNotes?: string | null;
+  creativeInterests?:
+    | (
+        | 'fashion'
+        | 'editorial'
+        | 'glamour'
+        | 'swimwear'
+        | 'lingerie'
+        | 'boudoir'
+        | 'artistic-nude'
+        | 'fine-art-nude'
+        | 'beauty-close-up'
+        | 'conceptual-creative'
+        | 'other'
+      )[]
+    | null;
+  otherCreativeInterest?: string | null;
+  comfortLevels?:
+    | ('fully-clothed' | 'fashion' | 'swimwear' | 'lingerie' | 'implied-nude' | 'artistic-nude' | 'fine-art-nude')[]
+    | null;
+  retreatGoals?:
+    | (
+        | 'network-with-photographers'
+        | 'long-term-collaborations'
+        | 'paid-shooting-opportunities'
+        | 'expand-portfolio'
+        | 'publication-opportunities'
+        | 'professional-event-travel'
+        | 'meet-professional-models'
+        | 'professional-respectful-photographers'
+        | 'other'
+      )[]
+    | null;
+  otherRetreatGoal?: string | null;
+  /**
+   * Upload the image you would prefer us to consider as your featured image. Final image selection remains subject to approval.
+   */
+  preferredHeroImage?: (number | null) | Media;
+  additionalPortfolioImages?: (number | Media)[] | null;
+  shortBiography: string;
+  artistStatement?: string | null;
+  applicationStatus: 'new' | 'reviewing' | 'accepted' | 'declined' | 'waitlist';
+  /**
+   * Set only after review when this application has been used to create or update a canonical profile.
+   */
+  linkedModelProfile?: (number | null) | ModelProfile;
+  privateAdminNotes?: string | null;
+  consentImageUsageConfirmed: boolean;
+  codeOfConductConfirmed: boolean;
+  submittedAt: string;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Private review records. Accepted applications may later be used to create or update a canonical photographer profile; nothing is published automatically.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "photographer-applications".
+ */
+export interface PhotographerApplication {
+  id: number;
+  legalName: string;
+  displayName: string;
+  email: string;
+  phone: string;
+  city: string;
+  state: string;
+  country: string;
+  instagramURL?: string | null;
+  websiteURL?: string | null;
+  portfolioURL?: string | null;
+  photographyExperienceLevel: 'developing' | 'intermediate' | 'advanced' | 'professional';
+  equipmentSummary: string;
+  genresInterests?:
+    ('glamour' | 'boudoir' | 'editorial' | 'artistic-nude' | 'fashion' | 'swimwear' | 'beauty' | 'other')[] | null;
+  otherGenreInterest?: string | null;
+  whatTheyHopeToCreate: string;
+  retreatGoals: string;
+  collaborationStyleNotes?: string | null;
+  applicationStatus: 'new' | 'reviewing' | 'accepted' | 'declined' | 'waitlist';
+  /**
+   * Set only after review when this application has been used to create or update a canonical profile.
+   */
+  linkedPhotographerProfile?: (number | null) | PhotographerProfile;
+  privateAdminNotes?: string | null;
+  codeOfConductConfirmed: boolean;
+  submittedAt: string;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
@@ -341,6 +513,22 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'retreat-events';
         value: number | RetreatEvent;
+      } | null)
+    | ({
+        relationTo: 'model-profiles';
+        value: number | ModelProfile;
+      } | null)
+    | ({
+        relationTo: 'photographer-profiles';
+        value: number | PhotographerProfile;
+      } | null)
+    | ({
+        relationTo: 'model-applications';
+        value: number | ModelApplication;
+      } | null)
+    | ({
+        relationTo: 'photographer-applications';
+        value: number | PhotographerApplication;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -474,6 +662,119 @@ export interface RetreatEventsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "model-profiles_select".
+ */
+export interface ModelProfilesSelect<T extends boolean = true> {
+  displayName?: T;
+  slug?: T;
+  approvalStatus?: T;
+  publicIntroduction?: T;
+  biography?: T;
+  featuredImage?: T;
+  portfolioImages?: T;
+  modelingCategories?: T;
+  city?: T;
+  state?: T;
+  website?: T;
+  instagram?: T;
+  usagePermissionConfirmed?: T;
+  adminNotes?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "photographer-profiles_select".
+ */
+export interface PhotographerProfilesSelect<T extends boolean = true> {
+  displayName?: T;
+  slug?: T;
+  approvalStatus?: T;
+  publicIntroduction?: T;
+  biography?: T;
+  profileImage?: T;
+  experienceLevel?: T;
+  equipmentSummary?: T;
+  city?: T;
+  state?: T;
+  website?: T;
+  instagram?: T;
+  adminNotes?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "model-applications_select".
+ */
+export interface ModelApplicationsSelect<T extends boolean = true> {
+  legalName?: T;
+  stageName?: T;
+  email?: T;
+  phone?: T;
+  city?: T;
+  state?: T;
+  country?: T;
+  instagramURL?: T;
+  websiteURL?: T;
+  portfolioURL?: T;
+  agencyRepresentation?: T;
+  modelingExperienceLevel?: T;
+  travelAvailability?: T;
+  homeAirport?: T;
+  availabilityNotes?: T;
+  creativeInterests?: T;
+  otherCreativeInterest?: T;
+  comfortLevels?: T;
+  retreatGoals?: T;
+  otherRetreatGoal?: T;
+  preferredHeroImage?: T;
+  additionalPortfolioImages?: T;
+  shortBiography?: T;
+  artistStatement?: T;
+  applicationStatus?: T;
+  linkedModelProfile?: T;
+  privateAdminNotes?: T;
+  consentImageUsageConfirmed?: T;
+  codeOfConductConfirmed?: T;
+  submittedAt?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "photographer-applications_select".
+ */
+export interface PhotographerApplicationsSelect<T extends boolean = true> {
+  legalName?: T;
+  displayName?: T;
+  email?: T;
+  phone?: T;
+  city?: T;
+  state?: T;
+  country?: T;
+  instagramURL?: T;
+  websiteURL?: T;
+  portfolioURL?: T;
+  photographyExperienceLevel?: T;
+  equipmentSummary?: T;
+  genresInterests?: T;
+  otherGenreInterest?: T;
+  whatTheyHopeToCreate?: T;
+  retreatGoals?: T;
+  collaborationStyleNotes?: T;
+  applicationStatus?: T;
+  linkedPhotographerProfile?: T;
+  privateAdminNotes?: T;
+  codeOfConductConfirmed?: T;
+  submittedAt?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv_select".
  */
 export interface PayloadKvSelect<T extends boolean = true> {
@@ -561,10 +862,19 @@ export interface TaskSchedulePublish {
   input: {
     type?: ('publish' | 'unpublish') | null;
     locale?: string | null;
-    doc?: {
-      relationTo: 'retreat-events';
-      value: number | RetreatEvent;
-    } | null;
+    doc?:
+      | ({
+          relationTo: 'retreat-events';
+          value: number | RetreatEvent;
+        } | null)
+      | ({
+          relationTo: 'model-profiles';
+          value: number | ModelProfile;
+        } | null)
+      | ({
+          relationTo: 'photographer-profiles';
+          value: number | PhotographerProfile;
+        } | null);
     global?: string | null;
     user?: (number | null) | User;
   };

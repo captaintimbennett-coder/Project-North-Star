@@ -5,6 +5,10 @@ import { buildConfig } from "payload";
 import sharp from "sharp";
 import { fileURLToPath } from "url";
 import { Media } from "./payload/collections/Media";
+import { ModelApplications } from "./payload/collections/ModelApplications";
+import { ModelProfiles } from "./payload/collections/ModelProfiles";
+import { PhotographerApplications } from "./payload/collections/PhotographerApplications";
+import { PhotographerProfiles } from "./payload/collections/PhotographerProfiles";
 import { RetreatEvents } from "./payload/collections/RetreatEvents";
 import { Users } from "./payload/collections/Users";
 
@@ -21,7 +25,15 @@ export default buildConfig({
     },
     user: Users.slug,
   },
-  collections: [Users, Media, RetreatEvents],
+  collections: [
+    Users,
+    Media,
+    RetreatEvents,
+    ModelProfiles,
+    PhotographerProfiles,
+    ModelApplications,
+    PhotographerApplications,
+  ],
   db: postgresAdapter({
     pool: {
       connectionString: process.env.DATABASE_URL || "",
