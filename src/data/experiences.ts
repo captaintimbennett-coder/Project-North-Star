@@ -73,19 +73,6 @@ export const loneStarRetreatContent = {
       href: "#upcoming-retreats",
     },
   ],
-  artists: {
-    eyebrow: "Meet the artists",
-    title: "Creative voices, brought together.",
-    introduction:
-      "Each retreat will feature a carefully selected artist roster. The first participating profiles will be introduced with the prototype event.",
-    status: "Profile announcement forthcoming",
-    action: { label: "Meet All Featured Artists", href: "/lone-star-retreat/featured-artists" },
-    items: [
-      { label: "Artist No. 01", image: images.portfolio.redEditorial },
-      { label: "Artist No. 02", image: images.portfolio.silkBeauty },
-      { label: "Artist No. 03", image: images.portfolio.goldEditorial },
-    ],
-  },
   philosophy: {
     eyebrow: "Retreat philosophy",
     title: "The power of craft, connection, confidence, and purpose.",
@@ -114,12 +101,12 @@ export const loneStarRetreatContent = {
   },
   prototype: {
     eyebrow: "Upcoming retreat preview",
-    status: "Prototype event · Dates forthcoming",
+    status: "May 2027 · Texas Hill Country",
     title: "Texas Hill Country Creative Retreat",
     body: "A preview of the destination, artist, schedule, and logistics experience that will accompany every future retreat announcement.",
     image: images.retreat.texasHillCountryHero,
     imageAlt: "Texas Hill Country landscape at sunset",
-    action: { label: "Ask about the retreat", href: "/contact?interest=retreat" },
+    action: { label: "Explore the May 2027 Retreat", href: "/lone-star-retreat/texas-hill-country-creative-retreat" },
   },
   closing: {
     eyebrow: "Under the North Star",

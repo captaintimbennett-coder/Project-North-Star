@@ -1763,11 +1763,16 @@ body.menu-open {
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: clamp(1rem, 2vw, 1.8rem);
 }
-.retreat-artists__grid article {
+.retreat-artist-preview {
+  display: block;
+  color: inherit;
+  text-decoration: none;
   border: 1px solid var(--north-star-rule);
   background: rgb(255 255 255 / 2%);
+  cursor: pointer;
+  transition: border-color 350ms var(--ease-standard), background-color 350ms var(--ease-standard), transform 500ms var(--ease-standard);
 }
-.retreat-artists__grid article > div {
+.retreat-artist-preview__image {
   position: relative;
   aspect-ratio: 0.84;
   overflow: hidden;
@@ -1775,10 +1780,18 @@ body.menu-open {
 }
 .retreat-artists__grid img {
   filter: sepia(0.12) saturate(0.8) contrast(1.08) brightness(0.78);
-  transition: transform var(--duration-image) var(--ease-image);
+  transition: transform var(--duration-image) var(--ease-image), filter 500ms var(--ease-standard);
 }
-.retreat-artists__grid article:hover img { transform: scale(1.025); }
-.retreat-artists__grid article > p {
+.retreat-artist-preview:hover,
+.retreat-artist-preview:focus-visible {
+  background: rgb(197 138 43 / 5%);
+  border-color: rgb(225 162 60 / 52%);
+  transform: translateY(-4px);
+}
+.retreat-artist-preview:hover img,
+.retreat-artist-preview:focus-visible img { transform: scale(1.035); filter: sepia(0.08) saturate(0.9) contrast(1.06) brightness(0.9); }
+.retreat-artist-preview:focus-visible { outline: 2px solid var(--north-star-gold-bright); outline-offset: 4px; }
+.retreat-artist-preview > p {
   margin: 0;
   padding: 1.5rem 1.6rem 0;
   color: var(--north-star-ivory);
@@ -1787,7 +1800,7 @@ body.menu-open {
   letter-spacing: 0.035em;
   line-height: 1.15;
 }
-.retreat-artists__grid article > span {
+.retreat-artist-preview > span {
   padding: 0.7rem 1.6rem 1.55rem;
   display: block;
   color: rgb(225 162 60 / 78%);
@@ -2192,6 +2205,53 @@ body.menu-open {
 .retreat-audience-cta .ds-button { margin-top: 2.5rem; }
 
 /* Featured Artists: approved public-profile experience */
+.event-detail-hero { position: relative; min-height: min(920px, 100svh); display: grid; overflow: hidden; border-bottom: 1px solid var(--north-star-rule); }
+.event-detail-hero > img { object-fit: cover; filter: saturate(0.72) contrast(1.12) brightness(0.62) sepia(0.05); }
+.event-detail-hero__shade { position: absolute; z-index: 1; inset: 0; background: linear-gradient(90deg, rgb(5 6 7 / 95%) 0%, rgb(5 6 7 / 70%) 43%, rgb(5 6 7 / 18%) 82%), linear-gradient(0deg, rgb(5 6 7 / 75%), transparent 48%); }
+.event-detail-hero__content { position: relative; z-index: 2; padding-block: clamp(12rem, 23vh, 18rem) clamp(5rem, 10vw, 9rem); display: flex; flex-direction: column; align-items: flex-start; justify-content: flex-end; }
+.event-detail-hero h1 { max-width: 12ch; margin: 0; color: var(--north-star-ivory); font-size: clamp(4rem, 7.8vw, 8.5rem); font-weight: 400; letter-spacing: -0.04em; line-height: 0.9; }
+.event-detail-hero .retreat-rule { margin: 2.5rem 0 2rem; }
+.event-detail-hero__content > div { display: flex; gap: 1rem 3rem; flex-wrap: wrap; }
+.event-detail-hero__content > div p { margin: 0; color: rgb(242 238 230 / 74%); font-family: var(--north-star-font-display); font-size: clamp(1.15rem, 1.7vw, 1.5rem); }
+.event-detail-overview { padding: clamp(6rem, 11vw, 11rem) 0; background: var(--north-star-charcoal); border-bottom: 1px solid var(--north-star-rule); }
+.event-detail-overview .ds-container { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(320px, 0.8fr); gap: clamp(3rem, 9vw, 10rem); align-items: start; }
+.event-detail-overview h2,
+.event-detail-planning h2,
+.event-detail-pathways h2,
+.event-detail-policies h2 { margin: 0; color: var(--north-star-ivory); font-size: clamp(3rem, 5.5vw, 6rem); line-height: 0.96; }
+.event-detail-overview .ds-container > div:last-child > p { margin: 0; color: rgb(242 238 230 / 66%); font-family: var(--north-star-font-display); font-size: var(--font-size-body-lg); line-height: 1.8; }
+.event-detail-overview dl { margin: 3rem 0 0; border-top: 1px solid var(--north-star-rule); }
+.event-detail-overview dl div { padding: 1.1rem 0; display: grid; grid-template-columns: 7rem 1fr; gap: 1rem; border-bottom: 1px solid var(--north-star-rule); }
+.event-detail-overview dt { color: var(--north-star-gold-bright); font-size: 0.65rem; letter-spacing: 0.12em; text-transform: uppercase; }
+.event-detail-overview dd { margin: 0; color: rgb(242 238 230 / 72%); }
+.event-detail-artists { border-top: 0; }
+.event-detail-artists__empty { min-height: 250px; display: grid; place-items: center; text-align: center; border: 1px solid var(--north-star-rule); background: var(--north-star-charcoal); }
+.event-detail-artists__empty p { max-width: 38rem; color: rgb(242 238 230 / 52%); line-height: 1.8; }
+.event-detail-planning { padding: clamp(6rem, 11vw, 11rem) 0; background: var(--north-star-charcoal); border-block: 1px solid var(--north-star-rule); }
+.event-detail-planning__heading { max-width: 55rem; margin-bottom: clamp(4rem, 7vw, 7rem); }
+.event-detail-planning__grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border-block: 1px solid var(--north-star-rule); }
+.event-detail-planning article { min-height: 320px; padding: clamp(2rem, 4vw, 4rem); border-right: 1px solid var(--north-star-rule); }
+.event-detail-planning article:first-child { border-left: 1px solid var(--north-star-rule); }
+.event-detail-planning article > span { color: var(--north-star-gold-bright); font-family: var(--north-star-font-display); }
+.event-detail-planning h3 { margin: 4rem 0 1.2rem; color: var(--north-star-ivory); font-size: clamp(1.8rem, 2.6vw, 2.8rem); font-weight: 400; }
+.event-detail-planning article p { margin: 0; color: rgb(242 238 230 / 54%); line-height: 1.8; }
+.event-detail-pathways { padding: clamp(7rem, 12vw, 12rem) 0; text-align: center; }
+.event-detail-pathways .ds-container { display: flex; flex-direction: column; align-items: center; }
+.event-detail-pathways .ds-container > div { width: min(100%, 70rem); margin-top: 4rem; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+.event-detail-pathways .ds-container > div > a { min-height: 240px; padding: 2.5rem; display: flex; flex-direction: column; justify-content: space-between; align-items: flex-start; color: inherit; text-align: left; text-decoration: none; background: rgb(255 255 255 / 2%); border: 1px solid var(--north-star-rule); transition: border-color 300ms var(--ease-standard), background-color 300ms var(--ease-standard); }
+.event-detail-pathways a > span { color: var(--north-star-gold-bright); font-size: 0.68rem; letter-spacing: 0.12em; text-transform: uppercase; }
+.event-detail-pathways a > strong { display: flex; align-items: center; gap: 0.75rem; color: var(--north-star-ivory); font-family: var(--north-star-font-display); font-size: clamp(1.5rem, 2.5vw, 2.4rem); font-weight: 400; }
+.event-detail-pathways a svg { width: 1.1rem; color: var(--north-star-gold-bright); transition: transform var(--duration-fast) var(--ease-standard); }
+.event-detail-pathways a:hover,
+.event-detail-pathways a:focus-visible { background: rgb(197 138 43 / 6%); border-color: rgb(225 162 60 / 54%); }
+.event-detail-pathways a:hover svg { transform: translateX(4px); }
+.event-detail-policies { padding: clamp(6rem, 11vw, 11rem) 0; background: var(--north-star-charcoal); border-top: 1px solid var(--north-star-rule); }
+.event-detail-policies .ds-container { display: grid; grid-template-columns: minmax(0, 0.8fr) minmax(380px, 1fr); gap: clamp(3rem, 9vw, 10rem); }
+.event-detail-policies .ds-container > div:last-child { border-top: 1px solid var(--north-star-rule); }
+.event-detail-policies article { padding: 2rem 0; border-bottom: 1px solid var(--north-star-rule); }
+.event-detail-policies h3 { margin: 0; color: var(--north-star-ivory); font-family: var(--north-star-font-display); font-size: 1.45rem; font-weight: 400; }
+.event-detail-policies article p { margin: 0.8rem 0 0; color: rgb(242 238 230 / 52%); line-height: 1.75; }
+
 .artists-index-hero,
 .artist-profile-hero {
   position: relative;
@@ -2298,18 +2358,37 @@ body.menu-open {
 .artist-profile-cta .ds-container { display: flex; flex-direction: column; align-items: center; text-align: center; }
 .artist-profile-cta h2 { max-width: 15ch; margin: 0; color: var(--north-star-ivory); font-size: clamp(3rem, 6vw, 6.5rem); line-height: 0.95; }
 .artist-profile-cta .ds-container > div { margin-top: 3rem; display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; }
-.retreat-artists__action { margin-top: 2.5rem; display: flex; justify-content: flex-end; }
-.retreat-artists__action a { color: var(--north-star-gold-bright); font-size: 0.72rem; letter-spacing: 0.12em; text-decoration: none; text-transform: uppercase; border-bottom: 1px solid rgb(225 162 60 / 45%); }
-.retreat-artists__action svg { width: 1rem; margin-left: 0.45rem; transition: transform var(--duration-fast) var(--ease-standard); }
-.retreat-artists__action a:hover svg { transform: translateX(4px); }
+.retreat-artists__action { margin-top: clamp(4rem, 7vw, 7rem); display: flex; justify-content: center; text-align: center; }
+.retreat-artists__action a { min-width: min(100%, 31rem); padding: 1.65rem 2.4rem 1.45rem; position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 1rem; color: var(--north-star-ivory); font-family: var(--north-star-font-display); font-size: clamp(1.45rem, 2.4vw, 2.25rem); letter-spacing: 0.015em; line-height: 1.1; text-decoration: none; border-block: 1px solid rgb(225 162 60 / 52%); transition: color 300ms var(--ease-standard), background-color 300ms var(--ease-standard), border-color 300ms var(--ease-standard); }
+.retreat-artists__action a::after { content: ""; position: absolute; right: 50%; bottom: -1px; left: 50%; height: 1px; background: var(--north-star-gold-bright); transition: right 500ms var(--ease-standard), left 500ms var(--ease-standard); }
+.retreat-artists__action svg { width: 1.1rem; flex: 0 0 auto; color: var(--north-star-gold-bright); transition: transform var(--duration-fast) var(--ease-standard); }
+.retreat-artists__action a:hover,
+.retreat-artists__action a:focus-visible { color: var(--north-star-gold-bright); background: rgb(197 138 43 / 5%); border-color: rgb(225 162 60 / 72%); }
+.retreat-artists__action a:hover::after,
+.retreat-artists__action a:focus-visible::after { right: 0; left: 0; }
+.retreat-artists__action a:hover svg,
+.retreat-artists__action a:focus-visible svg { transform: translateX(5px); }
+.retreat-artists__action a:focus-visible { outline: 2px solid var(--north-star-gold-bright); outline-offset: 5px; }
 
 @media (max-width: 980px) {
+  .event-detail-overview .ds-container,
+  .event-detail-policies .ds-container { grid-template-columns: 1fr; }
+  .event-detail-planning__grid { grid-template-columns: 1fr; }
+  .event-detail-planning article { min-height: 0; border-right: 1px solid var(--north-star-rule); border-bottom: 1px solid var(--north-star-rule); }
+  .event-detail-planning article:last-child { border-bottom: 0; }
+  .retreat-artists__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .artists-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .artists-index-introduction .ds-container { grid-template-columns: 1fr; }
   .artist-profile-story .ds-container { grid-template-columns: 1fr; }
   .artist-profile-story aside { max-width: 28rem; }
 }
 @media (max-width: 760px) {
+  .event-detail-hero { min-height: 850px; align-items: end; }
+  .event-detail-hero__shade { background: linear-gradient(0deg, rgb(5 6 7 / 98%) 0%, rgb(5 6 7 / 82%) 50%, rgb(5 6 7 / 20%) 84%); }
+  .event-detail-hero__content { padding: 30rem 0 5rem; justify-content: flex-end; }
+  .event-detail-hero h1 { font-size: clamp(3.4rem, 15vw, 5rem); }
+  .event-detail-pathways .ds-container > div { grid-template-columns: 1fr; }
+  .event-detail-pathways .ds-container > div > a { min-height: 200px; }
   .artists-index-hero,
   .artist-profile-hero { min-height: 830px; align-items: end; }
   .artists-index-hero__shade,
@@ -2330,7 +2409,11 @@ body.menu-open {
 
 @media (prefers-reduced-motion: reduce) {
   .artist-card__image img,
-  .artist-card__content > span b { transition: none; }
+  .artist-card__content > span b,
+  .retreat-artist-preview,
+  .retreat-artist-preview img,
+  .retreat-artists__action a::after,
+  .retreat-artists__action svg { transition: none; }
 }
 
 /* Public applications: approved reference experience */

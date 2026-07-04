@@ -194,14 +194,16 @@ backed by one content model.
 
 ### Featured Artist public-read boundary
 
-Featured Artist pages use a server-only repository that maps canonical
-`model-profiles` records into an explicit public shape. A profile is eligible
-only when it is approved, published, has confirmed usage permission, and has an
-approved featured image. Location, categories, biography, artist statement,
-Instagram, and website each require their corresponding public-display approval.
-Model Applications, legal names, private administrator notes, and unapproved
-media are never part of the public mapping. Approved Media may be read publicly;
-all other Media remains authenticated-only.
+Featured Artist pages are event-scoped. A server-only repository begins with a
+published `retreat-events` record and maps only artist assignments whose
+event-specific participation status is `approved`. The related canonical
+`model-profiles` record must also be approved and published, have confirmed usage
+permission, and have an approved featured image. Location, categories,
+biography, artist statement, Instagram, and website each require their
+corresponding public-display approval. Model Applications, legal names, private
+administrator notes, unassigned artists, and unapproved media are never part of
+the public mapping. Approved Media may be read publicly; all other Media remains
+authenticated-only.
 
 ## Planned content model
 

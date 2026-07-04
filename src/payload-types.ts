@@ -218,6 +218,17 @@ export interface RetreatEvent {
   locationDetails?: string | null;
   capacity?: number | null;
   registrationStatus: 'coming-soon' | 'applications-open' | 'registration-open' | 'waitlist' | 'closed';
+  /**
+   * Event-specific artist assignments. Only approved assignments whose master profiles and media are also published and approved may appear publicly.
+   */
+  participatingArtists?:
+    | {
+        artist: number | ModelProfile;
+        participationStatus: 'invited' | 'confirmed' | 'approved' | 'withdrawn';
+        displayOrder?: number | null;
+        id?: string | null;
+      }[]
+    | null;
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
@@ -700,6 +711,14 @@ export interface RetreatEventsSelect<T extends boolean = true> {
   locationDetails?: T;
   capacity?: T;
   registrationStatus?: T;
+  participatingArtists?:
+    | T
+    | {
+        artist?: T;
+        participationStatus?: T;
+        displayOrder?: T;
+        id?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
   _status?: T;

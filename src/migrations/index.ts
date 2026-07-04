@@ -9,6 +9,7 @@ import * as migration_20260704_054212_make_photographer_equipment_optional from 
 import * as migration_20260704_055322_make_photographer_display_name_optional from './20260704_055322_make_photographer_display_name_optional';
 import * as migration_20260704_155241 from './20260704_155241';
 import * as migration_20260704_165148 from './20260704_165148';
+import * as migration_20260704_203156 from './20260704_203156';
 
 export const migrations = [
   {
@@ -64,6 +65,11 @@ export const migrations = [
   {
     up: migration_20260704_165148.up,
     down: migration_20260704_165148.down,
-    name: '20260704_165148'
+    name: '20260704_165148',
+  },
+  {
+    up: migration_20260704_203156.up,
+    down: migration_20260704_203156.down,
+    name: '20260704_203156'
   },
 ];

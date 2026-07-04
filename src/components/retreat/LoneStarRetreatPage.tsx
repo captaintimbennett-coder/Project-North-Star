@@ -48,32 +48,6 @@ export function LoneStarRetreatPage({ content }: LoneStarRetreatPageProps) {
         </Container>
       </section>
 
-      <section className="retreat-artists">
-        <Container>
-          <div className="retreat-section-heading">
-            <div>
-              <p className="ds-eyebrow">{content.artists.eyebrow}</p>
-              <h2>{content.artists.title}</h2>
-            </div>
-            <p>{content.artists.introduction}</p>
-          </div>
-          <div className="retreat-artists__grid">
-            {content.artists.items.map((artist) => (
-              <article key={artist.label}>
-                <div>
-                  <Image src={artist.image} alt="" fill sizes="(max-width: 760px) 100vw, 33vw" />
-                </div>
-                <p>{artist.label}</p>
-                <span>{content.artists.status}</span>
-              </article>
-            ))}
-          </div>
-          <div className="retreat-artists__action">
-            <Link href={content.artists.action.href}>{content.artists.action.label} <ArrowIcon /></Link>
-          </div>
-        </Container>
-      </section>
-
       <section className="retreat-philosophy">
         <div className="retreat-philosophy__image">
           <Image src={content.philosophy.image} alt={content.philosophy.imageAlt} fill sizes="(max-width: 760px) 100vw, 50vw" />

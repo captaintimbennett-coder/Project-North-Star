@@ -1,15 +1,16 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Container } from "@/components/layout";
-import type { PublicFeaturedArtist } from "@/lib/featured-artists";
+import type { PublicFeaturedArtist, PublicRetreatEvent } from "@/lib/featured-artists";
 
-export function FeaturedArtistProfile({ artist }: { artist: PublicFeaturedArtist }) {
+export function FeaturedArtistProfile({ artist, event }: { artist: PublicFeaturedArtist; event: PublicRetreatEvent }) {
+  const basePath = `/lone-star-retreat/${event.slug}`;
   return <>
     <section className="artist-profile-hero">
       <Image src={artist.featuredImage.src} alt={artist.featuredImage.alt} fill priority sizes="100vw" />
       <div className="artist-profile-hero__shade" />
       <Container className="artist-profile-hero__content">
-        <p className="ds-eyebrow">Lone Star Retreat · Featured Artist</p>
+        <p className="ds-eyebrow">{event.title} · Participating Artist</p>
         <h1>{artist.displayName}</h1>
         <span className="retreat-rule" aria-hidden="true" />
         {artist.location && <p>{artist.location}</p>}
@@ -30,8 +31,8 @@ export function FeaturedArtistProfile({ artist }: { artist: PublicFeaturedArtist
 
     {artist.portfolioImages.length > 0 && <section className="artist-profile-gallery" aria-labelledby="artist-gallery-title"><Container><div className="artist-profile-gallery__heading"><p className="ds-eyebrow">Selected Work</p><h2 id="artist-gallery-title">The portfolio</h2></div><div className="artist-profile-gallery__grid">{artist.portfolioImages.map((image, index) => <figure key={`${image.src}-${index}`}><Image src={image.src} alt={image.alt} fill sizes="(max-width: 760px) 100vw, 50vw" /></figure>)}</div></Container></section>}
 
-    <section className="artist-profile-appearances"><Container><p className="ds-eyebrow">Retreat appearances</p><h2>Future Lone Star Retreat appearances will be announced here.</h2><p>This profile is ready to connect with approved event records as the retreat calendar develops.</p></Container></section>
+    <section className="artist-profile-appearances"><Container><p className="ds-eyebrow">Participating in</p><h2>{event.title}</h2><p>{event.dateLabel} · {event.location}</p></Container></section>
 
-    <section className="artist-profile-cta"><Container><p className="ds-eyebrow">Create together</p><h2>Discover the artists shaping Lone Star Retreat.</h2><div><Link className="ds-button ds-button--outline" href="/lone-star-retreat/featured-artists">Back to Featured Artists <span aria-hidden="true">←</span></Link><Link className="ds-button ds-button--primary" href="/lone-star-retreat/photographers">Explore Photographer Access <span aria-hidden="true">→</span></Link></div></Container></section>
+    <section className="artist-profile-cta"><Container><p className="ds-eyebrow">Create together</p><h2>Discover the artists shaping this retreat.</h2><div><Link className="ds-button ds-button--outline" href={`${basePath}/artists`}>Back to Participating Artists <span aria-hidden="true">←</span></Link><Link className="ds-button ds-button--primary" href="/lone-star-retreat/photographers/apply">Apply for Photographer Access <span aria-hidden="true">→</span></Link></div></Container></section>
   </>;
 }

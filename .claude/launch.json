@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "modelhq-dev",
+      "runtimeExecutable": "bash",
+      "runtimeArgs": ["-c", "cd /Users/timothybennett/Documents/Claude/modelhq && npm run dev -- -p 3100"],
+      "port": 3100
+    }
+  ]
+}

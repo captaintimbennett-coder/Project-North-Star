@@ -90,6 +90,43 @@ export const RetreatEvents: CollectionConfig = {
       ],
       required: true,
     },
+    {
+      name: "participatingArtists",
+      dbName: "event_artists",
+      type: "array",
+      label: "Participating artists",
+      admin: {
+        description:
+          "Event-specific artist assignments. Only approved assignments whose master profiles and media are also published and approved may appear publicly.",
+      },
+      fields: [
+        {
+          name: "artist",
+          type: "relationship",
+          relationTo: "model-profiles",
+          required: true,
+        },
+        {
+          name: "participationStatus",
+          dbName: "event_artist_status",
+          type: "select",
+          defaultValue: "invited",
+          options: [
+            { label: "Invited", value: "invited" },
+            { label: "Confirmed", value: "confirmed" },
+            { label: "Approved for public display", value: "approved" },
+            { label: "Withdrawn", value: "withdrawn" },
+          ],
+          required: true,
+        },
+        {
+          name: "displayOrder",
+          type: "number",
+          defaultValue: 100,
+          min: 0,
+        },
+      ],
+    },
   ],
   versions: {
     drafts: {

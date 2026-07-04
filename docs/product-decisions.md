@@ -24,3 +24,12 @@ and architecture documents.
 - The acknowledgment remains a private application record. It does not create an
   account, publish a profile, or replace event-specific agreements where those
   may later be required.
+
+## July 4, 2026 — Event-Centric Lone Star Retreat Architecture
+
+- Lone Star Retreat is the umbrella brand; individual retreat events are the
+  actual public products.
+- Participating artists are displayed only in the context of a specific event.
+- A canonical artist profile may be reused across events, but each public event
+  appearance requires an explicit event assignment with public approval.
+- No permanent global or agency-style artist roster is part of Version 1.

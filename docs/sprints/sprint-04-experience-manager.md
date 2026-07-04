@@ -34,8 +34,11 @@ master classes, mentoring, and future creative experiences.
 - Lone Star Retreat is the founding experience, not the entire platform.
 - Operational information must be structured rather than embedded in prose.
 - Safety and professionalism requirements must be prominent and maintainable.
-- Featured Artist public pages read only from canonical Model / Featured Artist
-  master profiles; Model Applications are never a public content source.
+- Lone Star Retreat is the umbrella brand; individual retreat events are the
+  products and own their public participating-artist assignments.
+- Featured Artist public pages begin from a published Event record and read only
+  explicitly approved event assignments linked to canonical master profiles;
+  Model Applications are never a public content source.
 - Public profiles require an approved profile, a published Payload version,
   confirmed image permission, approved featured media, and explicit field-level
   public-display controls.
@@ -44,15 +47,22 @@ master classes, mentoring, and future creative experiences.
 
 ## Featured Artists progress — July 4, 2026
 
-- [x] Public index route created at `/lone-star-retreat/featured-artists`.
-- [x] Public profile route created at `/lone-star-retreat/featured-artists/[slug]`.
+- [x] Event detail route created at
+  `/lone-star-retreat/texas-hill-country-creative-retreat`.
+- [x] Event artist index route created at
+  `/lone-star-retreat/texas-hill-country-creative-retreat/artists`.
+- [x] Event artist profile route created at
+  `/lone-star-retreat/texas-hill-country-creative-retreat/artists/[slug]`.
+- [x] Legacy global artist routes redirect into the event context.
 - [x] Empty roster state implemented.
 - [x] Field-level public-display approvals added to canonical artist profiles.
 - [x] Approved-media-only public read policy added.
 - [x] Public repository maps an allowlist and excludes applications, legal names,
   private administrator notes, unapproved media, drafts, and unapproved profiles.
 - [x] Public-profile database migration applied.
-- [ ] Create or approve the first real Featured Artist master profile.
+- [x] Event-specific participating-artist assignment migration applied.
+- [x] First real Featured Artist master profile created and published for Lexi Anne.
+- [x] Lexi Anne assigned to the May 2027 event with event-specific public approval.
 - [ ] Complete Product Owner visual review and design lock.
 
 ## Deferred Items

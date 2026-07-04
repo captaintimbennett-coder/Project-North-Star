@@ -1,7 +1,7 @@
 import config from "@payload-config";
 import { unstable_noStore as noStore } from "next/cache";
-import { getPayload, type Where } from "payload";
-import type { Media, ModelProfile } from "@/payload-types";
+import { getPayload } from "payload";
+import type { Media, ModelProfile, RetreatEvent } from "@/payload-types";
 
 export type PublicArtistImage = {
   alt: string;
@@ -22,6 +22,16 @@ export type PublicFeaturedArtist = {
   portfolioImages: PublicArtistImage[];
   slug: string;
   website?: string;
+};
+
+export type PublicRetreatEvent = {
+  artists: PublicFeaturedArtist[];
+  dateLabel: string;
+  location: string;
+  registrationStatus: RetreatEvent["registrationStatus"];
+  slug: string;
+  summary: string;
+  title: string;
 };
 
 const categoryLabels: Record<string, string> = {
@@ -86,39 +96,51 @@ function mapPublicProfile(profile: ModelProfile): PublicFeaturedArtist | null {
   };
 }
 
-const publicationConditions: Where[] = [
-  { approvalStatus: { equals: "approved" } },
-  { _status: { equals: "published" } },
-  { usagePermissionConfirmed: { equals: true } },
-];
-
-const publicationWhere: Where = { and: publicationConditions };
-
-export async function getPublicFeaturedArtists(): Promise<PublicFeaturedArtist[]> {
-  noStore();
-  const payload = await getPayload({ config });
-  const result = await payload.find({
-    collection: "model-profiles",
-    depth: 2,
-    draft: false,
-    limit: 100,
-    overrideAccess: true,
-    sort: "displayName",
-    where: publicationWhere,
-  });
-  return result.docs.map(mapPublicProfile).filter((artist): artist is PublicFeaturedArtist => artist !== null);
+function formatEventDate(startDate: string | null | undefined): string {
+  if (!startDate) return "Dates forthcoming";
+  return new Intl.DateTimeFormat("en-US", { month: "long", year: "numeric", timeZone: "UTC" }).format(new Date(startDate));
 }
 
-export async function getPublicFeaturedArtistBySlug(slug: string): Promise<PublicFeaturedArtist | null> {
+function mapPublicEvent(event: RetreatEvent): PublicRetreatEvent | null {
+  if (event._status !== "published" || !["prototype", "published"].includes(event.lifecycleStatus)) return null;
+  const artists = (event.participatingArtists || [])
+    .filter((assignment) => assignment.participationStatus === "approved" && typeof assignment.artist !== "number")
+    .sort((a, b) => (a.displayOrder ?? 100) - (b.displayOrder ?? 100))
+    .map((assignment) => mapPublicProfile(assignment.artist as ModelProfile))
+    .filter((artist): artist is PublicFeaturedArtist => artist !== null);
+  return {
+    artists,
+    dateLabel: formatEventDate(event.startDate),
+    location: event.locationName || "Location forthcoming",
+    registrationStatus: event.registrationStatus,
+    slug: event.slug,
+    summary: event.summary,
+    title: event.title,
+  };
+}
+
+export async function getPublicRetreatEvent(eventSlug: string): Promise<PublicRetreatEvent | null> {
   noStore();
   const payload = await getPayload({ config });
   const result = await payload.find({
-    collection: "model-profiles",
-    depth: 2,
+    collection: "retreat-events",
+    depth: 3,
     draft: false,
     limit: 1,
     overrideAccess: true,
-    where: { and: [...publicationConditions, { slug: { equals: slug } }] },
+    where: {
+      and: [
+        { slug: { equals: eventSlug } },
+        { _status: { equals: "published" } },
+        { lifecycleStatus: { in: ["prototype", "published"] } },
+      ],
+    },
   });
-  return result.docs[0] ? mapPublicProfile(result.docs[0]) : null;
+  return result.docs[0] ? mapPublicEvent(result.docs[0]) : null;
+}
+
+export async function getPublicEventArtist(eventSlug: string, artistSlug: string): Promise<{ artist: PublicFeaturedArtist; event: PublicRetreatEvent } | null> {
+  const event = await getPublicRetreatEvent(eventSlug);
+  const artist = event?.artists.find((candidate) => candidate.slug === artistSlug);
+  return event && artist ? { artist, event } : null;
 }
