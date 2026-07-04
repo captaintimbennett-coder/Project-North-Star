@@ -26,7 +26,7 @@ export const PhotographerApplications: CollectionConfig = {
     description:
       "Private review records. Accepted applications may later be used to create or update a canonical photographer profile; nothing is published automatically.",
     group: "Lone Star Retreat",
-    useAsTitle: "displayName",
+    useAsTitle: "legalName",
   },
   fields: [
     {
@@ -36,7 +36,11 @@ export const PhotographerApplications: CollectionConfig = {
           label: "Basic Information",
           fields: [
             { name: "legalName", type: "text", label: "Legal name", required: true },
-            { name: "displayName", type: "text", label: "Display name", required: true },
+            {
+              name: "displayName",
+              type: "text",
+              label: "Display name (optional)",
+            },
             { name: "email", type: "email", required: true },
             { name: "phone", type: "text", required: true },
             { name: "city", type: "text", required: true },
@@ -45,6 +49,31 @@ export const PhotographerApplications: CollectionConfig = {
             { name: "instagramURL", type: "text", label: "Instagram URL" },
             { name: "websiteURL", type: "text", label: "Website URL" },
             { name: "portfolioURL", type: "text", label: "Portfolio URL" },
+            {
+              name: "marketingSource",
+              type: "select",
+              label: "How did you hear about Lone Star Retreat?",
+              options: [
+                { label: "Instagram", value: "instagram" },
+                { label: "Facebook", value: "facebook" },
+                { label: "Friend", value: "friend" },
+                { label: "Photographer", value: "photographer" },
+                { label: "Model", value: "model" },
+                { label: "Workshop", value: "workshop" },
+                { label: "Magazine", value: "magazine" },
+                { label: "Google Search", value: "google-search" },
+                { label: "Other", value: "other" },
+              ],
+              required: true,
+            },
+            {
+              name: "otherMarketingSource",
+              type: "text",
+              label: "Other referral source",
+              admin: {
+                condition: (_, siblingData) => siblingData?.marketingSource === "other",
+              },
+            },
           ],
         },
         {
@@ -63,7 +92,11 @@ export const PhotographerApplications: CollectionConfig = {
               ],
               required: true,
             },
-            { name: "equipmentSummary", type: "textarea", label: "Equipment summary", required: true },
+            {
+              name: "equipmentSummary",
+              type: "textarea",
+              label: "Equipment summary (optional)",
+            },
             {
               name: "genresInterests",
               type: "select",
@@ -144,7 +177,8 @@ export const PhotographerApplications: CollectionConfig = {
               name: "codeOfConductConfirmed",
               type: "checkbox",
               defaultValue: false,
-              label: "I agree to follow the Lone Star Retreat code of conduct.",
+              label:
+                "I have read and agree to follow the Lone Star Retreat Professional Standards & Code of Conduct.",
               required: true,
             },
             {

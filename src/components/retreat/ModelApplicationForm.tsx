@@ -1,0 +1,127 @@
+"use client";
+
+import { useRouter } from "next/navigation";
+import { FormEvent, useRef, useState } from "react";
+import { Button } from "@/components/buttons";
+import { modelApplicationContent as content } from "@/data/applications";
+import { ProfessionalStandardsDisclosure } from "./ProfessionalStandardsDisclosure";
+
+type Errors = Record<string, string>;
+type FieldProps = { children: React.ReactNode; description?: string; error?: string; label: string; name: string; required?: boolean };
+
+function Field({ children, description, error, label, name, required }: FieldProps) {
+  return <div className="application-field">
+    <label htmlFor={name}>{label}{required && <span aria-hidden="true"> *</span>}</label>
+    {description && <p id={`${name}-description`}>{description}</p>}
+    {children}
+    {error && <p className="application-field__error" id={`${name}-error`}>{error}</p>}
+  </div>;
+}
+
+function by(name: string, description: boolean, error?: string) {
+  return [description && `${name}-description`, error && `${name}-error`].filter(Boolean).join(" ") || undefined;
+}
+
+export function ModelApplicationForm() {
+  const router = useRouter();
+  const formRef = useRef<HTMLFormElement>(null);
+  const interestsRef = useRef<HTMLFieldSetElement>(null);
+  const [errors, setErrors] = useState<Errors>({});
+  const [formError, setFormError] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [marketingSource, setMarketingSource] = useState("");
+
+  async function submit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const data = new FormData(event.currentTarget);
+    const next: Errors = {};
+    const images = data.getAll("images").filter((entry): entry is File => entry instanceof File && entry.size > 0);
+    if (!data.getAll("creativeInterests").length) next.creativeInterests = "Select at least one type of session.";
+    if (images.length > 5) next.images = "Upload no more than five images in total.";
+    for (const file of images) {
+      if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) next.images = "Images must be JPG, PNG, or WebP files.";
+      if (file.size > 10 * 1024 * 1024) next.images = "Each image must be 10MB or smaller.";
+    }
+    if (marketingSource === "other" && !String(data.get("otherMarketingSource") || "").trim()) next.otherMarketingSource = "Tell us how you heard about Lone Star Retreat.";
+    if (Object.keys(next).length) {
+      setErrors(next); setFormError("Please review the highlighted fields before submitting.");
+      if (next.creativeInterests) interestsRef.current?.focus();
+      return;
+    }
+    setErrors({}); setFormError(""); setSubmitting(true);
+    try {
+      const response = await fetch("/api/applications/model", { method: "POST", body: data });
+      const result = await response.json() as { error?: string; errors?: Errors; ok?: boolean };
+      if (!response.ok || !result.ok) {
+        setErrors(result.errors || {}); setFormError(result.error || "Please review the highlighted fields before submitting.");
+        formRef.current?.querySelector<HTMLElement>("[aria-invalid='true']")?.focus(); return;
+      }
+      router.push("/lone-star-retreat/models/apply/application-received");
+    } catch { setFormError("We could not receive your application. Check your connection and try again."); }
+    finally { setSubmitting(false); }
+  }
+
+  const checkboxGroup = (name: string, items: readonly { label: string; value: string }[], error?: string) =>
+    <div className="application-choice-grid">{items.map((item) => <label key={item.value}>
+      <input type="checkbox" name={name} value={item.value} /><span>{item.label}</span>
+    </label>)}{error && <p className="application-field__error" id={`${name}-error`}>{error}</p>}</div>;
+
+  return <form className="application-form" ref={formRef} onSubmit={submit}>
+    <div className="application-honeypot" aria-hidden="true"><label htmlFor="companyWebsite">Company website</label><input id="companyWebsite" name="companyWebsite" tabIndex={-1} autoComplete="off" /></div>
+    {formError && <div className="application-form__notice" role="alert"><strong>We need a little more information.</strong><p>{formError}</p></div>}
+
+    <section className="application-form-section" aria-labelledby="model-about-title">
+      <div className="application-form-section__heading"><span>01</span><div><p className="ds-eyebrow">Application details</p><h2 id="model-about-title">About you</h2><p>Begin with the details we will use to identify you and stay in touch.</p></div></div>
+      <div className="application-form-grid">
+        <Field name="stageName" label="Display / stage name" required description="This is the name we will use for public-facing materials unless you approve otherwise." error={errors.stageName}><input className="application-input" id="stageName" name="stageName" autoComplete="nickname" required aria-invalid={!!errors.stageName} aria-describedby={by("stageName", true, errors.stageName)} /></Field>
+        <Field name="legalName" label="Legal name" description="Optional. This is used only for private administrative purposes and will never be displayed publicly." error={errors.legalName}><input className="application-input" id="legalName" name="legalName" autoComplete="name" aria-invalid={!!errors.legalName} aria-describedby={by("legalName", true, errors.legalName)} /></Field>
+        <Field name="email" label="Email" required error={errors.email}><input className="application-input" id="email" name="email" type="email" autoComplete="email" required aria-invalid={!!errors.email} /></Field>
+        <Field name="phone" label="Phone" required error={errors.phone}><input className="application-input" id="phone" name="phone" type="tel" autoComplete="tel" required aria-invalid={!!errors.phone} /></Field>
+        <Field name="city" label="City" required error={errors.city}><input className="application-input" id="city" name="city" autoComplete="address-level2" required aria-invalid={!!errors.city} /></Field>
+        <Field name="state" label="State / region" required error={errors.state}><input className="application-input" id="state" name="state" autoComplete="address-level1" required aria-invalid={!!errors.state} /></Field>
+        <Field name="country" label="Country" required error={errors.country}><input className="application-input" id="country" name="country" autoComplete="country-name" required aria-invalid={!!errors.country} /></Field>
+        <Field name="instagramURL" label="Instagram URL" description="Optional. Include the full https:// address." error={errors.instagramURL}><input className="application-input" id="instagramURL" name="instagramURL" type="url" placeholder="https://instagram.com/yourname" aria-invalid={!!errors.instagramURL} aria-describedby={by("instagramURL", true, errors.instagramURL)} /></Field>
+        <Field name="websiteURL" label="Website URL" description="Optional. Include the full https:// address." error={errors.websiteURL}><input className="application-input" id="websiteURL" name="websiteURL" type="url" aria-invalid={!!errors.websiteURL} aria-describedby={by("websiteURL", true, errors.websiteURL)} /></Field>
+        <Field name="portfolioURL" label="Portfolio URL" description="Optional, if different from your website." error={errors.portfolioURL}><input className="application-input" id="portfolioURL" name="portfolioURL" type="url" aria-invalid={!!errors.portfolioURL} /></Field>
+        <Field name="agencyRepresentation" label="Agency representation" description="Optional. Share the agency name and location, if applicable." error={errors.agencyRepresentation}><input className="application-input" id="agencyRepresentation" name="agencyRepresentation" /></Field>
+        <Field name="marketingSource" label="How did you hear about Lone Star Retreat?" required error={errors.marketingSource}><select className="application-input" id="marketingSource" name="marketingSource" required value={marketingSource} onChange={e => setMarketingSource(e.target.value)}><option value="">Select one</option>{content.marketingSources.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}</select></Field>
+        {marketingSource === "other" && <Field name="otherMarketingSource" label="Tell us where you heard about us" required error={errors.otherMarketingSource}><input className="application-input" id="otherMarketingSource" name="otherMarketingSource" required /></Field>}
+      </div>
+    </section>
+
+    <section className="application-form-section" aria-labelledby="model-work-title">
+      <div className="application-form-section__heading"><span>02</span><div><p className="ds-eyebrow">Creative practice</p><h2 id="model-work-title">Session availability</h2><p>Help us understand your experience, travel rhythm, and the kinds of sessions you are currently available to join.</p></div></div>
+      <div className="application-form-grid">
+        <Field name="modelingExperienceLevel" label="Modeling experience level" required error={errors.modelingExperienceLevel}><select className="application-input" id="modelingExperienceLevel" name="modelingExperienceLevel" required><option value="">Select one</option>{content.experienceLevels.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}</select></Field>
+        <Field name="travelAvailability" label="Travel availability" required error={errors.travelAvailability}><select className="application-input" id="travelAvailability" name="travelAvailability" required><option value="">Select one</option>{content.travelAvailability.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}</select></Field>
+        <Field name="homeAirport" label="Home airport" description="Optional." error={errors.homeAirport}><input className="application-input" id="homeAirport" name="homeAirport" /></Field>
+        <Field name="availabilityNotes" label="Availability notes" description="Optional. Share useful city, state, country, or travel context." error={errors.availabilityNotes}><textarea className="application-input application-textarea" id="availabilityNotes" name="availabilityNotes" rows={4} /></Field>
+      </div>
+      <fieldset className="application-choice-group" ref={interestsRef} tabIndex={-1} aria-invalid={!!errors.creativeInterests}><legend>Which types of sessions are you available to participate in at Lone Star Retreat? <span aria-hidden="true">*</span></legend><p>Select all that apply. Detailed boundaries and session-specific consent will be discussed later if you are accepted.</p>{checkboxGroup("creativeInterests", content.genres, errors.creativeInterests)}</fieldset>
+      <Field name="otherCreativeInterest" label="Other session type" description="Optional. Add context if you selected Other." error={errors.otherCreativeInterest}><input className="application-input" id="otherCreativeInterest" name="otherCreativeInterest" /></Field>
+    </section>
+
+    <section className="application-form-section" aria-labelledby="model-materials-title">
+      <div className="application-form-section__heading"><span>03</span><div><p className="ds-eyebrow">Private review</p><h2 id="model-materials-title">Featured artist materials</h2><p>Share the imagery and words that best introduce your work. Nothing is published automatically.</p></div></div>
+      <div className="application-form-grid application-form-grid--single">
+        <Field name="preferredHeroImage" label="Preferred hero image" description="Upload the image you would prefer us to consider as your featured image. Final image selection remains subject to approval." error={errors.images}><input className="application-input application-file-input" id="preferredHeroImage" name="images" type="file" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" aria-describedby={by("preferredHeroImage", true, errors.images)} /></Field>
+        <Field name="additionalImages" label="Additional portfolio images" description="Optional. Add up to four more JPG, PNG, or WebP images. Each image must be 10MB or smaller." error={errors.images}><input className="application-input application-file-input" id="additionalImages" name="images" type="file" multiple accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" /></Field>
+        <Field name="shortBiography" label="Short biography" required description="Introduce your experience and creative point of view in your own voice." error={errors.shortBiography}><textarea className="application-input application-textarea" id="shortBiography" name="shortBiography" rows={6} required aria-invalid={!!errors.shortBiography} /></Field>
+        <Field name="artistStatement" label="Artist statement" description="Optional. Share what draws you to the work you create." error={errors.artistStatement}><textarea className="application-input application-textarea" id="artistStatement" name="artistStatement" rows={5} /></Field>
+      </div>
+    </section>
+
+    <section className="application-form-section" aria-labelledby="model-goals-title">
+      <div className="application-form-section__heading"><span>04</span><div><p className="ds-eyebrow">Looking forward</p><h2 id="model-goals-title">What you hope to gain</h2><p>Select every goal that feels meaningful. This helps us understand the experience you are seeking.</p></div></div>
+      <fieldset className="application-choice-group"><legend>Your retreat goals</legend><p>Select all that apply.</p>{checkboxGroup("retreatGoals", content.goals)}</fieldset>
+      <Field name="otherRetreatGoal" label="Other goal" description="Optional. Add context if you selected Other." error={errors.otherRetreatGoal}><input className="application-input" id="otherRetreatGoal" name="otherRetreatGoal" /></Field>
+    </section>
+
+    <section className="application-form-section application-form-section--consent" aria-labelledby="model-consent-title">
+      <div className="application-form-section__heading"><span>05</span><div><p className="ds-eyebrow">Confirm & submit</p><h2 id="model-consent-title">Professional Standards</h2><p>Review the culture and commitments that every Lone Star Retreat participant shares.</p></div></div>
+      <div className="application-consents">{content.consents.filter(c => c.name !== "codeOfConductConfirmed").map(c => <label key={c.name}><input type="checkbox" name={c.name} required aria-invalid={!!errors[c.name]} /><span>{c.label} <b aria-hidden="true">*</b></span>{errors[c.name] && <small className="application-field__error">{errors[c.name]}</small>}</label>)}</div>
+      <ProfessionalStandardsDisclosure error={errors.codeOfConductConfirmed} />
+      <div className="application-submit"><p>Your application and images remain private review materials. Submission does not create an account or public profile, and acceptance never publishes your information automatically.</p><Button type="submit" variant="primary" disabled={submitting}>{submitting ? "Submitting…" : content.submitLabel}</Button></div>
+    </section>
+  </form>;
+}

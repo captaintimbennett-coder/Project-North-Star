@@ -44,6 +44,11 @@ The visual system is documented in
 [`docs/design-system.md`](docs/design-system.md). New pages should use the
 tokens and primitives defined there instead of introducing local visual rules.
 
+The permanent creative philosophy for every page, feature, component, and user
+experience is defined in the core Foundation document
+[`docs/foundation/design-principles.md`](docs/foundation/design-principles.md).
+Review it before making visual decisions.
+
 Future Codex sessions should begin with
 [`docs/codex-instructions.md`](docs/codex-instructions.md).
 

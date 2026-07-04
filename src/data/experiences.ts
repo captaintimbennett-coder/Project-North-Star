@@ -54,7 +54,7 @@ export const loneStarRetreatContent = {
       title: "Photographers",
       body: "Elevate your craft through intentional shoots, meaningful collaboration, and a community built around growth.",
       action: "Explore the Photographer Experience",
-      href: "/contact?interest=photographer",
+      href: "/lone-star-retreat/photographers",
     },
     {
       number: "02",
@@ -62,7 +62,7 @@ export const loneStarRetreatContent = {
       title: "Models",
       body: "Create in a professional environment centered on respect, clear boundaries, confidence, and artistic expression.",
       action: "Become a Featured Artist",
-      href: "/contact?interest=featured-artist",
+      href: "/lone-star-retreat/models",
     },
     {
       number: "03",
@@ -125,6 +125,151 @@ export const loneStarRetreatContent = {
     title: "Come create something that matters.",
     body: "Create. Connect. Leave your mark.",
     action: { label: "Express interest", href: "/contact?interest=retreat" },
+  },
+} as const;
+
+export const retreatAudienceContent = {
+  photographers: {
+    hero: {
+      eyebrow: "Lone Star Retreat · Photographer Experience",
+      title: "Create with purpose. Return with perspective.",
+      introduction:
+        "A destination retreat for photographers ready to make stronger work, collaborate with professional artists, and grow inside a thoughtfully designed creative environment.",
+      image: images.retreat.texasHillCountryHero,
+      imageAlt: "Texas Hill Country glowing at sunset",
+    },
+    why: {
+      eyebrow: "Why this exists",
+      title: "The best work rarely happens in isolation.",
+      body:
+        "Lone Star Retreat creates the time, place, and professional structure for photographers to move beyond routine. Remarkable settings, intentional collaboration, and a shared standard make room for new ideas—and the confidence to pursue them.",
+      image: images.hero.studies.maker,
+      imageAlt: "Photographer working thoughtfully in a warm studio",
+    },
+    audience: {
+      eyebrow: "Who it is for",
+      title: "For photographers serious about the work and the people behind it.",
+      items: [
+        {
+          title: "Purposeful creators",
+          body: "Photographers who arrive prepared, curious, and ready to create with intention rather than simply collect images.",
+        },
+        {
+          title: "Respectful collaborators",
+          body: "Professionals who value communication, boundaries, shared authorship, and a calm set experience.",
+        },
+        {
+          title: "Growth-minded artists",
+          body: "People willing to experiment, exchange ideas, and leave with a clearer visual direction than they arrived with.",
+        },
+      ],
+    },
+    expectations: {
+      eyebrow: "What to expect",
+      title: "A retreat shaped around preparation, access, and creative momentum.",
+      items: [
+        {
+          number: "01",
+          title: "Intentional sessions",
+          body: "Curated opportunities with professional Featured Artists, considered settings, and enough time to make decisions with care.",
+        },
+        {
+          number: "02",
+          title: "Destination energy",
+          body: "Texas landscapes, changing light, and a setting removed from the ordinary create space for work that feels distinct.",
+        },
+        {
+          number: "03",
+          title: "Meaningful community",
+          body: "A small group of peers connected by professionalism, generosity, and the belief that collaboration elevates everyone.",
+        },
+      ],
+    },
+    standards: {
+      eyebrow: "The professional standard",
+      title: "Creative freedom begins with trust.",
+      body:
+        "Every participant is expected to communicate clearly, honor personal boundaries, follow the code of conduct, and contribute to a safe, focused environment. Access is intentionally reviewed so the retreat can remain professional, respectful, and creatively ambitious.",
+    },
+    cta: {
+      eyebrow: "Photographer applications",
+      title: "Ready to create under a wider sky?",
+      body:
+        "Tell us about your work, your creative direction, and what you hope to bring to the Lone Star Retreat community.",
+      label: "Apply for Photographer Access",
+      href: "/lone-star-retreat/photographers/apply",
+    },
+  },
+  models: {
+    hero: {
+      eyebrow: "Lone Star Retreat · Featured Artist Experience",
+      title: "Your artistry belongs in the story.",
+      introduction:
+        "A professional destination experience for traveling models who value strong creative collaboration, clear boundaries, exceptional imagery, and work made with purpose.",
+      image: images.portfolio.redEditorial,
+      imageAlt: "Professional model in a cinematic editorial portrait",
+    },
+    why: {
+      eyebrow: "Why this exists",
+      title: "Featured Artists are collaborators, not accessories.",
+      body:
+        "Lone Star Retreat is designed around mutual respect. Models bring experience, perspective, movement, and creative voice to every image. The retreat creates a setting where that contribution is recognized, protected, and given room to become something memorable.",
+      image: images.portfolio.silkBeauty,
+      imageAlt: "Featured Artist in a warm, refined beauty portrait",
+    },
+    audience: {
+      eyebrow: "Who it is for",
+      title: "For professional artists who know their range and value their boundaries.",
+      items: [
+        {
+          title: "Experienced travelers",
+          body: "Models comfortable preparing for destination work, communicating availability, and arriving ready to collaborate professionally.",
+        },
+        {
+          title: "Creative partners",
+          body: "Artists who bring ideas, presence, and a point of view—not simply poses—to the work being made together.",
+        },
+        {
+          title: "Clear communicators",
+          body: "Professionals who state genres, comfort levels, and personal boundaries honestly and expect those boundaries to be honored.",
+        },
+      ],
+    },
+    expectations: {
+      eyebrow: "What to expect",
+      title: "A considered environment built for excellent work.",
+      items: [
+        {
+          number: "01",
+          title: "Professional preparation",
+          body: "Clear event information, thoughtful planning, and defined expectations before the first creative session begins.",
+        },
+        {
+          number: "02",
+          title: "Respectful collaboration",
+          body: "Photographers are selected for professionalism, communication, and their willingness to work within confirmed boundaries.",
+        },
+        {
+          number: "03",
+          title: "Portfolio-minded creation",
+          body: "Purposeful opportunities to create polished work, build lasting relationships, and expand your presence as an artist.",
+        },
+      ],
+    },
+    standards: {
+      eyebrow: "Safety · Respect · Consent",
+      title: "Your boundaries remain yours. Always.",
+      body:
+        "Genre selections and comfort levels are separate by design. No selected genre implies consent, and no participant may redefine an artist's boundaries. Clear communication, the Lone Star Retreat code of conduct, and a professional review process govern every experience.",
+    },
+    cta: {
+      eyebrow: "Featured Artist applications",
+      title: "Bring your voice to the next retreat.",
+      body:
+        "Tell us about your work, your creative range, and the kind of professional experience you hope to help create.",
+      label: "Become a Featured Artist",
+      href: "/lone-star-retreat/models/apply",
+    },
   },
 } as const;
 

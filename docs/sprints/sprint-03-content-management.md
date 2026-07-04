@@ -40,6 +40,8 @@ code while preserving the current public design and content shapes.
 - Existing `src/data` structures are the interim content contracts.
 - Service-role credentials must never reach the browser.
 - Draft and preview states are required before publication.
+- The Lone Star Retreat Professional Standards & Code of Conduct is an approved
+  Foundation document and required acknowledgment for both public applications.
 
 ## Deferred Items
 
@@ -121,3 +123,21 @@ shapes.
 The submission protection contract is documented in
 [`../application-submission-protection.md`](../application-submission-protection.md).
 Public form composition and visual design remain a separate approval step.
+
+The proposed end-to-end Photographer and Featured Artist journeys, Version 1
+page inventory, status-page boundary, and implementation order are documented
+in [`../lone-star-retreat-applicant-experience.md`](../lone-star-retreat-applicant-experience.md).
+
+## Public applicant experience progress — July 3, 2026
+
+- [x] Photographer audience landing page implemented at `/lone-star-retreat/photographers`.
+- [x] Featured Artist audience landing page implemented at `/lone-star-retreat/models`.
+- [x] Lone Star Retreat pathway cards connected to the audience landing pages.
+- [x] Featured Artist CTA routes to the implemented Model Application.
+- [x] Photographer CTA routes to the implemented Photographer Application.
+- [x] Photographer Application reference page implemented and connected to the protected endpoint.
+- [x] Photographer Application Received page implemented and verified without private URL data.
+- [x] Model Application refined to five editorial sections with Display / Stage Name
+  as the required identity, optional private Legal Name, one session-availability
+  multi-select, private media uploads, and the protected submission endpoint.
+- [x] Model Application Received page implemented without private URL data.

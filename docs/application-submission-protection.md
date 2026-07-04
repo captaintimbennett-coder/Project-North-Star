@@ -16,8 +16,19 @@ form interface.
 
 Both endpoints accept `multipart/form-data`. The hidden honeypot field is named
 `companyWebsite`. Repeated field names are used for multi-select values such as
-`creativeInterests`, `comfortLevels`, `retreatGoals`, and `genresInterests`.
+`creativeInterests`, `retreatGoals`, and `genresInterests`.
 Model images use the repeated field name `images`.
+
+Both application types require one `marketingSource` value for the question
+“How did you hear about Lone Star Retreat?” Approved values are Instagram,
+Facebook, Friend, Photographer, Model, Workshop, Magazine, Google Search, and
+Other. Selecting Other requires `otherMarketingSource` text.
+
+The model question “Which types of sessions are you available to participate in
+at Lone Star Retreat?” uses a multi-select checkbox group. Each selected value
+is submitted as a repeated `creativeInterests` field and stored as an array.
+Detailed boundaries and session-specific consent are confirmed later if the
+model is accepted; availability selections never replace explicit consent.
 
 ## Protection rules
 
@@ -30,7 +41,11 @@ Model images use the repeated field name `images`.
 - Payload collection access remains authenticated-only. The public endpoints use
   narrowly scoped server-side Payload calls.
 - All required consent confirmations must be true.
-- Model applications require at least one creative interest and comfort level.
+- Both applications present the approved
+  [`foundation/lone-star-retreat-code-of-conduct.md`](foundation/lone-star-retreat-code-of-conduct.md)
+  in an in-page disclosure and require `codeOfConductConfirmed` before submission.
+- Model applications require a Display / Stage Name and at least one session type.
+- Legal name is optional, remains private, and is never a public display field.
 - Photographer applications require at least one genre or creative interest.
 - Optional URLs must be complete HTTP or HTTPS URLs.
 - Model uploads allow JPG/JPEG, PNG, and WebP only, up to 10MB each and five
@@ -54,4 +69,3 @@ limiter. Confirm the deployment provider's request-body limit before exposing
 Before public launch, approve applicant-facing privacy language and a retention
 period for declined or abandoned applications. Collection deletion should remain
 an administrative decision until that policy is approved.
-

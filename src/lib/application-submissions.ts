@@ -33,18 +33,10 @@ const MODEL_INTERESTS = [
   "boudoir",
   "artistic-nude",
   "fine-art-nude",
-  "beauty-close-up",
+  "beauty",
   "conceptual-creative",
+  "lifestyle",
   "other",
-] as const;
-const COMFORT_LEVELS = [
-  "fully-clothed",
-  "fashion",
-  "swimwear",
-  "lingerie",
-  "implied-nude",
-  "artistic-nude",
-  "fine-art-nude",
 ] as const;
 const MODEL_GOALS = [
   "network-with-photographers",
@@ -68,9 +60,23 @@ const PHOTOGRAPHER_INTERESTS = [
   "beauty",
   "other",
 ] as const;
+const MARKETING_SOURCES = [
+  "instagram",
+  "facebook",
+  "friend",
+  "photographer",
+  "model",
+  "workshop",
+  "magazine",
+  "google-search",
+  "other",
+] as const;
 
-function validateCommon(formData: FormData, errors: ValidationErrors) {
-  const legalName = getRequiredString(formData, "legalName", errors);
+function validateCommon(
+  formData: FormData,
+  errors: ValidationErrors,
+) {
+  const legalName = getOptionalString(formData, "legalName");
   const email = getRequiredString(formData, "email", errors);
   const phone = getRequiredString(formData, "phone", errors);
   const city = getRequiredString(formData, "city", errors);
@@ -79,11 +85,17 @@ function validateCommon(formData: FormData, errors: ValidationErrors) {
   const instagramURL = getOptionalString(formData, "instagramURL");
   const websiteURL = getOptionalString(formData, "websiteURL");
   const portfolioURL = getOptionalString(formData, "portfolioURL");
+  const marketingSource = getRequiredString(formData, "marketingSource", errors);
 
   validateEmail(email, errors);
   validateOptionalURL(instagramURL, "instagramURL", errors);
   validateOptionalURL(websiteURL, "websiteURL", errors);
   validateOptionalURL(portfolioURL, "portfolioURL", errors);
+  validateAllowedValues([marketingSource], MARKETING_SOURCES, "marketingSource", errors);
+  const otherMarketingSource = getOptionalString(formData, "otherMarketingSource");
+  if (marketingSource === "other" && !otherMarketingSource) {
+    errors.otherMarketingSource = "Tell us how you heard about Lone Star Retreat.";
+  }
 
   const consents = {
     informationAccurateConfirmed: requireConfirmation(
@@ -110,6 +122,8 @@ function validateCommon(formData: FormData, errors: ValidationErrors) {
     instagramURL,
     websiteURL,
     portfolioURL,
+    marketingSource: marketingSource as (typeof MARKETING_SOURCES)[number],
+    otherMarketingSource,
     ...consents,
   };
 }
@@ -121,7 +135,6 @@ export async function createPublicModelApplication(formData: FormData) {
   const modelingExperienceLevel = getRequiredString(formData, "modelingExperienceLevel", errors);
   const travelAvailability = getRequiredString(formData, "travelAvailability", errors);
   const creativeInterests = getStringArray(formData, "creativeInterests");
-  const comfortLevels = getStringArray(formData, "comfortLevels");
   const retreatGoals = getStringArray(formData, "retreatGoals");
   const shortBiography = getRequiredString(formData, "shortBiography", errors);
   const consentImageUsageConfirmed = requireConfirmation(
@@ -135,8 +148,6 @@ export async function createPublicModelApplication(formData: FormData) {
   validateAllowedValues([travelAvailability], TRAVEL_AVAILABILITY, "travelAvailability", errors);
   requireSelection(creativeInterests, "creativeInterests", errors);
   validateAllowedValues(creativeInterests, MODEL_INTERESTS, "creativeInterests", errors);
-  requireSelection(comfortLevels, "comfortLevels", errors);
-  validateAllowedValues(comfortLevels, COMFORT_LEVELS, "comfortLevels", errors);
   validateAllowedValues(retreatGoals, MODEL_GOALS, "retreatGoals", errors);
   validateModelImages(files, errors);
   assertValid(errors);
@@ -172,7 +183,6 @@ export async function createPublicModelApplication(formData: FormData) {
         modelingExperienceLevel: modelingExperienceLevel as (typeof MODEL_EXPERIENCE)[number],
         travelAvailability: travelAvailability as (typeof TRAVEL_AVAILABILITY)[number],
         creativeInterests: creativeInterests as (typeof MODEL_INTERESTS)[number][],
-        comfortLevels: comfortLevels as (typeof COMFORT_LEVELS)[number][],
         retreatGoals: retreatGoals as (typeof MODEL_GOALS)[number][],
         shortBiography,
         agencyRepresentation: getOptionalString(formData, "agencyRepresentation"),
@@ -202,13 +212,14 @@ export async function createPublicModelApplication(formData: FormData) {
 export async function createPublicPhotographerApplication(formData: FormData) {
   const errors: ValidationErrors = {};
   const common = validateCommon(formData, errors);
-  const displayName = getRequiredString(formData, "displayName", errors);
+  const legalName = getRequiredString(formData, "legalName", errors);
+  const displayName = getOptionalString(formData, "displayName");
   const photographyExperienceLevel = getRequiredString(
     formData,
     "photographyExperienceLevel",
     errors,
   );
-  const equipmentSummary = getRequiredString(formData, "equipmentSummary", errors);
+  const equipmentSummary = getOptionalString(formData, "equipmentSummary");
   const genresInterests = getStringArray(formData, "genresInterests");
   const whatTheyHopeToCreate = getRequiredString(formData, "whatTheyHopeToCreate", errors);
   const retreatGoals = getRequiredString(formData, "retreatGoals", errors);
@@ -233,6 +244,7 @@ export async function createPublicPhotographerApplication(formData: FormData) {
     collection: "photographer-applications",
     data: {
       ...common,
+      legalName,
       displayName,
       photographyExperienceLevel:
         photographyExperienceLevel as (typeof PHOTOGRAPHER_EXPERIENCE)[number],
@@ -251,4 +263,3 @@ export async function createPublicPhotographerApplication(formData: FormData) {
 }
 
 export { ApplicationValidationError };
-

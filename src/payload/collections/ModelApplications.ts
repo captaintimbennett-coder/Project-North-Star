@@ -22,7 +22,7 @@ export const ModelApplications: CollectionConfig = {
     update: authenticated,
   },
   admin: {
-    defaultColumns: ["legalName", "stageName", "applicationStatus", "submittedAt"],
+    defaultColumns: ["stageName", "email", "applicationStatus", "submittedAt"],
     description:
       "Private review records. Accepted applications may later be used to create or update a canonical model profile; nothing is published automatically.",
     group: "Lone Star Retreat",
@@ -35,7 +35,15 @@ export const ModelApplications: CollectionConfig = {
         {
           label: "Basic Information",
           fields: [
-            { name: "legalName", type: "text", label: "Legal name", required: true },
+            {
+              name: "legalName",
+              type: "text",
+              label: "Legal name (optional)",
+              admin: {
+                description:
+                  "Private administrative information. Never display publicly. It may be collected later for contracts, payment, or tax documentation.",
+              },
+            },
             { name: "stageName", type: "text", label: "Display / stage name", required: true },
             { name: "email", type: "email", required: true },
             { name: "phone", type: "text", required: true },
@@ -49,6 +57,31 @@ export const ModelApplications: CollectionConfig = {
               name: "agencyRepresentation",
               type: "text",
               label: "Agency representation (optional)",
+            },
+            {
+              name: "marketingSource",
+              type: "select",
+              label: "How did you hear about Lone Star Retreat?",
+              options: [
+                { label: "Instagram", value: "instagram" },
+                { label: "Facebook", value: "facebook" },
+                { label: "Friend", value: "friend" },
+                { label: "Photographer", value: "photographer" },
+                { label: "Model", value: "model" },
+                { label: "Workshop", value: "workshop" },
+                { label: "Magazine", value: "magazine" },
+                { label: "Google Search", value: "google-search" },
+                { label: "Other", value: "other" },
+              ],
+              required: true,
+            },
+            {
+              name: "otherMarketingSource",
+              type: "text",
+              label: "Other referral source",
+              admin: {
+                condition: (_, siblingData) => siblingData?.marketingSource === "other",
+              },
             },
           ],
         },
@@ -90,13 +123,18 @@ export const ModelApplications: CollectionConfig = {
           ],
         },
         {
-          label: "Creative Interests",
+          label: "Session Availability",
           fields: [
             {
               name: "creativeInterests",
               type: "select",
               hasMany: true,
+              label: "Which types of sessions are they available to participate in?",
               required: true,
+              admin: {
+                description:
+                  "Version 1 availability overview. Detailed boundaries and session-specific consent are confirmed later if accepted.",
+              },
               options: [
                 { label: "Fashion", value: "fashion" },
                 { label: "Editorial", value: "editorial" },
@@ -106,27 +144,13 @@ export const ModelApplications: CollectionConfig = {
                 { label: "Boudoir", value: "boudoir" },
                 { label: "Artistic nude", value: "artistic-nude" },
                 { label: "Fine art nude", value: "fine-art-nude" },
-                { label: "Beauty / close-up", value: "beauty-close-up" },
+                { label: "Beauty", value: "beauty" },
                 { label: "Conceptual / creative", value: "conceptual-creative" },
+                { label: "Lifestyle", value: "lifestyle" },
                 { label: "Other", value: "other" },
               ],
             },
             { name: "otherCreativeInterest", type: "text", label: "Other creative interest" },
-            {
-              name: "comfortLevels",
-              type: "select",
-              hasMany: true,
-              required: true,
-              options: [
-                { label: "Fully clothed", value: "fully-clothed" },
-                { label: "Fashion", value: "fashion" },
-                { label: "Swimwear", value: "swimwear" },
-                { label: "Lingerie", value: "lingerie" },
-                { label: "Implied nude", value: "implied-nude" },
-                { label: "Artistic nude", value: "artistic-nude" },
-                { label: "Fine art nude", value: "fine-art-nude" },
-              ],
-            },
             {
               name: "retreatGoals",
               type: "select",
@@ -229,7 +253,8 @@ export const ModelApplications: CollectionConfig = {
               name: "codeOfConductConfirmed",
               type: "checkbox",
               defaultValue: false,
-              label: "I agree to follow the Lone Star Retreat code of conduct.",
+              label:
+                "I have read and agree to follow the Lone Star Retreat Professional Standards & Code of Conduct.",
               required: true,
             },
             {

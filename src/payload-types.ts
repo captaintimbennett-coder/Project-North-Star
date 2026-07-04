@@ -282,7 +282,10 @@ export interface PhotographerProfile {
  */
 export interface ModelApplication {
   id: number;
-  legalName: string;
+  /**
+   * Private administrative information. Never display publicly. It may be collected later for contracts, payment, or tax documentation.
+   */
+  legalName?: string | null;
   stageName: string;
   email: string;
   phone: string;
@@ -293,10 +296,24 @@ export interface ModelApplication {
   websiteURL?: string | null;
   portfolioURL?: string | null;
   agencyRepresentation?: string | null;
+  marketingSource:
+    | 'instagram'
+    | 'facebook'
+    | 'friend'
+    | 'photographer'
+    | 'model'
+    | 'workshop'
+    | 'magazine'
+    | 'google-search'
+    | 'other';
+  otherMarketingSource?: string | null;
   modelingExperienceLevel: 'aspiring' | 'developing' | 'experienced' | 'professional';
   travelAvailability: 'local-only' | 'regional' | 'domestic' | 'international' | 'case-by-case';
   homeAirport?: string | null;
   availabilityNotes?: string | null;
+  /**
+   * Version 1 availability overview. Detailed boundaries and session-specific consent are confirmed later if accepted.
+   */
   creativeInterests: (
     | 'fashion'
     | 'editorial'
@@ -306,14 +323,12 @@ export interface ModelApplication {
     | 'boudoir'
     | 'artistic-nude'
     | 'fine-art-nude'
-    | 'beauty-close-up'
+    | 'beauty'
     | 'conceptual-creative'
+    | 'lifestyle'
     | 'other'
   )[];
   otherCreativeInterest?: string | null;
-  comfortLevels: (
-    'fully-clothed' | 'fashion' | 'swimwear' | 'lingerie' | 'implied-nude' | 'artistic-nude' | 'fine-art-nude'
-  )[];
   retreatGoals?:
     | (
         | 'network-with-photographers'
@@ -359,7 +374,7 @@ export interface ModelApplication {
 export interface PhotographerApplication {
   id: number;
   legalName: string;
-  displayName: string;
+  displayName?: string | null;
   email: string;
   phone: string;
   city: string;
@@ -368,8 +383,19 @@ export interface PhotographerApplication {
   instagramURL?: string | null;
   websiteURL?: string | null;
   portfolioURL?: string | null;
+  marketingSource:
+    | 'instagram'
+    | 'facebook'
+    | 'friend'
+    | 'photographer'
+    | 'model'
+    | 'workshop'
+    | 'magazine'
+    | 'google-search'
+    | 'other';
+  otherMarketingSource?: string | null;
   photographyExperienceLevel: 'developing' | 'intermediate' | 'advanced' | 'professional';
-  equipmentSummary: string;
+  equipmentSummary?: string | null;
   genresInterests: (
     'glamour' | 'boudoir' | 'editorial' | 'artistic-nude' | 'fashion' | 'swimwear' | 'beauty' | 'other'
   )[];
@@ -727,13 +753,14 @@ export interface ModelApplicationsSelect<T extends boolean = true> {
   websiteURL?: T;
   portfolioURL?: T;
   agencyRepresentation?: T;
+  marketingSource?: T;
+  otherMarketingSource?: T;
   modelingExperienceLevel?: T;
   travelAvailability?: T;
   homeAirport?: T;
   availabilityNotes?: T;
   creativeInterests?: T;
   otherCreativeInterest?: T;
-  comfortLevels?: T;
   retreatGoals?: T;
   otherRetreatGoal?: T;
   preferredHeroImage?: T;
@@ -767,6 +794,8 @@ export interface PhotographerApplicationsSelect<T extends boolean = true> {
   instagramURL?: T;
   websiteURL?: T;
   portfolioURL?: T;
+  marketingSource?: T;
+  otherMarketingSource?: T;
   photographyExperienceLevel?: T;
   equipmentSummary?: T;
   genresInterests?: T;
