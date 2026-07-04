@@ -235,6 +235,7 @@ export interface ModelProfile {
   approvalStatus: 'draft' | 'review' | 'approved' | 'archived';
   publicIntroduction?: string | null;
   biography?: string | null;
+  artistStatement?: string | null;
   featuredImage?: (number | null) | Media;
   portfolioImages?: (number | Media)[] | null;
   modelingCategories?:
@@ -244,6 +245,17 @@ export interface ModelProfile {
   website?: string | null;
   instagram?: string | null;
   usagePermissionConfirmed?: boolean | null;
+  /**
+   * Every option is private by default. Enable only after the artist has approved that information for public display.
+   */
+  publicDisplay?: {
+    biography?: boolean | null;
+    artistStatement?: boolean | null;
+    location?: boolean | null;
+    categories?: boolean | null;
+    instagram?: boolean | null;
+    website?: boolean | null;
+  };
   adminNotes?: string | null;
   updatedAt: string;
   createdAt: string;
@@ -702,6 +714,7 @@ export interface ModelProfilesSelect<T extends boolean = true> {
   approvalStatus?: T;
   publicIntroduction?: T;
   biography?: T;
+  artistStatement?: T;
   featuredImage?: T;
   portfolioImages?: T;
   modelingCategories?: T;
@@ -710,6 +723,16 @@ export interface ModelProfilesSelect<T extends boolean = true> {
   website?: T;
   instagram?: T;
   usagePermissionConfirmed?: T;
+  publicDisplay?:
+    | T
+    | {
+        biography?: T;
+        artistStatement?: T;
+        location?: T;
+        categories?: T;
+        instagram?: T;
+        website?: T;
+      };
   adminNotes?: T;
   updatedAt?: T;
   createdAt?: T;

@@ -79,6 +79,7 @@ export const loneStarRetreatContent = {
     introduction:
       "Each retreat will feature a carefully selected artist roster. The first participating profiles will be introduced with the prototype event.",
     status: "Profile announcement forthcoming",
+    action: { label: "Meet All Featured Artists", href: "/lone-star-retreat/featured-artists" },
     items: [
       { label: "Artist No. 01", image: images.portfolio.redEditorial },
       { label: "Artist No. 02", image: images.portfolio.silkBeauty },

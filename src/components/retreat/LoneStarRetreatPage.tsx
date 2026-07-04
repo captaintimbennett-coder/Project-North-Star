@@ -68,6 +68,9 @@ export function LoneStarRetreatPage({ content }: LoneStarRetreatPageProps) {
               </article>
             ))}
           </div>
+          <div className="retreat-artists__action">
+            <Link href={content.artists.action.href}>{content.artists.action.label} <ArrowIcon /></Link>
+          </div>
         </Container>
       </section>
 

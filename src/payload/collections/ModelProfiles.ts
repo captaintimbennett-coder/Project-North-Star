@@ -59,6 +59,11 @@ export const ModelProfiles: CollectionConfig = {
       label: "Biography",
     },
     {
+      name: "artistStatement",
+      type: "textarea",
+      label: "Artist statement",
+    },
+    {
       name: "featuredImage",
       type: "upload",
       label: "Featured profile image",
@@ -107,6 +112,53 @@ export const ModelProfiles: CollectionConfig = {
       type: "checkbox",
       defaultValue: false,
       label: "Image usage permission confirmed",
+    },
+    {
+      type: "group",
+      name: "publicDisplay",
+      label: "Public display approvals",
+      admin: {
+        description:
+          "Every option is private by default. Enable only after the artist has approved that information for public display.",
+      },
+      fields: [
+        {
+          name: "biography",
+          type: "checkbox",
+          defaultValue: false,
+          label: "Biography approved for public display",
+        },
+        {
+          name: "artistStatement",
+          type: "checkbox",
+          defaultValue: false,
+          label: "Artist statement approved for public display",
+        },
+        {
+          name: "location",
+          type: "checkbox",
+          defaultValue: false,
+          label: "City and state approved for public display",
+        },
+        {
+          name: "categories",
+          type: "checkbox",
+          defaultValue: false,
+          label: "Modeling categories approved for public display",
+        },
+        {
+          name: "instagram",
+          type: "checkbox",
+          defaultValue: false,
+          label: "Instagram approved for public display",
+        },
+        {
+          name: "website",
+          type: "checkbox",
+          defaultValue: false,
+          label: "Website approved for public display",
+        },
+      ],
     },
     {
       name: "adminNotes",

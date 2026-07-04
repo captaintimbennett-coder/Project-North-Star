@@ -1,6 +1,6 @@
 # Sprint 04 — Experience Manager
 
-Status: Planned
+Status: In progress — Featured Artists public experience authorized July 4, 2026
 
 ## Goal
 
@@ -34,6 +34,26 @@ master classes, mentoring, and future creative experiences.
 - Lone Star Retreat is the founding experience, not the entire platform.
 - Operational information must be structured rather than embedded in prose.
 - Safety and professionalism requirements must be prominent and maintainable.
+- Featured Artist public pages read only from canonical Model / Featured Artist
+  master profiles; Model Applications are never a public content source.
+- Public profiles require an approved profile, a published Payload version,
+  confirmed image permission, approved featured media, and explicit field-level
+  public-display controls.
+- Public artist pages are read-only and never publish an application or promote
+  an applicant automatically.
+
+## Featured Artists progress — July 4, 2026
+
+- [x] Public index route created at `/lone-star-retreat/featured-artists`.
+- [x] Public profile route created at `/lone-star-retreat/featured-artists/[slug]`.
+- [x] Empty roster state implemented.
+- [x] Field-level public-display approvals added to canonical artist profiles.
+- [x] Approved-media-only public read policy added.
+- [x] Public repository maps an allowlist and excludes applications, legal names,
+  private administrator notes, unapproved media, drafts, and unapproved profiles.
+- [x] Public-profile database migration applied.
+- [ ] Create or approve the first real Featured Artist master profile.
+- [ ] Complete Product Owner visual review and design lock.
 
 ## Deferred Items
 
