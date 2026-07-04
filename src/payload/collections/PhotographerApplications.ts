@@ -69,6 +69,7 @@ export const PhotographerApplications: CollectionConfig = {
               type: "select",
               hasMany: true,
               label: "Genres / interests",
+              required: true,
               options: [
                 { label: "Glamour", value: "glamour" },
                 { label: "Boudoir", value: "boudoir" },
@@ -118,10 +119,39 @@ export const PhotographerApplications: CollectionConfig = {
             },
             { name: "privateAdminNotes", type: "textarea", label: "Private administrator notes" },
             {
+              name: "informationAccurateConfirmed",
+              type: "checkbox",
+              defaultValue: false,
+              label: "I confirm the information submitted is accurate.",
+              required: true,
+            },
+            {
+              name: "noAcceptanceGuaranteeConfirmed",
+              type: "checkbox",
+              defaultValue: false,
+              label: "I understand submitting an application does not guarantee acceptance.",
+              required: true,
+            },
+            {
+              name: "internalImageReviewConfirmed",
+              type: "checkbox",
+              defaultValue: false,
+              label:
+                "I understand my uploaded images are for internal review only and will not be published without approval.",
+              required: true,
+            },
+            {
               name: "codeOfConductConfirmed",
               type: "checkbox",
               defaultValue: false,
-              label: "Code of conduct confirmation",
+              label: "I agree to follow the Lone Star Retreat code of conduct.",
+              required: true,
+            },
+            {
+              name: "contactPermissionConfirmed",
+              type: "checkbox",
+              defaultValue: false,
+              label: "I understand Lone Star Retreat may contact me using the information provided.",
               required: true,
             },
             {

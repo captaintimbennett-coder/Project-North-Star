@@ -99,6 +99,13 @@ shapes.
 - [x] Application records kept separate from canonical master profiles.
 - [x] Application imagery routed through private Media records with approval off by default.
 - [x] Application migration applied and prototype submissions verified in PostgreSQL.
+- [x] Version 1 public application protection endpoints implemented.
+- [x] Server-side validation, honeypot, process-local IP throttling, consent rules,
+  and model upload limits implemented.
+- [x] Public submissions forced into private `new` review records with no automatic
+  profile promotion or publishing.
+- [x] Live protected Model and Photographer submissions verified in Payload Admin;
+  private model media and anonymous `403` access behavior confirmed.
 
 ## Application review boundary — July 3, 2026
 
@@ -110,3 +117,7 @@ shapes.
   image does not set `usageApproved`; public use requires a separate administrator decision.
 - Public forms, automated promotion, dashboards, payments, messaging, and matching remain
   outside this implementation.
+
+The submission protection contract is documented in
+[`../application-submission-protection.md`](../application-submission-protection.md).
+Public form composition and visual design remain a separate approval step.

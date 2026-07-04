@@ -48,6 +48,6 @@ export const Media: CollectionConfig = {
         position: "centre",
       },
     ],
-    mimeTypes: ["image/jpeg", "image/png", "image/webp", "image/avif"],
+    mimeTypes: ["image/jpeg", "image/png", "image/webp"],
   },
 };

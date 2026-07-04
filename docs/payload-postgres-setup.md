@@ -40,6 +40,11 @@ Model application uploads use the authenticated Media collection. New media
 starts with platform usage approval disabled, so an uploaded preferred image
 cannot appear publicly without a separate administrator review and approval.
 
+The future public form UI must submit through the protected application
+endpoints documented in
+[`application-submission-protection.md`](application-submission-protection.md).
+It must not call Payload collection or media endpoints directly.
+
 ## What Tim needs to do
 
 1. Create an owner-controlled PostgreSQL database with the selected provider.

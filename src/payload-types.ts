@@ -297,25 +297,23 @@ export interface ModelApplication {
   travelAvailability: 'local-only' | 'regional' | 'domestic' | 'international' | 'case-by-case';
   homeAirport?: string | null;
   availabilityNotes?: string | null;
-  creativeInterests?:
-    | (
-        | 'fashion'
-        | 'editorial'
-        | 'glamour'
-        | 'swimwear'
-        | 'lingerie'
-        | 'boudoir'
-        | 'artistic-nude'
-        | 'fine-art-nude'
-        | 'beauty-close-up'
-        | 'conceptual-creative'
-        | 'other'
-      )[]
-    | null;
+  creativeInterests: (
+    | 'fashion'
+    | 'editorial'
+    | 'glamour'
+    | 'swimwear'
+    | 'lingerie'
+    | 'boudoir'
+    | 'artistic-nude'
+    | 'fine-art-nude'
+    | 'beauty-close-up'
+    | 'conceptual-creative'
+    | 'other'
+  )[];
   otherCreativeInterest?: string | null;
-  comfortLevels?:
-    | ('fully-clothed' | 'fashion' | 'swimwear' | 'lingerie' | 'implied-nude' | 'artistic-nude' | 'fine-art-nude')[]
-    | null;
+  comfortLevels: (
+    'fully-clothed' | 'fashion' | 'swimwear' | 'lingerie' | 'implied-nude' | 'artistic-nude' | 'fine-art-nude'
+  )[];
   retreatGoals?:
     | (
         | 'network-with-photographers'
@@ -343,8 +341,11 @@ export interface ModelApplication {
    */
   linkedModelProfile?: (number | null) | ModelProfile;
   privateAdminNotes?: string | null;
+  informationAccurateConfirmed: boolean;
+  noAcceptanceGuaranteeConfirmed: boolean;
   consentImageUsageConfirmed: boolean;
   codeOfConductConfirmed: boolean;
+  contactPermissionConfirmed: boolean;
   submittedAt: string;
   updatedAt: string;
   createdAt: string;
@@ -369,8 +370,9 @@ export interface PhotographerApplication {
   portfolioURL?: string | null;
   photographyExperienceLevel: 'developing' | 'intermediate' | 'advanced' | 'professional';
   equipmentSummary: string;
-  genresInterests?:
-    ('glamour' | 'boudoir' | 'editorial' | 'artistic-nude' | 'fashion' | 'swimwear' | 'beauty' | 'other')[] | null;
+  genresInterests: (
+    'glamour' | 'boudoir' | 'editorial' | 'artistic-nude' | 'fashion' | 'swimwear' | 'beauty' | 'other'
+  )[];
   otherGenreInterest?: string | null;
   whatTheyHopeToCreate: string;
   retreatGoals: string;
@@ -381,7 +383,11 @@ export interface PhotographerApplication {
    */
   linkedPhotographerProfile?: (number | null) | PhotographerProfile;
   privateAdminNotes?: string | null;
+  informationAccurateConfirmed: boolean;
+  noAcceptanceGuaranteeConfirmed: boolean;
+  internalImageReviewConfirmed: boolean;
   codeOfConductConfirmed: boolean;
+  contactPermissionConfirmed: boolean;
   submittedAt: string;
   updatedAt: string;
   createdAt: string;
@@ -737,8 +743,11 @@ export interface ModelApplicationsSelect<T extends boolean = true> {
   applicationStatus?: T;
   linkedModelProfile?: T;
   privateAdminNotes?: T;
+  informationAccurateConfirmed?: T;
+  noAcceptanceGuaranteeConfirmed?: T;
   consentImageUsageConfirmed?: T;
   codeOfConductConfirmed?: T;
+  contactPermissionConfirmed?: T;
   submittedAt?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -768,7 +777,11 @@ export interface PhotographerApplicationsSelect<T extends boolean = true> {
   applicationStatus?: T;
   linkedPhotographerProfile?: T;
   privateAdminNotes?: T;
+  informationAccurateConfirmed?: T;
+  noAcceptanceGuaranteeConfirmed?: T;
+  internalImageReviewConfirmed?: T;
   codeOfConductConfirmed?: T;
+  contactPermissionConfirmed?: T;
   submittedAt?: T;
   updatedAt?: T;
   createdAt?: T;
