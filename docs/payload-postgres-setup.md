@@ -13,8 +13,9 @@ Payload CMS is integrated into the existing Next.js application. It provides:
 - a PostgreSQL database adapter; and
 - generated TypeScript types for the configured records.
 
-The public website remains separate and unchanged. No public page reads from
-Payload yet.
+The public website remains a separate surface. Published retreat events and
+event-scoped participating-artist pages now read an allowlisted public view from
+Payload; most general marketing content remains in `src/data`.
 
 ## Verified foundation milestone
 
@@ -30,8 +31,8 @@ On July 3, 2026:
 - one clearly labeled draft prototype was saved and verified in each profile
   collection through Payload Admin.
 
-The next approved CMS layer defines private `Model Applications` and
-`Photographer Applications` review records. These records are intentionally
+Private `Model Applications` and `Photographer Applications` are implemented as
+review records. These records are intentionally
 separate from the canonical profiles. An accepted application may be linked to
 a master profile by an administrator later, but acceptance does not create,
 update, or publish a profile automatically.
@@ -40,19 +41,15 @@ Model application uploads use the authenticated Media collection. New media
 starts with platform usage approval disabled, so an uploaded preferred image
 cannot appear publicly without a separate administrator review and approval.
 
-The future public form UI must submit through the protected application
-endpoints documented in
+The public application forms submit through the protected endpoints documented in
 [`application-submission-protection.md`](application-submission-protection.md).
 It must not call Payload collection or media endpoints directly.
 
-## What Tim needs to do
+## Local setup
 
-1. Create an owner-controlled PostgreSQL database with the selected provider.
-2. Copy the provider's PostgreSQL connection string.
-3. Place that value in a local `.env` file as `DATABASE_URL`.
-4. Add a long random value as `PAYLOAD_SECRET`.
-5. Start the application and visit `/admin`.
-6. Create the first owner account through Payload's setup screen.
+The owner-controlled Neon database and initial owner account are already
+configured for development. A new environment must still provide its own
+`DATABASE_URL`, `PAYLOAD_SECRET`, and `NEXT_PUBLIC_SERVER_URL` before startup.
 
 Secrets must not be pasted into documentation, committed to Git, or exposed in
 browser code. `.env` is ignored automatically.
@@ -84,6 +81,6 @@ before any production deployment.
 - Local media uploads are suitable for development only.
 - Production object storage must be selected before deployment.
 - SendGrid and Stripe are not connected in this foundation step.
-- Public application forms, automated application promotion, registration,
-  payments, member portals, and public publishing remain non-functional until
-  their dedicated workflows are implemented and verified.
+- Public application forms are implemented. Automated profile promotion,
+  participant registration, payments, member portals, public booking, and
+  general site-wide CMS publishing remain deferred.

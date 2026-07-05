@@ -30,15 +30,16 @@ Then open `http://localhost:3000`.
   videos, repeated design deliverables, and similar files—should be stored
   externally or moved to Git LFS to prevent unnecessary repository growth.
 
-The first release intentionally keeps content local and the dependency surface
-small. Payload, PostgreSQL, authentication, Stripe, applications, and administrative tools
-should be introduced as separate service layers when their workflows are
-defined—not preemptively coupled to the marketing site.
+The platform now uses Payload CMS and an owner-controlled Neon PostgreSQL
+database for authenticated administration, private applications, canonical
+participant profiles, event publishing, and the scheduling data foundation.
+Most general marketing content remains in `src/data`; approved event and artist
+pages use a privacy-safe Payload repository boundary.
 
-The `/admin` route is a non-functional Content Studio prototype demonstrating
-the intended owner experience. See
-[`docs/architecture.md`](docs/architecture.md) for the proposed
-Payload content model, roles, and implementation sequence.
+The `/admin` route is functional and authenticated. Stripe, production email,
+public booking, dashboards, messaging, and automatic profile publishing remain
+intentionally unimplemented. See [`docs/architecture.md`](docs/architecture.md)
+for current service boundaries and the implementation sequence.
 
 The visual system is documented in
 [`docs/design-system.md`](docs/design-system.md). New pages should use the
@@ -63,8 +64,8 @@ Future Codex sessions should begin with
 
 ## Recommended next phases
 
-1. Curate and license the definitive photography collection.
-2. Refine brand copy and confirm the public contact address.
-3. Build portfolio taxonomy and image-management workflow.
-4. Define Lone Star Retreat application and registration requirements.
-5. Extend Payload and PostgreSQL only through approved persistent-data workflows.
+1. Complete Sprint 04 event-experience review and design lock.
+2. Create the approved premium calendar UX prototype without public booking.
+3. Define Vercel, object-storage, Neon backup, and production migration plans.
+4. Harden role permissions, distributed rate limiting, and booking concurrency.
+5. Continue extending Payload only through approved persistent-data workflows.

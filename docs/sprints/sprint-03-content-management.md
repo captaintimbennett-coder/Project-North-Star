@@ -1,6 +1,6 @@
 # Sprint 03 — Content Management
 
-Status: In progress — Payload/PostgreSQL foundation authorized July 3, 2026
+Status: Complete — approved foundation closed July 5, 2026
 
 ## Goal
 
@@ -46,12 +46,14 @@ code while preserving the current public design and content shapes.
 ## Deferred Items
 
 - Payments
-- Public application forms and automated application-to-profile promotion
+- Automated application-to-profile promotion
 - Retreat registration
 - CRM synchronization
 - Advanced analytics
 - AI-assisted publishing
 - Native mobile administration
+- Site-wide CMS migration for Portfolio, homepage, About, and journal content
+- Production object storage, distributed rate limiting, and production email
 
 ## Dependencies
 
@@ -63,24 +65,27 @@ code while preserving the current public design and content shapes.
 
 ## Acceptance Criteria
 
-- [ ] Tim can sign in securely to a protected administrative area.
-- [ ] Unauthorized users cannot read or mutate private administrative data.
-- [ ] Tim can upload and organize portfolio media.
+- [x] Tim can sign in securely to a protected administrative area.
+- [x] Unauthorized users cannot read or mutate private administrative data.
+- [x] Tim can upload and review private media with explicit usage approval.
 - [ ] Tim can replace and reorder homepage hero images.
 - [ ] Tim can manage portfolio collections and ordering.
 - [ ] Tim can draft, preview, and publish North Star journal entries.
 - [ ] Tim can update About and Experiences content without code changes.
 - [ ] Published content renders through the existing public design system.
-- [ ] Migrations, security policies, recovery procedures, and editorial workflow
-  are documented.
+- [x] Migrations, application protections, and editorial privacy boundaries are
+  documented and verified for the approved foundation scope.
+
+Unchecked site-wide content-management criteria remain intentionally deferred;
+they were not required to close the approved Lone Star Retreat CMS and
+application foundation.
 
 ## Notes for Future Codex Sessions
 
-This is the current implementation frontier. Before coding, validate the
-content model and administrative workflow with Tim. Do not create external
-accounts or production resources without explicit permission. Preserve a clean
-adapter boundary so public pages do not depend directly on raw Payload response
-shapes.
+Sprint 03 is closed. Sprint 04 is the current implementation frontier. Preserve
+the application/profile separation, private-media rules, and repository adapter
+boundary. Do not create production resources or broaden the CMS into deferred
+site-wide content management without explicit approval.
 
 ## Foundation progress — July 3, 2026
 

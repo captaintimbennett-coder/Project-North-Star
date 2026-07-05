@@ -12,6 +12,7 @@ out/
 !.env.example
 *.log
 .DS_Store
+.claude/
 *.tsbuildinfo
 outputs/
 work/

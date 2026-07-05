@@ -1,6 +1,6 @@
 # Sprint 04 — Experience Manager
 
-Status: In progress — Featured Artists public experience authorized July 4, 2026
+Status: Active — event experience and scheduling foundation
 
 ## Goal
 

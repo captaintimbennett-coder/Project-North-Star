@@ -13,11 +13,11 @@ Retreat. Update it whenever an item is approved, completed, deferred, or changed
 - [x] Application validation and private upload protections verified
 - [x] Professional Standards & Code of Conduct created and integrated
 - [x] Project North Star Design Principles created and indexed
-- [ ] Product Owner final review of Photographer Application
-- [ ] Product Owner final review of Model / Featured Artist Application
-- [ ] Declare Sprint 03 application foundation locked
-- [ ] Repository review and documentation check
-- [ ] Commit and push approved Sprint 03 work
+- [x] Product Owner final review of Photographer Application
+- [x] Product Owner final review of Model / Featured Artist Application
+- [x] Declare Sprint 03 application foundation locked
+- [x] Repository review and documentation check
+- [x] Commit and push approved Sprint 03 work
 
 ## 2. Event-Scoped Participating Artist Experience
 
@@ -56,11 +56,21 @@ Retreat. Update it whenever an item is approved, completed, deferred, or changed
 - [x] Verify responsive layout and accessibility
 - [ ] Product Owner review and design lock
 
-## 5. Future Operational Systems — Deferred
+## 5. Scheduling Foundation
+
+- [x] Approve Scheduling & Booking Business Rules v1.0
+- [x] Establish May 7–9, 2027 as the test event window
+- [x] Create event-specific availability and booking records
+- [x] Apply migrations and verify private sample records
+- [x] Capture the premium Calendar UX Standard
+- [ ] Approve a calendar UX prototype before UI implementation
+- [ ] Add transaction-level concurrency protection before public booking access
+
+## 6. Future Operational Systems — Deferred
 
 - [ ] SendGrid email notifications
 - [ ] Stripe registration and payments
-- [ ] Scheduling and booking tools
+- [ ] Public scheduling and booking tools
 - [ ] Applicant and member dashboards
 - [ ] Messaging
 - [ ] Automated matching

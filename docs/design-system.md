@@ -12,10 +12,10 @@ Pages should compose existing tokens and primitives. They should not introduce
 new colors, type scales, button styles, breakpoints, or animation timings unless
 the design system itself is intentionally revised.
 
-Sprint 02 visual refinement is evolving the brand away from a modern SaaS feel
-and toward a premium editorial luxury identity. `docs/brand/design-philosophy.md`
-and `docs/brand/visual-language.md` define that atmosphere. This document
-continues to define how the interface should be implemented.
+Sprint 02 closed with Homepage Design Lock v1.1 and the approved premium
+editorial luxury identity. `docs/brand/design-philosophy.md` and
+`docs/brand/visual-language.md` define that atmosphere. This document continues
+to define how the locked interface system should be extended.
 
 ## Source of truth
 

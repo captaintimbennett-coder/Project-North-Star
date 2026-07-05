@@ -233,8 +233,8 @@ platform. The final polish lowered the hero portrait optically without changing
 its scale, refined a small set of tracking and line-height values, and preserved
 the existing black/charcoal palette to retain shadow detail. Future routes should
 extend this locked system; the homepage should not be redesigned without Tim's
-explicit direction. Sprint 02 remains open while the principal public routes are
-built and reviewed against this baseline.
+explicit direction. This July 1 note was superseded by the July 2 acceptance
+below, which closed Sprint 02 after the principal public routes were approved.
 
 June 27 hero-content correction: the homepage hero no longer begins with a
 marketing headline. It begins with the canonical Tim Bennett identity, the

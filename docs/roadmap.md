@@ -21,6 +21,8 @@ Status: complete
 
 ## Phase 2 — Content and portfolio
 
+Status: public foundation complete; ongoing curation deferred
+
 - curate final Tim Bennett photography exclusively
 - confirm image rights, credits, captions, and alt text
 - establish final portfolio taxonomy
@@ -31,6 +33,8 @@ Status: complete
 
 ## Phase 3 — Content management
 
+Status: Lone Star Retreat CMS foundation complete; site-wide migration deferred
+
 - connect the approved PostgreSQL project and create Payload migrations
 - implement authentication and administrative roles
 - connect media library and portfolio management
@@ -40,6 +44,8 @@ Status: complete
 
 ## Phase 4 — Inquiries and applications
 
+Status: Version 1 Retreat applications complete; contact delivery and email deferred
+
 - connect secure contact form
 - add spam protection and email notifications
 - build inquiry review workflow
@@ -48,9 +54,11 @@ Status: complete
 
 ## Phase 5 — Lone Star Retreat operations
 
+Status: active — event-centric publishing and scheduling foundation
+
 - publish complete Retreat experience pages
 - add dates, location, capacity, and team information
-- implement applications or registration
+- maintain protected applications and define future participant registration
 - add agreements and required acknowledgments
 - integrate Stripe when the financial workflow is approved
 - build participant communications and administrative reporting

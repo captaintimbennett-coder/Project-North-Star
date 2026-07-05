@@ -56,9 +56,8 @@ Before implementation work, review:
 10. Preserve user changes and inspect the working tree before editing.
 11. Keep the current sprint file updated when scope, decisions, dependencies,
     deferred items, or acceptance status materially change.
-12. Do not begin the next Sprint 02 visual redesign pass until the reference
-    assets in `docs/brand/references/` have been added, documented in
-    `docs/brand/references/README.md`, and reviewed.
+12. Treat Sprint 02 and Homepage Design Lock v1.1 as closed. New visual work
+    must extend the approved system and remain within the active sprint scope.
 
 ## Where changes belong
 
@@ -100,8 +99,8 @@ For implementation changes:
 
 - Do not publish, deploy, connect paid services, or create external accounts
   without explicit authorization.
-- Treat the `/admin` route as a visual prototype until authentication and
-  persistent storage are implemented.
+- Treat `/admin` as an authenticated Payload surface backed by PostgreSQL.
+  Preserve private-by-default collection access and explicit public projections.
 - Do not imply that contact forms, payments, applications, or publishing tools
   are functional unless they are connected and verified.
 - Challenge requests that would create avoidable technical debt or weaken
