@@ -205,6 +205,44 @@ administrator notes, unassigned artists, and unapproved media are never part of
 the public mapping. Approved Media may be read publicly; all other Media remains
 authenticated-only.
 
+### Lone Star Retreat scheduling domain
+
+The approved business rules are defined in
+[`foundation/scheduling-and-booking-rules.md`](foundation/scheduling-and-booking-rules.md).
+The scheduling foundation is event-specific and uses the following records:
+
+- `retreat-events` owns the event time zone and explicit artist and photographer
+  participation assignments. Artist assignments also own the event-specific
+  minimum booking duration.
+- `artist-availability` stores one private availability record per event,
+  artist, and bookable day. It defaults to 6:00 AM–6:00 PM local event time and
+  may contain lunch or unavailable blocks.
+- `retreat-bookings` relates one event, participating artist, and approved
+  photographer to an exact UTC start and end time. Event time zones translate
+  those timestamps into local schedule time. Versions preserve operational
+  history.
+- Canonical model and photographer profiles hold private contact-sharing and
+  notification preferences. Email sharing and email notifications are required
+  before a confirmed booking can be created.
+
+Server-side hooks enforce event assignment, model minimum duration, whole
+60-minute blocks, stated availability, participant contact readiness, and
+artist/photographer conflict prevention. An administrator may place a booking
+outside stated availability but may never create overlapping confirmed time.
+Availability changes are rejected when they would hide or block a confirmed
+reservation.
+
+Both scheduling collections are authenticated-only. Future participant schedule
+views must use an allowlisted server projection limited to display names, date,
+time, and booking status. Contact details are released only to the two booked
+participants according to their approved preferences after confirmation.
+Email, phone, payment information, private notes, and administrator fields never
+belong in shared schedule output.
+
+The scheduling domain intentionally contains no model rates, photographer-to-
+model payments, creative negotiations, or internal messaging records. Future
+event admission payment records are a separate Lone Star Retreat concern.
+
 ## Planned content model
 
 - `site_settings`

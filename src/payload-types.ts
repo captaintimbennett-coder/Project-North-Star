@@ -74,6 +74,8 @@ export interface Config {
     'photographer-profiles': PhotographerProfile;
     'model-applications': ModelApplication;
     'photographer-applications': PhotographerApplication;
+    'artist-availability': ArtistAvailability;
+    'retreat-bookings': RetreatBooking;
     'payload-kv': PayloadKv;
     'payload-jobs': PayloadJob;
     'payload-locked-documents': PayloadLockedDocument;
@@ -89,6 +91,8 @@ export interface Config {
     'photographer-profiles': PhotographerProfilesSelect<false> | PhotographerProfilesSelect<true>;
     'model-applications': ModelApplicationsSelect<false> | ModelApplicationsSelect<true>;
     'photographer-applications': PhotographerApplicationsSelect<false> | PhotographerApplicationsSelect<true>;
+    'artist-availability': ArtistAvailabilitySelect<false> | ArtistAvailabilitySelect<true>;
+    'retreat-bookings': RetreatBookingsSelect<false> | RetreatBookingsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-jobs': PayloadJobsSelect<false> | PayloadJobsSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
@@ -214,6 +218,10 @@ export interface RetreatEvent {
   heroImage?: (number | null) | Media;
   startDate?: string | null;
   endDate?: string | null;
+  /**
+   * IANA time zone used for availability and booking calculations, for example America/Chicago.
+   */
+  timeZone: string;
   locationName?: string | null;
   locationDetails?: string | null;
   capacity?: number | null;
@@ -226,6 +234,17 @@ export interface RetreatEvent {
         artist: number | ModelProfile;
         participationStatus: 'invited' | 'confirmed' | 'approved' | 'withdrawn';
         displayOrder?: number | null;
+        minimumBookingHours: '1' | '2' | '3';
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Event-specific photographer access. Only approved participants are eligible for confirmed bookings.
+   */
+  participatingPhotographers?:
+    | {
+        photographer: number | PhotographerProfile;
+        participationStatus: 'invited' | 'registered' | 'approved' | 'withdrawn';
         id?: string | null;
       }[]
     | null;
@@ -268,6 +287,23 @@ export interface ModelProfile {
     website?: boolean | null;
   };
   adminNotes?: string | null;
+  /**
+   * Private scheduling preferences. Contact details are shared only after a confirmed booking and only when explicitly approved here.
+   */
+  bookingPreferences?: {
+    /**
+     * Required before this participant can be used in a confirmed booking.
+     */
+    email?: string | null;
+    mobilePhone?: string | null;
+    shareEmail?: boolean | null;
+    shareInstagram?: boolean | null;
+    shareMobilePhone?: boolean | null;
+    shareWebsite?: boolean | null;
+    notifyByEmail?: boolean | null;
+    notifyBySms?: boolean | null;
+    notifyInDashboard?: boolean | null;
+  };
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
@@ -293,6 +329,23 @@ export interface PhotographerProfile {
   website?: string | null;
   instagram?: string | null;
   adminNotes?: string | null;
+  /**
+   * Private scheduling preferences. Contact details are shared only after a confirmed booking and only when explicitly approved here.
+   */
+  bookingPreferences?: {
+    /**
+     * Required before this participant can be used in a confirmed booking.
+     */
+    email?: string | null;
+    mobilePhone?: string | null;
+    shareEmail?: boolean | null;
+    shareInstagram?: boolean | null;
+    shareMobilePhone?: boolean | null;
+    shareWebsite?: boolean | null;
+    notifyByEmail?: boolean | null;
+    notifyBySms?: boolean | null;
+    notifyInDashboard?: boolean | null;
+  };
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
@@ -442,6 +495,56 @@ export interface PhotographerApplication {
   createdAt: string;
 }
 /**
+ * Private event-specific availability. Confirmed booking time cannot be blocked or removed.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "artist-availability".
+ */
+export interface ArtistAvailability {
+  id: number;
+  event: number | RetreatEvent;
+  artist: number | ModelProfile;
+  date: string;
+  availableFrom: string;
+  availableUntil: string;
+  blockedTimes?:
+    | {
+        startTime: string;
+        endTime: string;
+        reason: 'unavailable' | 'lunch' | 'other';
+        privateNote?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  adminNotes?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Private operational reservations. Public and participant schedule views must use a separate allowlisted projection.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "retreat-bookings".
+ */
+export interface RetreatBooking {
+  id: number;
+  event: number | RetreatEvent;
+  artist: number | ModelProfile;
+  photographer: number | PhotographerProfile;
+  startAt: string;
+  endAt: string;
+  status: 'confirmed' | 'cancelled' | 'rescheduled' | 'admin-review';
+  rescheduledFrom?: (number | null) | RetreatBooking;
+  /**
+   * Allows an authorized administrator to place a booking outside stated availability. It never permits double-booking.
+   */
+  adminOverride?: boolean | null;
+  exceptionReason?: string | null;
+  adminNotes?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
@@ -584,6 +687,14 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'photographer-applications';
         value: number | PhotographerApplication;
+      } | null)
+    | ({
+        relationTo: 'artist-availability';
+        value: number | ArtistAvailability;
+      } | null)
+    | ({
+        relationTo: 'retreat-bookings';
+        value: number | RetreatBooking;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -707,6 +818,7 @@ export interface RetreatEventsSelect<T extends boolean = true> {
   heroImage?: T;
   startDate?: T;
   endDate?: T;
+  timeZone?: T;
   locationName?: T;
   locationDetails?: T;
   capacity?: T;
@@ -717,6 +829,14 @@ export interface RetreatEventsSelect<T extends boolean = true> {
         artist?: T;
         participationStatus?: T;
         displayOrder?: T;
+        minimumBookingHours?: T;
+        id?: T;
+      };
+  participatingPhotographers?:
+    | T
+    | {
+        photographer?: T;
+        participationStatus?: T;
         id?: T;
       };
   updatedAt?: T;
@@ -753,6 +873,19 @@ export interface ModelProfilesSelect<T extends boolean = true> {
         website?: T;
       };
   adminNotes?: T;
+  bookingPreferences?:
+    | T
+    | {
+        email?: T;
+        mobilePhone?: T;
+        shareEmail?: T;
+        shareInstagram?: T;
+        shareMobilePhone?: T;
+        shareWebsite?: T;
+        notifyByEmail?: T;
+        notifyBySms?: T;
+        notifyInDashboard?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
   _status?: T;
@@ -775,6 +908,19 @@ export interface PhotographerProfilesSelect<T extends boolean = true> {
   website?: T;
   instagram?: T;
   adminNotes?: T;
+  bookingPreferences?:
+    | T
+    | {
+        email?: T;
+        mobilePhone?: T;
+        shareEmail?: T;
+        shareInstagram?: T;
+        shareMobilePhone?: T;
+        shareWebsite?: T;
+        notifyByEmail?: T;
+        notifyBySms?: T;
+        notifyInDashboard?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
   _status?: T;
@@ -854,6 +1000,47 @@ export interface PhotographerApplicationsSelect<T extends boolean = true> {
   codeOfConductConfirmed?: T;
   contactPermissionConfirmed?: T;
   submittedAt?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "artist-availability_select".
+ */
+export interface ArtistAvailabilitySelect<T extends boolean = true> {
+  event?: T;
+  artist?: T;
+  date?: T;
+  availableFrom?: T;
+  availableUntil?: T;
+  blockedTimes?:
+    | T
+    | {
+        startTime?: T;
+        endTime?: T;
+        reason?: T;
+        privateNote?: T;
+        id?: T;
+      };
+  adminNotes?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "retreat-bookings_select".
+ */
+export interface RetreatBookingsSelect<T extends boolean = true> {
+  event?: T;
+  artist?: T;
+  photographer?: T;
+  startAt?: T;
+  endAt?: T;
+  status?: T;
+  rescheduledFrom?: T;
+  adminOverride?: T;
+  exceptionReason?: T;
+  adminNotes?: T;
   updatedAt?: T;
   createdAt?: T;
 }

@@ -63,6 +63,22 @@ master classes, mentoring, and future creative experiences.
 - [x] Event-specific participating-artist assignment migration applied.
 - [x] First real Featured Artist master profile created and published for Lexi Anne.
 - [x] Lexi Anne assigned to the May 2027 event with event-specific public approval.
+- [x] Version 1 test dates established: retreat May 7–9, 2027; planned model
+  arrival evening May 6 remains outside the bookable event dates.
+- [x] Scheduling and booking business rules approved and preserved as a
+  permanent Foundation document.
+- [x] Translate the approved rules into a scheduling domain model before any
+  calendar or booking interface is implemented.
+- [x] Define event-day availability for May 7–9 using 60-minute internal blocks
+  and model-controlled minimum booking durations.
+- [x] Define privacy-safe participant and shared-schedule projections plus the
+  administrator-only operational record boundary before UI implementation.
+- [x] Apply additive scheduling migrations and verify a private sample
+  availability record and confirmed booking against the May 2027 event.
+- [x] Capture the premium Calendar UX Standard as a locked requirement for the
+  future scheduling prototype; no calendar UI is authorized yet.
+- [ ] Design calendar and booking interfaces only after Product Owner approval
+  of this data-model foundation.
 - [ ] Complete Product Owner visual review and design lock.
 
 ## Deferred Items

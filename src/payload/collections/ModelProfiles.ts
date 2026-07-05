@@ -1,5 +1,6 @@
 import type { CollectionConfig } from "payload";
 import { authenticated } from "../access/authenticated";
+import { bookingPreferencesField } from "../fields/bookingPreferences";
 
 export const ModelProfiles: CollectionConfig = {
   slug: "model-profiles",
@@ -165,6 +166,7 @@ export const ModelProfiles: CollectionConfig = {
       type: "textarea",
       label: "Private administrator notes",
     },
+    bookingPreferencesField,
   ],
   versions: {
     drafts: {

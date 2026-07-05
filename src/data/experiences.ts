@@ -101,7 +101,7 @@ export const loneStarRetreatContent = {
   },
   prototype: {
     eyebrow: "Upcoming retreat preview",
-    status: "May 2027 · Texas Hill Country",
+    status: "May 7–9, 2027 · Texas Hill Country",
     title: "Texas Hill Country Creative Retreat",
     body: "A preview of the destination, artist, schedule, and logistics experience that will accompany every future retreat announcement.",
     image: images.retreat.texasHillCountryHero,

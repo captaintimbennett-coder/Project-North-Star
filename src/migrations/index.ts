@@ -10,6 +10,8 @@ import * as migration_20260704_055322_make_photographer_display_name_optional fr
 import * as migration_20260704_155241 from './20260704_155241';
 import * as migration_20260704_165148 from './20260704_165148';
 import * as migration_20260704_203156 from './20260704_203156';
+import * as migration_20260705_043634_scheduling_data_model from './20260705_043634_scheduling_data_model';
+import * as migration_20260705_044709_event_scheduling_timezone from './20260705_044709_event_scheduling_timezone';
 
 export const migrations = [
   {
@@ -70,6 +72,16 @@ export const migrations = [
   {
     up: migration_20260704_203156.up,
     down: migration_20260704_203156.down,
-    name: '20260704_203156'
+    name: '20260704_203156',
+  },
+  {
+    up: migration_20260705_043634_scheduling_data_model.up,
+    down: migration_20260705_043634_scheduling_data_model.down,
+    name: '20260705_043634_scheduling_data_model',
+  },
+  {
+    up: migration_20260705_044709_event_scheduling_timezone.up,
+    down: migration_20260705_044709_event_scheduling_timezone.down,
+    name: '20260705_044709_event_scheduling_timezone'
   },
 ];

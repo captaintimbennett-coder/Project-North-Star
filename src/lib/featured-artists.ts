@@ -96,9 +96,15 @@ function mapPublicProfile(profile: ModelProfile): PublicFeaturedArtist | null {
   };
 }
 
-function formatEventDate(startDate: string | null | undefined): string {
+function formatEventDate(startDate: string | null | undefined, endDate: string | null | undefined): string {
   if (!startDate) return "Dates forthcoming";
-  return new Intl.DateTimeFormat("en-US", { month: "long", year: "numeric", timeZone: "UTC" }).format(new Date(startDate));
+  const start = new Date(startDate);
+  const end = endDate ? new Date(endDate) : undefined;
+  const month = new Intl.DateTimeFormat("en-US", { month: "long", timeZone: "UTC" }).format(start);
+  const year = new Intl.DateTimeFormat("en-US", { year: "numeric", timeZone: "UTC" }).format(start);
+  const startDay = new Intl.DateTimeFormat("en-US", { day: "numeric", timeZone: "UTC" }).format(start);
+  const endDay = end ? new Intl.DateTimeFormat("en-US", { day: "numeric", timeZone: "UTC" }).format(end) : undefined;
+  return endDay && endDay !== startDay ? `${month} ${startDay}–${endDay}, ${year}` : `${month} ${startDay}, ${year}`;
 }
 
 function mapPublicEvent(event: RetreatEvent): PublicRetreatEvent | null {
@@ -110,7 +116,7 @@ function mapPublicEvent(event: RetreatEvent): PublicRetreatEvent | null {
     .filter((artist): artist is PublicFeaturedArtist => artist !== null);
   return {
     artists,
-    dateLabel: formatEventDate(event.startDate),
+    dateLabel: formatEventDate(event.startDate, event.endDate),
     location: event.locationName || "Location forthcoming",
     registrationStatus: event.registrationStatus,
     slug: event.slug,

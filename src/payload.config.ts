@@ -5,11 +5,13 @@ import { buildConfig } from "payload";
 import sharp from "sharp";
 import { fileURLToPath } from "url";
 import { Media } from "./payload/collections/Media";
+import { ArtistAvailability } from "./payload/collections/ArtistAvailability";
 import { ModelApplications } from "./payload/collections/ModelApplications";
 import { ModelProfiles } from "./payload/collections/ModelProfiles";
 import { PhotographerApplications } from "./payload/collections/PhotographerApplications";
 import { PhotographerProfiles } from "./payload/collections/PhotographerProfiles";
 import { RetreatEvents } from "./payload/collections/RetreatEvents";
+import { RetreatBookings } from "./payload/collections/RetreatBookings";
 import { Users } from "./payload/collections/Users";
 
 const filename = fileURLToPath(import.meta.url);
@@ -33,6 +35,8 @@ export default buildConfig({
     PhotographerProfiles,
     ModelApplications,
     PhotographerApplications,
+    ArtistAvailability,
+    RetreatBookings,
   ],
   db: postgresAdapter({
     pool: {

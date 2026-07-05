@@ -63,6 +63,17 @@ export const RetreatEvents: CollectionConfig = {
       admin: { date: { pickerAppearance: "dayAndTime" } },
     },
     {
+      name: "timeZone",
+      type: "text",
+      defaultValue: "America/Chicago",
+      label: "Event time zone",
+      required: true,
+      admin: {
+        description:
+          "IANA time zone used for availability and booking calculations, for example America/Chicago.",
+      },
+    },
+    {
       name: "locationName",
       type: "text",
       label: "Public location name",
@@ -124,6 +135,49 @@ export const RetreatEvents: CollectionConfig = {
           type: "number",
           defaultValue: 100,
           min: 0,
+        },
+        {
+          name: "minimumBookingHours",
+          type: "select",
+          defaultValue: "1",
+          label: "Minimum booking duration",
+          options: [
+            { label: "1 hour", value: "1" },
+            { label: "2 hours", value: "2" },
+            { label: "3 hours", value: "3" },
+          ],
+          required: true,
+        },
+      ],
+    },
+    {
+      name: "participatingPhotographers",
+      dbName: "event_photographers",
+      type: "array",
+      label: "Participating photographers",
+      admin: {
+        description:
+          "Event-specific photographer access. Only approved participants are eligible for confirmed bookings.",
+      },
+      fields: [
+        {
+          name: "photographer",
+          type: "relationship",
+          relationTo: "photographer-profiles",
+          required: true,
+        },
+        {
+          name: "participationStatus",
+          dbName: "event_photographer_status",
+          type: "select",
+          defaultValue: "invited",
+          options: [
+            { label: "Invited", value: "invited" },
+            { label: "Registered", value: "registered" },
+            { label: "Approved for booking", value: "approved" },
+            { label: "Withdrawn", value: "withdrawn" },
+          ],
+          required: true,
         },
       ],
     },

@@ -33,3 +33,26 @@ and architecture documents.
 - A canonical artist profile may be reused across events, but each public event
   appearance requires an explicit event assignment with public approval.
 - No permanent global or agency-style artist roster is part of Version 1.
+- The Texas Hill Country Creative Retreat uses May 7–9, 2027 as its Version 1
+  event and scheduling test window. The evening of May 6 is travel/arrival time,
+  not an event booking day.
+
+## July 4, 2026 — Lone Star Retreat Scheduling and Booking Rules
+
+- [`foundation/scheduling-and-booking-rules.md`](foundation/scheduling-and-booking-rules.md)
+  is the approved business-rules source of truth for future Lone Star Retreat
+  calendars, bookings, notifications, and operational scheduling.
+- Version 1 uses event-specific, first-come-first-served, instantly confirmed
+  private one-on-one bookings built from 60-minute blocks.
+- Participating models control future availability and minimum booking duration;
+  confirmed bookings remain protected and require administrative intervention
+  to cancel, move, or resolve.
+- Lone Star Retreat may eventually process event admission through Stripe, but
+  it does not publish model rates, process model compensation, negotiate creative
+  terms, or provide participant messaging.
+- Only participant-approved contact details may be shared after confirmation.
+  Public and shared schedules must not disclose private contact, payment, or
+  administrator information.
+- Future calendar interfaces must be highly visual, immediately legible,
+  mobile-friendly, and consistent with the premium Project North Star design
+  language. A basic scheduling table is not an acceptable final experience.

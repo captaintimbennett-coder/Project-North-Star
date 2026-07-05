@@ -19,6 +19,9 @@ June 30, 2026. They replace all previous creative direction.
    implementation rules, technical expectations, and success criteria.
 6. `lone-star-retreat-code-of-conduct.md` governs professional standards,
    participant culture, safety, consent, and conduct for Lone Star Retreat.
+7. `scheduling-and-booking-rules.md` governs event-specific
+   availability, booking, calendar visibility, contact sharing, financial
+   boundaries, and administrator scheduling authority for Lone Star Retreat.
 
 ## Foundation exports
 
