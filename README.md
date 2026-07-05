@@ -22,19 +22,33 @@ Then open `http://localhost:3000`.
 - `public/images/` — categorized, locally optimized visual assets
 - `docs/` — vision, architecture, design, content, roadmap, and Codex guidance
 
-The first release intentionally keeps content local and the dependency surface
-small. Supabase, authentication, Stripe, applications, and administrative tools
-should be introduced as separate service layers when their workflows are
-defined—not preemptively coupled to the marketing site.
+## Repository Asset Policy
 
-The `/admin` route is a non-functional Content Studio prototype demonstrating
-the intended owner experience. See
-[`docs/architecture.md`](docs/architecture.md) for the proposed
-Supabase content model, roles, and implementation sequence.
+- Small foundation exports and important project deliverables may remain
+  committed to git.
+- Large future exports—high-resolution mockups, large image collections,
+  videos, repeated design deliverables, and similar files—should be stored
+  externally or moved to Git LFS to prevent unnecessary repository growth.
+
+The platform now uses Payload CMS and an owner-controlled Neon PostgreSQL
+database for authenticated administration, private applications, canonical
+participant profiles, event publishing, and the scheduling data foundation.
+Most general marketing content remains in `src/data`; approved event and artist
+pages use a privacy-safe Payload repository boundary.
+
+The `/admin` route is functional and authenticated. Stripe, production email,
+public booking, dashboards, messaging, and automatic profile publishing remain
+intentionally unimplemented. See [`docs/architecture.md`](docs/architecture.md)
+for current service boundaries and the implementation sequence.
 
 The visual system is documented in
 [`docs/design-system.md`](docs/design-system.md). New pages should use the
 tokens and primitives defined there instead of introducing local visual rules.
+
+The permanent creative philosophy for every page, feature, component, and user
+experience is defined in the core Foundation document
+[`docs/foundation/design-principles.md`](docs/foundation/design-principles.md).
+Review it before making visual decisions.
 
 Future Codex sessions should begin with
 [`docs/codex-instructions.md`](docs/codex-instructions.md).
@@ -50,8 +64,8 @@ Future Codex sessions should begin with
 
 ## Recommended next phases
 
-1. Curate and license the definitive photography collection.
-2. Refine brand copy and confirm the public contact address.
-3. Build portfolio taxonomy and image-management workflow.
-4. Define Lone Star Retreat application and registration requirements.
-5. Add Supabase only when the first persistent-data workflow is approved.
+1. Complete Sprint 04 event-experience review and design lock.
+2. Create the approved premium calendar UX prototype without public booking.
+3. Define Vercel, object-storage, Neon backup, and production migration plans.
+4. Harden role permissions, distributed rate limiting, and booking concurrency.
+5. Continue extending Payload only through approved persistent-data workflows.

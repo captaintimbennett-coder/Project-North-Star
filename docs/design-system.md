@@ -12,11 +12,17 @@ Pages should compose existing tokens and primitives. They should not introduce
 new colors, type scales, button styles, breakpoints, or animation timings unless
 the design system itself is intentionally revised.
 
+Sprint 02 closed with Homepage Design Lock v1.1 and the approved premium
+editorial luxury identity. `docs/brand/design-philosophy.md` and
+`docs/brand/visual-language.md` define that atmosphere. This document continues
+to define how the locked interface system should be extended.
+
 ## Source of truth
 
 | Concern | Source |
 | --- | --- |
 | Brand and semantic tokens | `src/styles/tokens.css` |
+| Brand philosophy and visual direction | `docs/brand/` |
 | Reset, typography, focus, and layout foundations | `src/styles/foundation.css` |
 | Buttons, links, cards, media, forms, and sections | `src/styles/components.css` |
 | Reusable React primitives | `src/components/` |
@@ -116,6 +122,18 @@ Approved variants are `primary`, `light`, `dark`, and `ghost`.
 ```
 
 This is the default introduction for major interior pages.
+
+### Public marketing pages
+
+Principal public routes use the shared `EditorialHero`, `EditorialBlocks`, and
+`EditorialCta` components from `src/components/marketing`. Together they carry
+Homepage Design Lock v1.1 into interior pages through the same cinematic
+black/charcoal environment, warm-gold accents, editorial typography, restrained
+image treatment, and generous section rhythm.
+
+Use `MarketingPage` when a route follows the complete hero → overview → CTA
+sequence. Routes with established specialized content may compose the three
+parts directly. Owner-editable copy and imagery remain in `src/data`.
 
 ### Media
 

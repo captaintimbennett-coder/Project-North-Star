@@ -1,42 +1,44 @@
 import { images } from "./assets";
 
 export const portfolioContent = {
-  introduction: {
-    eyebrow: "Selected work · Curated by collection",
-    title: "Portfolio",
-    body: "A curated collection of editorial, beauty, glamour, and portrait work—created with intention, exceptional light, and a belief that remarkable photography begins with trust.",
+  hero: {
+    eyebrow: "The art of visual storytelling",
+    titleLineOne: "Where vision",
+    titleLineTwo: "becomes art.",
+    introduction:
+      "A curated collection of imagery that celebrates beauty, emotion, and artistry through light, composition, and a clear vision.",
+    image: images.portfolio.heroReal,
+    imageAlt: "Black-and-white editorial portrait by Tim Bennett",
   },
-  collectionStatus: "Collection being curated",
+  collectionsEyebrow: "Explore the collections",
   collections: [
     {
-      title: "Editorial",
-      description:
-        "Narrative portraiture with the confidence and scale of a magazine story.",
-      image: images.portfolio.redEditorial,
-    },
-    {
-      title: "Beauty",
-      description:
-        "Exceptional light, refined detail, and an unwavering attention to presence.",
-      image: images.portfolio.silkBeauty,
-    },
-    {
+      slug: "glamour",
       title: "Glamour",
-      description:
-        "Sophisticated, collaborative imagery grounded in elegance rather than excess.",
+      description: "Bold. Confident. Timeless.",
+      image: images.portfolio.redEditorial,
+      imageAlt: "Glamour portrait in a sculptural red gown",
+    },
+    {
+      slug: "boudoir",
+      title: "Boudoir",
+      description: "Intimate. Elegant. Authentic.",
+      image: images.portfolio.silkBeauty,
+      imageAlt: "Warm boudoir portrait in an ornate interior",
+    },
+    {
+      slug: "editorial",
+      title: "Editorial",
+      description: "Stylized. Narrative. Impactful.",
       image: images.portfolio.goldEditorial,
+      imageAlt: "Gold fashion editorial portrait",
     },
     {
-      title: "Portraiture",
-      description:
-        "Personal portraits created around trust, character, and quiet confidence.",
-      image: images.portfolio.balletEvening,
-    },
-    {
-      title: "Publications",
-      description:
-        "Selected commissioned and internationally published editorial work.",
-      image: images.hero.homepage,
+      slug: "artistic-nude",
+      title: "Artistic Nude",
+      description: "Form. Light. Emotion. Art.",
+      image: images.portfolio.artisticNudeReal,
+      imageAlt: "Fine-art figure study photographed by Tim Bennett",
     },
   ],
 } as const;

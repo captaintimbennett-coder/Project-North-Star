@@ -2,11 +2,26 @@
 
 Read this file before making material changes.
 
+## Foundation Pack precedence
+
+The files in `docs/foundation/` supersede every earlier creative direction.
+The North Star Constitution v1.0 governs mission, values, experience, brand,
+builder, design, and technical decisions. North Star Visual Reference v1.0 is
+the approved design language. When older documentation conflicts with the
+Foundation Pack, follow the Foundation Pack and flag the older text for
+revision.
+
 ## North star
 
-This is a long-term digital headquarters for Tim Bennett’s creative brand. It
-must remain premium, editorial, cinematic, maintainable, accessible, and able to
-expand beyond photography.
+This is the long-term digital home of Tim Bennett. Tim Bennett is the primary
+public-facing brand; Project North Star is his guiding philosophy and standard.
+The platform must remain premium, editorial, cinematic, maintainable,
+accessible, and able to expand beyond photography.
+
+Evaluate public-facing decisions in this order:
+
+1. Does this help the visitor understand who Tim Bennett is?
+2. Does this express the Project North Star philosophy?
 
 ## Required context
 
@@ -17,8 +32,12 @@ Before implementation work, review:
 3. `docs/master-vision.md`
 4. `docs/architecture.md`
 5. `docs/design-system.md`
-6. `docs/roadmap.md`
-7. `docs/content-strategy.md`
+6. `docs/brand/design-philosophy.md`
+7. `docs/brand/visual-language.md`
+8. `docs/brand/references/README.md`
+9. every documented asset in `docs/brand/references/`
+10. `docs/roadmap.md`
+11. `docs/content-strategy.md`
 
 ## Working rules
 
@@ -37,6 +56,8 @@ Before implementation work, review:
 10. Preserve user changes and inspect the working tree before editing.
 11. Keep the current sprint file updated when scope, decisions, dependencies,
     deferred items, or acceptance status materially change.
+12. Treat Sprint 02 and Homepage Design Lock v1.1 as closed. New visual work
+    must extend the approved system and remain within the active sprint scope.
 
 ## Where changes belong
 
@@ -78,8 +99,8 @@ For implementation changes:
 
 - Do not publish, deploy, connect paid services, or create external accounts
   without explicit authorization.
-- Treat the `/admin` route as a visual prototype until authentication and
-  persistent storage are implemented.
+- Treat `/admin` as an authenticated Payload surface backed by PostgreSQL.
+  Preserve private-by-default collection access and explicit public projections.
 - Do not imply that contact forms, payments, applications, or publishing tools
   are functional unless they are connected and verified.
 - Challenge requests that would create avoidable technical debt or weaken

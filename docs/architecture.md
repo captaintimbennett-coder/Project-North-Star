@@ -9,6 +9,23 @@ single-purpose portfolio. The architecture separates routes, reusable
 presentation, configurable content, design rules, and future service
 integrations so each can evolve independently.
 
+## Brand architecture
+
+The platform name and repository history do not determine the public brand
+hierarchy. The public experience must follow this order:
+
+1. **Tim Bennett** — the primary brand and person visitors choose to work with
+2. **Project North Star** — Tim’s guiding philosophy and standard
+3. **Experiences** — portraiture, retreats, workshops, mentoring, editorial,
+   and publications
+4. **Shared services** — CRM, client portal, scheduling, contracts, payments,
+   galleries, email, analytics, and automation
+
+Homepage decisions should first answer, “Does this help the visitor understand
+who Tim Bennett is?” and then, “Does this express the Project North Star
+philosophy?” This hierarchy changes content emphasis, not the approved route,
+component, responsive, or service architecture.
+
 ## Repository map
 
 ```text
@@ -32,6 +49,7 @@ integrations so each can evolve independently.
     │   ├── layout/
     │   ├── navigation/
     │   ├── hero/
+    │   ├── marketing/
     │   ├── portfolio/
     │   ├── cards/
     │   ├── forms/
@@ -57,6 +75,8 @@ Reusable React presentation organized by responsibility:
   and media frames
 - `navigation` — primary navigation and future navigation variants
 - `hero` — hero compositions
+- `marketing` — shared public-route heroes, editorial preview grids, and
+  closing calls to action
 - `portfolio` — portfolio-specific grids and gallery presentation
 - `cards` — repeatable content-card patterns
 - `forms` — labeled form controls and future form assemblies
@@ -94,13 +114,31 @@ Structured local content and configuration:
 
 These modules are the temporary local content layer. Future CMS repositories or
 queries should implement equivalent typed shapes so page components do not need
-to be redesigned when content moves to Supabase.
+to be redesigned when content moves to Payload.
 
 ### `src/lib`
 
 Shared utilities, external clients, validation, formatting, and server-side
 helpers. It is intentionally empty until a genuine shared utility exists.
 Avoid creating miscellaneous helper files without a clear responsibility.
+
+## Public marketing routes
+
+The Sprint 02 public marketing foundation is organized around six principal
+routes:
+
+- `/portfolio`
+- `/private-client`
+- `/lone-star-retreat`
+- `/workshops-education`
+- `/about`
+- `/contact`
+
+These routes share a content-driven editorial hero, preview-block, and closing
+action vocabulary. Portfolio, About, and Contact may compose specialized
+sections around those shared patterns. Calls to future applications, booking,
+enrollment, or forms must remain clearly informational until their supporting
+services are implemented and approved.
 
 ### `public/images`
 
@@ -137,14 +175,73 @@ part of the component contract.
 
 ## Future service architecture
 
+The approved long-term record, portal, event, booking, media, consent, and
+security boundaries are defined in
+[`north-star-platform-architecture.md`](north-star-platform-architecture.md).
+That document governs future platform expansion while preserving the current
+sprint's explicit non-implementation boundary.
+
 - Hosting and deployment: Vercel
-- Content, authentication, and relational data: Supabase
-- Initial media storage: Supabase Storage
+- Content administration and authentication: Payload CMS
+- Relational data: PostgreSQL through Payload's database adapter
+- Initial development media storage: Payload local uploads
+- Production media storage: an approved object-storage provider, selected before deployment
 - Payments: Stripe when paid workflows are approved
 - Transactional email: a dedicated provider called from secure server actions
 
 The public website and administrative studio should remain separate surfaces
 backed by one content model.
+
+### Featured Artist public-read boundary
+
+Featured Artist pages are event-scoped. A server-only repository begins with a
+published `retreat-events` record and maps only artist assignments whose
+event-specific participation status is `approved`. The related canonical
+`model-profiles` record must also be approved and published, have confirmed usage
+permission, and have an approved featured image. Location, categories,
+biography, artist statement, Instagram, and website each require their
+corresponding public-display approval. Model Applications, legal names, private
+administrator notes, unassigned artists, and unapproved media are never part of
+the public mapping. Approved Media may be read publicly; all other Media remains
+authenticated-only.
+
+### Lone Star Retreat scheduling domain
+
+The approved business rules are defined in
+[`foundation/scheduling-and-booking-rules.md`](foundation/scheduling-and-booking-rules.md).
+The scheduling foundation is event-specific and uses the following records:
+
+- `retreat-events` owns the event time zone and explicit artist and photographer
+  participation assignments. Artist assignments also own the event-specific
+  minimum booking duration.
+- `artist-availability` stores one private availability record per event,
+  artist, and bookable day. It defaults to 6:00 AM–6:00 PM local event time and
+  may contain lunch or unavailable blocks.
+- `retreat-bookings` relates one event, participating artist, and approved
+  photographer to an exact UTC start and end time. Event time zones translate
+  those timestamps into local schedule time. Versions preserve operational
+  history.
+- Canonical model and photographer profiles hold private contact-sharing and
+  notification preferences. Email sharing and email notifications are required
+  before a confirmed booking can be created.
+
+Server-side hooks enforce event assignment, model minimum duration, whole
+60-minute blocks, stated availability, participant contact readiness, and
+artist/photographer conflict prevention. An administrator may place a booking
+outside stated availability but may never create overlapping confirmed time.
+Availability changes are rejected when they would hide or block a confirmed
+reservation.
+
+Both scheduling collections are authenticated-only. Future participant schedule
+views must use an allowlisted server projection limited to display names, date,
+time, and booking status. Contact details are released only to the two booked
+participants according to their approved preferences after confirmation.
+Email, phone, payment information, private notes, and administrator fields never
+belong in shared schedule output.
+
+The scheduling domain intentionally contains no model rates, photographer-to-
+model payments, creative negotiations, or internal messaging records. Future
+event admission payment records are a separate Lone Star Retreat concern.
 
 ## Planned content model
 
@@ -157,8 +254,9 @@ backed by one content model.
 - `pages`
 - `contact_submissions`
 
-Supabase Row Level Security should enforce Owner, Editor, and Reviewer roles.
-Service-role credentials must never reach the browser.
+Payload access controls must enforce Owner, Editor, and Reviewer roles on the
+server. Database credentials and the Payload secret must never reach browser
+code. PostgreSQL migrations remain version controlled.
 
 ## Architectural rules
 
@@ -171,3 +269,9 @@ Service-role credentials must never reach the browser.
 6. Treat accessibility, responsive behavior, and performance as baseline
    requirements.
 7. Record material architecture changes in this document.
+
+## Legacy public routes
+
+- `/photography` is intentionally retained as a permanent compatibility
+  redirect to `/portfolio`. It is excluded from the sitemap and has no separate
+  canonical identity.

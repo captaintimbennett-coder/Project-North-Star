@@ -31,18 +31,20 @@ Also consult `content-strategy.md`, `roadmap.md`, and
 | --- | --- | --- |
 | 00 | Project foundation and governing context | Complete |
 | 01 | Luxury public website foundation | Complete |
-| 02 | Design system, imagery, typography, and visual refinement | In progress |
-| 03 | Content management and secure administration | Planned |
-| 04 | Experience and Lone Star Retreat management | Planned |
+| 02 | Design system, imagery, typography, and visual refinement | Complete |
+| 03 | Content management and secure administration | Complete |
+| 04 | Experience and Lone Star Retreat management | Active |
 | 05 | Applications and review workflows | Planned |
 | 06 | Payments, automation, and CRM integration | Planned |
 
-The current implementation frontier remains **Sprint 02 — Design System and
-Visual Refinement**. Sprint 03 should not begin until Tim approves the finished
-public design direction and Sprint 02 acceptance criteria are complete.
-Planning does not authorize creating external accounts, purchasing services,
-deploying, or connecting production systems. Those actions require Tim’s
-explicit approval.
+Sprint 04 is the current implementation frontier. Sprint 01 established the
+public foundation, Sprint 02 closed with Homepage Design Lock v1.1 and the
+multi-page marketing system, and Sprint 03 closed with the verified
+Payload/PostgreSQL, protected-application, and canonical-profile foundation.
+Sprint 04 owns event-centric Lone Star Retreat publishing and the approved
+scheduling foundation. Planning does not authorize deployment, paid services,
+payments, messaging, dashboards, or public booking access; those actions require
+Tim’s explicit approval.
 
 ## Working convention
 
