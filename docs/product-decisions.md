@@ -51,8 +51,17 @@ and architecture documents.
   it does not publish model rates, process model compensation, negotiate creative
   terms, or provide participant messaging.
 - Only participant-approved contact details may be shared after confirmation.
-  Public and shared schedules must not disclose private contact, payment, or
-  administrator information.
+  The participant-facing Retreat Schedule may show artist/stage name, time, and
+  status only. It must not disclose photographer identity, shoot information,
+  private contact, payment, or administrator information.
 - Future calendar interfaces must be highly visual, immediately legible,
   mobile-friendly, and consistent with the premium Project North Star design
   language. A basic scheduling table is not an acceptable final experience.
+- The PR #3 prototype defaults participants to My Schedule and uses a curated
+  editorial time ribbon. Photography-led artist selection, continuous-range
+  time selection, intelligent alternatives, and restrained confirmation define
+  the signature experience. The prototype remains non-public and read-only.
+- The Premium Calendar UX prototype received Product Owner approval on July 5,
+  2026. Its architecture, interaction model, information hierarchy, privacy
+  boundaries, and overall experience are accepted as the implementation
+  direction. Minor typography, spacing, and motion refinements are non-blocking.

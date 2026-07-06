@@ -233,11 +233,12 @@ Availability changes are rejected when they would hide or block a confirmed
 reservation.
 
 Both scheduling collections are authenticated-only. Future participant schedule
-views must use an allowlisted server projection limited to display names, date,
-time, and booking status. Contact details are released only to the two booked
+views must use an allowlisted server projection limited to artist/stage name,
+date, time, and booking status. Photographer identity and shoot information are
+excluded from the general Retreat Schedule. Contact details are released only to the two booked
 participants according to their approved preferences after confirmation.
 Email, phone, payment information, private notes, and administrator fields never
-belong in shared schedule output.
+belong in Retreat Schedule output.
 
 The scheduling domain intentionally contains no model rates, photographer-to-
 model payments, creative negotiations, or internal messaging records. Future

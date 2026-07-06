@@ -76,10 +76,20 @@ master classes, mentoring, and future creative experiences.
 - [x] Apply additive scheduling migrations and verify a private sample
   availability record and confirmed booking against the May 2027 event.
 - [x] Capture the premium Calendar UX Standard as a locked requirement for the
-  future scheduling prototype; no calendar UI is authorized yet.
-- [ ] Design calendar and booking interfaces only after Product Owner approval
-  of this data-model foundation.
-- [ ] Complete Product Owner visual review and design lock.
+  scheduling prototype.
+- [x] Approve the PR #3 curated-itinerary direction, My Schedule default,
+  privacy-restricted Retreat Schedule, editorial time ribbon, photography-led
+  artist selection, mobile agenda, and administrator interaction concepts.
+- [x] Implement the authorized non-public, read-only PR #3 calendar prototype
+  with typed fixtures and no Payload booking access or mutations.
+- [x] Prototype My Schedule, Retreat Schedule, artist selection, booking review
+  and confirmation, Shape Your Day, and Administrator Master Calendar views.
+- [x] Apply Product Owner Review #1 refinements: personal itinerary emphasis,
+  quieter editorial navigation, restrained gold, elevated artist selection,
+  and realistic three-day retreat activity using typed fixtures.
+- [x] Complete Product Owner visual review and approve the Premium Calendar UX
+  prototype as the implementation direction. Typography, spacing, motion timing,
+  and other presentation refinements remain non-blocking.
 
 ## Deferred Items
 
