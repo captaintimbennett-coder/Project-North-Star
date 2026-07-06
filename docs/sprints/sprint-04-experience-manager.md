@@ -90,6 +90,13 @@ master classes, mentoring, and future creative experiences.
 - [x] Complete Product Owner visual review and approve the Premium Calendar UX
   prototype as the implementation direction. Typography, spacing, motion timing,
   and other presentation refinements remain non-blocking.
+- [x] Approve PR #4 Identity & Access Foundation architecture with a strict
+  identity-and-authorization-only boundary.
+- [x] Implement multiple account roles, account status, safe profile ownership,
+  protected route guards, and read-only schedule projections on the dedicated
+  PR #4 branch.
+- [x] Apply the additive PR #4 migration and verify owner, editor, reviewer,
+  photographer, model, suspended, and wrong-role boundaries.
 
 ## Deferred Items
 

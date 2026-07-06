@@ -1,6 +1,6 @@
 # Lone Star Retreat — Working Checklist
 
-Last updated: July 5, 2026
+Last updated: July 6, 2026
 
 This is the shared Product Owner checklist for the next stage of Lone Star
 Retreat. Update it whenever an item is approved, completed, deferred, or changed.
@@ -84,8 +84,22 @@ Retreat. Update it whenever an item is approved, completed, deferred, or changed
 These systems remain deferred until the public retreat experience and CMS
 approval workflow are complete and approved.
 
+## 7. Identity & Access Foundation — PR #4
+
+- [x] Approve identity and authorization architecture
+- [x] Create `codex/identity-access-foundation` from `main`
+- [x] Define multiple account roles and account status
+- [x] Lock Payload Admin to active administrator accounts
+- [x] Restrict role and account-status changes to owners
+- [x] Add unique account-to-profile relationships
+- [x] Add protected sign-in and minimal access-verification routes
+- [x] Add read-only, role-filtered schedule projection
+- [x] Apply and verify the additive identity migration
+- [x] Complete administrator, photographer, model, suspended, and wrong-role
+  access testing
+- [ ] Product Owner review and PR #4 approval
+
 ## Current Focus
 
-**Next item:** Review and merge PR #3 after the final pre-merge summary, then
-plan the separately authorized authentication and role foundation required
-before any live participant scheduling work.
+**Next item:** Complete PR #4 migration and access-boundary verification before
+any live participant scheduling work.

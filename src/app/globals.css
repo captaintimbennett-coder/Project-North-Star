@@ -2407,6 +2407,39 @@ body.menu-open {
   .artist-profile-cta .ds-button { width: 100%; }
 }
 
+.account-access-page {
+  min-height: 100svh;
+  display: grid;
+  place-items: center;
+  padding: 10rem max(1.5rem, 5vw) 6rem;
+  color: var(--north-star-ivory);
+  background:
+    radial-gradient(circle at 75% 15%, rgb(201 145 69 / 12%), transparent 32rem),
+    #090908;
+}
+.account-access-panel { width: min(100%, 700px); padding: clamp(2rem, 5vw, 5rem); border: 1px solid var(--north-star-rule); background: rgb(255 255 255 / 2%); }
+.account-access-panel--wide { width: min(100%, 980px); }
+.account-access-panel h1 { margin: 0.7rem 0 1.2rem; font-size: clamp(3.2rem, 7vw, 6.5rem); line-height: 0.94; }
+.account-access-panel > p:not(.ds-eyebrow) { color: var(--color-text-inverse-medium); line-height: 1.7; }
+.account-access-panel > small { display: block; margin-top: 1.5rem; color: rgb(242 238 230 / 48%); }
+.account-sign-in-form { display: grid; gap: 0.7rem; margin-top: 2.5rem; }
+.account-sign-in-form label { margin-top: 0.8rem; color: var(--north-star-gold); font-size: 0.62rem; letter-spacing: 0.15em; text-transform: uppercase; }
+.account-sign-in-form input { min-height: 54px; padding: 0 1rem; color: var(--north-star-ivory); background: #0d0d0c; border: 1px solid var(--north-star-rule); }
+.account-sign-in-form button { margin-top: 1rem; }
+.account-form-error { color: #e6b7a6; }
+.account-role-list { display: flex; flex-wrap: wrap; gap: 0.7rem; margin: 2rem 0; }
+.account-role-list span { padding: 0.65rem 0.85rem; color: var(--north-star-gold); border: 1px solid rgb(201 145 69 / 35%); font-size: 0.6rem; letter-spacing: 0.12em; text-transform: uppercase; }
+.account-access-actions { display: flex; flex-wrap: wrap; gap: 1rem; margin: 2rem 0; }
+.account-text-action { padding: 0; color: var(--color-text-inverse-medium); background: transparent; border: 0; text-decoration: underline; text-underline-offset: 0.35rem; }
+.account-schedule-list { display: grid; gap: 1rem; margin-top: 3rem; }
+.account-schedule-list article { padding: 1.5rem; border: 1px solid var(--north-star-rule); border-left: 2px solid var(--north-star-gold); }
+.account-schedule-list article > span { color: var(--north-star-gold); font-size: 0.55rem; letter-spacing: 0.14em; text-transform: uppercase; }
+.account-schedule-list h2 { margin: 0.55rem 0; font-size: 2rem; }
+.account-schedule-list article p,
+.account-schedule-list article time,
+.account-schedule-list article small { display: block; margin: 0.35rem 0; color: var(--color-text-inverse-medium); }
+.account-empty-state { padding: 2rem; border: 1px solid var(--north-star-rule); }
+
 @media (prefers-reduced-motion: reduce) {
   .artist-card__image img,
   .artist-card__content > span b,

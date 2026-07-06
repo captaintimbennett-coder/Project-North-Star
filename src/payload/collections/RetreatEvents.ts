@@ -1,13 +1,13 @@
 import type { CollectionConfig } from "payload";
-import { authenticated } from "../access/authenticated";
+import { activeAccount, ownerOnly, ownerOrEditorOnly } from "../access/account";
 
 export const RetreatEvents: CollectionConfig = {
   slug: "retreat-events",
   access: {
-    create: authenticated,
-    delete: authenticated,
-    read: authenticated,
-    update: authenticated,
+    create: ownerOrEditorOnly,
+    delete: ownerOnly,
+    read: activeAccount,
+    update: ownerOrEditorOnly,
   },
   admin: {
     defaultColumns: ["title", "lifecycleStatus", "startDate", "locationName"],

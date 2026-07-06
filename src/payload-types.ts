@@ -146,7 +146,18 @@ export interface UserAuthOperations {
 export interface User {
   id: number;
   name: string;
-  role: 'owner' | 'editor' | 'reviewer';
+  /**
+   * Applies only to administrator accounts.
+   */
+  role?: ('owner' | 'editor' | 'reviewer') | null;
+  /**
+   * Only an owner may assign or change account roles.
+   */
+  roles: ('administrator' | 'photographer' | 'model')[];
+  /**
+   * Invited and suspended accounts cannot access protected platform features.
+   */
+  accountStatus: 'invited' | 'active' | 'suspended';
   updatedAt: string;
   createdAt: string;
   email: string;
@@ -260,6 +271,10 @@ export interface RetreatEvent {
  */
 export interface ModelProfile {
   id: number;
+  /**
+   * Optional one-to-one authentication owner. Applications never set this automatically.
+   */
+  account?: (number | null) | User;
   displayName: string;
   slug: string;
   approvalStatus: 'draft' | 'review' | 'approved' | 'archived';
@@ -316,6 +331,10 @@ export interface ModelProfile {
  */
 export interface PhotographerProfile {
   id: number;
+  /**
+   * Optional one-to-one authentication owner. Applications never set this automatically.
+   */
+  account?: (number | null) | User;
   displayName: string;
   slug: string;
   approvalStatus: 'draft' | 'review' | 'approved' | 'archived';
@@ -745,6 +764,8 @@ export interface PayloadMigration {
 export interface UsersSelect<T extends boolean = true> {
   name?: T;
   role?: T;
+  roles?: T;
+  accountStatus?: T;
   updatedAt?: T;
   createdAt?: T;
   email?: T;
@@ -848,6 +869,7 @@ export interface RetreatEventsSelect<T extends boolean = true> {
  * via the `definition` "model-profiles_select".
  */
 export interface ModelProfilesSelect<T extends boolean = true> {
+  account?: T;
   displayName?: T;
   slug?: T;
   approvalStatus?: T;
@@ -895,6 +917,7 @@ export interface ModelProfilesSelect<T extends boolean = true> {
  * via the `definition` "photographer-profiles_select".
  */
 export interface PhotographerProfilesSelect<T extends boolean = true> {
+  account?: T;
   displayName?: T;
   slug?: T;
   approvalStatus?: T;

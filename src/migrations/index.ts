@@ -12,6 +12,7 @@ import * as migration_20260704_165148 from './20260704_165148';
 import * as migration_20260704_203156 from './20260704_203156';
 import * as migration_20260705_043634_scheduling_data_model from './20260705_043634_scheduling_data_model';
 import * as migration_20260705_044709_event_scheduling_timezone from './20260705_044709_event_scheduling_timezone';
+import * as migration_20260706_062709_identity_access_foundation from './20260706_062709_identity_access_foundation';
 
 export const migrations = [
   {
@@ -82,6 +83,11 @@ export const migrations = [
   {
     up: migration_20260705_044709_event_scheduling_timezone.up,
     down: migration_20260705_044709_event_scheduling_timezone.down,
-    name: '20260705_044709_event_scheduling_timezone'
+    name: '20260705_044709_event_scheduling_timezone',
+  },
+  {
+    up: migration_20260706_062709_identity_access_foundation.up,
+    down: migration_20260706_062709_identity_access_foundation.down,
+    name: '20260706_062709_identity_access_foundation'
   },
 ];
