@@ -68,6 +68,8 @@ export interface Config {
   blocks: {};
   collections: {
     users: User;
+    'account-invitations': AccountInvitation;
+    'security-audit-events': SecurityAuditEvent;
     media: Media;
     'retreat-events': RetreatEvent;
     'model-profiles': ModelProfile;
@@ -85,6 +87,8 @@ export interface Config {
   collectionsJoins: {};
   collectionsSelect: {
     users: UsersSelect<false> | UsersSelect<true>;
+    'account-invitations': AccountInvitationsSelect<false> | AccountInvitationsSelect<true>;
+    'security-audit-events': SecurityAuditEventsSelect<false> | SecurityAuditEventsSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     'retreat-events': RetreatEventsSelect<false> | RetreatEventsSelect<true>;
     'model-profiles': ModelProfilesSelect<false> | ModelProfilesSelect<true>;
@@ -158,6 +162,15 @@ export interface User {
    * Invited and suspended accounts cannot access protected platform features.
    */
   accountStatus: 'invited' | 'active' | 'suspended';
+  invitedAt?: string | null;
+  invitationAcceptedAt?: string | null;
+  lastLoginAt?: string | null;
+  suspendedAt?: string | null;
+  suspensionReason?: string | null;
+  /**
+   * Incremented when access should be revoked. Existing Payload sessions are cleared when an account is suspended.
+   */
+  sessionVersion?: number | null;
   updatedAt: string;
   createdAt: string;
   email: string;
@@ -178,90 +191,31 @@ export interface User {
   collection: 'users';
 }
 /**
+ * Invitation-only account activation records. Raw activation tokens are never stored.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "media".
+ * via the `definition` "account-invitations".
  */
-export interface Media {
+export interface AccountInvitation {
   id: number;
-  alt: string;
-  credit?: string | null;
-  usageApproved?: boolean | null;
+  email: string;
+  roles: ('administrator' | 'photographer' | 'model')[];
+  /**
+   * Only applies when the invitation includes administrator access.
+   */
+  staffPermission?: ('owner' | 'editor' | 'reviewer') | null;
+  status: 'pending' | 'accepted' | 'revoked' | 'expired';
+  tokenHash: string;
+  tokenExpiresAt: string;
+  invitedBy?: (number | null) | User;
+  acceptedAccount?: (number | null) | User;
+  acceptedAt?: string | null;
+  revokedAt?: string | null;
+  relatedModelProfile?: (number | null) | ModelProfile;
+  relatedPhotographerProfile?: (number | null) | PhotographerProfile;
+  adminNotes?: string | null;
   updatedAt: string;
   createdAt: string;
-  url?: string | null;
-  thumbnailURL?: string | null;
-  filename?: string | null;
-  mimeType?: string | null;
-  filesize?: number | null;
-  width?: number | null;
-  height?: number | null;
-  focalX?: number | null;
-  focalY?: number | null;
-  sizes?: {
-    card?: {
-      url?: string | null;
-      width?: number | null;
-      height?: number | null;
-      mimeType?: string | null;
-      filesize?: number | null;
-      filename?: string | null;
-    };
-    hero?: {
-      url?: string | null;
-      width?: number | null;
-      height?: number | null;
-      mimeType?: string | null;
-      filesize?: number | null;
-      filename?: string | null;
-    };
-  };
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "retreat-events".
- */
-export interface RetreatEvent {
-  id: number;
-  title: string;
-  slug: string;
-  lifecycleStatus: 'draft' | 'prototype' | 'published' | 'closed' | 'archived';
-  summary: string;
-  heroImage?: (number | null) | Media;
-  startDate?: string | null;
-  endDate?: string | null;
-  /**
-   * IANA time zone used for availability and booking calculations, for example America/Chicago.
-   */
-  timeZone: string;
-  locationName?: string | null;
-  locationDetails?: string | null;
-  capacity?: number | null;
-  registrationStatus: 'coming-soon' | 'applications-open' | 'registration-open' | 'waitlist' | 'closed';
-  /**
-   * Event-specific artist assignments. Only approved assignments whose master profiles and media are also published and approved may appear publicly.
-   */
-  participatingArtists?:
-    | {
-        artist: number | ModelProfile;
-        participationStatus: 'invited' | 'confirmed' | 'approved' | 'withdrawn';
-        displayOrder?: number | null;
-        minimumBookingHours: '1' | '2' | '3';
-        id?: string | null;
-      }[]
-    | null;
-  /**
-   * Event-specific photographer access. Only approved participants are eligible for confirmed bookings.
-   */
-  participatingPhotographers?:
-    | {
-        photographer: number | PhotographerProfile;
-        participationStatus: 'invited' | 'registered' | 'approved' | 'withdrawn';
-        id?: string | null;
-      }[]
-    | null;
-  updatedAt: string;
-  createdAt: string;
-  _status?: ('draft' | 'published') | null;
 }
 /**
  * Canonical model records. Event participation will reference these profiles rather than duplicate them.
@@ -324,6 +278,45 @@ export interface ModelProfile {
   _status?: ('draft' | 'published') | null;
 }
 /**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "media".
+ */
+export interface Media {
+  id: number;
+  alt: string;
+  credit?: string | null;
+  usageApproved?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+  url?: string | null;
+  thumbnailURL?: string | null;
+  filename?: string | null;
+  mimeType?: string | null;
+  filesize?: number | null;
+  width?: number | null;
+  height?: number | null;
+  focalX?: number | null;
+  focalY?: number | null;
+  sizes?: {
+    card?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    hero?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+  };
+}
+/**
  * Canonical photographer records. Registrations and event participation will reference these profiles later.
  *
  * This interface was referenced by `Config`'s JSON-Schema
@@ -365,6 +358,79 @@ export interface PhotographerProfile {
     notifyBySms?: boolean | null;
     notifyInDashboard?: boolean | null;
   };
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * Immutable security history for account lifecycle, role, status, invitation, and protected-access events.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "security-audit-events".
+ */
+export interface SecurityAuditEvent {
+  id: number;
+  eventType: string;
+  severity: 'info' | 'warning' | 'critical';
+  actor?: (number | null) | User;
+  targetAccount?: (number | null) | User;
+  targetInvitation?: (number | null) | AccountInvitation;
+  metadata?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  occurredAt: string;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "retreat-events".
+ */
+export interface RetreatEvent {
+  id: number;
+  title: string;
+  slug: string;
+  lifecycleStatus: 'draft' | 'prototype' | 'published' | 'closed' | 'archived';
+  summary: string;
+  heroImage?: (number | null) | Media;
+  startDate?: string | null;
+  endDate?: string | null;
+  /**
+   * IANA time zone used for availability and booking calculations, for example America/Chicago.
+   */
+  timeZone: string;
+  locationName?: string | null;
+  locationDetails?: string | null;
+  capacity?: number | null;
+  registrationStatus: 'coming-soon' | 'applications-open' | 'registration-open' | 'waitlist' | 'closed';
+  /**
+   * Event-specific artist assignments. Only approved assignments whose master profiles and media are also published and approved may appear publicly.
+   */
+  participatingArtists?:
+    | {
+        artist: number | ModelProfile;
+        participationStatus: 'invited' | 'confirmed' | 'approved' | 'withdrawn';
+        displayOrder?: number | null;
+        minimumBookingHours: '1' | '2' | '3';
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Event-specific photographer access. Only approved participants are eligible for confirmed bookings.
+   */
+  participatingPhotographers?:
+    | {
+        photographer: number | PhotographerProfile;
+        participationStatus: 'invited' | 'registered' | 'approved' | 'withdrawn';
+        id?: string | null;
+      }[]
+    | null;
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
@@ -684,6 +750,14 @@ export interface PayloadLockedDocument {
         value: number | User;
       } | null)
     | ({
+        relationTo: 'account-invitations';
+        value: number | AccountInvitation;
+      } | null)
+    | ({
+        relationTo: 'security-audit-events';
+        value: number | SecurityAuditEvent;
+      } | null)
+    | ({
         relationTo: 'media';
         value: number | Media;
       } | null)
@@ -766,6 +840,12 @@ export interface UsersSelect<T extends boolean = true> {
   role?: T;
   roles?: T;
   accountStatus?: T;
+  invitedAt?: T;
+  invitationAcceptedAt?: T;
+  lastLoginAt?: T;
+  suspendedAt?: T;
+  suspensionReason?: T;
+  sessionVersion?: T;
   updatedAt?: T;
   createdAt?: T;
   email?: T;
@@ -782,6 +862,42 @@ export interface UsersSelect<T extends boolean = true> {
         createdAt?: T;
         expiresAt?: T;
       };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "account-invitations_select".
+ */
+export interface AccountInvitationsSelect<T extends boolean = true> {
+  email?: T;
+  roles?: T;
+  staffPermission?: T;
+  status?: T;
+  tokenHash?: T;
+  tokenExpiresAt?: T;
+  invitedBy?: T;
+  acceptedAccount?: T;
+  acceptedAt?: T;
+  revokedAt?: T;
+  relatedModelProfile?: T;
+  relatedPhotographerProfile?: T;
+  adminNotes?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "security-audit-events_select".
+ */
+export interface SecurityAuditEventsSelect<T extends boolean = true> {
+  eventType?: T;
+  severity?: T;
+  actor?: T;
+  targetAccount?: T;
+  targetInvitation?: T;
+  metadata?: T;
+  occurredAt?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

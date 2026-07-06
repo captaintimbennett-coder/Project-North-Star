@@ -1,4 +1,5 @@
 import { APIError, UnauthorizedError, type CollectionConfig } from "payload";
+import { writeSecurityAuditEvent } from "@/lib/security/audit";
 import { isStaff, ownerFieldAccess, ownerOnly, ownerOrSelf } from "../access/account";
 import { firstUserOrAuthenticated } from "../access/firstUserOrAuthenticated";
 
@@ -90,6 +91,67 @@ export const Users: CollectionConfig = {
         description: "Invited and suspended accounts cannot access protected platform features.",
       },
     },
+    {
+      name: "invitedAt",
+      type: "date",
+      access: {
+        create: ownerFieldAccess,
+        update: ownerFieldAccess,
+      },
+      admin: { date: { pickerAppearance: "dayAndTime", timeFormat: "h:mm a" } },
+    },
+    {
+      name: "invitationAcceptedAt",
+      type: "date",
+      access: {
+        create: ownerFieldAccess,
+        update: ownerFieldAccess,
+      },
+      admin: { date: { pickerAppearance: "dayAndTime", timeFormat: "h:mm a" } },
+    },
+    {
+      name: "lastLoginAt",
+      type: "date",
+      access: {
+        create: ownerFieldAccess,
+        update: ownerFieldAccess,
+      },
+      admin: { date: { pickerAppearance: "dayAndTime", timeFormat: "h:mm a" } },
+    },
+    {
+      name: "suspendedAt",
+      type: "date",
+      access: {
+        create: ownerFieldAccess,
+        update: ownerFieldAccess,
+      },
+      admin: { date: { pickerAppearance: "dayAndTime", timeFormat: "h:mm a" } },
+    },
+    {
+      name: "suspensionReason",
+      type: "textarea",
+      label: "Private suspension reason",
+      access: {
+        create: ownerFieldAccess,
+        read: ownerFieldAccess,
+        update: ownerFieldAccess,
+      },
+    },
+    {
+      name: "sessionVersion",
+      type: "number",
+      defaultValue: 1,
+      label: "Session version",
+      access: {
+        create: ownerFieldAccess,
+        read: ownerFieldAccess,
+        update: ownerFieldAccess,
+      },
+      admin: {
+        description: "Incremented when access should be revoked. Existing Payload sessions are cleared when an account is suspended.",
+        readOnly: true,
+      },
+    },
   ],
   hooks: {
     beforeChange: [async ({ data, operation, originalDoc, req }) => {
@@ -131,11 +193,58 @@ export const Users: CollectionConfig = {
         }
       }
 
-      return { ...data, role: staffPermission };
+      const nextData: Record<string, unknown> = { ...data, role: staffPermission };
+      if (operation === "update" && originalDoc?.accountStatus !== "suspended" && status === "suspended") {
+        nextData.suspendedAt = data.suspendedAt ?? new Date().toISOString();
+        nextData.sessionVersion = Number(originalDoc?.sessionVersion ?? 1) + 1;
+        nextData.sessions = [];
+      }
+
+      return nextData;
     }],
     beforeLogin: [({ user }) => {
       if (user.accountStatus !== "active") throw new UnauthorizedError();
       return user;
+    }],
+    afterLogin: [async ({ req, user }) => {
+      await req.payload.update({
+        collection: "users",
+        data: { lastLoginAt: new Date().toISOString() },
+        id: user.id,
+        overrideAccess: true,
+        req,
+      });
+    }],
+    afterChange: [async ({ doc, operation, previousDoc, req }) => {
+      if (operation === "create") {
+        await writeSecurityAuditEvent(req.payload, {
+          actor: req.user?.id,
+          eventType: "account.created",
+          metadata: { createdAccountId: doc.id, roles: doc.roles, status: doc.accountStatus },
+        });
+      }
+
+      if (operation === "update") {
+        if (previousDoc?.accountStatus !== doc.accountStatus) {
+          await writeSecurityAuditEvent(req.payload, {
+            actor: req.user?.id,
+            eventType: "account.status_changed",
+            metadata: { from: previousDoc?.accountStatus, to: doc.accountStatus },
+            severity: doc.accountStatus === "suspended" ? "warning" : "info",
+            targetAccount: doc.id,
+          });
+        }
+
+        if (JSON.stringify(previousDoc?.roles ?? []) !== JSON.stringify(doc.roles ?? [])) {
+          await writeSecurityAuditEvent(req.payload, {
+            actor: req.user?.id,
+            eventType: "account.roles_changed",
+            metadata: { from: previousDoc?.roles, to: doc.roles },
+            severity: "warning",
+            targetAccount: doc.id,
+          });
+        }
+      }
     }],
   },
 };

@@ -97,6 +97,12 @@ master classes, mentoring, and future creative experiences.
   PR #4 branch.
 - [x] Apply the additive PR #4 migration and verify owner, editor, reviewer,
   photographer, model, suspended, and wrong-role boundaries.
+- [x] Approve PR #5 Account Lifecycle & Security Hardening scope as the
+  invitation, suspension, audit, Neon SSL, password-recovery, and mutation
+  protection groundwork before live participant scheduling.
+- [x] Implement and verify PR #5 on `codex/account-lifecycle-security` without
+  introducing booking mutations, payments, messaging, dashboards, public signup,
+  public registration, or notification automation.
 
 ## Deferred Items
 

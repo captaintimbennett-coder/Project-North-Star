@@ -13,6 +13,7 @@ import * as migration_20260704_203156 from './20260704_203156';
 import * as migration_20260705_043634_scheduling_data_model from './20260705_043634_scheduling_data_model';
 import * as migration_20260705_044709_event_scheduling_timezone from './20260705_044709_event_scheduling_timezone';
 import * as migration_20260706_062709_identity_access_foundation from './20260706_062709_identity_access_foundation';
+import * as migration_20260706_211702_account_lifecycle_security from './20260706_211702_account_lifecycle_security';
 
 export const migrations = [
   {
@@ -88,6 +89,11 @@ export const migrations = [
   {
     up: migration_20260706_062709_identity_access_foundation.up,
     down: migration_20260706_062709_identity_access_foundation.down,
-    name: '20260706_062709_identity_access_foundation'
+    name: '20260706_062709_identity_access_foundation',
+  },
+  {
+    up: migration_20260706_211702_account_lifecycle_security.up,
+    down: migration_20260706_211702_account_lifecycle_security.down,
+    name: '20260706_211702_account_lifecycle_security'
   },
 ];

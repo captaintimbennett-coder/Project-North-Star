@@ -279,6 +279,33 @@ profile. Participant-facing schedule code returns an explicit allowlist rather
 than a raw Payload document. Booking creation, updates, and deletion remain
 staff-only until a later PR separately authorizes live booking.
 
+### Account lifecycle and security hardening
+
+Accounts are activated by invitation only. `account-invitations` stores the
+intended email, roles, optional staff permission level, expiration, status, and
+related profile references. It stores a hash of the activation token; the raw
+token is never stored. Accepting a valid pending invitation creates an active
+UserAccount and marks the invitation accepted. Expired, revoked, or previously
+accepted invitations cannot create accounts.
+
+`users` additionally tracks invitation acceptance, last login, suspension
+timing, private suspension reason, and a session version. Suspending an account
+clears active Payload sessions, increments the session version, and continues to
+block protected route access through fresh server-side account checks.
+
+`security-audit-events` records sensitive account lifecycle actions including
+invitation creation, invitation acceptance, failed invitation acceptance, account
+creation, role changes, and status changes. Audit records are internal-only and
+immutable after creation.
+
+Future participant mutation routes must use the shared origin protection helper
+before accepting state changes. This groundwork does not authorize public
+booking mutations.
+
+Production password recovery is not considered ready until a transactional
+email provider is configured and verified. Console-only email remains a local
+development behavior.
+
 ## Architectural rules
 
 1. Preserve server components by default; add `"use client"` only for actual
