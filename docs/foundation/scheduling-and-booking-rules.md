@@ -210,14 +210,13 @@ Available methods:
 
 Email remains mandatory.
 
-## Shared Retreat Schedule
+## Retreat Schedule
 
 Approved participants may view a shared retreat schedule.
 
 Visible information:
 
-- Photographer
-- Model
+- Artist/model stage name
 - Date
 - Time
 - Session status
@@ -229,9 +228,14 @@ Hidden information:
 - Payment
 - Admin notes
 - Private data
+- Photographer identity
+- Shoot type, theme, genre, or creative concept
 
-The shared schedule exists to help participants coordinate throughout the
-retreat.
+The Retreat Schedule exists to help participants coordinate throughout the
+event without exposing photographer identity or private creative information.
+The booked photographer and model may see each other's approved details within
+their own authenticated confirmed-booking view. The administrator retains the
+complete operational view.
 
 ## Administrator Master Calendar
 
@@ -290,6 +294,13 @@ Future calendar interfaces should support:
 - A participant-facing retreat schedule
 - Mobile-friendly interaction
 - Restrained motion and premium visual polish
+
+Participant views should default to **My Schedule**. **Retreat Schedule** is a
+secondary event perspective. The future experience should use a continuous
+editorial time ribbon rather than a conventional month or appointment grid.
+Artist selection should be photography-led, time selection should use one
+continuous range, and confirmation should be clear enough to complete in under
+one minute.
 
 This standard governs the future scheduling and calendar prototype. It does not
 authorize calendar UI implementation.

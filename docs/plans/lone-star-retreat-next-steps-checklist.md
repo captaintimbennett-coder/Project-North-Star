@@ -1,6 +1,6 @@
 # Lone Star Retreat — Working Checklist
 
-Last updated: July 4, 2026
+Last updated: July 5, 2026
 
 This is the shared Product Owner checklist for the next stage of Lone Star
 Retreat. Update it whenever an item is approved, completed, deferred, or changed.
@@ -63,7 +63,13 @@ Retreat. Update it whenever an item is approved, completed, deferred, or changed
 - [x] Create event-specific availability and booking records
 - [x] Apply migrations and verify private sample records
 - [x] Capture the premium Calendar UX Standard
-- [ ] Approve a calendar UX prototype before UI implementation
+- [x] Approve the final premium calendar UX direction
+- [x] Define My Schedule, Retreat Schedule, administrator, mobile, and privacy
+  requirements for PR #3
+- [x] Authorize and build the non-public read-only calendar prototype using
+  typed fixtures with no live booking connection
+- [x] Complete Product Owner visual review and approve the PR #3 Premium
+  Calendar UX prototype
 - [ ] Add transaction-level concurrency protection before public booking access
 
 ## 6. Future Operational Systems — Deferred
@@ -80,6 +86,6 @@ approval workflow are complete and approved.
 
 ## Current Focus
 
-**Next item:** Product Owner visual review of the May 2027 Texas Hill Country
-event page, its Participating Artists section, and Lexi Anne's event-scoped
-profile.
+**Next item:** Review and merge PR #3 after the final pre-merge summary, then
+plan the separately authorized authentication and role foundation required
+before any live participant scheduling work.
