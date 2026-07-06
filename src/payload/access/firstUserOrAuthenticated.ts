@@ -1,8 +1,8 @@
 import type { Access } from "payload";
+import { isOwner } from "./account";
 
 export const firstUserOrAuthenticated: Access = async ({ req }) => {
-  if (req.user) return true;
-
   const users = await req.payload.count({ collection: "users" });
-  return users.totalDocs === 0;
+  if (users.totalDocs === 0) return true;
+  return isOwner(req.user);
 };

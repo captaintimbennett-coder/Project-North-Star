@@ -1,6 +1,7 @@
 import type { CollectionConfig } from "payload";
-import { authenticated } from "../access/authenticated";
+import { ownerOnly, ownerOrEditorOnly, staffOrOwnProfile, staffFieldAccess } from "../access/account";
 import { bookingPreferencesField } from "../fields/bookingPreferences";
+import { validateProfileAccountRole } from "../hooks/validateProfileAccountRole";
 
 export const PhotographerProfiles: CollectionConfig = {
   slug: "photographer-profiles",
@@ -9,10 +10,10 @@ export const PhotographerProfiles: CollectionConfig = {
     singular: "Photographer / Participant",
   },
   access: {
-    create: authenticated,
-    delete: authenticated,
-    read: authenticated,
-    update: authenticated,
+    create: ownerOrEditorOnly,
+    delete: ownerOnly,
+    read: staffOrOwnProfile("photographer"),
+    update: ownerOrEditorOnly,
   },
   admin: {
     defaultColumns: ["displayName", "approvalStatus", "experienceLevel", "city", "state"],
@@ -22,6 +23,18 @@ export const PhotographerProfiles: CollectionConfig = {
     useAsTitle: "displayName",
   },
   fields: [
+    {
+      name: "account",
+      type: "relationship",
+      relationTo: "users",
+      unique: true,
+      index: true,
+      label: "Linked user account",
+      access: { read: staffFieldAccess },
+      admin: {
+        description: "Optional one-to-one authentication owner. Applications never set this automatically.",
+      },
+    },
     {
       name: "displayName",
       type: "text",
@@ -101,9 +114,13 @@ export const PhotographerProfiles: CollectionConfig = {
       name: "adminNotes",
       type: "textarea",
       label: "Private administrator notes",
+      access: { read: staffFieldAccess },
     },
     bookingPreferencesField,
   ],
+  hooks: {
+    beforeChange: [validateProfileAccountRole("photographer")],
+  },
   versions: {
     drafts: {
       autosave: true,

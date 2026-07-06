@@ -1,5 +1,5 @@
 import type { CollectionConfig } from "payload";
-import { authenticated } from "../access/authenticated";
+import { ownerOnly, ownerOrEditorOnly, staffOnly } from "../access/account";
 
 const applicationStatusOptions = [
   { label: "New", value: "new" },
@@ -16,10 +16,10 @@ export const ModelApplications: CollectionConfig = {
     singular: "Model Application",
   },
   access: {
-    create: authenticated,
-    delete: authenticated,
-    read: authenticated,
-    update: authenticated,
+    create: ownerOrEditorOnly,
+    delete: ownerOnly,
+    read: staffOnly,
+    update: staffOnly,
   },
   admin: {
     defaultColumns: ["stageName", "email", "applicationStatus", "submittedAt"],

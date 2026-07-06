@@ -1,5 +1,5 @@
 import type { CollectionConfig } from "payload";
-import { authenticated } from "../access/authenticated";
+import { ownerOnly, ownerOrEditorOnly, staffOrOwnBooking, staffFieldAccess } from "../access/account";
 import { validateRetreatBooking } from "../scheduling/rules";
 
 export const RetreatBookings: CollectionConfig = {
@@ -9,10 +9,10 @@ export const RetreatBookings: CollectionConfig = {
     singular: "Retreat Booking",
   },
   access: {
-    create: authenticated,
-    delete: authenticated,
-    read: authenticated,
-    update: authenticated,
+    create: ownerOrEditorOnly,
+    delete: ownerOnly,
+    read: staffOrOwnBooking,
+    update: ownerOrEditorOnly,
   },
   admin: {
     defaultColumns: ["event", "artist", "photographer", "startAt", "endAt", "status"],
@@ -72,9 +72,20 @@ export const RetreatBookings: CollectionConfig = {
         description:
           "Allows an authorized administrator to place a booking outside stated availability. It never permits double-booking.",
       },
+      access: { read: staffFieldAccess },
     },
-    { name: "exceptionReason", type: "textarea", label: "Private exception / cancellation reason" },
-    { name: "adminNotes", type: "textarea", label: "Private administrator notes" },
+    {
+      name: "exceptionReason",
+      type: "textarea",
+      label: "Private exception / cancellation reason",
+      access: { read: staffFieldAccess },
+    },
+    {
+      name: "adminNotes",
+      type: "textarea",
+      label: "Private administrator notes",
+      access: { read: staffFieldAccess },
+    },
   ],
   hooks: {
     beforeChange: [validateRetreatBooking],

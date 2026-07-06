@@ -65,3 +65,15 @@ and architecture documents.
   2026. Its architecture, interaction model, information hierarchy, privacy
   boundaries, and overall experience are accepted as the implementation
   direction. Minor typography, spacing, and motion refinements are non-blocking.
+
+## July 6, 2026 — Identity & Access Foundation
+
+- PR #4 proves identity and authorization only; it is not a dashboard project.
+- UserAccount authentication remains separate from model and photographer
+  master profiles.
+- Accounts may hold administrator, photographer, and model roles concurrently.
+- Only owners may create accounts or alter roles and account status.
+- Participant accounts cannot access Payload Admin and cannot mutate bookings.
+- Invited and suspended accounts cannot access protected platform data.
+- Public account creation and automatic application-to-profile promotion remain
+  explicitly deferred.

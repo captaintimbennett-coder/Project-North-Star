@@ -259,6 +259,26 @@ Payload access controls must enforce Owner, Editor, and Reviewer roles on the
 server. Database credentials and the Payload secret must never reach browser
 code. PostgreSQL migrations remain version controlled.
 
+## Identity and access foundation
+
+The Payload `users` collection is the canonical UserAccount and remains
+separate from role profiles. An account may hold administrator, photographer,
+and model roles concurrently. Administrator accounts additionally use the
+existing owner, editor, and reviewer staff permission levels. Accounts are
+invited, active, or suspended; only active accounts may authenticate or access
+protected platform data.
+
+`model-profiles.account` and `photographer-profiles.account` are optional unique
+relationships to `users`. They are assigned manually by authorized staff and
+must match the account role. Application records never become accounts or
+profiles automatically.
+
+Participants never receive Payload Admin access. Server access rules constrain
+profile, availability, and booking reads to the authenticated account's linked
+profile. Participant-facing schedule code returns an explicit allowlist rather
+than a raw Payload document. Booking creation, updates, and deletion remain
+staff-only until a later PR separately authorizes live booking.
+
 ## Architectural rules
 
 1. Preserve server components by default; add `"use client"` only for actual

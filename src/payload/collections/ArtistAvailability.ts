@@ -1,5 +1,5 @@
 import type { CollectionConfig } from "payload";
-import { authenticated } from "../access/authenticated";
+import { ownerOnly, ownerOrEditorOnly, staffOrOwnAvailability, staffFieldAccess } from "../access/account";
 import { protectConfirmedBookingsFromAvailability } from "../scheduling/rules";
 
 export const ArtistAvailability: CollectionConfig = {
@@ -9,10 +9,10 @@ export const ArtistAvailability: CollectionConfig = {
     singular: "Artist Availability",
   },
   access: {
-    create: authenticated,
-    delete: authenticated,
-    read: authenticated,
-    update: authenticated,
+    create: ownerOrEditorOnly,
+    delete: ownerOnly,
+    read: staffOrOwnAvailability,
+    update: ownerOrEditorOnly,
   },
   admin: {
     defaultColumns: ["event", "artist", "date", "availableFrom", "availableUntil"],
@@ -62,10 +62,20 @@ export const ArtistAvailability: CollectionConfig = {
           ],
           required: true,
         },
-        { name: "privateNote", type: "text", label: "Private note" },
+        {
+          name: "privateNote",
+          type: "text",
+          label: "Private note",
+          access: { read: staffFieldAccess },
+        },
       ],
     },
-    { name: "adminNotes", type: "textarea", label: "Private administrator notes" },
+    {
+      name: "adminNotes",
+      type: "textarea",
+      label: "Private administrator notes",
+      access: { read: staffFieldAccess },
+    },
   ],
   hooks: {
     beforeChange: [protectConfirmedBookingsFromAvailability],
