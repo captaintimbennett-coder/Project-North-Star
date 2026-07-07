@@ -306,6 +306,21 @@ Production password recovery is not considered ready until a transactional
 email provider is configured and verified. Console-only email remains a local
 development behavior.
 
+### Transactional email foundation
+
+SendGrid is the approved production transactional email provider for account
+invitations and password recovery. Payload email delivery is configured through
+a server-only SendGrid adapter. Account lifecycle email templates live in the
+shared email service layer and provide both branded HTML and plain-text output.
+
+Account invitation creation generates a secure raw token, stores only the token
+hash, and sends the activation link through SendGrid. Password recovery uses a
+privacy-safe request endpoint that always returns the same response so account
+existence is not disclosed.
+
+Transactional email does not authorize marketing email, newsletters,
+notification automation, public registration, dashboards, or booking workflows.
+
 ## Architectural rules
 
 1. Preserve server components by default; add `"use client"` only for actual

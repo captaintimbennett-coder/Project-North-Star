@@ -1,6 +1,9 @@
 import type { CollectionConfig } from "payload";
 import { ownerOnly, ownerOrEditorOnly, staffFieldAccess, staffOnly } from "../access/account";
 import { writeSecurityAuditEvent } from "@/lib/security/audit";
+import { sendAccountInvitationEmail } from "@/lib/email/account-email";
+import { siteConfig } from "@/data/site";
+import { addDays, createSecureToken, hashSecurityToken } from "@/lib/security/tokens";
 
 export const AccountInvitations: CollectionConfig = {
   slug: "account-invitations",
@@ -131,6 +134,23 @@ export const AccountInvitations: CollectionConfig = {
     },
   ],
   hooks: {
+    beforeChange: [({ data, operation, req }) => {
+      if (operation !== "create") return data;
+
+      const nextData = { ...data };
+      const token = createSecureToken();
+
+      if (!nextData.tokenHash) {
+        nextData.tokenHash = hashSecurityToken(token);
+        req.context.generatedInvitationToken = token;
+      }
+
+      if (!nextData.tokenExpiresAt) {
+        nextData.tokenExpiresAt = addDays(new Date(), 7).toISOString();
+      }
+
+      return nextData;
+    }],
     afterChange: [async ({ doc, operation, previousDoc, req }) => {
       if (operation === "create") {
         await writeSecurityAuditEvent(req.payload, {
@@ -138,6 +158,17 @@ export const AccountInvitations: CollectionConfig = {
           eventType: "account_invitation.created",
           metadata: { email: doc.email, invitationId: doc.id, roles: doc.roles },
         });
+
+        const token = typeof req.context.generatedInvitationToken === "string" ? req.context.generatedInvitationToken : null;
+        if (token) {
+          await sendAccountInvitationEmail({
+            activationUrl: `${siteConfig.url.replace(/\/$/, "")}/account/activate?token=${encodeURIComponent(token)}`,
+            email: doc.email,
+            expiresAt: doc.tokenExpiresAt,
+            invitationId: doc.id,
+            payload: req.payload,
+          });
+        }
       }
 
       if (operation === "update" && previousDoc?.status !== doc.status) {

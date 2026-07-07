@@ -5,6 +5,7 @@ import { buildConfig } from "payload";
 import sharp from "sharp";
 import { fileURLToPath } from "url";
 import { withVerifyFullSslMode } from "./lib/database/connection-string";
+import { sendgridEmailAdapter } from "./lib/email/sendgrid-adapter";
 import { AccountInvitations } from "./payload/collections/AccountInvitations";
 import { Media } from "./payload/collections/Media";
 import { ArtistAvailability } from "./payload/collections/ArtistAvailability";
@@ -49,6 +50,7 @@ export default buildConfig({
     },
   }),
   editor: lexicalEditor(),
+  email: sendgridEmailAdapter,
   secret: process.env.PAYLOAD_SECRET || "",
   serverURL: process.env.NEXT_PUBLIC_SERVER_URL,
   sharp,

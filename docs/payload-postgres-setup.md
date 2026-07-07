@@ -74,9 +74,21 @@ Account access is invitation-only. Invitation records store only hashed tokens.
 The raw activation link must be delivered through a trusted server-side flow and
 must never be committed, logged, or stored in plaintext.
 
-Payload's console email behavior is development-only. Before production launch,
-configure and verify an approved transactional email provider for password
-recovery and invitation delivery.
+SendGrid is the approved transactional email provider for invitation and
+password recovery delivery. Production environments must provide:
+
+```dotenv
+NEXT_PUBLIC_SITE_URL=https://example.com
+SENDGRID_API_KEY=...
+SENDGRID_FROM_EMAIL=no-reply@example.com
+SENDGRID_FROM_NAME=Tim Bennett · Project North Star
+SENDGRID_REPLY_TO=hello@example.com
+SENDGRID_SANDBOX_MODE=false
+```
+
+Payload's console email behavior is development-only. If `SENDGRID_API_KEY` is
+missing, account lifecycle email will not be delivered and the server will log a
+warning.
 
 ## Verification commands
 
