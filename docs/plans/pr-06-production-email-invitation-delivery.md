@@ -91,9 +91,11 @@ Use `SENDGRID_SANDBOX_MODE=true` only for non-production verification.
 ## Verification results
 
 - [x] Invitation email delivery path implemented through Payload's SendGrid
-  adapter.
+  adapter and accepted by SendGrid using the verified local sender.
 - [x] Password recovery email delivery path implemented through Payload's
-  SendGrid adapter.
+  SendGrid adapter and accepted by SendGrid using the verified local sender.
+- [x] Activation links function correctly.
+- [x] Password reset links function correctly.
 - [x] Invalid or expired reset tokens return a generic failure message.
 - [x] Account enumeration remains protected by generic password-recovery
   responses.
@@ -105,7 +107,7 @@ Use `SENDGRID_SANDBOX_MODE=true` only for non-production verification.
 - [x] `pnpm typecheck`
 - [x] `pnpm build`
 
-Live SendGrid acceptance must be verified in an environment where
-`SENDGRID_API_KEY` and sender values are configured. The local workspace used
-for this implementation did not contain SendGrid credentials, so live delivery
-was intentionally not attempted from the development machine.
+Production email smoke verification completed on July 7, 2026 against SendGrid
+with `SENDGRID_SANDBOX_MODE=false`. Test messages were accepted by SendGrid for
+a Gmail plus-address recipient, and the full invitation activation and password
+reset flows completed successfully.

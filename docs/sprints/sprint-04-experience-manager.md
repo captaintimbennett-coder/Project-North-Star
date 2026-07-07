@@ -105,11 +105,10 @@ master classes, mentoring, and future creative experiences.
   public registration, or notification automation.
 - [x] Approve PR #6 Production Email & Invitation Delivery Foundation scope as
   transactional email infrastructure for invitation and password recovery only.
-- [x] Implement and locally verify PR #6 on `codex/production-email-invitations`
+- [x] Implement and SendGrid-verify PR #6 on `codex/production-email-invitations`
   without introducing booking, payments, dashboards, messaging, public
   registration, marketing email, newsletters, SMS, or notification automation.
-  Live SendGrid acceptance remains environment-dependent and requires
-  production email credentials.
+  Production email smoke verification completed July 7, 2026.
 
 ## Deferred Items
 
