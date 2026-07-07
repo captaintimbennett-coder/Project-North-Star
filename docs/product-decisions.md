@@ -93,3 +93,17 @@ and architecture documents.
   before launch; console email is development-only.
 - Future participant mutation routes must use shared origin/CSRF groundwork
   before accepting state changes.
+
+## July 6, 2026 — Production Email & Invitation Delivery
+
+- PR #6 establishes SendGrid as the approved transactional email provider for
+  secure account invitations and password recovery.
+- Account access remains invitation-only. Public account creation remains
+  prohibited.
+- Invitation and password-reset tokens remain secure; raw invitation tokens are
+  never stored in the database.
+- Password recovery must not disclose whether an email address belongs to an
+  account.
+- Transactional email is infrastructure only. Marketing email, newsletters,
+  notifications, dashboards, public registration, and booking workflows remain
+  out of scope.

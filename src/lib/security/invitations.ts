@@ -1,4 +1,5 @@
 import type { Payload } from "payload";
+import { sendAccountInvitationEmail } from "@/lib/email/account-email";
 import { siteConfig } from "@/data/site";
 import type { StaffPermission } from "@/payload/access/account";
 import { addDays, createSecureToken, hashSecurityToken } from "./tokens";
@@ -30,8 +31,18 @@ export async function createAccountInvitation(payload: Payload, input: CreateAcc
     overrideAccess: true,
   });
 
+  const activationUrl = `${siteConfig.url}/account/activate?token=${encodeURIComponent(token)}`;
+
+  await sendAccountInvitationEmail({
+    activationUrl,
+    email: invitation.email,
+    expiresAt: invitation.tokenExpiresAt,
+    invitationId: invitation.id,
+    payload,
+  });
+
   return {
-    activationUrl: `${siteConfig.url}/account/activate?token=${encodeURIComponent(token)}`,
+    activationUrl,
     invitation,
     token,
   };

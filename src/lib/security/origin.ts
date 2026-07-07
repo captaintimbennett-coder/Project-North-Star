@@ -32,9 +32,11 @@ const LOCAL_ALLOWED_ORIGINS = new Set([
 export function getAllowedOrigins() {
   const origins = new Set<string>();
   const configured = process.env.NEXT_PUBLIC_SERVER_URL;
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
   const vercelUrl = process.env.VERCEL_URL;
 
   if (configured) origins.add(configured.replace(/\/$/, ""));
+  if (siteUrl) origins.add(siteUrl.replace(/\/$/, ""));
   if (vercelUrl) origins.add(`https://${vercelUrl.replace(/\/$/, "")}`);
   if (process.env.NODE_ENV !== "production") {
     for (const origin of LOCAL_ALLOWED_ORIGINS) origins.add(origin);

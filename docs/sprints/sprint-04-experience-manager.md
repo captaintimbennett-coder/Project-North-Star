@@ -103,6 +103,13 @@ master classes, mentoring, and future creative experiences.
 - [x] Implement and verify PR #5 on `codex/account-lifecycle-security` without
   introducing booking mutations, payments, messaging, dashboards, public signup,
   public registration, or notification automation.
+- [x] Approve PR #6 Production Email & Invitation Delivery Foundation scope as
+  transactional email infrastructure for invitation and password recovery only.
+- [x] Implement and locally verify PR #6 on `codex/production-email-invitations`
+  without introducing booking, payments, dashboards, messaging, public
+  registration, marketing email, newsletters, SMS, or notification automation.
+  Live SendGrid acceptance remains environment-dependent and requires
+  production email credentials.
 
 ## Deferred Items
 

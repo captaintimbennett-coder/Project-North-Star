@@ -2441,6 +2441,8 @@ body.menu-open {
 .account-form-success { display: grid; gap: 1rem; margin-top: 2rem; }
 .account-form-success h2 { margin: 0; font-size: clamp(2rem, 4vw, 3.25rem); }
 .account-form-success p { margin: 0; color: var(--color-text-inverse-medium); }
+.account-secondary-link { color: var(--north-star-gold); font-size: 0.72rem; letter-spacing: 0.16em; text-transform: uppercase; }
+.account-secondary-link:hover { color: var(--color-text-inverse); }
 .account-empty-state { padding: 2rem; border: 1px solid var(--north-star-rule); }
 
 @media (prefers-reduced-motion: reduce) {

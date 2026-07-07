@@ -25,6 +25,7 @@ export default async function SignInPage({
       <h1>Welcome back.</h1>
       <p>Sign in to continue to your approved retreat access.</p>
       <SignInForm nextPath={next} />
+      <a className="account-secondary-link" href="/account/forgot-password">Forgot your password?</a>
       <small>Access is invitation-only. Public account creation is not available.</small>
     </section>
   </main>;
