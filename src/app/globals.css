@@ -2438,6 +2438,9 @@ body.menu-open {
 .account-schedule-list article p,
 .account-schedule-list article time,
 .account-schedule-list article small { display: block; margin: 0.35rem 0; color: var(--color-text-inverse-medium); }
+.account-form-success { display: grid; gap: 1rem; margin-top: 2rem; }
+.account-form-success h2 { margin: 0; font-size: clamp(2rem, 4vw, 3.25rem); }
+.account-form-success p { margin: 0; color: var(--color-text-inverse-medium); }
 .account-empty-state { padding: 2rem; border: 1px solid var(--north-star-rule); }
 
 @media (prefers-reduced-motion: reduce) {

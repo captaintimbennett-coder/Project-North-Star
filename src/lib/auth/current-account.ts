@@ -13,7 +13,15 @@ export async function getCurrentAccount(): Promise<CurrentAccount | null> {
   const account = result.user as CurrentAccount | null;
 
   if (!account || account.collection !== "users" || !isActiveAccount(account)) return null;
-  return account;
+
+  const freshAccount = await payload.findByID({
+    collection: "users",
+    id: account.id,
+    overrideAccess: true,
+  }) as CurrentAccount | null;
+
+  if (!freshAccount || freshAccount.collection !== "users" || !isActiveAccount(freshAccount)) return null;
+  return freshAccount;
 }
 
 export async function requireCurrentAccount(nextPath = "/account/access") {

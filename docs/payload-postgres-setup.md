@@ -59,10 +59,24 @@ browser code. `.env` is ignored automatically.
 Copy `.env.example` to `.env` and replace the example values:
 
 ```dotenv
-DATABASE_URL=postgresql://USER:PASSWORD@HOST:5432/DATABASE?sslmode=require
+DATABASE_URL=postgresql://USER:PASSWORD@HOST:5432/DATABASE?sslmode=verify-full
 PAYLOAD_SECRET=a-long-random-secret
 NEXT_PUBLIC_SERVER_URL=http://localhost:3000
 ```
+
+`sslmode=verify-full` is required for Neon/PostgreSQL environments. The
+application also normalizes missing, `require`, or `prefer` SSL modes to
+`verify-full` before connecting so the database security posture is explicit.
+
+## Password recovery and account invitations
+
+Account access is invitation-only. Invitation records store only hashed tokens.
+The raw activation link must be delivered through a trusted server-side flow and
+must never be committed, logged, or stored in plaintext.
+
+Payload's console email behavior is development-only. Before production launch,
+configure and verify an approved transactional email provider for password
+recovery and invitation delivery.
 
 ## Verification commands
 

@@ -77,3 +77,19 @@ and architecture documents.
 - Invited and suspended accounts cannot access protected platform data.
 - Public account creation and automatic application-to-profile promotion remain
   explicitly deferred.
+
+## July 6, 2026 — Account Lifecycle & Security Hardening
+
+- PR #5 is the approved "lock the doors before we invite people in" security
+  hardening step before live scheduling or participant mutations.
+- Accounts remain invitation-only. Public registration remains prohibited.
+- Account invitations are separate reviewable records and store only a secure
+  token hash, not the raw activation token.
+- Suspended accounts must lose protected access safely, including active session
+  cleanup where supported.
+- Security audit events are required for sensitive account lifecycle actions.
+- Neon PostgreSQL connection strings must explicitly use `sslmode=verify-full`.
+- Production password recovery requires a real transactional email provider
+  before launch; console email is development-only.
+- Future participant mutation routes must use shared origin/CSRF groundwork
+  before accepting state changes.
