@@ -1,9 +1,9 @@
 export const siteConfig = {
-  url: process.env.NEXT_PUBLIC_SITE_URL ?? "https://timbennett.com",
+  url: process.env.NEXT_PUBLIC_SITE_URL ?? "https://timbennettproductions.com",
   name: "Tim Bennett",
   projectName: "Project North Star",
   location: "Dallas–Fort Worth · Texas",
-  email: "hello@timbennett.com",
+  email: "captaintimbennett@gmail.com",
   metadata: {
     title: "Tim Bennett | Project North Star",
     titleTemplate: "%s | Tim Bennett",

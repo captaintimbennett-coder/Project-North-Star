@@ -182,10 +182,12 @@ That document governs future platform expansion while preserving the current
 sprint's explicit non-implementation boundary.
 
 - Hosting and deployment: Vercel
+- Production domain: `https://timbennettproductions.com`
 - Content administration and authentication: Payload CMS
 - Relational data: PostgreSQL through Payload's database adapter
 - Initial development media storage: Payload local uploads
-- Production media storage: an approved object-storage provider, selected before deployment
+- Production media storage: an approved object-storage provider, selected before
+  durable media upload workflows are relied on
 - Payments: Stripe when paid workflows are approved
 - Transactional email: a dedicated provider called from secure server actions
 
@@ -320,6 +322,28 @@ existence is not disclosed.
 
 Transactional email does not authorize marketing email, newsletters,
 notification automation, public registration, dashboards, or booking workflows.
+
+### Production deployment
+
+Project North Star is deployed on Vercel from the GitHub `main` branch. The
+production Vercel project is `project-north-star` under the Project Lone Star
+team. The production domain is:
+
+```text
+https://timbennettproductions.com
+```
+
+The first production smoke test confirmed the public homepage, custom domain,
+Payload Admin login screen, owner/admin login, visible CMS collections, and
+database connectivity. The deployment uses Neon PostgreSQL, Payload CMS, and
+SendGrid transactional email.
+
+The current production database connection uses `sslmode=require`. The approved
+target remains `sslmode=verify-full`; verify that mode in a controlled
+deployment window before changing the Vercel production value.
+
+Payload local uploads remain a launch risk on Vercel. Choose an approved object
+storage provider before using production media uploads as durable records.
 
 ## Architectural rules
 

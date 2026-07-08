@@ -78,11 +78,11 @@ Password reset links expire after one hour.
 ## Required environment variables
 
 ```dotenv
-NEXT_PUBLIC_SITE_URL=https://example.com
+NEXT_PUBLIC_SITE_URL=https://timbennettproductions.com
 SENDGRID_API_KEY=...
-SENDGRID_FROM_EMAIL=no-reply@example.com
+SENDGRID_FROM_EMAIL=captaintimbennett@gmail.com
 SENDGRID_FROM_NAME=Tim Bennett · Project North Star
-SENDGRID_REPLY_TO=hello@example.com
+SENDGRID_REPLY_TO=captaintimbennett@gmail.com
 SENDGRID_SANDBOX_MODE=false
 ```
 

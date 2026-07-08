@@ -36,10 +36,13 @@ participant profiles, event publishing, and the scheduling data foundation.
 Most general marketing content remains in `src/data`; approved event and artist
 pages use a privacy-safe Payload repository boundary.
 
-The `/admin` route is functional and authenticated. Stripe, production email,
-public booking, dashboards, messaging, and automatic profile publishing remain
-intentionally unimplemented. See [`docs/architecture.md`](docs/architecture.md)
-for current service boundaries and the implementation sequence.
+The production site is live at
+[`https://timbennettproductions.com`](https://timbennettproductions.com).
+The `/admin` route is functional and authenticated. Production transactional
+email is configured through SendGrid. Stripe, public booking, dashboards,
+messaging, and automatic profile publishing remain intentionally unimplemented.
+See [`docs/architecture.md`](docs/architecture.md) for current service
+boundaries and the implementation sequence.
 
 The visual system is documented in
 [`docs/design-system.md`](docs/design-system.md). New pages should use the
@@ -66,6 +69,7 @@ Future Codex sessions should begin with
 
 1. Complete Sprint 04 event-experience review and design lock.
 2. Create the approved premium calendar UX prototype without public booking.
-3. Define Vercel, object-storage, Neon backup, and production migration plans.
-4. Harden role permissions, distributed rate limiting, and booking concurrency.
-5. Continue extending Payload only through approved persistent-data workflows.
+3. Complete production deployment hardening and smoke-test documentation.
+4. Define object-storage, Neon backup, and production migration plans.
+5. Harden role permissions, distributed rate limiting, and booking concurrency.
+6. Continue extending Payload only through approved persistent-data workflows.
