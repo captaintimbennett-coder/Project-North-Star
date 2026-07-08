@@ -78,11 +78,11 @@ SendGrid is the approved transactional email provider for invitation and
 password recovery delivery. Production environments must provide:
 
 ```dotenv
-NEXT_PUBLIC_SITE_URL=https://example.com
+NEXT_PUBLIC_SITE_URL=https://timbennettproductions.com
 SENDGRID_API_KEY=...
-SENDGRID_FROM_EMAIL=no-reply@example.com
+SENDGRID_FROM_EMAIL=captaintimbennett@gmail.com
 SENDGRID_FROM_NAME=Tim Bennett · Project North Star
-SENDGRID_REPLY_TO=hello@example.com
+SENDGRID_REPLY_TO=captaintimbennett@gmail.com
 SENDGRID_SANDBOX_MODE=false
 ```
 
@@ -105,8 +105,10 @@ before any production deployment.
 ## Current boundaries
 
 - Local media uploads are suitable for development only.
-- Production object storage must be selected before deployment.
-- SendGrid and Stripe are not connected in this foundation step.
+- Production object storage must be selected before relying on durable media
+  uploads in Vercel.
+- SendGrid is connected for transactional account lifecycle email. Stripe is not
+  connected in this foundation step.
 - Public application forms are implemented. Automated profile promotion,
   participant registration, payments, member portals, public booking, and
   general site-wide CMS publishing remain deferred.

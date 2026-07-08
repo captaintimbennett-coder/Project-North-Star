@@ -107,3 +107,20 @@ and architecture documents.
 - Transactional email is infrastructure only. Marketing email, newsletters,
   notifications, dashboards, public registration, and booking workflows remain
   out of scope.
+
+## July 8, 2026 — Production Deployment Baseline
+
+- Project North Star is deployed to Vercel as `project-north-star` under the
+  Project Lone Star team.
+- The approved production domain is
+  `https://timbennettproductions.com`.
+- Production uses Neon PostgreSQL, Payload CMS, and SendGrid transactional
+  email.
+- The production calendar prototype remains disabled.
+- SendGrid API key rotation is required because the initial setup key was
+  exposed during manual configuration.
+- The current production database connection uses `sslmode=require` for the
+  first successful deployment. The approved target remains
+  `sslmode=verify-full`; verify and change it in a controlled follow-up.
+- Production media storage remains a known risk until an approved durable object
+  storage provider is connected.

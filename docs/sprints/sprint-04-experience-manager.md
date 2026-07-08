@@ -109,6 +109,12 @@ master classes, mentoring, and future creative experiences.
   without introducing booking, payments, dashboards, messaging, public
   registration, marketing email, newsletters, SMS, or notification automation.
   Production email smoke verification completed July 7, 2026.
+- [x] Deploy Project North Star to Vercel at
+  `https://timbennettproductions.com` and confirm public homepage, Payload
+  Admin login, owner/admin access, CMS collections, and database connectivity.
+- [ ] Complete PR #7 production hardening: route smoke tests, production email
+  smoke tests, SendGrid key rotation, media storage risk documentation, and Neon
+  SSL follow-up.
 
 ## Deferred Items
 
