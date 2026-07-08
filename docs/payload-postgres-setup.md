@@ -24,7 +24,7 @@ On July 3, 2026:
 - the owner-controlled Neon PostgreSQL database was connected;
 - the initial version-controlled migrations were applied;
 - the first Payload Owner account was created; and
-- the `Texas Hill Country Creative Retreat` prototype record was saved and
+- the first Lone Star Retreat prototype record was saved and
   verified through Payload's draft/version workflow.
 - the canonical `Models / Featured Artists` and `Photographers / Participants`
   collections were migrated; and

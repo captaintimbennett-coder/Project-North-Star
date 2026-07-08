@@ -1,4 +1,5 @@
 import { images } from "./assets";
+import { currentRetreatEdition } from "./retreat-editions";
 
 export const experiencesContent = {
   introduction: {
@@ -44,32 +45,32 @@ export const loneStarRetreatContent = {
     supporting: "Craft. Connection. Purpose.",
     image: images.retreat.texasHillCountryHero,
     imageAlt:
-      "A contemporary retreat glowing at sunset above the Texas Hill Country",
-    action: { label: "Explore the experience", href: "#retreat-paths" },
+      "A contemporary retreat glowing at sunset",
+    action: { label: "Explore the Founders Edition", href: "#upcoming-retreats" },
   },
   paths: [
     {
       number: "01",
-      eyebrow: "Photographer path",
-      title: "Photographers",
-      body: "Elevate your craft through intentional shoots, meaningful collaboration, and a community built around growth.",
-      action: "Explore the Photographer Experience",
-      href: "/lone-star-retreat/photographers",
+      eyebrow: "Founders Edition",
+      title: "Apply as Photographer",
+      body: `${currentRetreatEdition.dateLabel} · Apply to participate as a photographer in the first Lone Star Retreat edition.`,
+      action: "Photographer Application",
+      href: currentRetreatEdition.photographerApplicationPath,
     },
     {
       number: "02",
-      eyebrow: "Model path",
-      title: "Models",
-      body: "Create in a professional environment centered on respect, clear boundaries, confidence, and artistic expression.",
-      action: "Become a Featured Artist",
-      href: "/lone-star-retreat/models",
+      eyebrow: "Founders Edition",
+      title: "Apply as Featured Model",
+      body: `${currentRetreatEdition.dateLabel} · Apply to participate as a featured model in a professional, safety-centered creative retreat.`,
+      action: "Featured Model Application",
+      href: currentRetreatEdition.modelApplicationPath,
     },
     {
       number: "03",
-      eyebrow: "Event calendar",
-      title: "Upcoming Retreats",
-      body: "Discover future destinations and be among the first to know when the next Lone Star Retreat is announced.",
-      action: "View Upcoming Retreats",
+      eyebrow: "Edition overview",
+      title: "Meet the Founders Edition",
+      body: "Review the first retreat edition, its participating artists, professional standards, and application pathways.",
+      action: "Join the Founders Edition",
       href: "#upcoming-retreats",
     },
   ],
@@ -100,13 +101,13 @@ export const loneStarRetreatContent = {
     ],
   },
   prototype: {
-    eyebrow: "Upcoming retreat preview",
-    status: "May 7–9, 2027 · Texas Hill Country",
-    title: "Texas Hill Country Creative Retreat",
-    body: "A preview of the destination, artist, schedule, and logistics experience that will accompany every future retreat announcement.",
+    eyebrow: "Upcoming edition",
+    status: currentRetreatEdition.dateLabel,
+    title: currentRetreatEdition.title,
+    body: "The first Lone Star Retreat edition is being shaped for serious photographers and featured models who value professionalism, safety, and intentional creative work.",
     image: images.retreat.texasHillCountryHero,
-    imageAlt: "Texas Hill Country landscape at sunset",
-    action: { label: "Explore the May 2027 Retreat", href: "/lone-star-retreat/texas-hill-country-creative-retreat" },
+    imageAlt: "Retreat landscape at sunset",
+    action: { label: "Join the Founders Edition", href: currentRetreatEdition.publicPath },
   },
   closing: {
     eyebrow: "Under the North Star",
@@ -124,7 +125,7 @@ export const retreatAudienceContent = {
       introduction:
         "A destination retreat for photographers ready to make stronger work, collaborate with professional artists, and grow inside a thoughtfully designed creative environment.",
       image: images.retreat.texasHillCountryHero,
-      imageAlt: "Texas Hill Country glowing at sunset",
+      imageAlt: "Retreat landscape glowing at sunset",
     },
     why: {
       eyebrow: "Why this exists",
@@ -164,7 +165,7 @@ export const retreatAudienceContent = {
         {
           number: "02",
           title: "Destination energy",
-          body: "Texas landscapes, changing light, and a setting removed from the ordinary create space for work that feels distinct.",
+          body: "Changing light, considered locations, and a setting removed from the ordinary create space for work that feels distinct.",
         },
         {
           number: "03",
@@ -181,16 +182,16 @@ export const retreatAudienceContent = {
     },
     cta: {
       eyebrow: "Photographer applications",
-      title: "Ready to create under a wider sky?",
+      title: "Apply for the Founders Edition.",
       body:
-        "Tell us about your work, your creative direction, and what you hope to bring to the Lone Star Retreat community.",
-      label: "Apply for Photographer Access",
-      href: "/lone-star-retreat/photographers/apply",
+        `Tell us about your work, your creative direction, and what you hope to bring to ${currentRetreatEdition.title}.`,
+      label: "Apply as Photographer",
+      href: currentRetreatEdition.photographerApplicationPath,
     },
   },
   models: {
     hero: {
-      eyebrow: "Lone Star Retreat · Featured Artist Experience",
+      eyebrow: "Lone Star Retreat · Featured Model Experience",
       title: "Your artistry belongs in the story.",
       introduction:
         "A professional destination experience for traveling models who value strong creative collaboration, clear boundaries, exceptional imagery, and work made with purpose.",
@@ -199,11 +200,11 @@ export const retreatAudienceContent = {
     },
     why: {
       eyebrow: "Why this exists",
-      title: "Featured Artists are collaborators, not accessories.",
+      title: "Featured models are collaborators, not accessories.",
       body:
         "Lone Star Retreat is designed around mutual respect. Models bring experience, perspective, movement, and creative voice to every image. The retreat creates a setting where that contribution is recognized, protected, and given room to become something memorable.",
       image: images.portfolio.silkBeauty,
-      imageAlt: "Featured Artist in a warm, refined beauty portrait",
+      imageAlt: "Featured model in a warm, refined beauty portrait",
     },
     audience: {
       eyebrow: "Who it is for",
@@ -230,7 +231,7 @@ export const retreatAudienceContent = {
         {
           number: "01",
           title: "Professional preparation",
-          body: "Clear event information, thoughtful planning, and defined expectations before the first creative session begins.",
+          body: "Clear edition information, thoughtful planning, and defined expectations before the first creative session begins.",
         },
         {
           number: "02",
@@ -251,12 +252,12 @@ export const retreatAudienceContent = {
         "Genre selections and comfort levels are separate by design. No selected genre implies consent, and no participant may redefine an artist's boundaries. Clear communication, the Lone Star Retreat code of conduct, and a professional review process govern every experience.",
     },
     cta: {
-      eyebrow: "Featured Artist applications",
-      title: "Bring your voice to the next retreat.",
+      eyebrow: "Featured Model applications",
+      title: "Apply for the Founders Edition.",
       body:
-        "Tell us about your work, your creative range, and the kind of professional experience you hope to help create.",
-      label: "Become a Featured Artist",
-      href: "/lone-star-retreat/models/apply",
+        `Tell us about your work, your creative range, and the kind of professional experience you hope to help create for ${currentRetreatEdition.title}.`,
+      label: "Apply as Featured Model",
+      href: currentRetreatEdition.modelApplicationPath,
     },
   },
 } as const;

@@ -48,11 +48,12 @@ master classes, mentoring, and future creative experiences.
 ## Featured Artists progress — July 4, 2026
 
 - [x] Event detail route created at
-  `/lone-star-retreat/texas-hill-country-creative-retreat`.
+  `/lone-star-retreat/founders-edition`.
 - [x] Event artist index route created at
-  `/lone-star-retreat/texas-hill-country-creative-retreat/artists`.
+  `/lone-star-retreat/founders-edition/artists`.
 - [x] Event artist profile route created at
-  `/lone-star-retreat/texas-hill-country-creative-retreat/artists/[slug]`.
+  `/lone-star-retreat/founders-edition/artists/[slug]`.
+- [x] Legacy Texas Hill Country route redirects into the Founders Edition route.
 - [x] Legacy global artist routes redirect into the event context.
 - [x] Empty roster state implemented.
 - [x] Field-level public-display approvals added to canonical artist profiles.
@@ -62,14 +63,14 @@ master classes, mentoring, and future creative experiences.
 - [x] Public-profile database migration applied.
 - [x] Event-specific participating-artist assignment migration applied.
 - [x] First real Featured Artist master profile created and published for Lexi Anne.
-- [x] Lexi Anne assigned to the May 2027 event with event-specific public approval.
-- [x] Version 1 test dates established: retreat May 7–9, 2027; planned model
-  arrival evening May 6 remains outside the bookable event dates.
+- [x] Lexi Anne assigned to the May 2027 Founders Edition with edition-specific public approval.
+- [x] Version 1 test dates established: retreat May 14–16, 2027; planned model
+  arrival evening May 13 remains outside the bookable retreat dates.
 - [x] Scheduling and booking business rules approved and preserved as a
   permanent Foundation document.
 - [x] Translate the approved rules into a scheduling domain model before any
   calendar or booking interface is implemented.
-- [x] Define event-day availability for May 7–9 using 60-minute internal blocks
+- [x] Define retreat-day availability for May 14–16 using 60-minute internal blocks
   and model-controlled minimum booking durations.
 - [x] Define privacy-safe participant and shared-schedule projections plus the
   administrator-only operational record boundary before UI implementation.

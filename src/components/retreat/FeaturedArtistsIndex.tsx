@@ -9,13 +9,13 @@ export function FeaturedArtistsIndex({ event }: { event: PublicRetreatEvent }) {
   const basePath = `/lone-star-retreat/${event.slug}`;
   return <>
     <section className="artists-index-hero">
-      <Image src={images.retreat.texasHillCountryHero} alt="Texas Hill Country at sunset" fill priority sizes="100vw" />
+      <Image src={images.retreat.texasHillCountryHero} alt="Retreat landscape at sunset" fill priority sizes="100vw" />
       <div className="artists-index-hero__shade" />
       <Container className="artists-index-hero__content">
         <p className="ds-eyebrow">{event.title} · Participating Artists</p>
         <h1>Artists for this retreat.</h1>
         <span className="retreat-rule" aria-hidden="true" />
-        <p>Meet the professional artists approved to participate in the {event.dateLabel} Texas Hill Country experience.</p>
+        <p>Meet the professional artists approved to participate in {event.title}.</p>
       </Container>
     </section>
 

@@ -8,8 +8,8 @@ Branch: `codex/premium-calendar-ux-prototype`
 
 ## Objective
 
-Create a non-public, read-only scheduling prototype for the Texas Hill Country
-Creative Retreat using test records. The prototype exists to approve visual
+Create a non-public, read-only scheduling prototype for `Lone Star Retreat —
+Founders Edition` using test records. The prototype exists to approve visual
 language, role-based information density, navigation, responsive behavior, and
 interaction concepts before any booking mutation or public access is enabled.
 

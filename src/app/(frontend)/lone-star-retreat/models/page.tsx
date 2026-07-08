@@ -5,7 +5,7 @@ import { retreatAudienceContent } from "@/data/experiences";
 const content = retreatAudienceContent.models;
 
 export const metadata: Metadata = {
-  title: "Featured Artist Experience | Lone Star Retreat",
+  title: "Featured Model Experience | Lone Star Retreat",
   description: content.hero.introduction,
   alternates: { canonical: "/lone-star-retreat/models" },
 };

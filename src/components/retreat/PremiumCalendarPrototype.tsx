@@ -177,7 +177,7 @@ function ShapeYourDay({ day }: { day: CalendarDayId }) {
       })}
     </div>
     <div className="shape-day-controls"><div><p>Start your day</p><button disabled={from <= 5} onClick={() => setFrom((value) => value - 1)} type="button">Earlier</button><button disabled={from >= 9} onClick={() => setFrom((value) => value + 1)} type="button">Later</button></div><div><p>End your day</p><button disabled={until <= 16} onClick={() => setUntil((value) => value - 1)} type="button">Earlier</button><button disabled={until >= 20} onClick={() => setUntil((value) => value + 1)} type="button">Later</button></div></div>
-    <p className="calendar-live-message" aria-live="polite">{copied ? "Prototype: this availability would be copied to May 8 and May 9. No records were changed." : "Confirmed reservations remain locked while you shape the surrounding day."}</p>
+    <p className="calendar-live-message" aria-live="polite">{copied ? "Prototype: this availability would be copied to May 15 and May 16. No records were changed." : "Confirmed reservations remain locked while you shape the surrounding day."}</p>
   </section>;
 }
 
@@ -196,10 +196,10 @@ function AdminMasterCalendar({ day }: { day: CalendarDayId }) {
 
 export function PremiumCalendarPrototype() {
   const [view, setView] = useState<PrototypeView>("mine");
-  const [day, setDay] = useState<CalendarDayId>("may-7");
+  const [day, setDay] = useState<CalendarDayId>("may-14");
   return <main className="calendar-prototype" id="main-content">
     <header className="calendar-prototype-header"><a href="#calendar-content" className="calendar-prototype-brand"><StarMark /><span>Tim Bennett<small>Project North Star</small></span></a><div><span>Internal design prototype</span><strong>Read only · Test records</strong></div></header>
-    <section className="calendar-prototype-hero"><div className="calendar-prototype-hero__image"><Image src="/images/lone-star-retreat/texas-hill-country-hero-v1.jpg" alt="" fill priority sizes="100vw" /><span /></div><div className="calendar-prototype-hero__content"><p className="ds-eyebrow">Texas Hill Country Creative Retreat</p><h1>A day shaped<br />with <em>intention.</em></h1><p>May 7–9, 2027 · America/Chicago</p></div></section>
+    <section className="calendar-prototype-hero"><div className="calendar-prototype-hero__image"><Image src="/images/lone-star-retreat/texas-hill-country-hero-v1.jpg" alt="" fill priority sizes="100vw" /><span /></div><div className="calendar-prototype-hero__content"><p className="ds-eyebrow">Lone Star Retreat — Founders Edition</p><h1>A day shaped<br />with <em>intention.</em></h1><p>May 14–16, 2027 · America/Chicago</p></div></section>
     <div className="calendar-prototype-shell" id="calendar-content">
       <nav className="calendar-view-nav" aria-label="Calendar prototype views">{(Object.keys(viewLabels) as PrototypeView[]).map((item, index) => <button aria-current={view === item ? "page" : undefined} key={item} onClick={() => setView(item)} type="button"><small>0{index + 1}</small><span>{viewLabels[item]}</span></button>)}</nav>
       <div className="calendar-prototype-context"><div><span>Selected day</span><strong>{prototypeDays.find((item) => item.id === day)?.shortLabel}</strong></div><DaySelector day={day} onChange={setDay} /></div>

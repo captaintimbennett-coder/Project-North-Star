@@ -8,13 +8,13 @@ Retreat. Update it whenever an item is approved, completed, deferred, or changed
 ## 1. Sprint 03 Foundation Lock
 
 - [x] Photographer Application implemented
-- [x] Model / Featured Artist Application implemented
+- [x] Featured Model Application implemented
 - [x] Application Received pages implemented
 - [x] Application validation and private upload protections verified
 - [x] Professional Standards & Code of Conduct created and integrated
 - [x] Project North Star Design Principles created and indexed
 - [x] Product Owner final review of Photographer Application
-- [x] Product Owner final review of Model / Featured Artist Application
+- [x] Product Owner final review of Featured Model Application
 - [x] Declare Sprint 03 application foundation locked
 - [x] Repository review and documentation check
 - [x] Commit and push approved Sprint 03 work
@@ -59,7 +59,7 @@ Retreat. Update it whenever an item is approved, completed, deferred, or changed
 ## 5. Scheduling Foundation
 
 - [x] Approve Scheduling & Booking Business Rules v1.0
-- [x] Establish May 7–9, 2027 as the test event window
+- [x] Establish May 14–16, 2027 as the Founders Edition retreat window
 - [x] Create event-specific availability and booking records
 - [x] Apply migrations and verify private sample records
 - [x] Capture the premium Calendar UX Standard

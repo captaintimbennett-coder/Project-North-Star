@@ -33,9 +33,10 @@ and architecture documents.
 - A canonical artist profile may be reused across events, but each public event
   appearance requires an explicit event assignment with public approval.
 - No permanent global or agency-style artist roster is part of Version 1.
-- The Texas Hill Country Creative Retreat uses May 7–9, 2027 as its Version 1
-  event and scheduling test window. The evening of May 6 is travel/arrival time,
-  not an event booking day.
+- The first public retreat is positioned as `Lone Star Retreat — Founders
+  Edition`, May 14–16, 2027. Venue-specific language is intentionally avoided
+  until the location is finalized. The evening of May 13 is travel/arrival time,
+  not a bookable retreat day.
 
 ## July 4, 2026 — Lone Star Retreat Scheduling and Booking Rules
 

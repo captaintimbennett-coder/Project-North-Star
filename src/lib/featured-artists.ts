@@ -1,6 +1,7 @@
 import config from "@payload-config";
 import { unstable_noStore as noStore } from "next/cache";
 import { getPayload } from "payload";
+import { currentRetreatEdition } from "@/data/retreat-editions";
 import type { Media, ModelProfile, RetreatEvent } from "@/payload-types";
 
 export type PublicArtistImage = {
@@ -109,6 +110,7 @@ function formatEventDate(startDate: string | null | undefined, endDate: string |
 
 function mapPublicEvent(event: RetreatEvent): PublicRetreatEvent | null {
   if (event._status !== "published" || !["prototype", "published"].includes(event.lifecycleStatus)) return null;
+  const isCurrentEdition = event.slug === currentRetreatEdition.publicSlug || event.slug === currentRetreatEdition.legacySlug;
   const artists = (event.participatingArtists || [])
     .filter((assignment) => assignment.participationStatus === "approved" && typeof assignment.artist !== "number")
     .sort((a, b) => (a.displayOrder ?? 100) - (b.displayOrder ?? 100))
@@ -116,18 +118,21 @@ function mapPublicEvent(event: RetreatEvent): PublicRetreatEvent | null {
     .filter((artist): artist is PublicFeaturedArtist => artist !== null);
   return {
     artists,
-    dateLabel: formatEventDate(event.startDate, event.endDate),
-    location: event.locationName || "Location forthcoming",
+    dateLabel: isCurrentEdition ? currentRetreatEdition.dateLabel : formatEventDate(event.startDate, event.endDate),
+    location: isCurrentEdition ? currentRetreatEdition.locationLabel : event.locationName || "Location forthcoming",
     registrationStatus: event.registrationStatus,
-    slug: event.slug,
+    slug: isCurrentEdition ? currentRetreatEdition.publicSlug : event.slug,
     summary: event.summary,
-    title: event.title,
+    title: isCurrentEdition ? currentRetreatEdition.title : event.title,
   };
 }
 
 export async function getPublicRetreatEvent(eventSlug: string): Promise<PublicRetreatEvent | null> {
   noStore();
   const payload = await getPayload({ config });
+  const slugQuery = eventSlug === currentRetreatEdition.publicSlug
+    ? [currentRetreatEdition.publicSlug, currentRetreatEdition.legacySlug]
+    : [eventSlug];
   const result = await payload.find({
     collection: "retreat-events",
     depth: 3,
@@ -136,7 +141,7 @@ export async function getPublicRetreatEvent(eventSlug: string): Promise<PublicRe
     overrideAccess: true,
     where: {
       and: [
-        { slug: { equals: eventSlug } },
+        { slug: { in: slugQuery } },
         { _status: { equals: "published" } },
         { lifecycleStatus: { in: ["prototype", "published"] } },
       ],
