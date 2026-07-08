@@ -33,6 +33,6 @@ export function FeaturedArtistProfile({ artist, event }: { artist: PublicFeature
 
     <section className="artist-profile-appearances"><Container><p className="ds-eyebrow">Participating in</p><h2>{event.title}</h2><p>{event.dateLabel} · {event.location}</p></Container></section>
 
-    <section className="artist-profile-cta"><Container><p className="ds-eyebrow">Create together</p><h2>Discover the artists shaping this retreat.</h2><div><Link className="ds-button ds-button--outline" href={`${basePath}/artists`}>Back to Participating Artists <span aria-hidden="true">←</span></Link><Link className="ds-button ds-button--primary" href="/lone-star-retreat/photographers/apply">Apply for Photographer Access <span aria-hidden="true">→</span></Link></div></Container></section>
+    <section className="artist-profile-cta"><Container><p className="ds-eyebrow">Create together</p><h2>Discover the artists shaping this retreat.</h2><div><Link className="ds-button ds-button--outline" href={`${basePath}/artists`}>Back to Participating Artists <span aria-hidden="true">←</span></Link><Link className="ds-button ds-button--primary" href="/lone-star-retreat/photographers/apply">Apply as Photographer <span aria-hidden="true">→</span></Link></div></Container></section>
   </>;
 }

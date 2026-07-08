@@ -19,7 +19,7 @@ export default function PhotographerApplicationPage() {
         <Image
           className="application-hero__image"
           src={images.retreat.texasHillCountryHero}
-          alt="Texas Hill Country at sunset"
+          alt="Retreat landscape at sunset"
           fill
           priority
           sizes="100vw"

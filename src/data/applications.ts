@@ -1,15 +1,17 @@
+import { currentRetreatEdition } from "./retreat-editions";
+
 export const photographerApplicationContent = {
   hero: {
-    eyebrow: "Lone Star Retreat · Photographer Application",
-    title: "Apply for Photographer Access",
+    eyebrow: `${currentRetreatEdition.title} · ${currentRetreatEdition.dateLabel}`,
+    title: "Apply as Photographer",
     introduction:
-      "Tell us about your work, your creative direction, and the kind of retreat experience you hope to help create.",
+      "Tell us about your work, your creative direction, and the kind of Founders Edition retreat experience you hope to help create.",
   },
   introduction: {
     eyebrow: "Before you begin",
     title: "A thoughtful application for a thoughtful experience.",
     body:
-      "This application helps us understand your experience, interests, equipment, and approach to collaboration. There are no perfect answers. Clarity, professionalism, and respect matter more than an elaborate response.",
+      `This application helps us understand your experience, interests, equipment, and approach to collaboration for ${currentRetreatEdition.title}. There are no perfect answers. Clarity, professionalism, and respect matter more than an elaborate response.`,
     note:
       "Allow approximately 10–15 minutes. Required fields are marked with an asterisk. Submitting an application does not guarantee acceptance.",
   },
@@ -74,16 +76,16 @@ export const photographerApplicationContent = {
 
 export const modelApplicationContent = {
   hero: {
-    eyebrow: "Lone Star Retreat · Featured Artist Application",
-    title: "Become a Featured Artist",
+    eyebrow: `${currentRetreatEdition.title} · ${currentRetreatEdition.dateLabel}`,
+    title: "Apply as Featured Model",
     introduction:
-      "Share your work, your creative range, and what you hope to bring to a thoughtful community of artists.",
+      "Share your work, your creative range, and what you hope to bring to a thoughtful Founders Edition retreat community.",
   },
   introduction: {
     eyebrow: "Before you begin",
     title: "Your work deserves a thoughtful review.",
     body:
-      "This application gives us a clear sense of who you are, how you work, and the creative experiences you hope to build. Be honest, take your time, and tell us what matters to you.",
+      `This application gives us a clear sense of who you are, how you work, and the creative experiences you hope to build for ${currentRetreatEdition.title}. Be honest, take your time, and tell us what matters to you.`,
     note:
       "Allow approximately 15–20 minutes. Required fields are marked with an asterisk. Submitting an application does not guarantee acceptance.",
   },
@@ -118,7 +120,7 @@ export const modelApplicationContent = {
     { label: "Paid shooting opportunities", value: "paid-shooting-opportunities" },
     { label: "Expand my professional portfolio", value: "expand-portfolio" },
     { label: "Publication opportunities", value: "publication-opportunities" },
-    { label: "Travel to professionally organized events", value: "professional-event-travel" },
+    { label: "Travel to professionally organized retreats", value: "professional-event-travel" },
     { label: "Meet other professional models", value: "meet-professional-models" },
     { label: "Work with respectful, professional photographers", value: "professional-respectful-photographers" },
     { label: "Other", value: "other" },
@@ -131,7 +133,7 @@ export const modelApplicationContent = {
     { name: "codeOfConductConfirmed", label: "I have read and agree to follow the Lone Star Retreat Professional Standards & Code of Conduct." },
     { name: "contactPermissionConfirmed", label: "I understand Lone Star Retreat may contact me using the information provided." },
   ],
-  submitLabel: "Submit Featured Artist Application",
+  submitLabel: "Submit Featured Model Application",
 } as const;
 
 export const applicationReceivedContent = {

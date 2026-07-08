@@ -126,23 +126,23 @@ The landing page and application form have separate jobs.
 
 ## Model journey
 
-### 1. Featured Artist landing page
+### 1. Featured Model landing page
 
 **Proposed route:** `/lone-star-retreat/models`
 
-- **Purpose:** Explain what it means to participate as a Featured Artist, the
+- **Purpose:** Explain what it means to participate as a Featured Model, the
   creative and professional environment, safety standards, collaboration model,
   travel expectations, and application process.
 - **Visitor goals:** Decide whether the retreat supports their creative range,
   professional goals, boundaries, and travel needs.
-- **Information presented:** Featured Artist philosophy; reasons to participate;
+- **Information presented:** Featured Model philosophy; reasons to participate;
   professional standards; respect for boundaries; portfolio and collaboration
   opportunities without guarantees; private image-review promise; process and
   concise FAQ.
 - **Information collected:** None.
-- **Primary CTA:** `Become a Featured Artist →`
+- **Primary CTA:** `Apply as Featured Model →`
 - **Secondary CTA:** `Meet the Artists →`
-- **Navigation flow:** Lone Star Retreat overview → Featured Artist landing →
+- **Navigation flow:** Lone Star Retreat overview → Featured Model landing →
   Model Application. Preserve routes back to the retreat overview and artists.
 - **Payload relationship:** Public editorial content may later use an approved
   Page record. It does not expose Model Applications or private media.
@@ -165,9 +165,9 @@ The landing page and application form have separate jobs.
   required Display / Stage Name and optional private legal name; multiple session
   types; goals; biography and optional artist
   statement; up to five private images; five required confirmations; honeypot.
-- **Primary CTA:** `Submit Featured Artist Application`
-- **Supporting action:** `Back to Featured Artist Experience`.
-- **Navigation flow:** Featured Artist landing → Application → Application Received. Avoid
+- **Primary CTA:** `Submit Featured Model Application`
+- **Supporting action:** `Back to Featured Model Experience`.
+- **Navigation flow:** Featured Model landing → Application → Application Received. Avoid
   promotional detours inside the form.
 - **Payload relationship:** Posts multipart form data to
   `/api/applications/model`. The protected endpoint validates all fields and
@@ -322,7 +322,7 @@ Photographer Landing
         → Private Admin Review
 
 Model Landing
-  → Become a Featured Artist
+  → Apply as Featured Model
     → Model Application
       → Application Received
         → Private Admin Review
