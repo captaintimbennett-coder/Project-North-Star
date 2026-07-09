@@ -123,5 +123,6 @@ and architecture documents.
 - The current production database connection uses `sslmode=require` for the
   first successful deployment. The approved target remains
   `sslmode=verify-full`; verify and change it in a controlled follow-up.
-- Production media storage remains a known risk until an approved durable object
-  storage provider is connected.
+- Vercel Blob is the approved Project North Star object-storage standard for
+  production media. Payload local uploads remain local-development behavior
+  only when `BLOB_READ_WRITE_TOKEN` is absent.

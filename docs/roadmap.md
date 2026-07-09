@@ -38,6 +38,7 @@ Status: Lone Star Retreat CMS foundation complete; site-wide migration deferred
 - connect the approved PostgreSQL project and create Payload migrations
 - implement authentication and administrative roles
 - connect media library and portfolio management
+- use Vercel Blob as the durable production media-storage standard
 - add draft, preview, schedule, and publish workflows
 - connect editable homepage, About, Experiences, and journal content
 - create revision history and safe publishing controls

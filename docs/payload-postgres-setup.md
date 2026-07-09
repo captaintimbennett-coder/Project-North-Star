@@ -104,11 +104,34 @@ before any production deployment.
 
 ## Current boundaries
 
-- Local media uploads are suitable for development only.
-- Production object storage must be selected before relying on durable media
-  uploads in Vercel.
+- Local development continues to use Payload local uploads when
+  `BLOB_READ_WRITE_TOKEN` is not present.
+- Production media storage uses Vercel Blob through Payload's Vercel Blob
+  storage adapter when `BLOB_READ_WRITE_TOKEN` is present.
+- Vercel Blob must be connected to the Vercel project before relying on
+  durable production media uploads.
 - SendGrid is connected for transactional account lifecycle email. Stripe is not
   connected in this foundation step.
 - Public application forms are implemented. Automated profile promotion,
   participant registration, payments, member portals, public booking, and
   general site-wide CMS publishing remain deferred.
+
+## Production media storage
+
+The `media` collection is configured to use Vercel Blob in production through
+`@payloadcms/storage-vercel-blob`.
+
+Required environment variable:
+
+```bash
+BLOB_READ_WRITE_TOKEN=...
+```
+
+Vercel usually creates `BLOB_READ_WRITE_TOKEN` automatically after Blob storage
+is added and connected to the project. When the token is absent, the adapter is
+disabled and Payload falls back to local media storage for development.
+
+The adapter is configured for client uploads so production admin uploads bypass
+Vercel's server upload-size limit. Continue to enforce collection-level media
+privacy: uploaded media is private by default and only publicly readable after
+explicit platform-use approval.

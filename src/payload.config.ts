@@ -1,5 +1,6 @@
 import { postgresAdapter } from "@payloadcms/db-postgres";
 import { lexicalEditor } from "@payloadcms/richtext-lexical";
+import { vercelBlobStorage } from "@payloadcms/storage-vercel-blob";
 import path from "path";
 import { buildConfig } from "payload";
 import sharp from "sharp";
@@ -20,6 +21,14 @@ import { Users } from "./payload/collections/Users";
 
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
+const blobReadWriteToken = process.env.BLOB_READ_WRITE_TOKEN || "";
+const vercelDeploymentUrl = process.env.VERCEL_URL
+  ? `https://${process.env.VERCEL_URL}`
+  : undefined;
+const serverURL =
+  process.env.VERCEL_ENV === "preview" && vercelDeploymentUrl
+    ? vercelDeploymentUrl
+    : process.env.NEXT_PUBLIC_SERVER_URL || vercelDeploymentUrl;
 
 export default buildConfig({
   admin: {
@@ -51,8 +60,20 @@ export default buildConfig({
   }),
   editor: lexicalEditor(),
   email: sendgridEmailAdapter,
+  plugins: [
+    vercelBlobStorage({
+      enabled: Boolean(blobReadWriteToken),
+      collections: {
+        media: {
+          prefix: "media",
+        },
+      },
+      token: blobReadWriteToken,
+      clientUploads: true,
+    }),
+  ],
   secret: process.env.PAYLOAD_SECRET || "",
-  serverURL: process.env.NEXT_PUBLIC_SERVER_URL,
+  serverURL,
   sharp,
   typescript: {
     outputFile: path.resolve(dirname, "payload-types.ts"),

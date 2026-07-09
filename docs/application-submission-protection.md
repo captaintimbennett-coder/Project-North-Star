@@ -61,8 +61,8 @@ model is accepted; availability selections never replace explicit consent.
 
 The Version 1 rate limiter is intentionally process-local. Before deploying
 across multiple server instances, replace it with a shared provider-backed
-limiter. Confirm the deployment provider's request-body limit before exposing
-10MB-per-image uploads; direct-to-object-storage uploads may be required.
+limiter. Confirm Vercel Blob client uploads remain active before exposing
+10MB-per-image uploads in production.
 
 ## Privacy and retention
 
