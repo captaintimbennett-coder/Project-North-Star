@@ -53,7 +53,7 @@ participants.
 - Approved application questions and selection criteria
 - Privacy policy and retention decisions
 - Transactional email provider
-- Secure file-storage requirements, if uploads are allowed
+- Vercel Blob-backed production media storage for private upload durability
 
 ## Acceptance Criteria
 

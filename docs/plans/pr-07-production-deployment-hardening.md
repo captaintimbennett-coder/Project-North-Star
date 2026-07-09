@@ -117,10 +117,10 @@ SendGrid key was rotated and Vercel was redeployed.
 3. **Payload secret should remain stable for now.** Rotating `PAYLOAD_SECRET`
    invalidates auth/session behavior. Do not rotate it casually; schedule a
    deliberate maintenance window if needed.
-4. **Production media storage is not hardened.** Payload local uploads are not
-   appropriate for durable production media on Vercel. Choose Vercel Blob, S3,
-   or another approved object-storage provider before real public/admin media
-   upload workflows are relied on.
+4. **Production media storage follow-up opened.** Payload local uploads were
+   identified as inappropriate for durable production media on Vercel. PR #9
+   adopts Vercel Blob as the approved Project North Star object-storage
+   standard and verifies production admin upload persistence.
 
 ## Neon SSL decision
 
@@ -145,6 +145,6 @@ controlled deployment/update window, then update Vercel once confirmed.
 
 ## Recommended fixes before next feature PR
 
-1. Decide and verify durable production media storage.
+1. Verify durable production media storage through PR #9.
 2. Verify or migrate Neon SSL to `sslmode=verify-full`.
 3. Consider rotating the Neon password after the deployment is stable.

@@ -113,9 +113,11 @@ master classes, mentoring, and future creative experiences.
 - [x] Deploy Project North Star to Vercel at
   `https://timbennettproductions.com` and confirm public homepage, Payload
   Admin login, owner/admin access, CMS collections, and database connectivity.
-- [ ] Complete PR #7 production hardening: route smoke tests, production email
+- [x] Complete PR #7 production hardening: route smoke tests, production email
   smoke tests, SendGrid key rotation, media storage risk documentation, and Neon
   SSL follow-up.
+- [ ] Complete PR #9 production media storage foundation with Vercel Blob as the
+  approved durable object-storage standard for Payload media uploads.
 
 ## Deferred Items
 

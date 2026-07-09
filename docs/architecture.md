@@ -342,8 +342,15 @@ The current production database connection uses `sslmode=require`. The approved
 target remains `sslmode=verify-full`; verify that mode in a controlled
 deployment window before changing the Vercel production value.
 
-Payload local uploads remain a launch risk on Vercel. Choose an approved object
-storage provider before using production media uploads as durable records.
+Production media storage standard: Vercel Blob. The Payload `media` collection
+uses Payload's Vercel Blob storage adapter when `BLOB_READ_WRITE_TOKEN` is
+present, while local development falls back to local uploads when the token is
+absent.
+
+Before relying on production media uploads as durable records, confirm the
+Vercel project has Blob storage connected, `BLOB_READ_WRITE_TOKEN` is present in
+production and preview environments, and a Payload Admin upload remains
+available after a redeploy.
 
 ## Architectural rules
 
