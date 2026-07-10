@@ -1779,6 +1779,10 @@ body.menu-open {
   border-bottom: 1px solid var(--north-star-rule);
 }
 .retreat-artists__grid img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
   filter: sepia(0.12) saturate(0.8) contrast(1.08) brightness(0.78);
   transition: transform var(--duration-image) var(--ease-image), filter 500ms var(--ease-standard);
 }
@@ -2315,7 +2319,7 @@ body.menu-open {
 .artist-card { color: inherit; text-decoration: none; background: var(--north-star-charcoal); border: 1px solid var(--north-star-rule); overflow: hidden; }
 .artist-card__image { position: relative; aspect-ratio: 4 / 5; overflow: hidden; }
 .artist-card__image::after { content: ""; position: absolute; inset: 0; background: linear-gradient(0deg, rgb(5 6 7 / 66%), transparent 38%); pointer-events: none; }
-.artist-card__image img { object-fit: cover; filter: saturate(0.76) contrast(1.07) brightness(0.86); transition: transform 700ms var(--ease-standard), filter 500ms var(--ease-standard); }
+.artist-card__image img { width: 100%; height: 100%; display: block; object-fit: cover; filter: saturate(0.76) contrast(1.07) brightness(0.86); transition: transform 700ms var(--ease-standard), filter 500ms var(--ease-standard); }
 .artist-card__content { min-height: 155px; padding: 1.5rem; display: flex; justify-content: space-between; gap: 1.5rem; align-items: flex-end; border-top: 1px solid var(--north-star-rule); }
 .artist-card__content p { margin: 0; color: rgb(242 238 230 / 44%); font-size: 0.66rem; letter-spacing: 0.1em; line-height: 1.55; text-transform: uppercase; }
 .artist-card__content h3 { margin: 0.35rem 0 0.55rem; color: var(--north-star-ivory); font-size: clamp(1.65rem, 2.2vw, 2.35rem); font-weight: 400; }
@@ -2330,7 +2334,7 @@ body.menu-open {
 .artists-empty-state > p:not(.ds-eyebrow) { max-width: 38rem; margin: 1.5rem 0 2.5rem; color: rgb(242 238 230 / 56%); line-height: 1.8; }
 
 .artist-profile-hero { min-height: 100svh; }
-.artist-profile-hero > img { object-fit: cover; object-position: center 28%; filter: saturate(0.74) contrast(1.1) brightness(0.68); }
+.artist-profile-hero > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 28%; filter: saturate(0.74) contrast(1.1) brightness(0.68); }
 .artist-profile-hero__shade { background: linear-gradient(90deg, rgb(5 6 7 / 92%) 0%, rgb(5 6 7 / 58%) 40%, rgb(5 6 7 / 8%) 78%), linear-gradient(0deg, rgb(5 6 7 / 76%), transparent 46%); }
 .artist-profile-story { padding: clamp(6rem, 11vw, 11rem) 0; background: var(--north-star-charcoal); }
 .artist-profile-story .ds-container { display: grid; grid-template-columns: minmax(190px, 0.28fr) minmax(0, 1fr); gap: clamp(3rem, 10vw, 11rem); }
@@ -2349,7 +2353,7 @@ body.menu-open {
 .artist-profile-gallery__grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: clamp(1rem, 2vw, 2rem); }
 .artist-profile-gallery figure { position: relative; min-height: 70svh; margin: 0; overflow: hidden; background: var(--north-star-charcoal); }
 .artist-profile-gallery figure:nth-child(3n) { grid-column: 1 / -1; min-height: 78svh; }
-.artist-profile-gallery img { object-fit: cover; filter: saturate(0.78) contrast(1.06) brightness(0.88); }
+.artist-profile-gallery img { width: 100%; height: 100%; display: block; object-fit: cover; filter: saturate(0.78) contrast(1.06) brightness(0.88); }
 .artist-profile-appearances { padding: clamp(6rem, 10vw, 10rem) 0; text-align: center; background: var(--north-star-charcoal); border-block: 1px solid var(--north-star-rule); }
 .artist-profile-appearances .ds-container { display: flex; flex-direction: column; align-items: center; }
 .artist-profile-appearances h2 { max-width: 19ch; margin: 0; color: var(--north-star-ivory); font-size: clamp(2.8rem, 5vw, 5.5rem); line-height: 1; }

@@ -49,7 +49,7 @@ function publicURL(url: string): string {
   if (url.startsWith("/")) return url;
   try {
     const parsedURL = new URL(url);
-    return `${parsedURL.pathname}${parsedURL.search}`;
+    return parsedURL.toString();
   } catch { return url; }
 }
 
