@@ -120,10 +120,16 @@ master classes, mentoring, and future creative experiences.
   approved durable object-storage standard for Payload media uploads.
   Production verification completed July 8, 2026: Payload Admin upload,
   redeploy persistence, and production-domain media delivery were verified.
-- [ ] Complete PR #10 Lone Star Retreat domain integration so
+- [x] Complete PR #10 Lone Star Retreat domain integration so
   `https://thelonestarretreat.com` acts as the public marketing domain for the
   Founders Edition while preserving the single Project North Star application
   and deployment.
+- [x] Complete Sprint 04A public experience verification and administrative
+  closeout. `https://thelonestarretreat.com` resolves to the Founders Edition
+  root experience through the existing Project North Star Vercel deployment.
+- [ ] Complete Sprint 04B Retreat Operations Foundation as an architecture-only
+  sprint before implementing production booking, payments, calendars,
+  dashboards, messaging, or notification workflows.
 
 ## Deferred Items
 
@@ -148,7 +154,7 @@ master classes, mentoring, and future creative experiences.
 - [ ] Tim can create, edit, publish, close, and archive an experience.
 - [ ] Public pages clearly show approved dates, location, capacity, status, and
   expectations.
-- [ ] Lone Star Retreat can be reached through its own marketing domain without
+- [x] Lone Star Retreat can be reached through its own marketing domain without
   duplicating the application or deployment.
 - [ ] Lone Star Retreat content can be updated without code changes.
 - [ ] Future experience types can be added without redesigning navigation or

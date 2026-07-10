@@ -181,6 +181,11 @@ security boundaries are defined in
 That document governs future platform expansion while preserving the current
 sprint's explicit non-implementation boundary.
 
+The Sprint 04B operations blueprint is defined in
+[`retreat-operations-architecture.md`](retreat-operations-architecture.md).
+That document governs the participant lifecycle, privacy, scheduling, logistics,
+and implementation sequencing for future Lone Star Retreat operational systems.
+
 - Hosting and deployment: Vercel
 - Primary production domain: `https://timbennettproductions.com`
 - Lone Star Retreat marketing domain: `https://thelonestarretreat.com`
