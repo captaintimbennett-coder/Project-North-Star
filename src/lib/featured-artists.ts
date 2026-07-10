@@ -14,9 +14,11 @@ export type PublicArtistImage = {
 export type PublicFeaturedArtist = {
   artistStatement?: string;
   biography?: string;
+  cardImage: PublicArtistImage;
   categories: string[];
   displayName: string;
   featuredImage: PublicArtistImage;
+  heroImage: PublicArtistImage;
   instagram?: string;
   introduction?: string;
   location?: string;
@@ -47,7 +49,10 @@ const categoryLabels: Record<string, string> = {
 
 function publicURL(url: string): string {
   if (url.startsWith("/")) return url;
-  try { return new URL(url).pathname; } catch { return url; }
+  try {
+    const parsedURL = new URL(url);
+    return parsedURL.toString();
+  } catch { return url; }
 }
 
 function mapApprovedMedia(value: number | Media | null | undefined, size: "card" | "hero" = "card"): PublicArtistImage | null {
@@ -71,8 +76,9 @@ function cleanExternalURL(value: string | null | undefined): string | undefined 
 
 function mapPublicProfile(profile: ModelProfile): PublicFeaturedArtist | null {
   if (profile.approvalStatus !== "approved" || profile._status !== "published" || profile.usagePermissionConfirmed !== true) return null;
-  const featuredImage = mapApprovedMedia(profile.featuredImage, "hero");
-  if (!featuredImage) return null;
+  const cardImage = mapApprovedMedia(profile.featuredImage, "card");
+  const heroImage = mapApprovedMedia(profile.featuredImage, "hero");
+  if (!cardImage || !heroImage) return null;
   const controls = profile.publicDisplay;
   const location = controls?.location
     ? [profile.city, profile.state].filter(Boolean).join(", ") || undefined
@@ -84,11 +90,13 @@ function mapPublicProfile(profile: ModelProfile): PublicFeaturedArtist | null {
     introduction: profile.publicIntroduction || undefined,
     biography: controls?.biography ? profile.biography || undefined : undefined,
     artistStatement: controls?.artistStatement ? profile.artistStatement || undefined : undefined,
+    cardImage,
     location,
     categories: controls?.categories
       ? (profile.modelingCategories || []).map((category) => categoryLabels[category] || category)
       : [],
-    featuredImage,
+    featuredImage: heroImage,
+    heroImage,
     portfolioImages: (profile.portfolioImages || [])
       .map((image) => mapApprovedMedia(image, "hero"))
       .filter((image): image is PublicArtistImage => image !== null),

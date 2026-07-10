@@ -2,7 +2,9 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { FeaturedArtistProfile } from "@/components/retreat/FeaturedArtistProfile";
 import { currentRetreatEdition } from "@/data/retreat-editions";
+import { siteConfig } from "@/data/site";
 import { getPublicEventArtist } from "@/lib/featured-artists";
+import { retreatDomainPath } from "@/lib/domain-routing";
 
 export const dynamic = "force-dynamic";
 type PageProps = { params: Promise<{ slug: string }> };
@@ -14,8 +16,24 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   return {
     title: `${result.artist.displayName} | ${result.event.title}`,
     description: result.artist.introduction || `Meet ${result.artist.displayName}, a participating artist for ${result.event.title}.`,
-    alternates: { canonical: `${currentRetreatEdition.artistsPath}/${slug}` },
-    openGraph: { images: [{ url: result.artist.featuredImage.src, alt: result.artist.featuredImage.alt }] },
+    alternates: { canonical: retreatDomainPath(`${currentRetreatEdition.artistsPath}/${slug}`) },
+    openGraph: {
+      title: `${result.artist.displayName} | ${siteConfig.loneStarRetreat.name}`,
+      description:
+        result.artist.introduction ||
+        `Meet ${result.artist.displayName}, a participating artist for ${result.event.title}.`,
+      url: retreatDomainPath(`${currentRetreatEdition.artistsPath}/${slug}`),
+      siteName: siteConfig.loneStarRetreat.name,
+      images: [{ url: result.artist.featuredImage.src, alt: result.artist.featuredImage.alt }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${result.artist.displayName} | ${siteConfig.loneStarRetreat.name}`,
+      description:
+        result.artist.introduction ||
+        `Meet ${result.artist.displayName}, a participating artist for ${result.event.title}.`,
+      images: [result.artist.featuredImage.src],
+    },
   };
 }
 

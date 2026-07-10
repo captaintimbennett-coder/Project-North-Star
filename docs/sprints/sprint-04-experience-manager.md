@@ -116,8 +116,14 @@ master classes, mentoring, and future creative experiences.
 - [x] Complete PR #7 production hardening: route smoke tests, production email
   smoke tests, SendGrid key rotation, media storage risk documentation, and Neon
   SSL follow-up.
-- [ ] Complete PR #9 production media storage foundation with Vercel Blob as the
+- [x] Complete PR #9 production media storage foundation with Vercel Blob as the
   approved durable object-storage standard for Payload media uploads.
+  Production verification completed July 8, 2026: Payload Admin upload,
+  redeploy persistence, and production-domain media delivery were verified.
+- [ ] Complete PR #10 Lone Star Retreat domain integration so
+  `https://thelonestarretreat.com` acts as the public marketing domain for the
+  Founders Edition while preserving the single Project North Star application
+  and deployment.
 
 ## Deferred Items
 
@@ -142,6 +148,8 @@ master classes, mentoring, and future creative experiences.
 - [ ] Tim can create, edit, publish, close, and archive an experience.
 - [ ] Public pages clearly show approved dates, location, capacity, status, and
   expectations.
+- [ ] Lone Star Retreat can be reached through its own marketing domain without
+  duplicating the application or deployment.
 - [ ] Lone Star Retreat content can be updated without code changes.
 - [ ] Future experience types can be added without redesigning navigation or
   data architecture.

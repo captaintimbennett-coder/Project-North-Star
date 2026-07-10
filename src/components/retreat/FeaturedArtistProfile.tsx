@@ -1,4 +1,4 @@
-import Image from "next/image";
+/* eslint-disable @next/next/no-img-element -- Approved Payload media should load directly from its stored CMS URL. */
 import Link from "next/link";
 import { Container } from "@/components/layout";
 import type { PublicFeaturedArtist, PublicRetreatEvent } from "@/lib/featured-artists";
@@ -7,7 +7,7 @@ export function FeaturedArtistProfile({ artist, event }: { artist: PublicFeature
   const basePath = `/lone-star-retreat/${event.slug}`;
   return <>
     <section className="artist-profile-hero">
-      <Image src={artist.featuredImage.src} alt={artist.featuredImage.alt} fill priority sizes="100vw" />
+      <img src={artist.heroImage.src} alt={artist.heroImage.alt} />
       <div className="artist-profile-hero__shade" />
       <Container className="artist-profile-hero__content">
         <p className="ds-eyebrow">{event.title} · Participating Artist</p>
@@ -29,7 +29,7 @@ export function FeaturedArtistProfile({ artist, event }: { artist: PublicFeature
       </Container>
     </section>
 
-    {artist.portfolioImages.length > 0 && <section className="artist-profile-gallery" aria-labelledby="artist-gallery-title"><Container><div className="artist-profile-gallery__heading"><p className="ds-eyebrow">Selected Work</p><h2 id="artist-gallery-title">The portfolio</h2></div><div className="artist-profile-gallery__grid">{artist.portfolioImages.map((image, index) => <figure key={`${image.src}-${index}`}><Image src={image.src} alt={image.alt} fill sizes="(max-width: 760px) 100vw, 50vw" /></figure>)}</div></Container></section>}
+    {artist.portfolioImages.length > 0 && <section className="artist-profile-gallery" aria-labelledby="artist-gallery-title"><Container><div className="artist-profile-gallery__heading"><p className="ds-eyebrow">Selected Work</p><h2 id="artist-gallery-title">The portfolio</h2></div><div className="artist-profile-gallery__grid">{artist.portfolioImages.map((image, index) => <figure key={`${image.src}-${index}`}><img src={image.src} alt={image.alt} /></figure>)}</div></Container></section>}
 
     <section className="artist-profile-appearances"><Container><p className="ds-eyebrow">Participating in</p><h2>{event.title}</h2><p>{event.dateLabel} · {event.location}</p></Container></section>
 
