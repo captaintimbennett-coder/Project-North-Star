@@ -7,7 +7,7 @@ export function FeaturedArtistProfile({ artist, event }: { artist: PublicFeature
   const basePath = `/lone-star-retreat/${event.slug}`;
   return <>
     <section className="artist-profile-hero">
-      <img src={artist.featuredImage.src} alt={artist.featuredImage.alt} />
+      <img src={artist.heroImage.src} alt={artist.heroImage.alt} />
       <div className="artist-profile-hero__shade" />
       <Container className="artist-profile-hero__content">
         <p className="ds-eyebrow">{event.title} · Participating Artist</p>
