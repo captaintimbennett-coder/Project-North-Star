@@ -8,7 +8,9 @@ export default function robots(): MetadataRoute.Robots {
       allow: "/",
       disallow: ["/account/", "/admin/", "/api/account/", "/internal/", "/opening-studies/", "/sign-in"],
     },
-    host: siteConfig.url,
-    sitemap: `${siteConfig.url}/sitemap.xml`,
+    sitemap: [
+      `${siteConfig.domains.primary}/sitemap.xml`,
+      `${siteConfig.domains.loneStarRetreat}/sitemap.xml`,
+    ],
   };
 }

@@ -182,7 +182,11 @@ That document governs future platform expansion while preserving the current
 sprint's explicit non-implementation boundary.
 
 - Hosting and deployment: Vercel
-- Production domain: `https://timbennettproductions.com`
+- Primary production domain: `https://timbennettproductions.com`
+- Lone Star Retreat marketing domain: `https://thelonestarretreat.com`
+  points to the same Vercel application and uses host-aware routing so the
+  domain root resolves to the current Founders Edition experience without
+  creating a second app or duplicate deployment.
 - Content administration and authentication: Payload CMS
 - Relational data: PostgreSQL through Payload's database adapter
 - Initial development media storage: Payload local uploads

@@ -4,11 +4,12 @@ import { Container } from "@/components/layout";
 import { PhotographerApplicationForm } from "@/components/retreat";
 import { photographerApplicationContent as content } from "@/data/applications";
 import { images } from "@/data/assets";
+import { retreatDomainPath } from "@/lib/domain-routing";
 
 export const metadata: Metadata = {
   title: "Photographer Application | Lone Star Retreat",
   description: content.hero.introduction,
-  alternates: { canonical: "/lone-star-retreat/photographers/apply" },
+  alternates: { canonical: retreatDomainPath("/lone-star-retreat/photographers/apply") },
   robots: { index: false, follow: true },
 };
 
