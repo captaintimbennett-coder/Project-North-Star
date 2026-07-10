@@ -47,7 +47,10 @@ const categoryLabels: Record<string, string> = {
 
 function publicURL(url: string): string {
   if (url.startsWith("/")) return url;
-  try { return new URL(url).pathname; } catch { return url; }
+  try {
+    const parsedURL = new URL(url);
+    return `${parsedURL.pathname}${parsedURL.search}`;
+  } catch { return url; }
 }
 
 function mapApprovedMedia(value: number | Media | null | undefined, size: "card" | "hero" = "card"): PublicArtistImage | null {
