@@ -12,6 +12,25 @@ const ACCEPTED_IMAGE_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
 
 type Errors = Record<string, string>;
 type FieldProps = { children: React.ReactNode; description?: string; error?: string; label: string; name: string; required?: boolean };
+const ERROR_FIELD_ORDER = [
+  "stageName",
+  "email",
+  "phone",
+  "city",
+  "country",
+  "state",
+  "marketingSource",
+  "otherMarketingSource",
+  "modelingExperienceLevel",
+  "travelAvailability",
+  "alternateModelList",
+  "availabilityNotes",
+  "creativeInterests",
+  "preferredHeroImage",
+  "additionalImages",
+  "shortBiography",
+  "codeOfConductConfirmed",
+] as const;
 
 function Field({ children, description, error, label, name, required }: FieldProps) {
   return <div className="application-field">
@@ -28,6 +47,19 @@ function by(name: string, description: boolean, error?: string) {
 
 function formatFileSize(bytes: number) {
   return `${(bytes / 1024 / 1024).toFixed(1)}MB`;
+}
+
+function focusField(form: HTMLFormElement | null, fieldName: string) {
+  if (!form) return;
+  const target = form.querySelector<HTMLElement>(`#${fieldName}, [name="${fieldName}"]`);
+  target?.scrollIntoView({ behavior: "smooth", block: "center" });
+  target?.focus({ preventScroll: true });
+}
+
+function focusFirstError(form: HTMLFormElement | null, errors: Errors) {
+  const fieldName = ERROR_FIELD_ORDER.find((name) => errors[name]);
+  if (!fieldName) return;
+  window.requestAnimationFrame(() => focusField(form, fieldName));
 }
 
 export function ModelApplicationForm() {
@@ -67,8 +99,12 @@ export function ModelApplicationForm() {
     if (marketingSource === "other" && !String(data.get("otherMarketingSource") || "").trim()) next.otherMarketingSource = "Tell us how you heard about Lone Star Retreat.";
     if (Object.keys(next).length) {
       setErrors(next); setFormError("Please review the highlighted fields before submitting.");
-      if (next.creativeInterests) interestsRef.current?.focus();
-      else formRef.current?.querySelector<HTMLElement>("[aria-invalid='true']")?.focus();
+      if (next.creativeInterests) {
+        interestsRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+        interestsRef.current?.focus({ preventScroll: true });
+      } else {
+        focusFirstError(formRef.current, next);
+      }
       return;
     }
     setErrors({}); setFormError(""); setSubmitting(true);
@@ -83,15 +119,16 @@ export function ModelApplicationForm() {
       }
       if (!response.ok || !result.ok) {
         if (response.status === 413) {
-          setErrors({ preferredHeroImage: "This upload was rejected before the application could save. The image may need a direct storage upload path for larger files." });
+          const uploadErrors = { preferredHeroImage: "This upload was rejected before the application could save. The image may need a direct storage upload path for larger files." };
+          setErrors(uploadErrors);
           setFormError("The image upload was rejected before the application could save. Nothing else appears missing from the form.");
-          formRef.current?.querySelector<HTMLElement>("[aria-invalid='true']")?.focus();
+          focusFirstError(formRef.current, uploadErrors);
           return;
         }
         const nextErrors = result.errors || {};
         setErrors(nextErrors);
         setFormError(result.error || (Object.keys(nextErrors).length ? "Please review the highlighted fields before submitting." : "We could not save this application. If no field below is highlighted, nothing is missing from your form. Please try again later."));
-        formRef.current?.querySelector<HTMLElement>("[aria-invalid='true']")?.focus(); return;
+        focusFirstError(formRef.current, nextErrors); return;
       }
       router.push("/lone-star-retreat/models/apply/application-received");
     } catch { setFormError("We could not receive your application. If you uploaded images, please confirm each one is 10MB or smaller and try again."); }
