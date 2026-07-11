@@ -19,6 +19,12 @@ import {
 const MODEL_EXPERIENCE = ["aspiring", "developing", "experienced", "professional"] as const;
 const TRAVEL_AVAILABILITY = ["yes", "no", "possibly"] as const;
 const ALTERNATE_MODEL_LIST = ["yes", "no"] as const;
+type StoredTravelAvailability =
+  | "local-only"
+  | "regional"
+  | "domestic"
+  | "international"
+  | "case-by-case";
 const MODEL_INTERESTS = [
   "fashion",
   "editorial",
@@ -66,6 +72,23 @@ const MARKETING_SOURCES = [
   "google-search",
   "other",
 ] as const;
+
+function getTravelAvailabilityForStorage(
+  value: (typeof TRAVEL_AVAILABILITY)[number],
+): StoredTravelAvailability {
+  if (value === "yes") return "domestic";
+  if (value === "no") return "local-only";
+  return "case-by-case";
+}
+
+function formatYesNo(value: string): string {
+  return value === "yes" ? "Yes" : "No";
+}
+
+function formatTravelCommitment(value: (typeof TRAVEL_AVAILABILITY)[number]): string {
+  if (value === "possibly") return "Possibly";
+  return formatYesNo(value);
+}
 
 function validateCommon(
   formData: FormData,
@@ -155,6 +178,13 @@ export async function createPublicModelApplication(formData: FormData) {
 
   const payload = await getPayload({ config });
   const mediaIDs: number[] = [];
+  const travelCommitment = travelAvailability as (typeof TRAVEL_AVAILABILITY)[number];
+  const alternateList = alternateModelList as (typeof ALTERNATE_MODEL_LIST)[number];
+  const combinedAvailabilityNotes = [
+    `Travel commitment: ${formatTravelCommitment(travelCommitment)}.`,
+    `Alternate model list: ${formatYesNo(alternateList)}.`,
+    availabilityNotes ? `Applicant notes: ${availabilityNotes}` : undefined,
+  ].filter(Boolean).join("\n");
 
   try {
     for (const file of files) {
@@ -182,14 +212,13 @@ export async function createPublicModelApplication(formData: FormData) {
         ...common,
         stageName,
         modelingExperienceLevel: modelingExperienceLevel as (typeof MODEL_EXPERIENCE)[number],
-        travelAvailability: travelAvailability as (typeof TRAVEL_AVAILABILITY)[number],
-        alternateModelList: alternateModelList as (typeof ALTERNATE_MODEL_LIST)[number],
+        travelAvailability: getTravelAvailabilityForStorage(travelCommitment),
         creativeInterests: creativeInterests as (typeof MODEL_INTERESTS)[number][],
         retreatGoals: retreatGoals as (typeof MODEL_GOALS)[number][],
         shortBiography,
         agencyRepresentation: getOptionalString(formData, "agencyRepresentation"),
         homeAirport: getOptionalString(formData, "homeAirport"),
-        availabilityNotes,
+        availabilityNotes: combinedAvailabilityNotes,
         otherCreativeInterest: getOptionalString(formData, "otherCreativeInterest"),
         otherRetreatGoal: getOptionalString(formData, "otherRetreatGoal"),
         artistStatement: getOptionalString(formData, "artistStatement"),
@@ -252,8 +281,8 @@ export async function createPublicPhotographerApplication(formData: FormData) {
         photographyExperienceLevel as (typeof PHOTOGRAPHER_EXPERIENCE)[number],
       equipmentSummary,
       genresInterests: genresInterests as (typeof PHOTOGRAPHER_INTERESTS)[number][],
-      whatTheyHopeToCreate,
-      retreatGoals,
+      whatTheyHopeToCreate: whatTheyHopeToCreate || "",
+      retreatGoals: retreatGoals || "",
       otherGenreInterest: getOptionalString(formData, "otherGenreInterest"),
       collaborationStyleNotes: getOptionalString(formData, "collaborationStyleNotes"),
       applicationStatus: "new",

@@ -470,13 +470,9 @@ export interface ModelApplication {
   otherMarketingSource?: string | null;
   modelingExperienceLevel: 'aspiring' | 'developing' | 'experienced' | 'professional';
   /**
-   * Will they be available to travel to the Dallas/Fort Worth area for Lone Star Retreat, May 14–16, 2027?
+   * Legacy storage field. The public application records the applicant-facing Travel Commitment answer in Travel / availability notes.
    */
-  travelAvailability: 'yes' | 'no' | 'possibly';
-  /**
-   * If all Featured Model positions are filled, would they like to be considered as an alternate if an opening becomes available?
-   */
-  alternateModelList: 'yes' | 'no';
+  travelAvailability: 'local-only' | 'regional' | 'domestic' | 'international' | 'case-by-case';
   homeAirport?: string | null;
   availabilityNotes?: string | null;
   /**
@@ -568,8 +564,8 @@ export interface PhotographerApplication {
     'glamour' | 'boudoir' | 'editorial' | 'artistic-nude' | 'fashion' | 'swimwear' | 'beauty' | 'other'
   )[];
   otherGenreInterest?: string | null;
-  whatTheyHopeToCreate?: string | null;
-  retreatGoals?: string | null;
+  whatTheyHopeToCreate: string;
+  retreatGoals: string;
   collaborationStyleNotes?: string | null;
   applicationStatus: 'new' | 'reviewing' | 'accepted' | 'declined' | 'waitlist';
   /**
@@ -1091,7 +1087,6 @@ export interface ModelApplicationsSelect<T extends boolean = true> {
   otherMarketingSource?: T;
   modelingExperienceLevel?: T;
   travelAvailability?: T;
-  alternateModelList?: T;
   homeAirport?: T;
   availabilityNotes?: T;
   creativeInterests?: T;

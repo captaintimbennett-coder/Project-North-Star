@@ -104,29 +104,17 @@ export const ModelApplications: CollectionConfig = {
             {
               name: "travelAvailability",
               type: "select",
-              label: "Travel Commitment",
+              label: "Travel availability",
               admin: {
                 description:
-                  "Will they be available to travel to the Dallas/Fort Worth area for Lone Star Retreat, May 14–16, 2027?",
+                  "Legacy storage field. The public application records the applicant-facing Travel Commitment answer in Travel / availability notes.",
               },
               options: [
-                { label: "Yes", value: "yes" },
-                { label: "No", value: "no" },
-                { label: "Possibly", value: "possibly" },
-              ],
-              required: true,
-            },
-            {
-              name: "alternateModelList",
-              type: "select",
-              label: "Alternate Model List",
-              admin: {
-                description:
-                  "If all Featured Model positions are filled, would they like to be considered as an alternate if an opening becomes available?",
-              },
-              options: [
-                { label: "Yes", value: "yes" },
-                { label: "No", value: "no" },
+                { label: "Local only", value: "local-only" },
+                { label: "Regional", value: "regional" },
+                { label: "Domestic", value: "domestic" },
+                { label: "International", value: "international" },
+                { label: "Case by case", value: "case-by-case" },
               ],
               required: true,
             },
