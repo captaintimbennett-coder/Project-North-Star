@@ -30,6 +30,7 @@ export function ModelApplicationForm() {
   const [formError, setFormError] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [marketingSource, setMarketingSource] = useState("");
+  const [travelAvailability, setTravelAvailability] = useState("");
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -41,6 +42,9 @@ export function ModelApplicationForm() {
     for (const file of images) {
       if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) next.images = "Images must be JPG, PNG, or WebP files.";
       if (file.size > 10 * 1024 * 1024) next.images = "Each image must be 10MB or smaller.";
+    }
+    if (travelAvailability === "possibly" && !String(data.get("availabilityNotes") || "").trim()) {
+      next.availabilityNotes = "Please tell us what would affect your ability to travel.";
     }
     if (marketingSource === "other" && !String(data.get("otherMarketingSource") || "").trim()) next.otherMarketingSource = "Tell us how you heard about Lone Star Retreat.";
     if (Object.keys(next).length) {
@@ -90,12 +94,13 @@ export function ModelApplicationForm() {
     </section>
 
     <section className="application-form-section" aria-labelledby="model-work-title">
-      <div className="application-form-section__heading"><span>02</span><div><p className="ds-eyebrow">Creative practice</p><h2 id="model-work-title">Session availability</h2><p>Help us understand your experience, travel rhythm, and the kinds of sessions you are currently available to join.</p></div></div>
+      <div className="application-form-section__heading"><span>02</span><div><p className="ds-eyebrow">Creative practice</p><h2 id="model-work-title">Session availability</h2><p>Help us understand your experience, your event-date availability, and the kinds of sessions you are currently available to join.</p></div></div>
       <div className="application-form-grid">
         <Field name="modelingExperienceLevel" label="Modeling experience level" required error={errors.modelingExperienceLevel}><select className="application-input" id="modelingExperienceLevel" name="modelingExperienceLevel" required><option value="">Select one</option>{content.experienceLevels.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}</select></Field>
-        <Field name="travelAvailability" label="Travel availability" required error={errors.travelAvailability}><select className="application-input" id="travelAvailability" name="travelAvailability" required><option value="">Select one</option>{content.travelAvailability.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}</select></Field>
+        <Field name="travelAvailability" label="Travel Commitment" required error={errors.travelAvailability} description="Will you be available to travel to the Dallas/Fort Worth area for Lone Star Retreat, May 14–16, 2027? We ask this so we can accurately plan the retreat and extend invitations only to models who are available during the event dates."><select className="application-input" id="travelAvailability" name="travelAvailability" required value={travelAvailability} onChange={e => setTravelAvailability(e.target.value)} aria-invalid={!!errors.travelAvailability} aria-describedby={by("travelAvailability", true, errors.travelAvailability)}><option value="">Select one</option>{content.travelAvailability.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}</select></Field>
+        <Field name="alternateModelList" label="Alternate Model List" required error={errors.alternateModelList} description="If all Featured Model positions are filled, would you like to be considered as an alternate if an opening becomes available? Alternate models may be invited if another model cancels or if additional opportunities become available before the event."><select className="application-input" id="alternateModelList" name="alternateModelList" required aria-invalid={!!errors.alternateModelList} aria-describedby={by("alternateModelList", true, errors.alternateModelList)}><option value="">Select one</option>{content.alternateModelList.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}</select></Field>
         <Field name="homeAirport" label="Home airport" description="Optional." error={errors.homeAirport}><input className="application-input" id="homeAirport" name="homeAirport" /></Field>
-        <Field name="availabilityNotes" label="Availability notes" description="Optional. Share useful city, state, country, or travel context." error={errors.availabilityNotes}><textarea className="application-input application-textarea" id="availabilityNotes" name="availabilityNotes" rows={4} /></Field>
+        <Field name="availabilityNotes" label={travelAvailability === "possibly" ? "Please explain your travel availability" : "Availability notes"} description={travelAvailability === "possibly" ? "Tell us what would need to line up for you to travel to the Dallas/Fort Worth area for these dates." : "Optional. Share useful city, state, country, or travel context that may help with retreat planning."} error={errors.availabilityNotes}><textarea className="application-input application-textarea" id="availabilityNotes" name="availabilityNotes" rows={4} aria-invalid={!!errors.availabilityNotes} aria-describedby={by("availabilityNotes", true, errors.availabilityNotes)} /></Field>
       </div>
       <fieldset className="application-choice-group" ref={interestsRef} tabIndex={-1} aria-invalid={!!errors.creativeInterests}><legend>Which types of sessions are you available to participate in at Lone Star Retreat? <span aria-hidden="true">*</span></legend><p>Select all that apply. Detailed boundaries and session-specific consent will be discussed later if you are accepted.</p>{checkboxGroup("creativeInterests", content.genres, errors.creativeInterests)}</fieldset>
       <Field name="otherCreativeInterest" label="Other session type" description="Optional. Add context if you selected Other." error={errors.otherCreativeInterest}><input className="application-input" id="otherCreativeInterest" name="otherCreativeInterest" /></Field>
