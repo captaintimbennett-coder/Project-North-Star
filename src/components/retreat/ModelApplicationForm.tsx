@@ -6,6 +6,8 @@ import { Button } from "@/components/buttons";
 import { modelApplicationContent as content } from "@/data/applications";
 import { ProfessionalStandardsDisclosure } from "./ProfessionalStandardsDisclosure";
 
+const MAX_IMAGE_BYTES = 4 * 1024 * 1024;
+
 type Errors = Record<string, string>;
 type FieldProps = { children: React.ReactNode; description?: string; error?: string; label: string; name: string; required?: boolean };
 
@@ -42,7 +44,7 @@ export function ModelApplicationForm() {
     if (images.length > 5) next.images = "Upload no more than five images in total.";
     for (const file of images) {
       if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) next.images = "Images must be JPG, PNG, or WebP files.";
-      if (file.size > 10 * 1024 * 1024) next.images = "Each image must be 10MB or smaller.";
+      if (file.size > MAX_IMAGE_BYTES) next.images = "Each image must be 4MB or smaller.";
     }
     if (travelAvailability === "possibly" && !String(data.get("availabilityNotes") || "").trim()) {
       next.availabilityNotes = "Please tell us what would affect your ability to travel.";
@@ -57,13 +59,27 @@ export function ModelApplicationForm() {
     setErrors({}); setFormError(""); setSubmitting(true);
     try {
       const response = await fetch("/api/applications/model", { method: "POST", body: data });
-      const result = await response.json() as { error?: string; errors?: Errors; ok?: boolean };
+      const responseText = await response.text();
+      let result: { error?: string; errors?: Errors; ok?: boolean } = {};
+      try {
+        result = responseText ? JSON.parse(responseText) as typeof result : {};
+      } catch {
+        result = {};
+      }
       if (!response.ok || !result.ok) {
-        setErrors(result.errors || {}); setFormError(result.error || "Please review the highlighted fields before submitting.");
+        if (response.status === 413) {
+          setErrors({ images: "One or more uploaded images is too large. Please upload JPG, PNG, or WebP images that are each 4MB or smaller." });
+          setFormError("One or more uploaded images is too large for the application form. Please choose a smaller image and submit again.");
+          formRef.current?.querySelector<HTMLElement>("[aria-invalid='true']")?.focus();
+          return;
+        }
+        const nextErrors = result.errors || {};
+        setErrors(nextErrors);
+        setFormError(result.error || (Object.keys(nextErrors).length ? "Please review the highlighted fields before submitting." : "We could not save this application. If no field below is highlighted, nothing is missing from your form. Please try again later."));
         formRef.current?.querySelector<HTMLElement>("[aria-invalid='true']")?.focus(); return;
       }
       router.push("/lone-star-retreat/models/apply/application-received");
-    } catch { setFormError("We could not receive your application. Check your connection and try again."); }
+    } catch { setFormError("We could not receive your application. If you uploaded images, please confirm each one is 4MB or smaller and try again."); }
     finally { setSubmitting(false); }
   }
 
@@ -112,7 +128,7 @@ export function ModelApplicationForm() {
       <div className="application-form-section__heading"><span>03</span><div><p className="ds-eyebrow">Private review</p><h2 id="model-materials-title">Featured artist materials</h2><p>Share the imagery and words that best introduce your work. Nothing is published automatically.</p></div></div>
       <div className="application-form-grid application-form-grid--single">
         <Field name="preferredHeroImage" label="Preferred hero image" required description="Upload the image you would prefer us to consider as your featured image. Final image selection remains subject to approval." error={errors.images}><input className="application-input application-file-input" id="preferredHeroImage" name="images" type="file" required accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" aria-invalid={!!errors.images} aria-describedby={by("preferredHeroImage", true, errors.images)} /></Field>
-        <Field name="additionalImages" label="Additional portfolio images" description="Optional. Add up to four more JPG, PNG, or WebP images. Each image must be 10MB or smaller." error={errors.images}><input className="application-input application-file-input" id="additionalImages" name="images" type="file" multiple accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" /></Field>
+        <Field name="additionalImages" label="Additional portfolio images" description="Optional. Add up to four more JPG, PNG, or WebP images. Each image must be 4MB or smaller." error={errors.images}><input className="application-input application-file-input" id="additionalImages" name="images" type="file" multiple accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" /></Field>
         <Field name="shortBiography" label="Short biography" required description="Introduce your experience and creative point of view in your own voice." error={errors.shortBiography}><textarea className="application-input application-textarea" id="shortBiography" name="shortBiography" rows={6} required aria-invalid={!!errors.shortBiography} /></Field>
         <Field name="artistStatement" label="Artist statement" description="Optional. Share what draws you to the work you create." error={errors.artistStatement}><textarea className="application-input application-textarea" id="artistStatement" name="artistStatement" rows={5} /></Field>
       </div>
