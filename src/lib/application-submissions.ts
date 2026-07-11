@@ -2,7 +2,9 @@ import config from "@payload-config";
 import { countryOptions, usStateOptions } from "@/data/location-options";
 import { getPayload, type File as PayloadFile } from "payload";
 import {
+  ACCEPTED_IMAGE_TYPES,
   ApplicationValidationError,
+  MAX_IMAGE_BYTES,
   assertValid,
   getOptionalString,
   getRequiredString,
@@ -26,6 +28,13 @@ type StoredTravelAvailability =
   | "domestic"
   | "international"
   | "case-by-case";
+type UploadedModelImageReference = {
+  contentType: string;
+  filename: string;
+  pathname: string;
+  size: number;
+  url: string;
+};
 const MODEL_INTERESTS = [
   "fashion",
   "editorial",
@@ -154,6 +163,81 @@ function validateCommon(
   };
 }
 
+function getUploadedImageReferences(
+  formData: FormData,
+  errors: ValidationErrors,
+): UploadedModelImageReference[] {
+  const rawValue = getOptionalString(formData, "uploadedImages");
+  if (!rawValue) return [];
+
+  try {
+    const parsed = JSON.parse(rawValue) as unknown;
+    if (!Array.isArray(parsed)) throw new Error("Expected an array.");
+
+    return parsed.flatMap((item): UploadedModelImageReference[] => {
+      if (!item || typeof item !== "object") return [];
+      const image = item as Partial<UploadedModelImageReference>;
+      if (
+        typeof image.contentType !== "string" ||
+        typeof image.filename !== "string" ||
+        typeof image.pathname !== "string" ||
+        typeof image.size !== "number" ||
+        typeof image.url !== "string"
+      ) {
+        return [];
+      }
+
+      return [{
+        contentType: image.contentType,
+        filename: image.filename,
+        pathname: image.pathname,
+        size: image.size,
+        url: image.url,
+      }];
+    });
+  } catch {
+    errors.preferredHeroImage = "We could not read the uploaded image reference. Please upload the image again.";
+    return [];
+  }
+}
+
+function validateUploadedImageReferences(
+  images: UploadedModelImageReference[],
+  errors: ValidationErrors,
+): void {
+  if (images.length === 0) {
+    errors.preferredHeroImage = "Upload at least one image for private review.";
+    return;
+  }
+
+  if (images.length > 5) {
+    errors.additionalImages = "Upload no more than five images in total.";
+    return;
+  }
+
+  for (const image of images) {
+    if (!image.pathname.startsWith("media/model-applications/")) {
+      errors.preferredHeroImage = "The uploaded image reference is invalid. Please upload the image again.";
+      return;
+    }
+    if (!ACCEPTED_IMAGE_TYPES.has(image.contentType)) {
+      errors.preferredHeroImage = "Images must be JPG, JPEG, PNG, or WebP. Video files are not accepted.";
+      return;
+    }
+    if (image.size > MAX_IMAGE_BYTES) {
+      errors.preferredHeroImage = "Each image must be 10MB or smaller.";
+      return;
+    }
+    try {
+      const url = new URL(image.url);
+      if (url.protocol !== "https:") throw new Error("Invalid URL protocol.");
+    } catch {
+      errors.preferredHeroImage = "The uploaded image URL is invalid. Please upload the image again.";
+      return;
+    }
+  }
+}
+
 export async function createPublicModelApplication(formData: FormData) {
   const errors: ValidationErrors = {};
   const common = validateCommon(formData, errors);
@@ -169,6 +253,7 @@ export async function createPublicModelApplication(formData: FormData) {
     "consentImageUsageConfirmed",
     errors,
   );
+  const uploadedImageReferences = getUploadedImageReferences(formData, errors);
   const files = [
     ...getUploadedFiles(formData, "preferredHeroImage"),
     ...getUploadedFiles(formData, "additionalImages"),
@@ -185,7 +270,8 @@ export async function createPublicModelApplication(formData: FormData) {
   requireSelection(creativeInterests, "creativeInterests", errors);
   validateAllowedValues(creativeInterests, MODEL_INTERESTS, "creativeInterests", errors);
   validateAllowedValues(retreatGoals, MODEL_GOALS, "retreatGoals", errors);
-  validateModelImages(files, errors);
+  if (uploadedImageReferences.length > 0) validateUploadedImageReferences(uploadedImageReferences, errors);
+  else validateModelImages(files, errors);
   assertValid(errors);
 
   const payload = await getPayload({ config });
@@ -199,6 +285,22 @@ export async function createPublicModelApplication(formData: FormData) {
   ].filter(Boolean).join("\n");
 
   try {
+    for (const image of uploadedImageReferences) {
+      const media = await payload.create({
+        collection: "media",
+        data: {
+          alt: `Private application image — ${stageName}`,
+          filename: image.pathname,
+          filesize: image.size,
+          mimeType: image.contentType,
+          url: image.url,
+          usageApproved: false,
+        },
+        overrideAccess: true,
+      });
+      mediaIDs.push(media.id);
+    }
+
     for (const file of files) {
       const payloadFile: PayloadFile = {
         data: Buffer.from(await file.arrayBuffer()),

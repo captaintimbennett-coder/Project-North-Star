@@ -1,5 +1,6 @@
 "use client";
 
+import { upload } from "@vercel/blob/client";
 import { useRouter } from "next/navigation";
 import { FormEvent, useRef, useState } from "react";
 import { Button } from "@/components/buttons";
@@ -12,6 +13,7 @@ const ACCEPTED_IMAGE_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
 
 type Errors = Record<string, string>;
 type FieldProps = { children: React.ReactNode; description?: string; error?: string; label: string; name: string; required?: boolean };
+type UploadedBlobResult = { pathname: string; url: string };
 const ERROR_FIELD_ORDER = [
   "stageName",
   "email",
@@ -62,6 +64,31 @@ function focusFirstError(form: HTMLFormElement | null, errors: Errors) {
   window.requestAnimationFrame(() => focusField(form, fieldName));
 }
 
+function safeUploadName(file: File) {
+  return file.name.replace(/[^a-zA-Z0-9._-]/g, "-").replace(/-+/g, "-");
+}
+
+function getTextOnlyFormData(formData: FormData) {
+  const next = new FormData();
+
+  formData.forEach((value, key) => {
+    if (value instanceof File) return;
+    next.append(key, value);
+  });
+
+  return next;
+}
+
+function toUploadedImageReference(file: File, blob: UploadedBlobResult) {
+  return {
+    contentType: file.type,
+    filename: file.name,
+    pathname: blob.pathname,
+    size: file.size,
+    url: blob.url,
+  };
+}
+
 export function ModelApplicationForm() {
   const router = useRouter();
   const formRef = useRef<HTMLFormElement>(null);
@@ -72,6 +99,7 @@ export function ModelApplicationForm() {
   const [marketingSource, setMarketingSource] = useState("");
   const [country, setCountry] = useState("");
   const [travelAvailability, setTravelAvailability] = useState("");
+  const [uploadProgress, setUploadProgress] = useState("");
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -107,9 +135,28 @@ export function ModelApplicationForm() {
       }
       return;
     }
-    setErrors({}); setFormError(""); setSubmitting(true);
+    setErrors({}); setFormError(""); setSubmitting(true); setUploadProgress("");
     try {
-      const response = await fetch("/api/applications/model", { method: "POST", body: data });
+      setUploadProgress("Uploading images…");
+      const uploadedImages = [];
+      for (const file of images) {
+        const blob = await upload(
+          `media/model-applications/${Date.now()}-${safeUploadName(file)}`,
+          file,
+          {
+            access: "public",
+            contentType: file.type,
+            handleUploadUrl: "/api/applications/model/upload",
+          },
+        );
+        uploadedImages.push(toUploadedImageReference(file, blob));
+      }
+
+      const submissionData = getTextOnlyFormData(data);
+      submissionData.append("uploadedImages", JSON.stringify(uploadedImages));
+
+      setUploadProgress("Saving application…");
+      const response = await fetch("/api/applications/model", { method: "POST", body: submissionData });
       const responseText = await response.text();
       let result: { error?: string; errors?: Errors; ok?: boolean } = {};
       try {
@@ -131,8 +178,13 @@ export function ModelApplicationForm() {
         focusFirstError(formRef.current, nextErrors); return;
       }
       router.push("/lone-star-retreat/models/apply/application-received");
-    } catch { setFormError("We could not receive your application. If you uploaded images, please confirm each one is 10MB or smaller and try again."); }
-    finally { setSubmitting(false); }
+    } catch {
+      const uploadErrors = { preferredHeroImage: "We could not upload this image. Please confirm it is a JPG, PNG, or WebP file that is 10MB or smaller, then try again." };
+      setErrors(uploadErrors);
+      setFormError("We could not upload the image before saving the application.");
+      focusFirstError(formRef.current, uploadErrors);
+    }
+    finally { setSubmitting(false); setUploadProgress(""); }
   }
 
   const checkboxGroup = (name: string, items: readonly { label: string; value: string }[], error?: string) =>
@@ -143,6 +195,7 @@ export function ModelApplicationForm() {
   return <form className="application-form" ref={formRef} onSubmit={submit}>
     <div className="application-honeypot" aria-hidden="true"><label htmlFor="companyWebsite">Company website</label><input id="companyWebsite" name="companyWebsite" tabIndex={-1} autoComplete="off" /></div>
     {formError && <div className="application-form__notice" role="alert"><strong>We need a little more information.</strong><p>{formError}</p></div>}
+    {uploadProgress && <div className="application-form__notice" role="status"><strong>Please hold tight.</strong><p>{uploadProgress}</p></div>}
 
     <section className="application-form-section" aria-labelledby="model-about-title">
       <div className="application-form-section__heading"><span>01</span><div><p className="ds-eyebrow">Application details</p><h2 id="model-about-title">About you</h2><p>Begin with the details we will use to identify you and stay in touch.</p></div></div>
