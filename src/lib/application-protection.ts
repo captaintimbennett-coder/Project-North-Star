@@ -1,7 +1,7 @@
 import type { NextRequest } from "next/server";
 
 export const MAX_MODEL_IMAGES = 5;
-export const MAX_IMAGE_BYTES = 4 * 1024 * 1024;
+export const MAX_IMAGE_BYTES = 10 * 1024 * 1024;
 export const ACCEPTED_IMAGE_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
 
 const RATE_LIMIT_WINDOW_MS = 15 * 60 * 1000;
@@ -141,7 +141,7 @@ export function validateModelImages(files: File[], errors: ValidationErrors): vo
       return;
     }
     if (file.size > MAX_IMAGE_BYTES) {
-      errors.images = "Each image must be 4MB or smaller.";
+      errors.images = "Each image must be 10MB or smaller.";
       return;
     }
   }
