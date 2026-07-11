@@ -104,13 +104,29 @@ export const ModelApplications: CollectionConfig = {
             {
               name: "travelAvailability",
               type: "select",
-              label: "Travel availability",
+              label: "Travel Commitment",
+              admin: {
+                description:
+                  "Will they be available to travel to the Dallas/Fort Worth area for Lone Star Retreat, May 14–16, 2027?",
+              },
               options: [
-                { label: "Local only", value: "local-only" },
-                { label: "Regional", value: "regional" },
-                { label: "Domestic", value: "domestic" },
-                { label: "International", value: "international" },
-                { label: "Case by case", value: "case-by-case" },
+                { label: "Yes", value: "yes" },
+                { label: "No", value: "no" },
+                { label: "Possibly", value: "possibly" },
+              ],
+              required: true,
+            },
+            {
+              name: "alternateModelList",
+              type: "select",
+              label: "Alternate Model List",
+              admin: {
+                description:
+                  "If all Featured Model positions are filled, would they like to be considered as an alternate if an opening becomes available?",
+              },
+              options: [
+                { label: "Yes", value: "yes" },
+                { label: "No", value: "no" },
               ],
               required: true,
             },
@@ -118,7 +134,7 @@ export const ModelApplications: CollectionConfig = {
             {
               name: "availabilityNotes",
               type: "textarea",
-              label: "City / state / country availability notes",
+              label: "Travel / availability notes",
             },
           ],
         },

@@ -15,6 +15,7 @@ import * as migration_20260705_044709_event_scheduling_timezone from './20260705
 import * as migration_20260706_062709_identity_access_foundation from './20260706_062709_identity_access_foundation';
 import * as migration_20260706_211702_account_lifecycle_security from './20260706_211702_account_lifecycle_security';
 import * as migration_20260709_025300_add_media_blob_prefix from './20260709_025300_add_media_blob_prefix';
+import * as migration_20260710_031800_application_form_ux_refinements from './20260710_031800_application_form_ux_refinements';
 
 export const migrations = [
   {
@@ -101,5 +102,10 @@ export const migrations = [
     up: migration_20260709_025300_add_media_blob_prefix.up,
     down: migration_20260709_025300_add_media_blob_prefix.down,
     name: '20260709_025300_add_media_blob_prefix',
+  },
+  {
+    up: migration_20260710_031800_application_form_ux_refinements.up,
+    down: migration_20260710_031800_application_form_ux_refinements.down,
+    name: '20260710_031800_application_form_ux_refinements',
   },
 ];

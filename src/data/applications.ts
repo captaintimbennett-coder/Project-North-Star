@@ -110,9 +110,13 @@ export const modelApplicationContent = {
     { label: "Experienced", value: "experienced" }, { label: "Professional", value: "professional" },
   ],
   travelAvailability: [
-    { label: "Local only", value: "local-only" }, { label: "Regional", value: "regional" },
-    { label: "Domestic", value: "domestic" }, { label: "International", value: "international" },
-    { label: "Case by case", value: "case-by-case" },
+    { label: "Yes", value: "yes" },
+    { label: "No", value: "no" },
+    { label: "Possibly (please explain)", value: "possibly" },
+  ],
+  alternateModelList: [
+    { label: "Yes", value: "yes" },
+    { label: "No", value: "no" },
   ],
   goals: [
     { label: "Network with photographers", value: "network-with-photographers" },

@@ -17,13 +17,8 @@ import {
 } from "./application-protection";
 
 const MODEL_EXPERIENCE = ["aspiring", "developing", "experienced", "professional"] as const;
-const TRAVEL_AVAILABILITY = [
-  "local-only",
-  "regional",
-  "domestic",
-  "international",
-  "case-by-case",
-] as const;
+const TRAVEL_AVAILABILITY = ["yes", "no", "possibly"] as const;
+const ALTERNATE_MODEL_LIST = ["yes", "no"] as const;
 const MODEL_INTERESTS = [
   "fashion",
   "editorial",
@@ -134,6 +129,7 @@ export async function createPublicModelApplication(formData: FormData) {
   const stageName = getRequiredString(formData, "stageName", errors);
   const modelingExperienceLevel = getRequiredString(formData, "modelingExperienceLevel", errors);
   const travelAvailability = getRequiredString(formData, "travelAvailability", errors);
+  const alternateModelList = getRequiredString(formData, "alternateModelList", errors);
   const creativeInterests = getStringArray(formData, "creativeInterests");
   const retreatGoals = getStringArray(formData, "retreatGoals");
   const shortBiography = getRequiredString(formData, "shortBiography", errors);
@@ -146,6 +142,11 @@ export async function createPublicModelApplication(formData: FormData) {
 
   validateAllowedValues([modelingExperienceLevel], MODEL_EXPERIENCE, "modelingExperienceLevel", errors);
   validateAllowedValues([travelAvailability], TRAVEL_AVAILABILITY, "travelAvailability", errors);
+  validateAllowedValues([alternateModelList], ALTERNATE_MODEL_LIST, "alternateModelList", errors);
+  const availabilityNotes = getOptionalString(formData, "availabilityNotes");
+  if (travelAvailability === "possibly" && !availabilityNotes) {
+    errors.availabilityNotes = "Please tell us what would affect your ability to travel.";
+  }
   requireSelection(creativeInterests, "creativeInterests", errors);
   validateAllowedValues(creativeInterests, MODEL_INTERESTS, "creativeInterests", errors);
   validateAllowedValues(retreatGoals, MODEL_GOALS, "retreatGoals", errors);
@@ -182,12 +183,13 @@ export async function createPublicModelApplication(formData: FormData) {
         stageName,
         modelingExperienceLevel: modelingExperienceLevel as (typeof MODEL_EXPERIENCE)[number],
         travelAvailability: travelAvailability as (typeof TRAVEL_AVAILABILITY)[number],
+        alternateModelList: alternateModelList as (typeof ALTERNATE_MODEL_LIST)[number],
         creativeInterests: creativeInterests as (typeof MODEL_INTERESTS)[number][],
         retreatGoals: retreatGoals as (typeof MODEL_GOALS)[number][],
         shortBiography,
         agencyRepresentation: getOptionalString(formData, "agencyRepresentation"),
         homeAirport: getOptionalString(formData, "homeAirport"),
-        availabilityNotes: getOptionalString(formData, "availabilityNotes"),
+        availabilityNotes,
         otherCreativeInterest: getOptionalString(formData, "otherCreativeInterest"),
         otherRetreatGoal: getOptionalString(formData, "otherRetreatGoal"),
         artistStatement: getOptionalString(formData, "artistStatement"),
@@ -221,8 +223,8 @@ export async function createPublicPhotographerApplication(formData: FormData) {
   );
   const equipmentSummary = getOptionalString(formData, "equipmentSummary");
   const genresInterests = getStringArray(formData, "genresInterests");
-  const whatTheyHopeToCreate = getRequiredString(formData, "whatTheyHopeToCreate", errors);
-  const retreatGoals = getRequiredString(formData, "retreatGoals", errors);
+  const whatTheyHopeToCreate = getOptionalString(formData, "whatTheyHopeToCreate");
+  const retreatGoals = getOptionalString(formData, "retreatGoals");
   const internalImageReviewConfirmed = requireConfirmation(
     formData,
     "internalImageReviewConfirmed",

@@ -221,11 +221,11 @@ export function PhotographerApplicationForm() {
           </div>
         </div>
         <div className="application-form-grid application-form-grid--single">
-          <FieldShell name="whatTheyHopeToCreate" label="What do you hope to create at Lone Star Retreat?" required error={errors.whatTheyHopeToCreate} description="Describe the imagery, ideas, or creative direction you would like to explore.">
-            <textarea className="application-input application-textarea" id="whatTheyHopeToCreate" name="whatTheyHopeToCreate" required rows={6} aria-invalid={Boolean(errors.whatTheyHopeToCreate)} aria-describedby={describedBy("whatTheyHopeToCreate", true, errors.whatTheyHopeToCreate)} />
+          <FieldShell name="whatTheyHopeToCreate" label="What do you hope to create at Lone Star Retreat? (Optional)" error={errors.whatTheyHopeToCreate} description="Optional. Describe the imagery, ideas, or creative direction you would like to explore if you already have something in mind.">
+            <textarea className="application-input application-textarea" id="whatTheyHopeToCreate" name="whatTheyHopeToCreate" rows={6} aria-invalid={Boolean(errors.whatTheyHopeToCreate)} aria-describedby={describedBy("whatTheyHopeToCreate", true, errors.whatTheyHopeToCreate)} />
           </FieldShell>
-          <FieldShell name="retreatGoals" label="What do you hope to gain from the retreat?" required error={errors.retreatGoals} description="Consider craft, portfolio, collaboration, community, or professional growth.">
-            <textarea className="application-input application-textarea" id="retreatGoals" name="retreatGoals" required rows={6} aria-invalid={Boolean(errors.retreatGoals)} aria-describedby={describedBy("retreatGoals", true, errors.retreatGoals)} />
+          <FieldShell name="retreatGoals" label="What do you hope to gain from the retreat? (Optional)" error={errors.retreatGoals} description="Optional. Share anything around craft, portfolio, collaboration, community, or professional growth that would help us understand your goals.">
+            <textarea className="application-input application-textarea" id="retreatGoals" name="retreatGoals" rows={6} aria-invalid={Boolean(errors.retreatGoals)} aria-describedby={describedBy("retreatGoals", true, errors.retreatGoals)} />
           </FieldShell>
           <FieldShell name="collaborationStyleNotes" label="How do you approach collaboration?" error={errors.collaborationStyleNotes} description="Optional. Share anything that helps us understand how you communicate and work with models and peers.">
             <textarea className="application-input application-textarea" id="collaborationStyleNotes" name="collaborationStyleNotes" rows={5} aria-invalid={Boolean(errors.collaborationStyleNotes)} aria-describedby={describedBy("collaborationStyleNotes", true, errors.collaborationStyleNotes)} />

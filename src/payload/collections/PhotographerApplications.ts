@@ -118,10 +118,9 @@ export const PhotographerApplications: CollectionConfig = {
             {
               name: "whatTheyHopeToCreate",
               type: "textarea",
-              label: "What they hope to create",
-              required: true,
+              label: "What they hope to create (optional)",
             },
-            { name: "retreatGoals", type: "textarea", label: "Retreat goals", required: true },
+            { name: "retreatGoals", type: "textarea", label: "Retreat goals (optional)" },
             {
               name: "collaborationStyleNotes",
               type: "textarea",
