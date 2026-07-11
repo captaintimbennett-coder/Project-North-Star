@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { FormEvent, useRef, useState } from "react";
 import { Button } from "@/components/buttons";
 import { modelApplicationContent as content } from "@/data/applications";
+import { countryOptions, usStateOptions } from "@/data/location-options";
 import { ProfessionalStandardsDisclosure } from "./ProfessionalStandardsDisclosure";
 
 const MAX_IMAGE_BYTES = 10 * 1024 * 1024;
@@ -32,6 +33,7 @@ export function ModelApplicationForm() {
   const [formError, setFormError] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [marketingSource, setMarketingSource] = useState("");
+  const [country, setCountry] = useState("");
   const [travelAvailability, setTravelAvailability] = useState("");
 
   async function submit(event: FormEvent<HTMLFormElement>) {
@@ -100,8 +102,22 @@ export function ModelApplicationForm() {
         <Field name="email" label="Email" required error={errors.email}><input className="application-input" id="email" name="email" type="email" autoComplete="email" required aria-invalid={!!errors.email} /></Field>
         <Field name="phone" label="Phone" required error={errors.phone}><input className="application-input" id="phone" name="phone" type="tel" autoComplete="tel" required aria-invalid={!!errors.phone} /></Field>
         <Field name="city" label="City" required error={errors.city}><input className="application-input" id="city" name="city" autoComplete="address-level2" required aria-invalid={!!errors.city} /></Field>
-        <Field name="state" label="State / region" required error={errors.state}><input className="application-input" id="state" name="state" autoComplete="address-level1" required aria-invalid={!!errors.state} /></Field>
-        <Field name="country" label="Country" required error={errors.country}><input className="application-input" id="country" name="country" autoComplete="country-name" required aria-invalid={!!errors.country} /></Field>
+        <Field name="country" label="Country" required error={errors.country} description="Choose the country where you are currently based so retreat planning stays organized.">
+          <select className="application-input" id="country" name="country" autoComplete="country-name" required value={country} onChange={e => setCountry(e.target.value)} aria-invalid={!!errors.country} aria-describedby={by("country", true, errors.country)}>
+            <option value="">Select country</option>
+            {countryOptions.map(option => <option key={option} value={option}>{option}</option>)}
+          </select>
+        </Field>
+        <Field name="state" label={country === "United States" ? "State" : "State / region"} required error={errors.state} description={country === "United States" ? "Choose your state so applications can be searched and grouped consistently." : "Enter the state, province, region, or territory where you are based."}>
+          {country === "United States" ? (
+            <select className="application-input" id="state" name="state" autoComplete="address-level1" required aria-invalid={!!errors.state} aria-describedby={by("state", true, errors.state)}>
+              <option value="">Select state</option>
+              {usStateOptions.map(option => <option key={option} value={option}>{option}</option>)}
+            </select>
+          ) : (
+            <input className="application-input" id="state" name="state" autoComplete="address-level1" required aria-invalid={!!errors.state} aria-describedby={by("state", true, errors.state)} />
+          )}
+        </Field>
         <Field name="instagramURL" label="Instagram URL" description="Optional. Include the full https:// address." error={errors.instagramURL}><input className="application-input" id="instagramURL" name="instagramURL" type="url" placeholder="https://instagram.com/yourname" aria-invalid={!!errors.instagramURL} aria-describedby={by("instagramURL", true, errors.instagramURL)} /></Field>
         <Field name="websiteURL" label="Website URL" description="Optional. Include the full https:// address." error={errors.websiteURL}><input className="application-input" id="websiteURL" name="websiteURL" type="url" aria-invalid={!!errors.websiteURL} aria-describedby={by("websiteURL", true, errors.websiteURL)} /></Field>
         <Field name="portfolioURL" label="Portfolio URL" description="Optional, if different from your website." error={errors.portfolioURL}><input className="application-input" id="portfolioURL" name="portfolioURL" type="url" aria-invalid={!!errors.portfolioURL} /></Field>

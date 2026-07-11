@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { FormEvent, useRef, useState } from "react";
 import { Button } from "@/components/buttons";
 import { photographerApplicationContent as content } from "@/data/applications";
+import { countryOptions, usStateOptions } from "@/data/location-options";
 import { ProfessionalStandardsDisclosure } from "./ProfessionalStandardsDisclosure";
 
 type FieldErrors = Record<string, string>;
@@ -47,6 +48,7 @@ export function PhotographerApplicationForm() {
   const [formError, setFormError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [marketingSource, setMarketingSource] = useState("");
+  const [country, setCountry] = useState("");
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -144,11 +146,21 @@ export function PhotographerApplicationForm() {
           <FieldShell name="city" label="City" required error={errors.city}>
             <input className="application-input" id="city" name="city" type="text" autoComplete="address-level2" required aria-invalid={Boolean(errors.city)} />
           </FieldShell>
-          <FieldShell name="state" label="State / region" required error={errors.state}>
-            <input className="application-input" id="state" name="state" type="text" autoComplete="address-level1" required aria-invalid={Boolean(errors.state)} />
+          <FieldShell name="country" label="Country" required error={errors.country} description="Choose the country where you are currently based so retreat planning stays organized.">
+            <select className="application-input" id="country" name="country" autoComplete="country-name" required value={country} onChange={(event) => setCountry(event.target.value)} aria-invalid={Boolean(errors.country)} aria-describedby={describedBy("country", true, errors.country)}>
+              <option value="">Select country</option>
+              {countryOptions.map((option) => <option value={option} key={option}>{option}</option>)}
+            </select>
           </FieldShell>
-          <FieldShell name="country" label="Country" required error={errors.country}>
-            <input className="application-input" id="country" name="country" type="text" autoComplete="country-name" required aria-invalid={Boolean(errors.country)} />
+          <FieldShell name="state" label={country === "United States" ? "State" : "State / region"} required error={errors.state} description={country === "United States" ? "Choose your state so applications can be searched and grouped consistently." : "Enter the state, province, region, or territory where you are based."}>
+            {country === "United States" ? (
+              <select className="application-input" id="state" name="state" autoComplete="address-level1" required aria-invalid={Boolean(errors.state)} aria-describedby={describedBy("state", true, errors.state)}>
+                <option value="">Select state</option>
+                {usStateOptions.map((option) => <option value={option} key={option}>{option}</option>)}
+              </select>
+            ) : (
+              <input className="application-input" id="state" name="state" type="text" autoComplete="address-level1" required aria-invalid={Boolean(errors.state)} aria-describedby={describedBy("state", true, errors.state)} />
+            )}
           </FieldShell>
           <FieldShell name="instagramURL" label="Instagram URL" error={errors.instagramURL} description="Optional. Include the full https:// address.">
             <input className="application-input" id="instagramURL" name="instagramURL" type="url" inputMode="url" placeholder="https://instagram.com/yourname" aria-invalid={Boolean(errors.instagramURL)} aria-describedby={describedBy("instagramURL", true, errors.instagramURL)} />

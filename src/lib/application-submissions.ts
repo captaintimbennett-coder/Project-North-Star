@@ -1,4 +1,5 @@
 import config from "@payload-config";
+import { countryOptions, usStateOptions } from "@/data/location-options";
 import { getPayload, type File as PayloadFile } from "payload";
 import {
   ApplicationValidationError,
@@ -73,6 +74,9 @@ const MARKETING_SOURCES = [
   "other",
 ] as const;
 
+const COUNTRIES = countryOptions;
+const US_STATES = usStateOptions;
+
 function getTravelAvailabilityForStorage(
   value: (typeof TRAVEL_AVAILABILITY)[number],
 ): StoredTravelAvailability {
@@ -110,6 +114,10 @@ function validateCommon(
   validateOptionalURL(websiteURL, "websiteURL", errors);
   validateOptionalURL(portfolioURL, "portfolioURL", errors);
   validateAllowedValues([marketingSource], MARKETING_SOURCES, "marketingSource", errors);
+  validateAllowedValues([country], COUNTRIES, "country", errors);
+  if (country === "United States") {
+    validateAllowedValues([state], US_STATES, "state", errors);
+  }
   const otherMarketingSource = getOptionalString(formData, "otherMarketingSource");
   if (marketingSource === "other" && !otherMarketingSource) {
     errors.otherMarketingSource = "Tell us how you heard about Lone Star Retreat.";
