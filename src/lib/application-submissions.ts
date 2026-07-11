@@ -169,7 +169,11 @@ export async function createPublicModelApplication(formData: FormData) {
     "consentImageUsageConfirmed",
     errors,
   );
-  const files = getUploadedFiles(formData);
+  const files = [
+    ...getUploadedFiles(formData, "preferredHeroImage"),
+    ...getUploadedFiles(formData, "additionalImages"),
+    ...getUploadedFiles(formData),
+  ];
 
   validateAllowedValues([modelingExperienceLevel], MODEL_EXPERIENCE, "modelingExperienceLevel", errors);
   validateAllowedValues([travelAvailability], TRAVEL_AVAILABILITY, "travelAvailability", errors);

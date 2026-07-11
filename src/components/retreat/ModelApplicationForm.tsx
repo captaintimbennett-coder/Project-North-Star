@@ -8,6 +8,7 @@ import { countryOptions, usStateOptions } from "@/data/location-options";
 import { ProfessionalStandardsDisclosure } from "./ProfessionalStandardsDisclosure";
 
 const MAX_IMAGE_BYTES = 10 * 1024 * 1024;
+const ACCEPTED_IMAGE_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
 
 type Errors = Record<string, string>;
 type FieldProps = { children: React.ReactNode; description?: string; error?: string; label: string; name: string; required?: boolean };
@@ -25,6 +26,10 @@ function by(name: string, description: boolean, error?: string) {
   return [description && `${name}-description`, error && `${name}-error`].filter(Boolean).join(" ") || undefined;
 }
 
+function formatFileSize(bytes: number) {
+  return `${(bytes / 1024 / 1024).toFixed(1)}MB`;
+}
+
 export function ModelApplicationForm() {
   const router = useRouter();
   const formRef = useRef<HTMLFormElement>(null);
@@ -40,13 +45,21 @@ export function ModelApplicationForm() {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
     const next: Errors = {};
-    const images = data.getAll("images").filter((entry): entry is File => entry instanceof File && entry.size > 0);
+    const preferredHeroImages = data.getAll("preferredHeroImage").filter((entry): entry is File => entry instanceof File && entry.size > 0);
+    const additionalImages = data.getAll("additionalImages").filter((entry): entry is File => entry instanceof File && entry.size > 0);
+    const images = [...preferredHeroImages, ...additionalImages];
     if (!data.getAll("creativeInterests").length) next.creativeInterests = "Select at least one type of session.";
-    if (images.length === 0) next.images = "Upload at least one image for private review.";
-    if (images.length > 5) next.images = "Upload no more than five images in total.";
-    for (const file of images) {
-      if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) next.images = "Images must be JPG, PNG, or WebP files.";
-      if (file.size > MAX_IMAGE_BYTES) next.images = "Each image must be 10MB or smaller.";
+    if (preferredHeroImages.length === 0) next.preferredHeroImage = "Upload one preferred hero image for private review.";
+    if (preferredHeroImages.length > 1) next.preferredHeroImage = "Upload only one preferred hero image.";
+    if (additionalImages.length > 4) next.additionalImages = "Upload no more than four additional portfolio images.";
+    if (images.length > 5) next.additionalImages = "Upload no more than five images in total.";
+    for (const file of preferredHeroImages) {
+      if (!ACCEPTED_IMAGE_TYPES.has(file.type)) next.preferredHeroImage = "The preferred hero image must be a JPG, PNG, or WebP file.";
+      if (file.size > MAX_IMAGE_BYTES) next.preferredHeroImage = `The preferred hero image is ${formatFileSize(file.size)}. Please upload an image that is 10MB or smaller.`;
+    }
+    for (const file of additionalImages) {
+      if (!ACCEPTED_IMAGE_TYPES.has(file.type)) next.additionalImages = "Additional portfolio images must be JPG, PNG, or WebP files.";
+      if (file.size > MAX_IMAGE_BYTES) next.additionalImages = `One additional portfolio image is ${formatFileSize(file.size)}. Please upload images that are each 10MB or smaller.`;
     }
     if (travelAvailability === "possibly" && !String(data.get("availabilityNotes") || "").trim()) {
       next.availabilityNotes = "Please tell us what would affect your ability to travel.";
@@ -70,8 +83,8 @@ export function ModelApplicationForm() {
       }
       if (!response.ok || !result.ok) {
         if (response.status === 413) {
-          setErrors({ images: "One or more uploaded images is too large. Please upload JPG, PNG, or WebP images that are each 10MB or smaller." });
-          setFormError("One or more uploaded images is too large for the application form. Please choose a smaller image and submit again.");
+          setErrors({ preferredHeroImage: "This upload was rejected before the application could save. The image may need a direct storage upload path for larger files." });
+          setFormError("The image upload was rejected before the application could save. Nothing else appears missing from the form.");
           formRef.current?.querySelector<HTMLElement>("[aria-invalid='true']")?.focus();
           return;
         }
@@ -143,8 +156,8 @@ export function ModelApplicationForm() {
     <section className="application-form-section" aria-labelledby="model-materials-title">
       <div className="application-form-section__heading"><span>03</span><div><p className="ds-eyebrow">Private review</p><h2 id="model-materials-title">Featured artist materials</h2><p>Share the imagery and words that best introduce your work. Nothing is published automatically.</p></div></div>
       <div className="application-form-grid application-form-grid--single">
-        <Field name="preferredHeroImage" label="Preferred hero image" required description="Upload the image you would prefer us to consider as your featured image. Final image selection remains subject to approval." error={errors.images}><input className="application-input application-file-input" id="preferredHeroImage" name="images" type="file" required accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" aria-invalid={!!errors.images} aria-describedby={by("preferredHeroImage", true, errors.images)} /></Field>
-        <Field name="additionalImages" label="Additional portfolio images" description="Optional. Add up to four more JPG, PNG, or WebP images. Each image must be 10MB or smaller." error={errors.images}><input className="application-input application-file-input" id="additionalImages" name="images" type="file" multiple accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" /></Field>
+        <Field name="preferredHeroImage" label="Preferred hero image" required description="Upload the image you would prefer us to consider as your featured image. Final image selection remains subject to approval." error={errors.preferredHeroImage}><input className="application-input application-file-input" id="preferredHeroImage" name="preferredHeroImage" type="file" required accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" aria-invalid={!!errors.preferredHeroImage} aria-describedby={by("preferredHeroImage", true, errors.preferredHeroImage)} /></Field>
+        <Field name="additionalImages" label="Additional portfolio images" description="Optional. Add up to four more JPG, PNG, or WebP images. Each image must be 10MB or smaller." error={errors.additionalImages}><input className="application-input application-file-input" id="additionalImages" name="additionalImages" type="file" multiple accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" aria-invalid={!!errors.additionalImages} aria-describedby={by("additionalImages", true, errors.additionalImages)} /></Field>
         <Field name="shortBiography" label="Short biography" required description="Introduce your experience and creative point of view in your own voice." error={errors.shortBiography}><textarea className="application-input application-textarea" id="shortBiography" name="shortBiography" rows={6} required aria-invalid={!!errors.shortBiography} /></Field>
         <Field name="artistStatement" label="Artist statement" description="Optional. Share what draws you to the work you create." error={errors.artistStatement}><textarea className="application-input application-textarea" id="artistStatement" name="artistStatement" rows={5} /></Field>
       </div>
