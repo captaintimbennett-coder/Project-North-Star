@@ -38,6 +38,7 @@ export function ModelApplicationForm() {
     const next: Errors = {};
     const images = data.getAll("images").filter((entry): entry is File => entry instanceof File && entry.size > 0);
     if (!data.getAll("creativeInterests").length) next.creativeInterests = "Select at least one type of session.";
+    if (images.length === 0) next.images = "Upload at least one image for private review.";
     if (images.length > 5) next.images = "Upload no more than five images in total.";
     for (const file of images) {
       if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) next.images = "Images must be JPG, PNG, or WebP files.";
@@ -50,6 +51,7 @@ export function ModelApplicationForm() {
     if (Object.keys(next).length) {
       setErrors(next); setFormError("Please review the highlighted fields before submitting.");
       if (next.creativeInterests) interestsRef.current?.focus();
+      else formRef.current?.querySelector<HTMLElement>("[aria-invalid='true']")?.focus();
       return;
     }
     setErrors({}); setFormError(""); setSubmitting(true);
@@ -109,7 +111,7 @@ export function ModelApplicationForm() {
     <section className="application-form-section" aria-labelledby="model-materials-title">
       <div className="application-form-section__heading"><span>03</span><div><p className="ds-eyebrow">Private review</p><h2 id="model-materials-title">Featured artist materials</h2><p>Share the imagery and words that best introduce your work. Nothing is published automatically.</p></div></div>
       <div className="application-form-grid application-form-grid--single">
-        <Field name="preferredHeroImage" label="Preferred hero image" description="Upload the image you would prefer us to consider as your featured image. Final image selection remains subject to approval." error={errors.images}><input className="application-input application-file-input" id="preferredHeroImage" name="images" type="file" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" aria-describedby={by("preferredHeroImage", true, errors.images)} /></Field>
+        <Field name="preferredHeroImage" label="Preferred hero image" required description="Upload the image you would prefer us to consider as your featured image. Final image selection remains subject to approval." error={errors.images}><input className="application-input application-file-input" id="preferredHeroImage" name="images" type="file" required accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" aria-invalid={!!errors.images} aria-describedby={by("preferredHeroImage", true, errors.images)} /></Field>
         <Field name="additionalImages" label="Additional portfolio images" description="Optional. Add up to four more JPG, PNG, or WebP images. Each image must be 10MB or smaller." error={errors.images}><input className="application-input application-file-input" id="additionalImages" name="images" type="file" multiple accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" /></Field>
         <Field name="shortBiography" label="Short biography" required description="Introduce your experience and creative point of view in your own voice." error={errors.shortBiography}><textarea className="application-input application-textarea" id="shortBiography" name="shortBiography" rows={6} required aria-invalid={!!errors.shortBiography} /></Field>
         <Field name="artistStatement" label="Artist statement" description="Optional. Share what draws you to the work you create." error={errors.artistStatement}><textarea className="application-input application-textarea" id="artistStatement" name="artistStatement" rows={5} /></Field>
