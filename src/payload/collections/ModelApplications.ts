@@ -33,6 +33,56 @@ export const ModelApplications: CollectionConfig = {
       type: "tabs",
       tabs: [
         {
+          label: "Review Decision",
+          fields: [
+            {
+              name: "applicationStatus",
+              type: "select",
+              defaultValue: "new",
+              label: "Application status",
+              admin: {
+                description:
+                  "Use this to review the submission: New, Reviewing, Accepted, Declined, or Waitlist. Changing this status does not publish a public profile automatically.",
+              },
+              options: applicationStatusOptions,
+              required: true,
+            },
+            {
+              name: "linkedModelProfile",
+              type: "relationship",
+              label: "Linked master profile (optional)",
+              relationTo: "model-profiles",
+              admin: {
+                description:
+                  "Set only after review when this application has been used to create or update a canonical profile.",
+              },
+            },
+            { name: "privateAdminNotes", type: "textarea", label: "Private administrator notes" },
+            {
+              name: "preferredHeroImage",
+              type: "upload",
+              label: "Preferred profile / hero image",
+              relationTo: "media",
+              admin: {
+                description:
+                  "Private review image submitted by the applicant. Nothing is published unless a media item is explicitly approved for platform use later.",
+              },
+            },
+            {
+              name: "additionalPortfolioImages",
+              type: "upload",
+              hasMany: true,
+              label: "Additional portfolio images (optional)",
+              maxRows: 4,
+              relationTo: "media",
+              admin: {
+                description:
+                  "Private review images submitted by the applicant. Nothing is published automatically.",
+              },
+            },
+          ],
+        },
+        {
           label: "Basic Information",
           fields: [
             {
@@ -187,50 +237,13 @@ export const ModelApplications: CollectionConfig = {
         {
           label: "Featured Artist Materials",
           fields: [
-            {
-              name: "preferredHeroImage",
-              type: "upload",
-              label: "Preferred profile / hero image",
-              relationTo: "media",
-              admin: {
-                description:
-                  "Upload the image you would prefer us to consider as your featured image. Final image selection remains subject to approval.",
-              },
-            },
-            {
-              name: "additionalPortfolioImages",
-              type: "upload",
-              hasMany: true,
-              label: "Additional portfolio images (optional)",
-              maxRows: 4,
-              relationTo: "media",
-            },
             { name: "shortBiography", type: "textarea", label: "Short biography", required: true },
             { name: "artistStatement", type: "textarea", label: "Artist statement (optional)" },
           ],
         },
         {
-          label: "Administrative",
+          label: "Confirmations",
           fields: [
-            {
-              name: "applicationStatus",
-              type: "select",
-              defaultValue: "new",
-              label: "Application status",
-              options: applicationStatusOptions,
-              required: true,
-            },
-            {
-              name: "linkedModelProfile",
-              type: "relationship",
-              label: "Linked master profile (optional)",
-              relationTo: "model-profiles",
-              admin: {
-                description:
-                  "Set only after review when this application has been used to create or update a canonical profile.",
-              },
-            },
-            { name: "privateAdminNotes", type: "textarea", label: "Private administrator notes" },
             {
               name: "informationAccurateConfirmed",
               type: "checkbox",
