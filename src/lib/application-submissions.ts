@@ -103,6 +103,12 @@ function formatTravelCommitment(value: (typeof TRAVEL_AVAILABILITY)[number]): st
   return formatYesNo(value);
 }
 
+function normalizeBlobFilename(image: UploadedModelImageReference): string {
+  const pathnameParts = image.pathname.split("/");
+  const pathnameFilename = pathnameParts[pathnameParts.length - 1];
+  return pathnameFilename || image.filename;
+}
+
 function validateCommon(
   formData: FormData,
   errors: ValidationErrors,
@@ -290,7 +296,7 @@ export async function createPublicModelApplication(formData: FormData) {
         collection: "media",
         data: {
           alt: `Private application image — ${stageName}`,
-          filename: image.pathname,
+          filename: normalizeBlobFilename(image),
           filesize: image.size,
           mimeType: image.contentType,
           url: image.url,
