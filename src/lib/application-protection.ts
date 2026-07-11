@@ -125,6 +125,11 @@ export function getUploadedFiles(formData: FormData, field = "images"): File[] {
 }
 
 export function validateModelImages(files: File[], errors: ValidationErrors): void {
+  if (files.length === 0) {
+    errors.images = "Upload at least one image for private review.";
+    return;
+  }
+
   if (files.length > MAX_MODEL_IMAGES) {
     errors.images = `Upload no more than ${MAX_MODEL_IMAGES} images.`;
     return;
@@ -145,4 +150,3 @@ export function validateModelImages(files: File[], errors: ValidationErrors): vo
 export function assertValid(errors: ValidationErrors): void {
   if (Object.keys(errors).length > 0) throw new ApplicationValidationError(errors);
 }
-

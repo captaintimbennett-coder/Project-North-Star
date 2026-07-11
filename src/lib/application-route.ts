@@ -55,9 +55,12 @@ export async function handleApplicationSubmission(
     }
     console.error(`Failed to create ${applicationType} application`, error);
     return NextResponse.json(
-      { ok: false, error: "We could not receive the application. Please try again later." },
+      {
+        ok: false,
+        error:
+          "We could not save this application. If no field below is highlighted, nothing is missing from your form. Please try again later.",
+      },
       { status: 500 },
     );
   }
 }
-
