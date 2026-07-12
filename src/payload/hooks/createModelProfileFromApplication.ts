@@ -187,5 +187,8 @@ export const createModelProfileFromApplication: CollectionAfterChangeHook = asyn
     req,
   });
 
-  return doc;
+  return {
+    ...doc,
+    linkedModelProfile: profile.id,
+  };
 };
