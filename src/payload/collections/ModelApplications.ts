@@ -63,11 +63,11 @@ export const ModelApplications: CollectionConfig = {
             {
               name: "linkedModelProfile",
               type: "relationship",
-              label: "Step 3 — Open the draft profile",
+              label: "Step 3 — Draft profile status",
               relationTo: "model-profiles",
               admin: {
                 description:
-                  "If a profile name appears here, the private draft profile already exists. Click the small open/edit icon beside the name to open it. Do not click the plus button unless you are intentionally creating a brand-new profile.",
+                  "If this is blank, use Step 2 and save to create the private draft profile. If a name appears here, go to Models / Featured Artists in the left menu and open that same name.",
               },
             },
             {
