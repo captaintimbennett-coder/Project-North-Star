@@ -436,13 +436,34 @@ export interface RetreatEvent {
   _status?: ('draft' | 'published') | null;
 }
 /**
- * Private review records. Accepted applications may later be used to create or update a canonical model profile; nothing is published automatically.
+ * Private review inbox. Review the application, accept/decline it, then create a private draft Featured Model profile when you are ready. Nothing publishes automatically.
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "model-applications".
  */
 export interface ModelApplication {
   id: number;
+  /**
+   * Choose where this application stands: New, Reviewing, Accepted, Declined, or Waitlist. This only updates your private review status; it does not publish anything.
+   */
+  applicationStatus: 'new' | 'reviewing' | 'accepted' | 'declined' | 'waitlist';
+  /**
+   * Use this only after Step 1 is set to Accepted. Check the box, save, and the system will copy the application details into a private draft Featured Model profile. This option disappears after the draft profile is created.
+   */
+  createProfileFromApplication?: boolean | null;
+  /**
+   * If this says “Select a value,” no draft profile has been made for this application yet. Check Step 2 and save. If this shows a model name, go to Models / Featured Artists in the left menu and open that same name.
+   */
+  linkedModelProfile?: (number | null) | ModelProfile;
+  privateAdminNotes?: string | null;
+  /**
+   * Private review image submitted by the applicant. Nothing is published unless a media item is explicitly approved for platform use later.
+   */
+  preferredHeroImage?: (number | null) | Media;
+  /**
+   * Private review images submitted by the applicant. Nothing is published automatically.
+   */
+  additionalPortfolioImages?: (number | Media)[] | null;
   /**
    * Private administrative information. Never display publicly. It may be collected later for contracts, payment, or tax documentation.
    */
@@ -476,22 +497,24 @@ export interface ModelApplication {
   homeAirport?: string | null;
   availabilityNotes?: string | null;
   /**
-   * Version 1 availability overview. Detailed boundaries and session-specific consent are confirmed later if accepted.
+   * Version 1 availability overview. The public form requires this on new applications. Older verification records may be blank; if so, do not let this block review.
    */
-  creativeInterests: (
-    | 'fashion'
-    | 'editorial'
-    | 'glamour'
-    | 'swimwear'
-    | 'lingerie'
-    | 'boudoir'
-    | 'artistic-nude'
-    | 'fine-art-nude'
-    | 'beauty'
-    | 'conceptual-creative'
-    | 'lifestyle'
-    | 'other'
-  )[];
+  creativeInterests?:
+    | (
+        | 'fashion'
+        | 'editorial'
+        | 'glamour'
+        | 'swimwear'
+        | 'lingerie'
+        | 'boudoir'
+        | 'artistic-nude'
+        | 'fine-art-nude'
+        | 'beauty'
+        | 'conceptual-creative'
+        | 'lifestyle'
+        | 'other'
+      )[]
+    | null;
   otherCreativeInterest?: string | null;
   retreatGoals?:
     | (
@@ -507,19 +530,8 @@ export interface ModelApplication {
       )[]
     | null;
   otherRetreatGoal?: string | null;
-  /**
-   * Upload the image you would prefer us to consider as your featured image. Final image selection remains subject to approval.
-   */
-  preferredHeroImage?: (number | null) | Media;
-  additionalPortfolioImages?: (number | Media)[] | null;
   shortBiography: string;
   artistStatement?: string | null;
-  applicationStatus: 'new' | 'reviewing' | 'accepted' | 'declined' | 'waitlist';
-  /**
-   * Set only after review when this application has been used to create or update a canonical profile.
-   */
-  linkedModelProfile?: (number | null) | ModelProfile;
-  privateAdminNotes?: string | null;
   informationAccurateConfirmed: boolean;
   noAcceptanceGuaranteeConfirmed: boolean;
   consentImageUsageConfirmed: boolean;
@@ -530,13 +542,22 @@ export interface ModelApplication {
   createdAt: string;
 }
 /**
- * Private review records. Accepted applications may later be used to create or update a canonical photographer profile; nothing is published automatically.
+ * Private review inbox. Review the application, accept/decline it, then connect it to a private photographer profile when you are ready. Nothing publishes automatically.
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "photographer-applications".
  */
 export interface PhotographerApplication {
   id: number;
+  /**
+   * Choose where this application stands: New, Reviewing, Accepted, Declined, or Waitlist. This only updates your private review status; it does not publish anything.
+   */
+  applicationStatus: 'new' | 'reviewing' | 'accepted' | 'declined' | 'waitlist';
+  /**
+   * Use this after review if this application belongs with an existing private photographer profile. Nothing is published automatically.
+   */
+  linkedPhotographerProfile?: (number | null) | PhotographerProfile;
+  privateAdminNotes?: string | null;
   legalName: string;
   displayName?: string | null;
   email: string;
@@ -567,12 +588,6 @@ export interface PhotographerApplication {
   whatTheyHopeToCreate: string;
   retreatGoals: string;
   collaborationStyleNotes?: string | null;
-  applicationStatus: 'new' | 'reviewing' | 'accepted' | 'declined' | 'waitlist';
-  /**
-   * Set only after review when this application has been used to create or update a canonical profile.
-   */
-  linkedPhotographerProfile?: (number | null) | PhotographerProfile;
-  privateAdminNotes?: string | null;
   informationAccurateConfirmed: boolean;
   noAcceptanceGuaranteeConfirmed: boolean;
   internalImageReviewConfirmed: boolean;
@@ -1072,6 +1087,12 @@ export interface PhotographerProfilesSelect<T extends boolean = true> {
  * via the `definition` "model-applications_select".
  */
 export interface ModelApplicationsSelect<T extends boolean = true> {
+  applicationStatus?: T;
+  createProfileFromApplication?: T;
+  linkedModelProfile?: T;
+  privateAdminNotes?: T;
+  preferredHeroImage?: T;
+  additionalPortfolioImages?: T;
   legalName?: T;
   stageName?: T;
   email?: T;
@@ -1093,13 +1114,8 @@ export interface ModelApplicationsSelect<T extends boolean = true> {
   otherCreativeInterest?: T;
   retreatGoals?: T;
   otherRetreatGoal?: T;
-  preferredHeroImage?: T;
-  additionalPortfolioImages?: T;
   shortBiography?: T;
   artistStatement?: T;
-  applicationStatus?: T;
-  linkedModelProfile?: T;
-  privateAdminNotes?: T;
   informationAccurateConfirmed?: T;
   noAcceptanceGuaranteeConfirmed?: T;
   consentImageUsageConfirmed?: T;
@@ -1114,6 +1130,9 @@ export interface ModelApplicationsSelect<T extends boolean = true> {
  * via the `definition` "photographer-applications_select".
  */
 export interface PhotographerApplicationsSelect<T extends boolean = true> {
+  applicationStatus?: T;
+  linkedPhotographerProfile?: T;
+  privateAdminNotes?: T;
   legalName?: T;
   displayName?: T;
   email?: T;
@@ -1133,9 +1152,6 @@ export interface PhotographerApplicationsSelect<T extends boolean = true> {
   whatTheyHopeToCreate?: T;
   retreatGoals?: T;
   collaborationStyleNotes?: T;
-  applicationStatus?: T;
-  linkedPhotographerProfile?: T;
-  privateAdminNotes?: T;
   informationAccurateConfirmed?: T;
   noAcceptanceGuaranteeConfirmed?: T;
   internalImageReviewConfirmed?: T;

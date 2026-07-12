@@ -1,5 +1,9 @@
 import type { CollectionConfig } from "payload";
 import { ownerOnly, ownerOrEditorOnly, staffOnly } from "../access/account";
+import {
+  createModelProfileFromApplication,
+  validateModelProfileCreationRequest,
+} from "../hooks/createModelProfileFromApplication";
 
 const applicationStatusOptions = [
   { label: "New", value: "new" },
@@ -24,7 +28,7 @@ export const ModelApplications: CollectionConfig = {
   admin: {
     defaultColumns: ["stageName", "email", "applicationStatus", "submittedAt"],
     description:
-      "Private review records. Accepted applications may later be used to create or update a canonical model profile; nothing is published automatically.",
+      "Private review inbox. Review the application, accept/decline it, then create a private draft Featured Model profile when you are ready. Nothing publishes automatically.",
     group: "Lone Star Retreat",
     useAsTitle: "stageName",
   },
@@ -36,25 +40,48 @@ export const ModelApplications: CollectionConfig = {
           label: "Review Decision",
           fields: [
             {
+              name: "modelApplicationReviewGuide",
+              type: "ui",
+              admin: {
+                components: {
+                  Field: "/payload/admin/ApplicationReviewGuide#ModelApplicationReviewGuide",
+                },
+              },
+            },
+            {
               name: "applicationStatus",
               type: "select",
               defaultValue: "new",
-              label: "Application status",
+              label: "Step 1 — Review decision",
               admin: {
                 description:
-                  "Use this to review the submission: New, Reviewing, Accepted, Declined, or Waitlist. Changing this status does not publish a public profile automatically.",
+                  "Choose where this application stands: New, Reviewing, Accepted, Declined, or Waitlist. This only updates your private review status; it does not publish anything.",
               },
               options: applicationStatusOptions,
               required: true,
             },
             {
+              name: "createProfileFromApplication",
+              type: "checkbox",
+              defaultValue: false,
+              label: "Step 2 — Create draft profile from this application",
+              virtual: true,
+              admin: {
+                condition: (_, siblingData) =>
+                  siblingData?.applicationStatus === "accepted" && !siblingData?.linkedModelProfile,
+                description:
+                  "Use this only after Step 1 is set to Accepted. Check the box, save, and the system will copy the application details into a private draft Featured Model profile. This option disappears after the draft profile is created.",
+                readOnly: false,
+              },
+            },
+            {
               name: "linkedModelProfile",
               type: "relationship",
-              label: "Linked master profile (optional)",
+              label: "Step 3 — Draft profile status",
               relationTo: "model-profiles",
               admin: {
                 description:
-                  "Set only after review when this application has been used to create or update a canonical profile.",
+                  "If this says “Select a value,” no draft profile has been made for this application yet. Check Step 2 and save. If this shows a model name, go to Models / Featured Artists in the left menu and open that same name.",
               },
             },
             { name: "privateAdminNotes", type: "textarea", label: "Private administrator notes" },
@@ -184,10 +211,9 @@ export const ModelApplications: CollectionConfig = {
               type: "select",
               hasMany: true,
               label: "Which types of sessions are they available to participate in?",
-              required: true,
               admin: {
                 description:
-                  "Version 1 availability overview. Detailed boundaries and session-specific consent are confirmed later if accepted.",
+                  "Version 1 availability overview. The public form requires this on new applications. Older verification records may be blank; if so, do not let this block review.",
               },
               options: [
                 { label: "Fashion", value: "fashion" },
@@ -294,5 +320,9 @@ export const ModelApplications: CollectionConfig = {
       ],
     },
   ],
+  hooks: {
+    beforeChange: [validateModelProfileCreationRequest],
+    afterChange: [createModelProfileFromApplication],
+  },
   versions: { maxPerDoc: 50 },
 };
