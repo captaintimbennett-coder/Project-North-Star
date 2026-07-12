@@ -48,10 +48,11 @@ export function ModelApplicationReviewGuide() {
         <li>Set Step 1 to Accepted, Declined, Waitlist, or Reviewing.</li>
         <li>If accepted, save the application.</li>
         <li>If Step 2 appears, check it to create the private draft profile.</li>
-        <li>If Step 3 already shows a profile name, Step 2 is done. Open Step 3 to clean up the draft profile.</li>
+        <li>If Step 3 already shows a profile name, Step 2 is done.</li>
+        <li>To open the draft profile, click the small open/edit icon beside the profile name. Do not use the plus button unless you are making a brand-new profile.</li>
       </ol>
       <p style={noteStyle}>
-        Safe rule: nothing becomes public from this screen. The draft profile must still be reviewed and published later.
+        Safe rule: nothing becomes public from this screen. The draft profile must still be reviewed and published later by Tim.
       </p>
     </section>
   );
