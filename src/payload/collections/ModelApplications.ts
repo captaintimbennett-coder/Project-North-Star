@@ -81,7 +81,7 @@ export const ModelApplications: CollectionConfig = {
               relationTo: "model-profiles",
               admin: {
                 description:
-                  "If this is blank, use Step 2 and save to create the private draft profile. If a name appears here, go to Models / Featured Artists in the left menu and open that same name.",
+                  "If this says “Select a value,” no draft profile has been made for this application yet. Check Step 2 and save. If this shows a model name, go to Models / Featured Artists in the left menu and open that same name.",
               },
             },
             { name: "privateAdminNotes", type: "textarea", label: "Private administrator notes" },

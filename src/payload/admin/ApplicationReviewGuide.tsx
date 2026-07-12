@@ -47,9 +47,9 @@ export function ModelApplicationReviewGuide() {
         <li>Read the application and look at the submitted image.</li>
         <li>Set Step 1 to Accepted, Declined, Waitlist, or Reviewing.</li>
         <li>If accepted, save the application.</li>
-        <li>If Step 3 is blank, check Step 2 and save. That creates the private draft profile.</li>
-        <li>If Step 3 shows a profile name, the draft profile already exists.</li>
-        <li>Next, go to Models / Featured Artists in the left menu and open that same profile name to prepare it for Tim’s final review.</li>
+        <li>Look at Step 3.</li>
+        <li>If Step 3 says “Select a value,” no draft profile has been made yet. Check Step 2 and save.</li>
+        <li>If Step 3 shows a model name, the draft profile already exists. Go to Models / Featured Artists in the left menu and open that same name.</li>
       </ol>
       <p style={noteStyle}>
         Safe rule: nothing becomes public from this screen. The draft profile must still be reviewed and published later by Tim.
