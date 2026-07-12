@@ -24,7 +24,7 @@ export const PhotographerApplications: CollectionConfig = {
   admin: {
     defaultColumns: ["legalName", "displayName", "applicationStatus", "submittedAt"],
     description:
-      "Private review records. Accepted applications may later be used to create or update a canonical photographer profile; nothing is published automatically.",
+      "Private review inbox. Review the application, accept/decline it, then connect it to a private photographer profile when you are ready. Nothing publishes automatically.",
     group: "Lone Star Retreat",
     useAsTitle: "legalName",
   },
@@ -36,13 +36,22 @@ export const PhotographerApplications: CollectionConfig = {
           label: "Review Decision",
           fields: [
             {
+              name: "photographerApplicationReviewGuide",
+              type: "ui",
+              admin: {
+                components: {
+                  Field: "/payload/admin/ApplicationReviewGuide#PhotographerApplicationReviewGuide",
+                },
+              },
+            },
+            {
               name: "applicationStatus",
               type: "select",
               defaultValue: "new",
-              label: "Application status",
+              label: "Step 1 — Review decision",
               admin: {
                 description:
-                  "Use this to review the submission: New, Reviewing, Accepted, Declined, or Waitlist. Changing this status does not publish a public profile automatically.",
+                  "Choose where this application stands: New, Reviewing, Accepted, Declined, or Waitlist. This only updates your private review status; it does not publish anything.",
               },
               options: applicationStatusOptions,
               required: true,
@@ -50,11 +59,11 @@ export const PhotographerApplications: CollectionConfig = {
             {
               name: "linkedPhotographerProfile",
               type: "relationship",
-              label: "Linked master profile (optional)",
+              label: "Connected photographer profile",
               relationTo: "photographer-profiles",
               admin: {
                 description:
-                  "Set only after review when this application has been used to create or update a canonical profile.",
+                  "Use this after review if this application belongs with an existing private photographer profile. Nothing is published automatically.",
               },
             },
             { name: "privateAdminNotes", type: "textarea", label: "Private administrator notes" },

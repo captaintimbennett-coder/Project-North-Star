@@ -28,7 +28,7 @@ export const ModelApplications: CollectionConfig = {
   admin: {
     defaultColumns: ["stageName", "email", "applicationStatus", "submittedAt"],
     description:
-      "Private review records. Accepted applications may later be used to create or update a canonical model profile; nothing is published automatically.",
+      "Private review inbox. Review the application, accept/decline it, then create a private draft Featured Model profile when you are ready. Nothing publishes automatically.",
     group: "Lone Star Retreat",
     useAsTitle: "stageName",
   },
@@ -40,13 +40,22 @@ export const ModelApplications: CollectionConfig = {
           label: "Review Decision",
           fields: [
             {
+              name: "modelApplicationReviewGuide",
+              type: "ui",
+              admin: {
+                components: {
+                  Field: "/payload/admin/ApplicationReviewGuide#ModelApplicationReviewGuide",
+                },
+              },
+            },
+            {
               name: "applicationStatus",
               type: "select",
               defaultValue: "new",
-              label: "Application status",
+              label: "Step 1 — Review decision",
               admin: {
                 description:
-                  "Use this to review the submission: New, Reviewing, Accepted, Declined, or Waitlist. Changing this status does not publish a public profile automatically.",
+                  "Choose where this application stands: New, Reviewing, Accepted, Declined, or Waitlist. This only updates your private review status; it does not publish anything.",
               },
               options: applicationStatusOptions,
               required: true,
@@ -54,24 +63,24 @@ export const ModelApplications: CollectionConfig = {
             {
               name: "linkedModelProfile",
               type: "relationship",
-              label: "Linked master profile (optional)",
+              label: "Step 3 — Draft Featured Model profile",
               relationTo: "model-profiles",
               admin: {
                 description:
-                  "Set only after review when this application has been used to create or update a canonical profile.",
+                  "After Step 2 is saved, the new private draft profile appears here. Open it to clean up the public-facing profile before anything is published.",
               },
             },
             {
               name: "createProfileFromApplication",
               type: "checkbox",
               defaultValue: false,
-              label: "Create draft Featured Model profile on save",
+              label: "Step 2 — Create draft profile from this application",
               virtual: true,
               admin: {
                 condition: (_, siblingData) =>
                   siblingData?.applicationStatus === "accepted" && !siblingData?.linkedModelProfile,
                 description:
-                  "After accepting this application, check this box and save to create a private draft model profile from the application details. Nothing is published automatically.",
+                  "Use this only after Step 1 is set to Accepted. Check the box, save, and the system will copy the application details into a private draft Featured Model profile.",
                 readOnly: false,
               },
             },

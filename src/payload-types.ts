@@ -436,7 +436,7 @@ export interface RetreatEvent {
   _status?: ('draft' | 'published') | null;
 }
 /**
- * Private review records. Accepted applications may later be used to create or update a canonical model profile; nothing is published automatically.
+ * Private review inbox. Review the application, accept/decline it, then create a private draft Featured Model profile when you are ready. Nothing publishes automatically.
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "model-applications".
@@ -444,15 +444,15 @@ export interface RetreatEvent {
 export interface ModelApplication {
   id: number;
   /**
-   * Use this to review the submission: New, Reviewing, Accepted, Declined, or Waitlist. Changing this status does not publish a public profile automatically.
+   * Choose where this application stands: New, Reviewing, Accepted, Declined, or Waitlist. This only updates your private review status; it does not publish anything.
    */
   applicationStatus: 'new' | 'reviewing' | 'accepted' | 'declined' | 'waitlist';
   /**
-   * Set only after review when this application has been used to create or update a canonical profile.
+   * After Step 2 is saved, the new private draft profile appears here. Open it to clean up the public-facing profile before anything is published.
    */
   linkedModelProfile?: (number | null) | ModelProfile;
   /**
-   * After accepting this application, check this box and save to create a private draft model profile from the application details. Nothing is published automatically.
+   * Use this only after Step 1 is set to Accepted. Check the box, save, and the system will copy the application details into a private draft Featured Model profile.
    */
   createProfileFromApplication?: boolean | null;
   privateAdminNotes?: string | null;
@@ -540,7 +540,7 @@ export interface ModelApplication {
   createdAt: string;
 }
 /**
- * Private review records. Accepted applications may later be used to create or update a canonical photographer profile; nothing is published automatically.
+ * Private review inbox. Review the application, accept/decline it, then connect it to a private photographer profile when you are ready. Nothing publishes automatically.
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "photographer-applications".
@@ -548,11 +548,11 @@ export interface ModelApplication {
 export interface PhotographerApplication {
   id: number;
   /**
-   * Use this to review the submission: New, Reviewing, Accepted, Declined, or Waitlist. Changing this status does not publish a public profile automatically.
+   * Choose where this application stands: New, Reviewing, Accepted, Declined, or Waitlist. This only updates your private review status; it does not publish anything.
    */
   applicationStatus: 'new' | 'reviewing' | 'accepted' | 'declined' | 'waitlist';
   /**
-   * Set only after review when this application has been used to create or update a canonical profile.
+   * Use this after review if this application belongs with an existing private photographer profile. Nothing is published automatically.
    */
   linkedPhotographerProfile?: (number | null) | PhotographerProfile;
   privateAdminNotes?: string | null;
