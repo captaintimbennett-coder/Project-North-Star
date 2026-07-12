@@ -1,5 +1,9 @@
 import type { CollectionConfig } from "payload";
 import { ownerOnly, ownerOrEditorOnly, staffOnly } from "../access/account";
+import {
+  createModelProfileFromApplication,
+  validateModelProfileCreationRequest,
+} from "../hooks/createModelProfileFromApplication";
 
 const applicationStatusOptions = [
   { label: "New", value: "new" },
@@ -55,6 +59,18 @@ export const ModelApplications: CollectionConfig = {
               admin: {
                 description:
                   "Set only after review when this application has been used to create or update a canonical profile.",
+              },
+            },
+            {
+              name: "createProfileFromApplication",
+              type: "checkbox",
+              defaultValue: false,
+              label: "Create draft Featured Model profile on save",
+              admin: {
+                condition: (_, siblingData) =>
+                  siblingData?.applicationStatus === "accepted" && !siblingData?.linkedModelProfile,
+                description:
+                  "After accepting this application, check this box and save to create a private draft model profile from the application details. Nothing is published automatically.",
               },
             },
             { name: "privateAdminNotes", type: "textarea", label: "Private administrator notes" },
@@ -294,5 +310,9 @@ export const ModelApplications: CollectionConfig = {
       ],
     },
   ],
+  hooks: {
+    beforeChange: [validateModelProfileCreationRequest],
+    afterChange: [createModelProfileFromApplication],
+  },
   versions: { maxPerDoc: 50 },
 };

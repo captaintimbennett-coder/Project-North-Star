@@ -36,6 +36,9 @@ participants.
 - Sensitive applicant data should be collected only when necessary.
 - Review decisions require auditable statuses and internal notes.
 - Public-facing communications should remain warm, clear, and dignified.
+- Accepted model applications may be deliberately converted into draft canonical
+  model profiles by staff, but acceptance must never publish a profile
+  automatically.
 
 ## Deferred Items
 
@@ -61,6 +64,8 @@ participants.
 - [ ] Duplicate and incomplete submissions are handled predictably.
 - [ ] Administrators can review, filter, annotate, and change application
   status securely.
+- [ ] Accepted model applications can create or link a draft canonical model
+  profile without publishing it.
 - [ ] Applicants receive accurate status communications.
 - [ ] Private application data is inaccessible to unauthorized users.
 - [ ] Retention, export, correction, and deletion procedures are documented.

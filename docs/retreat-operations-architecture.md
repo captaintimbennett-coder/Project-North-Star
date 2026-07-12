@@ -174,8 +174,8 @@ flowchart TD
 | Model Application | `ModelApplication` | Private staff-only review record. |
 | Featured Image Upload | `MediaAsset` via application | Upload remains private until approved for platform use and linked to profile. |
 | Additional Portfolio Images | `MediaAsset` via application | Optional portfolio candidates remain private until reviewed. |
-| Administrative Review | `ModelApplication` | Review decides whether to create/update canonical profile. |
-| Approved Model Profile | `ModelMasterProfile` | Canonical model record with public-display approvals. |
+| Administrative Review | `ModelApplication` | Review decides whether to decline, waitlist, accept, or deliberately create/link a draft canonical profile. |
+| Approved Model Profile | `ModelMasterProfile` | Canonical model record with public-display approvals. Creating a draft profile from an accepted application does not publish it. |
 | Event Assignment | `RetreatParticipant` | Event-specific status, booking eligibility, display order, minimum booking duration. |
 | Meet the Artists | Public event projection | Derived from event assignment plus approved profile fields and approved media. |
 | Booking Calendar | Availability / Booking projection | Future participant surface. |
