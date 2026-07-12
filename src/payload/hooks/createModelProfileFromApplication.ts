@@ -79,6 +79,7 @@ function buildAdminNotes(doc: Record<string, unknown>): string {
     `Created from model application #${doc.id}.`,
     typeof doc.email === "string" ? `Applicant email: ${doc.email}` : undefined,
     typeof doc.phone === "string" ? `Applicant phone: ${doc.phone}` : undefined,
+    typeof doc.country === "string" ? `Applicant country: ${doc.country}` : undefined,
     typeof doc.portfolioURL === "string" && doc.portfolioURL
       ? `Portfolio URL: ${doc.portfolioURL}`
       : undefined,
@@ -100,6 +101,7 @@ export const validateModelProfileCreationRequest: CollectionBeforeChangeHook = (
   data,
   operation,
   originalDoc,
+  req,
 }) => {
   if (!data.createProfileFromApplication) return data;
 
@@ -118,6 +120,9 @@ export const validateModelProfileCreationRequest: CollectionBeforeChangeHook = (
     throw new APIError("This application is already linked to a model profile.", 400);
   }
 
+  req.context.createModelProfileFromApplication = originalDoc?.id;
+  delete data.createProfileFromApplication;
+
   return data;
 };
 
@@ -127,7 +132,7 @@ export const createModelProfileFromApplication: CollectionAfterChangeHook = asyn
   req,
 }) => {
   if (operation !== "update") return doc;
-  if (!doc.createProfileFromApplication) return doc;
+  if (req.context.createModelProfileFromApplication !== doc.id) return doc;
   if (doc.applicationStatus !== "accepted") return doc;
   if (relationshipID(doc.linkedModelProfile)) return doc;
 
@@ -145,7 +150,6 @@ export const createModelProfileFromApplication: CollectionAfterChangeHook = asyn
       artistStatement: doc.artistStatement,
       biography: doc.shortBiography,
       city: doc.city,
-      country: doc.country,
       displayName: doc.stageName,
       featuredImage: preferredHeroImage,
       instagram: doc.instagramURL,
@@ -162,7 +166,6 @@ export const createModelProfileFromApplication: CollectionAfterChangeHook = asyn
       publicIntroduction:
         typeof doc.shortBiography === "string" ? doc.shortBiography.slice(0, 240) : undefined,
       slug,
-      sourceModelApplication: doc.id,
       state: doc.state,
       usagePermissionConfirmed: false,
       website: doc.websiteURL || doc.portfolioURL,
@@ -172,10 +175,11 @@ export const createModelProfileFromApplication: CollectionAfterChangeHook = asyn
     req,
   });
 
+  req.context.createModelProfileFromApplication = null;
+
   await req.payload.update({
     collection: "model-applications",
     data: {
-      createProfileFromApplication: false,
       linkedModelProfile: profile.id,
     },
     id: doc.id,

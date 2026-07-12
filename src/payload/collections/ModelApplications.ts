@@ -66,11 +66,13 @@ export const ModelApplications: CollectionConfig = {
               type: "checkbox",
               defaultValue: false,
               label: "Create draft Featured Model profile on save",
+              virtual: true,
               admin: {
                 condition: (_, siblingData) =>
                   siblingData?.applicationStatus === "accepted" && !siblingData?.linkedModelProfile,
                 description:
                   "After accepting this application, check this box and save to create a private draft model profile from the application details. Nothing is published automatically.",
+                readOnly: false,
               },
             },
             { name: "privateAdminNotes", type: "textarea", label: "Private administrator notes" },

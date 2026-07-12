@@ -16,7 +16,7 @@ export const ModelProfiles: CollectionConfig = {
     update: ownerOrEditorOnly,
   },
   admin: {
-    defaultColumns: ["displayName", "approvalStatus", "city", "state", "country"],
+    defaultColumns: ["displayName", "approvalStatus", "city", "state"],
     description:
       "Canonical model records. Event participation will reference these profiles rather than duplicate them.",
     group: "Lone Star Retreat",
@@ -33,18 +33,6 @@ export const ModelProfiles: CollectionConfig = {
       access: { read: staffFieldAccess },
       admin: {
         description: "Optional one-to-one authentication owner. Applications never set this automatically.",
-      },
-    },
-    {
-      name: "sourceModelApplication",
-      type: "relationship",
-      relationTo: "model-applications",
-      label: "Source model application",
-      access: { read: staffFieldAccess },
-      admin: {
-        description:
-          "Private traceability link. Set when a draft profile is created from an accepted application.",
-        readOnly: true,
       },
     },
     {
@@ -123,10 +111,6 @@ export const ModelProfiles: CollectionConfig = {
     },
     {
       name: "state",
-      type: "text",
-    },
-    {
-      name: "country",
       type: "text",
     },
     {

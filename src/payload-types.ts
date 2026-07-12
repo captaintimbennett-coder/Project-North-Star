@@ -229,10 +229,6 @@ export interface ModelProfile {
    * Optional one-to-one authentication owner. Applications never set this automatically.
    */
   account?: (number | null) | User;
-  /**
-   * Private traceability link. Set when a draft profile is created from an accepted application.
-   */
-  sourceModelApplication?: (number | null) | ModelApplication;
   displayName: string;
   slug: string;
   approvalStatus: 'draft' | 'review' | 'approved' | 'archived';
@@ -245,7 +241,6 @@ export interface ModelProfile {
     ('glamour' | 'boudoir' | 'fashion' | 'editorial' | 'fine-art' | 'lifestyle' | 'commercial')[] | null;
   city?: string | null;
   state?: string | null;
-  country?: string | null;
   website?: string | null;
   instagram?: string | null;
   usagePermissionConfirmed?: boolean | null;
@@ -281,110 +276,6 @@ export interface ModelProfile {
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
-}
-/**
- * Private review records. Accepted applications may later be used to create or update a canonical model profile; nothing is published automatically.
- *
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "model-applications".
- */
-export interface ModelApplication {
-  id: number;
-  /**
-   * Use this to review the submission: New, Reviewing, Accepted, Declined, or Waitlist. Changing this status does not publish a public profile automatically.
-   */
-  applicationStatus: 'new' | 'reviewing' | 'accepted' | 'declined' | 'waitlist';
-  /**
-   * Set only after review when this application has been used to create or update a canonical profile.
-   */
-  linkedModelProfile?: (number | null) | ModelProfile;
-  /**
-   * After accepting this application, check this box and save to create a private draft model profile from the application details. Nothing is published automatically.
-   */
-  createProfileFromApplication?: boolean | null;
-  privateAdminNotes?: string | null;
-  /**
-   * Private review image submitted by the applicant. Nothing is published unless a media item is explicitly approved for platform use later.
-   */
-  preferredHeroImage?: (number | null) | Media;
-  /**
-   * Private review images submitted by the applicant. Nothing is published automatically.
-   */
-  additionalPortfolioImages?: (number | Media)[] | null;
-  /**
-   * Private administrative information. Never display publicly. It may be collected later for contracts, payment, or tax documentation.
-   */
-  legalName?: string | null;
-  stageName: string;
-  email: string;
-  phone: string;
-  city: string;
-  state: string;
-  country: string;
-  instagramURL?: string | null;
-  websiteURL?: string | null;
-  portfolioURL?: string | null;
-  agencyRepresentation?: string | null;
-  marketingSource:
-    | 'instagram'
-    | 'facebook'
-    | 'friend'
-    | 'photographer'
-    | 'model'
-    | 'workshop'
-    | 'magazine'
-    | 'google-search'
-    | 'other';
-  otherMarketingSource?: string | null;
-  modelingExperienceLevel: 'aspiring' | 'developing' | 'experienced' | 'professional';
-  /**
-   * Legacy storage field. The public application records the applicant-facing Travel Commitment answer in Travel / availability notes.
-   */
-  travelAvailability: 'local-only' | 'regional' | 'domestic' | 'international' | 'case-by-case';
-  homeAirport?: string | null;
-  availabilityNotes?: string | null;
-  /**
-   * Version 1 availability overview. Detailed boundaries and session-specific consent are confirmed later if accepted.
-   */
-  creativeInterests: (
-    | 'fashion'
-    | 'editorial'
-    | 'glamour'
-    | 'swimwear'
-    | 'lingerie'
-    | 'boudoir'
-    | 'artistic-nude'
-    | 'fine-art-nude'
-    | 'beauty'
-    | 'conceptual-creative'
-    | 'lifestyle'
-    | 'other'
-  )[];
-  otherCreativeInterest?: string | null;
-  retreatGoals?:
-    | (
-        | 'network-with-photographers'
-        | 'long-term-collaborations'
-        | 'paid-shooting-opportunities'
-        | 'expand-portfolio'
-        | 'publication-opportunities'
-        | 'professional-event-travel'
-        | 'meet-professional-models'
-        | 'professional-respectful-photographers'
-        | 'other'
-      )[]
-    | null;
-  otherRetreatGoal?: string | null;
-  shortBiography: string;
-  artistStatement?: string | null;
-  informationAccurateConfirmed: boolean;
-  noAcceptanceGuaranteeConfirmed: boolean;
-  consentImageUsageConfirmed: boolean;
-  codeOfConductConfirmed: boolean;
-  contactPermissionConfirmed: boolean;
-  submittedAt: string;
-  updatedAt: string;
-  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -543,6 +434,110 @@ export interface RetreatEvent {
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
+}
+/**
+ * Private review records. Accepted applications may later be used to create or update a canonical model profile; nothing is published automatically.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "model-applications".
+ */
+export interface ModelApplication {
+  id: number;
+  /**
+   * Use this to review the submission: New, Reviewing, Accepted, Declined, or Waitlist. Changing this status does not publish a public profile automatically.
+   */
+  applicationStatus: 'new' | 'reviewing' | 'accepted' | 'declined' | 'waitlist';
+  /**
+   * Set only after review when this application has been used to create or update a canonical profile.
+   */
+  linkedModelProfile?: (number | null) | ModelProfile;
+  /**
+   * After accepting this application, check this box and save to create a private draft model profile from the application details. Nothing is published automatically.
+   */
+  createProfileFromApplication?: boolean | null;
+  privateAdminNotes?: string | null;
+  /**
+   * Private review image submitted by the applicant. Nothing is published unless a media item is explicitly approved for platform use later.
+   */
+  preferredHeroImage?: (number | null) | Media;
+  /**
+   * Private review images submitted by the applicant. Nothing is published automatically.
+   */
+  additionalPortfolioImages?: (number | Media)[] | null;
+  /**
+   * Private administrative information. Never display publicly. It may be collected later for contracts, payment, or tax documentation.
+   */
+  legalName?: string | null;
+  stageName: string;
+  email: string;
+  phone: string;
+  city: string;
+  state: string;
+  country: string;
+  instagramURL?: string | null;
+  websiteURL?: string | null;
+  portfolioURL?: string | null;
+  agencyRepresentation?: string | null;
+  marketingSource:
+    | 'instagram'
+    | 'facebook'
+    | 'friend'
+    | 'photographer'
+    | 'model'
+    | 'workshop'
+    | 'magazine'
+    | 'google-search'
+    | 'other';
+  otherMarketingSource?: string | null;
+  modelingExperienceLevel: 'aspiring' | 'developing' | 'experienced' | 'professional';
+  /**
+   * Legacy storage field. The public application records the applicant-facing Travel Commitment answer in Travel / availability notes.
+   */
+  travelAvailability: 'local-only' | 'regional' | 'domestic' | 'international' | 'case-by-case';
+  homeAirport?: string | null;
+  availabilityNotes?: string | null;
+  /**
+   * Version 1 availability overview. Detailed boundaries and session-specific consent are confirmed later if accepted.
+   */
+  creativeInterests: (
+    | 'fashion'
+    | 'editorial'
+    | 'glamour'
+    | 'swimwear'
+    | 'lingerie'
+    | 'boudoir'
+    | 'artistic-nude'
+    | 'fine-art-nude'
+    | 'beauty'
+    | 'conceptual-creative'
+    | 'lifestyle'
+    | 'other'
+  )[];
+  otherCreativeInterest?: string | null;
+  retreatGoals?:
+    | (
+        | 'network-with-photographers'
+        | 'long-term-collaborations'
+        | 'paid-shooting-opportunities'
+        | 'expand-portfolio'
+        | 'publication-opportunities'
+        | 'professional-event-travel'
+        | 'meet-professional-models'
+        | 'professional-respectful-photographers'
+        | 'other'
+      )[]
+    | null;
+  otherRetreatGoal?: string | null;
+  shortBiography: string;
+  artistStatement?: string | null;
+  informationAccurateConfirmed: boolean;
+  noAcceptanceGuaranteeConfirmed: boolean;
+  consentImageUsageConfirmed: boolean;
+  codeOfConductConfirmed: boolean;
+  contactPermissionConfirmed: boolean;
+  submittedAt: string;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * Private review records. Accepted applications may later be used to create or update a canonical photographer profile; nothing is published automatically.
@@ -1007,7 +1002,6 @@ export interface RetreatEventsSelect<T extends boolean = true> {
  */
 export interface ModelProfilesSelect<T extends boolean = true> {
   account?: T;
-  sourceModelApplication?: T;
   displayName?: T;
   slug?: T;
   approvalStatus?: T;
@@ -1019,7 +1013,6 @@ export interface ModelProfilesSelect<T extends boolean = true> {
   modelingCategories?: T;
   city?: T;
   state?: T;
-  country?: T;
   website?: T;
   instagram?: T;
   usagePermissionConfirmed?: T;
