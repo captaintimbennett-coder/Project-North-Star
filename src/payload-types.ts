@@ -497,22 +497,24 @@ export interface ModelApplication {
   homeAirport?: string | null;
   availabilityNotes?: string | null;
   /**
-   * Version 1 availability overview. Detailed boundaries and session-specific consent are confirmed later if accepted.
+   * Version 1 availability overview. The public form requires this on new applications. Older verification records may be blank; if so, do not let this block review.
    */
-  creativeInterests: (
-    | 'fashion'
-    | 'editorial'
-    | 'glamour'
-    | 'swimwear'
-    | 'lingerie'
-    | 'boudoir'
-    | 'artistic-nude'
-    | 'fine-art-nude'
-    | 'beauty'
-    | 'conceptual-creative'
-    | 'lifestyle'
-    | 'other'
-  )[];
+  creativeInterests?:
+    | (
+        | 'fashion'
+        | 'editorial'
+        | 'glamour'
+        | 'swimwear'
+        | 'lingerie'
+        | 'boudoir'
+        | 'artistic-nude'
+        | 'fine-art-nude'
+        | 'beauty'
+        | 'conceptual-creative'
+        | 'lifestyle'
+        | 'other'
+      )[]
+    | null;
   otherCreativeInterest?: string | null;
   retreatGoals?:
     | (

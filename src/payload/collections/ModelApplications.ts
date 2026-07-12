@@ -211,10 +211,9 @@ export const ModelApplications: CollectionConfig = {
               type: "select",
               hasMany: true,
               label: "Which types of sessions are they available to participate in?",
-              required: true,
               admin: {
                 description:
-                  "Version 1 availability overview. Detailed boundaries and session-specific consent are confirmed later if accepted.",
+                  "Version 1 availability overview. The public form requires this on new applications. Older verification records may be blank; if so, do not let this block review.",
               },
               options: [
                 { label: "Fashion", value: "fashion" },
