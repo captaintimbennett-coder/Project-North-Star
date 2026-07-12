@@ -1,13 +1,38 @@
 "use client";
 
+import { upload } from "@vercel/blob/client";
 import { useRouter } from "next/navigation";
 import { FormEvent, useRef, useState } from "react";
 import { Button } from "@/components/buttons";
 import { modelApplicationContent as content } from "@/data/applications";
+import { countryOptions, usStateOptions } from "@/data/location-options";
 import { ProfessionalStandardsDisclosure } from "./ProfessionalStandardsDisclosure";
+
+const MAX_IMAGE_BYTES = 10 * 1024 * 1024;
+const ACCEPTED_IMAGE_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
 
 type Errors = Record<string, string>;
 type FieldProps = { children: React.ReactNode; description?: string; error?: string; label: string; name: string; required?: boolean };
+type UploadedBlobResult = { pathname: string; url: string };
+const ERROR_FIELD_ORDER = [
+  "stageName",
+  "email",
+  "phone",
+  "city",
+  "country",
+  "state",
+  "marketingSource",
+  "otherMarketingSource",
+  "modelingExperienceLevel",
+  "travelAvailability",
+  "alternateModelList",
+  "availabilityNotes",
+  "creativeInterests",
+  "preferredHeroImage",
+  "additionalImages",
+  "shortBiography",
+  "codeOfConductConfirmed",
+] as const;
 
 function Field({ children, description, error, label, name, required }: FieldProps) {
   return <div className="application-field">
@@ -22,6 +47,48 @@ function by(name: string, description: boolean, error?: string) {
   return [description && `${name}-description`, error && `${name}-error`].filter(Boolean).join(" ") || undefined;
 }
 
+function formatFileSize(bytes: number) {
+  return `${(bytes / 1024 / 1024).toFixed(1)}MB`;
+}
+
+function focusField(form: HTMLFormElement | null, fieldName: string) {
+  if (!form) return;
+  const target = form.querySelector<HTMLElement>(`#${fieldName}, [name="${fieldName}"]`);
+  target?.scrollIntoView({ behavior: "smooth", block: "center" });
+  target?.focus({ preventScroll: true });
+}
+
+function focusFirstError(form: HTMLFormElement | null, errors: Errors) {
+  const fieldName = ERROR_FIELD_ORDER.find((name) => errors[name]);
+  if (!fieldName) return;
+  window.requestAnimationFrame(() => focusField(form, fieldName));
+}
+
+function safeUploadName(file: File) {
+  return file.name.replace(/[^a-zA-Z0-9._-]/g, "-").replace(/-+/g, "-");
+}
+
+function getTextOnlyFormData(formData: FormData) {
+  const next = new FormData();
+
+  formData.forEach((value, key) => {
+    if (value instanceof File) return;
+    next.append(key, value);
+  });
+
+  return next;
+}
+
+function toUploadedImageReference(file: File, blob: UploadedBlobResult) {
+  return {
+    contentType: file.type,
+    filename: file.name,
+    pathname: blob.pathname,
+    size: file.size,
+    url: blob.url,
+  };
+}
+
 export function ModelApplicationForm() {
   const router = useRouter();
   const formRef = useRef<HTMLFormElement>(null);
@@ -30,19 +97,29 @@ export function ModelApplicationForm() {
   const [formError, setFormError] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [marketingSource, setMarketingSource] = useState("");
+  const [country, setCountry] = useState("");
   const [travelAvailability, setTravelAvailability] = useState("");
+  const [uploadProgress, setUploadProgress] = useState("");
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
     const next: Errors = {};
-    const images = data.getAll("images").filter((entry): entry is File => entry instanceof File && entry.size > 0);
+    const preferredHeroImages = data.getAll("preferredHeroImage").filter((entry): entry is File => entry instanceof File && entry.size > 0);
+    const additionalImages = data.getAll("additionalImages").filter((entry): entry is File => entry instanceof File && entry.size > 0);
+    const images = [...preferredHeroImages, ...additionalImages];
     if (!data.getAll("creativeInterests").length) next.creativeInterests = "Select at least one type of session.";
-    if (images.length === 0) next.images = "Upload at least one image for private review.";
-    if (images.length > 5) next.images = "Upload no more than five images in total.";
-    for (const file of images) {
-      if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) next.images = "Images must be JPG, PNG, or WebP files.";
-      if (file.size > 10 * 1024 * 1024) next.images = "Each image must be 10MB or smaller.";
+    if (preferredHeroImages.length === 0) next.preferredHeroImage = "Upload one preferred hero image for private review.";
+    if (preferredHeroImages.length > 1) next.preferredHeroImage = "Upload only one preferred hero image.";
+    if (additionalImages.length > 4) next.additionalImages = "Upload no more than four additional portfolio images.";
+    if (images.length > 5) next.additionalImages = "Upload no more than five images in total.";
+    for (const file of preferredHeroImages) {
+      if (!ACCEPTED_IMAGE_TYPES.has(file.type)) next.preferredHeroImage = "The preferred hero image must be a JPG, PNG, or WebP file.";
+      if (file.size > MAX_IMAGE_BYTES) next.preferredHeroImage = `The preferred hero image is ${formatFileSize(file.size)}. Please upload an image that is 10MB or smaller.`;
+    }
+    for (const file of additionalImages) {
+      if (!ACCEPTED_IMAGE_TYPES.has(file.type)) next.additionalImages = "Additional portfolio images must be JPG, PNG, or WebP files.";
+      if (file.size > MAX_IMAGE_BYTES) next.additionalImages = `One additional portfolio image is ${formatFileSize(file.size)}. Please upload images that are each 10MB or smaller.`;
     }
     if (travelAvailability === "possibly" && !String(data.get("availabilityNotes") || "").trim()) {
       next.availabilityNotes = "Please tell us what would affect your ability to travel.";
@@ -50,21 +127,64 @@ export function ModelApplicationForm() {
     if (marketingSource === "other" && !String(data.get("otherMarketingSource") || "").trim()) next.otherMarketingSource = "Tell us how you heard about Lone Star Retreat.";
     if (Object.keys(next).length) {
       setErrors(next); setFormError("Please review the highlighted fields before submitting.");
-      if (next.creativeInterests) interestsRef.current?.focus();
-      else formRef.current?.querySelector<HTMLElement>("[aria-invalid='true']")?.focus();
+      if (next.creativeInterests) {
+        interestsRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+        interestsRef.current?.focus({ preventScroll: true });
+      } else {
+        focusFirstError(formRef.current, next);
+      }
       return;
     }
-    setErrors({}); setFormError(""); setSubmitting(true);
+    setErrors({}); setFormError(""); setSubmitting(true); setUploadProgress("");
     try {
-      const response = await fetch("/api/applications/model", { method: "POST", body: data });
-      const result = await response.json() as { error?: string; errors?: Errors; ok?: boolean };
+      setUploadProgress("Uploading images…");
+      const uploadedImages = [];
+      for (const file of images) {
+        const blob = await upload(
+          `media/model-applications/${Date.now()}-${safeUploadName(file)}`,
+          file,
+          {
+            access: "public",
+            contentType: file.type,
+            handleUploadUrl: "/api/applications/model/upload",
+          },
+        );
+        uploadedImages.push(toUploadedImageReference(file, blob));
+      }
+
+      const submissionData = getTextOnlyFormData(data);
+      submissionData.append("uploadedImages", JSON.stringify(uploadedImages));
+
+      setUploadProgress("Saving application…");
+      const response = await fetch("/api/applications/model", { method: "POST", body: submissionData });
+      const responseText = await response.text();
+      let result: { error?: string; errors?: Errors; ok?: boolean } = {};
+      try {
+        result = responseText ? JSON.parse(responseText) as typeof result : {};
+      } catch {
+        result = {};
+      }
       if (!response.ok || !result.ok) {
-        setErrors(result.errors || {}); setFormError(result.error || "Please review the highlighted fields before submitting.");
-        formRef.current?.querySelector<HTMLElement>("[aria-invalid='true']")?.focus(); return;
+        if (response.status === 413) {
+          const uploadErrors = { preferredHeroImage: "This upload was rejected before the application could save. The image may need a direct storage upload path for larger files." };
+          setErrors(uploadErrors);
+          setFormError("The image upload was rejected before the application could save. Nothing else appears missing from the form.");
+          focusFirstError(formRef.current, uploadErrors);
+          return;
+        }
+        const nextErrors = result.errors || {};
+        setErrors(nextErrors);
+        setFormError(result.error || (Object.keys(nextErrors).length ? "Please review the highlighted fields before submitting." : "We could not save this application. If no field below is highlighted, nothing is missing from your form. Please try again later."));
+        focusFirstError(formRef.current, nextErrors); return;
       }
       router.push("/lone-star-retreat/models/apply/application-received");
-    } catch { setFormError("We could not receive your application. Check your connection and try again."); }
-    finally { setSubmitting(false); }
+    } catch {
+      const uploadErrors = { preferredHeroImage: "We could not upload this image. Please confirm it is a JPG, PNG, or WebP file that is 10MB or smaller, then try again." };
+      setErrors(uploadErrors);
+      setFormError("We could not upload the image before saving the application.");
+      focusFirstError(formRef.current, uploadErrors);
+    }
+    finally { setSubmitting(false); setUploadProgress(""); }
   }
 
   const checkboxGroup = (name: string, items: readonly { label: string; value: string }[], error?: string) =>
@@ -75,6 +195,7 @@ export function ModelApplicationForm() {
   return <form className="application-form" ref={formRef} onSubmit={submit}>
     <div className="application-honeypot" aria-hidden="true"><label htmlFor="companyWebsite">Company website</label><input id="companyWebsite" name="companyWebsite" tabIndex={-1} autoComplete="off" /></div>
     {formError && <div className="application-form__notice" role="alert"><strong>We need a little more information.</strong><p>{formError}</p></div>}
+    {uploadProgress && <div className="application-form__notice" role="status"><strong>Please hold tight.</strong><p>{uploadProgress}</p></div>}
 
     <section className="application-form-section" aria-labelledby="model-about-title">
       <div className="application-form-section__heading"><span>01</span><div><p className="ds-eyebrow">Application details</p><h2 id="model-about-title">About you</h2><p>Begin with the details we will use to identify you and stay in touch.</p></div></div>
@@ -84,8 +205,22 @@ export function ModelApplicationForm() {
         <Field name="email" label="Email" required error={errors.email}><input className="application-input" id="email" name="email" type="email" autoComplete="email" required aria-invalid={!!errors.email} /></Field>
         <Field name="phone" label="Phone" required error={errors.phone}><input className="application-input" id="phone" name="phone" type="tel" autoComplete="tel" required aria-invalid={!!errors.phone} /></Field>
         <Field name="city" label="City" required error={errors.city}><input className="application-input" id="city" name="city" autoComplete="address-level2" required aria-invalid={!!errors.city} /></Field>
-        <Field name="state" label="State / region" required error={errors.state}><input className="application-input" id="state" name="state" autoComplete="address-level1" required aria-invalid={!!errors.state} /></Field>
-        <Field name="country" label="Country" required error={errors.country}><input className="application-input" id="country" name="country" autoComplete="country-name" required aria-invalid={!!errors.country} /></Field>
+        <Field name="country" label="Country" required error={errors.country} description="Choose the country where you are currently based so retreat planning stays organized.">
+          <select className="application-input" id="country" name="country" autoComplete="country-name" required value={country} onChange={e => setCountry(e.target.value)} aria-invalid={!!errors.country} aria-describedby={by("country", true, errors.country)}>
+            <option value="">Select country</option>
+            {countryOptions.map(option => <option key={option} value={option}>{option}</option>)}
+          </select>
+        </Field>
+        <Field name="state" label={country === "United States" ? "State" : "State / region"} required error={errors.state} description={country === "United States" ? "Choose your state so applications can be searched and grouped consistently." : "Enter the state, province, region, or territory where you are based."}>
+          {country === "United States" ? (
+            <select className="application-input" id="state" name="state" autoComplete="address-level1" required aria-invalid={!!errors.state} aria-describedby={by("state", true, errors.state)}>
+              <option value="">Select state</option>
+              {usStateOptions.map(option => <option key={option} value={option}>{option}</option>)}
+            </select>
+          ) : (
+            <input className="application-input" id="state" name="state" autoComplete="address-level1" required aria-invalid={!!errors.state} aria-describedby={by("state", true, errors.state)} />
+          )}
+        </Field>
         <Field name="instagramURL" label="Instagram URL" description="Optional. Include the full https:// address." error={errors.instagramURL}><input className="application-input" id="instagramURL" name="instagramURL" type="url" placeholder="https://instagram.com/yourname" aria-invalid={!!errors.instagramURL} aria-describedby={by("instagramURL", true, errors.instagramURL)} /></Field>
         <Field name="websiteURL" label="Website URL" description="Optional. Include the full https:// address." error={errors.websiteURL}><input className="application-input" id="websiteURL" name="websiteURL" type="url" aria-invalid={!!errors.websiteURL} aria-describedby={by("websiteURL", true, errors.websiteURL)} /></Field>
         <Field name="portfolioURL" label="Portfolio URL" description="Optional, if different from your website." error={errors.portfolioURL}><input className="application-input" id="portfolioURL" name="portfolioURL" type="url" aria-invalid={!!errors.portfolioURL} /></Field>
@@ -111,8 +246,8 @@ export function ModelApplicationForm() {
     <section className="application-form-section" aria-labelledby="model-materials-title">
       <div className="application-form-section__heading"><span>03</span><div><p className="ds-eyebrow">Private review</p><h2 id="model-materials-title">Featured artist materials</h2><p>Share the imagery and words that best introduce your work. Nothing is published automatically.</p></div></div>
       <div className="application-form-grid application-form-grid--single">
-        <Field name="preferredHeroImage" label="Preferred hero image" required description="Upload the image you would prefer us to consider as your featured image. Final image selection remains subject to approval." error={errors.images}><input className="application-input application-file-input" id="preferredHeroImage" name="images" type="file" required accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" aria-invalid={!!errors.images} aria-describedby={by("preferredHeroImage", true, errors.images)} /></Field>
-        <Field name="additionalImages" label="Additional portfolio images" description="Optional. Add up to four more JPG, PNG, or WebP images. Each image must be 10MB or smaller." error={errors.images}><input className="application-input application-file-input" id="additionalImages" name="images" type="file" multiple accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" /></Field>
+        <Field name="preferredHeroImage" label="Preferred hero image" required description="Upload the image you would prefer us to consider as your featured image. Final image selection remains subject to approval." error={errors.preferredHeroImage}><input className="application-input application-file-input" id="preferredHeroImage" name="preferredHeroImage" type="file" required accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" aria-invalid={!!errors.preferredHeroImage} aria-describedby={by("preferredHeroImage", true, errors.preferredHeroImage)} /></Field>
+        <Field name="additionalImages" label="Additional portfolio images" description="Optional. Add up to four more JPG, PNG, or WebP images. Each image must be 10MB or smaller." error={errors.additionalImages}><input className="application-input application-file-input" id="additionalImages" name="additionalImages" type="file" multiple accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" aria-invalid={!!errors.additionalImages} aria-describedby={by("additionalImages", true, errors.additionalImages)} /></Field>
         <Field name="shortBiography" label="Short biography" required description="Introduce your experience and creative point of view in your own voice." error={errors.shortBiography}><textarea className="application-input application-textarea" id="shortBiography" name="shortBiography" rows={6} required aria-invalid={!!errors.shortBiography} /></Field>
         <Field name="artistStatement" label="Artist statement" description="Optional. Share what draws you to the work you create." error={errors.artistStatement}><textarea className="application-input application-textarea" id="artistStatement" name="artistStatement" rows={5} /></Field>
       </div>

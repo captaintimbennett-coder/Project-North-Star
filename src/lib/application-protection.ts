@@ -126,22 +126,22 @@ export function getUploadedFiles(formData: FormData, field = "images"): File[] {
 
 export function validateModelImages(files: File[], errors: ValidationErrors): void {
   if (files.length === 0) {
-    errors.images = "Upload at least one image for private review.";
+    errors.preferredHeroImage = "Upload at least one image for private review.";
     return;
   }
 
   if (files.length > MAX_MODEL_IMAGES) {
-    errors.images = `Upload no more than ${MAX_MODEL_IMAGES} images.`;
+    errors.additionalImages = `Upload no more than ${MAX_MODEL_IMAGES} images.`;
     return;
   }
 
   for (const file of files) {
     if (!ACCEPTED_IMAGE_TYPES.has(file.type)) {
-      errors.images = "Images must be JPG, JPEG, PNG, or WebP. Video files are not accepted.";
+      errors.preferredHeroImage = "Images must be JPG, JPEG, PNG, or WebP. Video files are not accepted.";
       return;
     }
     if (file.size > MAX_IMAGE_BYTES) {
-      errors.images = "Each image must be 10MB or smaller.";
+      errors.preferredHeroImage = "Each image must be 10MB or smaller.";
       return;
     }
   }

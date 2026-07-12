@@ -33,6 +33,34 @@ export const PhotographerApplications: CollectionConfig = {
       type: "tabs",
       tabs: [
         {
+          label: "Review Decision",
+          fields: [
+            {
+              name: "applicationStatus",
+              type: "select",
+              defaultValue: "new",
+              label: "Application status",
+              admin: {
+                description:
+                  "Use this to review the submission: New, Reviewing, Accepted, Declined, or Waitlist. Changing this status does not publish a public profile automatically.",
+              },
+              options: applicationStatusOptions,
+              required: true,
+            },
+            {
+              name: "linkedPhotographerProfile",
+              type: "relationship",
+              label: "Linked master profile (optional)",
+              relationTo: "photographer-profiles",
+              admin: {
+                description:
+                  "Set only after review when this application has been used to create or update a canonical profile.",
+              },
+            },
+            { name: "privateAdminNotes", type: "textarea", label: "Private administrator notes" },
+          ],
+        },
+        {
           label: "Basic Information",
           fields: [
             { name: "legalName", type: "text", label: "Legal name", required: true },
@@ -119,8 +147,14 @@ export const PhotographerApplications: CollectionConfig = {
               name: "whatTheyHopeToCreate",
               type: "textarea",
               label: "What they hope to create (optional)",
+              required: true,
             },
-            { name: "retreatGoals", type: "textarea", label: "Retreat goals (optional)" },
+            {
+              name: "retreatGoals",
+              type: "textarea",
+              label: "Retreat goals (optional)",
+              required: true,
+            },
             {
               name: "collaborationStyleNotes",
               type: "textarea",
@@ -129,27 +163,8 @@ export const PhotographerApplications: CollectionConfig = {
           ],
         },
         {
-          label: "Administrative",
+          label: "Confirmations",
           fields: [
-            {
-              name: "applicationStatus",
-              type: "select",
-              defaultValue: "new",
-              label: "Application status",
-              options: applicationStatusOptions,
-              required: true,
-            },
-            {
-              name: "linkedPhotographerProfile",
-              type: "relationship",
-              label: "Linked master profile (optional)",
-              relationTo: "photographer-profiles",
-              admin: {
-                description:
-                  "Set only after review when this application has been used to create or update a canonical profile.",
-              },
-            },
-            { name: "privateAdminNotes", type: "textarea", label: "Private administrator notes" },
             {
               name: "informationAccurateConfirmed",
               type: "checkbox",

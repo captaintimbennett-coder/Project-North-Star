@@ -33,6 +33,56 @@ export const ModelApplications: CollectionConfig = {
       type: "tabs",
       tabs: [
         {
+          label: "Review Decision",
+          fields: [
+            {
+              name: "applicationStatus",
+              type: "select",
+              defaultValue: "new",
+              label: "Application status",
+              admin: {
+                description:
+                  "Use this to review the submission: New, Reviewing, Accepted, Declined, or Waitlist. Changing this status does not publish a public profile automatically.",
+              },
+              options: applicationStatusOptions,
+              required: true,
+            },
+            {
+              name: "linkedModelProfile",
+              type: "relationship",
+              label: "Linked master profile (optional)",
+              relationTo: "model-profiles",
+              admin: {
+                description:
+                  "Set only after review when this application has been used to create or update a canonical profile.",
+              },
+            },
+            { name: "privateAdminNotes", type: "textarea", label: "Private administrator notes" },
+            {
+              name: "preferredHeroImage",
+              type: "upload",
+              label: "Preferred profile / hero image",
+              relationTo: "media",
+              admin: {
+                description:
+                  "Private review image submitted by the applicant. Nothing is published unless a media item is explicitly approved for platform use later.",
+              },
+            },
+            {
+              name: "additionalPortfolioImages",
+              type: "upload",
+              hasMany: true,
+              label: "Additional portfolio images (optional)",
+              maxRows: 4,
+              relationTo: "media",
+              admin: {
+                description:
+                  "Private review images submitted by the applicant. Nothing is published automatically.",
+              },
+            },
+          ],
+        },
+        {
           label: "Basic Information",
           fields: [
             {
@@ -104,29 +154,17 @@ export const ModelApplications: CollectionConfig = {
             {
               name: "travelAvailability",
               type: "select",
-              label: "Travel Commitment",
+              label: "Travel availability",
               admin: {
                 description:
-                  "Will they be available to travel to the Dallas/Fort Worth area for Lone Star Retreat, May 14–16, 2027?",
+                  "Legacy storage field. The public application records the applicant-facing Travel Commitment answer in Travel / availability notes.",
               },
               options: [
-                { label: "Yes", value: "yes" },
-                { label: "No", value: "no" },
-                { label: "Possibly", value: "possibly" },
-              ],
-              required: true,
-            },
-            {
-              name: "alternateModelList",
-              type: "select",
-              label: "Alternate Model List",
-              admin: {
-                description:
-                  "If all Featured Model positions are filled, would they like to be considered as an alternate if an opening becomes available?",
-              },
-              options: [
-                { label: "Yes", value: "yes" },
-                { label: "No", value: "no" },
+                { label: "Local only", value: "local-only" },
+                { label: "Regional", value: "regional" },
+                { label: "Domestic", value: "domestic" },
+                { label: "International", value: "international" },
+                { label: "Case by case", value: "case-by-case" },
               ],
               required: true,
             },
@@ -199,50 +237,13 @@ export const ModelApplications: CollectionConfig = {
         {
           label: "Featured Artist Materials",
           fields: [
-            {
-              name: "preferredHeroImage",
-              type: "upload",
-              label: "Preferred profile / hero image",
-              relationTo: "media",
-              admin: {
-                description:
-                  "Upload the image you would prefer us to consider as your featured image. Final image selection remains subject to approval.",
-              },
-            },
-            {
-              name: "additionalPortfolioImages",
-              type: "upload",
-              hasMany: true,
-              label: "Additional portfolio images (optional)",
-              maxRows: 4,
-              relationTo: "media",
-            },
             { name: "shortBiography", type: "textarea", label: "Short biography", required: true },
             { name: "artistStatement", type: "textarea", label: "Artist statement (optional)" },
           ],
         },
         {
-          label: "Administrative",
+          label: "Confirmations",
           fields: [
-            {
-              name: "applicationStatus",
-              type: "select",
-              defaultValue: "new",
-              label: "Application status",
-              options: applicationStatusOptions,
-              required: true,
-            },
-            {
-              name: "linkedModelProfile",
-              type: "relationship",
-              label: "Linked master profile (optional)",
-              relationTo: "model-profiles",
-              admin: {
-                description:
-                  "Set only after review when this application has been used to create or update a canonical profile.",
-              },
-            },
-            { name: "privateAdminNotes", type: "textarea", label: "Private administrator notes" },
             {
               name: "informationAccurateConfirmed",
               type: "checkbox",
