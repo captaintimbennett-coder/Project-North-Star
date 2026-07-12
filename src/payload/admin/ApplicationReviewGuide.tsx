@@ -47,8 +47,8 @@ export function ModelApplicationReviewGuide() {
         <li>Read the application and look at the submitted image.</li>
         <li>Set Step 1 to Accepted, Declined, Waitlist, or Reviewing.</li>
         <li>If accepted, save the application.</li>
-        <li>Check Step 2 to create a private draft Featured Model profile.</li>
-        <li>Save again, then open Step 3 to clean up the draft profile.</li>
+        <li>If Step 2 appears, check it to create the private draft profile.</li>
+        <li>If Step 3 already shows a profile name, Step 2 is done. Open Step 3 to clean up the draft profile.</li>
       </ol>
       <p style={noteStyle}>
         Safe rule: nothing becomes public from this screen. The draft profile must still be reviewed and published later.

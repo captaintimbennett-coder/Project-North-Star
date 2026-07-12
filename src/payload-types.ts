@@ -448,11 +448,11 @@ export interface ModelApplication {
    */
   applicationStatus: 'new' | 'reviewing' | 'accepted' | 'declined' | 'waitlist';
   /**
-   * After Step 2 is saved, the new private draft profile appears here. Open it to clean up the public-facing profile before anything is published.
+   * If a profile name appears here, the private draft profile already exists. Open it to clean up the public-facing profile before anything is published.
    */
   linkedModelProfile?: (number | null) | ModelProfile;
   /**
-   * Use this only after Step 1 is set to Accepted. Check the box, save, and the system will copy the application details into a private draft Featured Model profile.
+   * Use this only after Step 1 is set to Accepted. Check the box, save, and the system will copy the application details into a private draft Featured Model profile. This option disappears after the draft profile is created.
    */
   createProfileFromApplication?: boolean | null;
   privateAdminNotes?: string | null;
