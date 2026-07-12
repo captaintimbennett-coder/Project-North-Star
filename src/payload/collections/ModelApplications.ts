@@ -61,16 +61,6 @@ export const ModelApplications: CollectionConfig = {
               required: true,
             },
             {
-              name: "linkedModelProfile",
-              type: "relationship",
-              label: "Step 3 — Draft profile status",
-              relationTo: "model-profiles",
-              admin: {
-                description:
-                  "If this is blank, use Step 2 and save to create the private draft profile. If a name appears here, go to Models / Featured Artists in the left menu and open that same name.",
-              },
-            },
-            {
               name: "createProfileFromApplication",
               type: "checkbox",
               defaultValue: false,
@@ -82,6 +72,16 @@ export const ModelApplications: CollectionConfig = {
                 description:
                   "Use this only after Step 1 is set to Accepted. Check the box, save, and the system will copy the application details into a private draft Featured Model profile. This option disappears after the draft profile is created.",
                 readOnly: false,
+              },
+            },
+            {
+              name: "linkedModelProfile",
+              type: "relationship",
+              label: "Step 3 — Draft profile status",
+              relationTo: "model-profiles",
+              admin: {
+                description:
+                  "If this is blank, use Step 2 and save to create the private draft profile. If a name appears here, go to Models / Featured Artists in the left menu and open that same name.",
               },
             },
             { name: "privateAdminNotes", type: "textarea", label: "Private administrator notes" },

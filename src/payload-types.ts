@@ -448,13 +448,13 @@ export interface ModelApplication {
    */
   applicationStatus: 'new' | 'reviewing' | 'accepted' | 'declined' | 'waitlist';
   /**
-   * If this is blank, use Step 2 and save to create the private draft profile. If a name appears here, go to Models / Featured Artists in the left menu and open that same name.
-   */
-  linkedModelProfile?: (number | null) | ModelProfile;
-  /**
    * Use this only after Step 1 is set to Accepted. Check the box, save, and the system will copy the application details into a private draft Featured Model profile. This option disappears after the draft profile is created.
    */
   createProfileFromApplication?: boolean | null;
+  /**
+   * If this is blank, use Step 2 and save to create the private draft profile. If a name appears here, go to Models / Featured Artists in the left menu and open that same name.
+   */
+  linkedModelProfile?: (number | null) | ModelProfile;
   privateAdminNotes?: string | null;
   /**
    * Private review image submitted by the applicant. Nothing is published unless a media item is explicitly approved for platform use later.
@@ -1086,8 +1086,8 @@ export interface PhotographerProfilesSelect<T extends boolean = true> {
  */
 export interface ModelApplicationsSelect<T extends boolean = true> {
   applicationStatus?: T;
-  linkedModelProfile?: T;
   createProfileFromApplication?: T;
+  linkedModelProfile?: T;
   privateAdminNotes?: T;
   preferredHeroImage?: T;
   additionalPortfolioImages?: T;
