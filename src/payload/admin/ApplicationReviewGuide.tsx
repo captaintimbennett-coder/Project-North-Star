@@ -46,13 +46,13 @@ export function ModelApplicationReviewGuide() {
       <ol style={listStyle}>
         <li>Read the application and look at the submitted image.</li>
         <li>Set Step 1 to Accepted, Declined, Waitlist, or Reviewing.</li>
-        <li>If accepted, save the application.</li>
-        <li>If Step 2 appears, check it and save. That creates the private draft profile.</li>
-        <li>Step 3 is only a status receipt. If it shows a model name, the draft profile exists.</li>
-        <li>Next, go to Models / Featured Artists in the left menu and open that same model name for Tim’s final review.</li>
+        <li>If accepted and ready to publish, check “Approve for Founders Edition public lineup.”</li>
+        <li>Save once. The system creates the profile, approves the image, adds the artist to the retreat, and publishes the public lineup assignment.</li>
+        <li>If you only want a private draft, use “Create private draft profile only” instead.</li>
+        <li>Step 3 is only a receipt. If it shows a model name, the profile exists.</li>
       </ol>
       <p style={noteStyle}>
-        Safe rule: nothing becomes public from this screen. The draft profile must still be reviewed and published later by Tim.
+        Safe rule: only the public lineup checkbox publishes the artist-facing pieces. The private draft checkbox keeps the profile private.
       </p>
     </section>
   );

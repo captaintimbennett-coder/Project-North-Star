@@ -409,6 +409,10 @@ export const createModelProfileFromApplication: CollectionAfterChangeHook = asyn
 
   const linkedModelProfile = existingLinkedProfileID || profile.id;
 
+  req.context.createModelProfileFromApplication = null;
+  req.context.createModelProfileFromApplicationName = null;
+  req.context.approveModelApplicationForFoundersEdition = null;
+
   await req.payload.update({
     collection: "model-applications",
     data: {
@@ -418,10 +422,6 @@ export const createModelProfileFromApplication: CollectionAfterChangeHook = asyn
     overrideAccess: true,
     req,
   });
-
-  req.context.createModelProfileFromApplication = null;
-  req.context.createModelProfileFromApplicationName = null;
-  req.context.approveModelApplicationForFoundersEdition = null;
 
   return {
     ...doc,
