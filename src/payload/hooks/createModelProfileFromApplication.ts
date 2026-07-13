@@ -1,4 +1,6 @@
 import { APIError, type CollectionAfterChangeHook, type CollectionBeforeChangeHook } from "payload";
+import { currentRetreatEdition } from "@/data/retreat-editions";
+import type { Media, RetreatEvent } from "@/payload-types";
 
 type ModelProfileCategory =
   | "glamour"
@@ -8,6 +10,44 @@ type ModelProfileCategory =
   | "fine-art"
   | "lifestyle"
   | "commercial";
+
+type ModelProfileSeed = {
+  adminNotes: string;
+  approvalStatus: "draft" | "approved";
+  artistStatement?: string;
+  biography?: string;
+  bookingPreferences: {
+    email?: string;
+    mobilePhone?: string;
+    notifyByEmail: boolean;
+    notifyBySms: boolean;
+    notifyInDashboard: boolean;
+    shareEmail: boolean;
+    shareInstagram: boolean;
+    shareMobilePhone: boolean;
+    shareWebsite: boolean;
+  };
+  city?: string;
+  displayName: string;
+  featuredImage?: number | Media | null;
+  instagram?: string;
+  modelingCategories: ModelProfileCategory[];
+  portfolioImages: (number | Media)[];
+  publicDisplay: {
+    artistStatement: boolean;
+    biography: boolean;
+    categories: boolean;
+    instagram: boolean;
+    location: boolean;
+    website: boolean;
+  };
+  publicIntroduction?: string;
+  slug?: string;
+  state?: string;
+  usagePermissionConfirmed: boolean;
+  website?: string;
+  _status: "draft" | "published";
+};
 
 function numericID(value: unknown): number | null {
   if (typeof value === "number") return value;
@@ -141,7 +181,11 @@ export const validateModelProfileCreationRequest: CollectionBeforeChangeHook = (
   originalDoc,
   req,
 }) => {
-  if (!data.createProfileFromApplication) return data;
+  const approveForFoundersEdition = data.approveForFoundersEdition === true;
+  const createProfileFromApplication =
+    data.createProfileFromApplication === true || approveForFoundersEdition;
+
+  if (!createProfileFromApplication) return data;
 
   const nextStatus = data.applicationStatus ?? originalDoc?.applicationStatus;
   const linkedProfile = data.linkedModelProfile ?? originalDoc?.linkedModelProfile;
@@ -154,16 +198,144 @@ export const validateModelProfileCreationRequest: CollectionBeforeChangeHook = (
     throw new APIError("Accept the application before creating a draft model profile.", 400);
   }
 
-  if (relationshipID(linkedProfile)) {
+  if (!approveForFoundersEdition && relationshipID(linkedProfile)) {
     throw new APIError("This application is already linked to a model profile.", 400);
   }
 
   req.context.createModelProfileFromApplication = originalDoc?.id;
   req.context.createModelProfileFromApplicationName = originalDoc?.stageName;
+  req.context.approveModelApplicationForFoundersEdition = approveForFoundersEdition;
   delete data.createProfileFromApplication;
+  delete data.approveForFoundersEdition;
 
   return data;
 };
+
+async function approveApplicationMediaForPublicUse(
+  req: Parameters<CollectionAfterChangeHook>[0]["req"],
+  mediaIDs: number[],
+) {
+  await Promise.all(
+    Array.from(new Set(mediaIDs)).map((id) =>
+      req.payload.update({
+        collection: "media",
+        data: { usageApproved: true },
+        id,
+        overrideAccess: true,
+        req,
+      }),
+    ),
+  );
+}
+
+async function addProfileToCurrentRetreat(
+  req: Parameters<CollectionAfterChangeHook>[0]["req"],
+  profileID: number,
+) {
+  const eventResult = await req.payload.find({
+    collection: "retreat-events",
+    depth: 0,
+    limit: 1,
+    overrideAccess: true,
+    req,
+    where: {
+      slug: {
+        in: [currentRetreatEdition.publicSlug, currentRetreatEdition.legacySlug],
+      },
+    },
+  });
+
+  const event = eventResult.docs[0];
+  if (!event) {
+    throw new APIError("The Founders Edition retreat event could not be found.", 400);
+  }
+
+  type RetreatArtistAssignment = NonNullable<RetreatEvent["participatingArtists"]>[number];
+  const existingArtists: RetreatArtistAssignment[] = Array.isArray(event.participatingArtists)
+    ? event.participatingArtists
+    : [];
+  const existingIndex = existingArtists.findIndex((assignment) => relationshipID(assignment.artist) === profileID);
+  const nextArtists = existingArtists.map((assignment) => ({ ...assignment }));
+  const assignment: RetreatArtistAssignment = {
+    artist: profileID,
+    displayOrder: existingIndex >= 0 ? nextArtists[existingIndex]?.displayOrder || 100 : 100,
+    minimumBookingHours:
+      existingIndex >= 0 ? nextArtists[existingIndex]?.minimumBookingHours || "1" : "1",
+    participationStatus: "approved",
+  };
+
+  if (existingIndex >= 0) {
+    nextArtists[existingIndex] = { ...nextArtists[existingIndex], ...assignment };
+  } else {
+    nextArtists.push(assignment);
+  }
+
+  await req.payload.update({
+    collection: "retreat-events",
+    data: {
+      participatingArtists: nextArtists,
+      _status: "published",
+    },
+    id: event.id,
+    overrideAccess: true,
+    req,
+  });
+}
+
+function buildModelProfileSeed({
+  additionalPortfolioImages,
+  approveForPublicLineup,
+  preferredHeroImage,
+  profileDisplayName,
+  slug,
+  sourceDoc,
+}: {
+  additionalPortfolioImages: number[];
+  approveForPublicLineup: boolean;
+  preferredHeroImage: number | null;
+  profileDisplayName: string;
+  slug?: string;
+  sourceDoc: Record<string, unknown>;
+}): ModelProfileSeed {
+  return {
+    adminNotes: buildAdminNotes(sourceDoc),
+    approvalStatus: approveForPublicLineup ? "approved" : "draft",
+    artistStatement: cleanString(sourceDoc.artistStatement),
+    biography: cleanString(sourceDoc.shortBiography),
+    bookingPreferences: {
+      email: cleanString(sourceDoc.email),
+      mobilePhone: cleanString(sourceDoc.phone),
+      notifyByEmail: true,
+      notifyBySms: false,
+      notifyInDashboard: false,
+      shareEmail: true,
+      shareInstagram: false,
+      shareMobilePhone: false,
+      shareWebsite: false,
+    },
+    city: cleanString(sourceDoc.city),
+    displayName: profileDisplayName,
+    featuredImage: preferredHeroImage,
+    instagram: cleanString(sourceDoc.instagramURL),
+    modelingCategories: mapCreativeInterestsToProfileCategories(sourceDoc.creativeInterests),
+    portfolioImages: additionalPortfolioImages,
+    publicDisplay: {
+      artistStatement: approveForPublicLineup,
+      biography: approveForPublicLineup,
+      categories: approveForPublicLineup,
+      instagram: approveForPublicLineup,
+      location: approveForPublicLineup,
+      website: approveForPublicLineup,
+    },
+    publicIntroduction:
+      typeof sourceDoc.shortBiography === "string" ? sourceDoc.shortBiography.slice(0, 240) : undefined,
+    slug,
+    state: cleanString(sourceDoc.state),
+    usagePermissionConfirmed: approveForPublicLineup,
+    website: cleanString(sourceDoc.websiteURL) || cleanString(sourceDoc.portfolioURL),
+    _status: approveForPublicLineup ? "published" : "draft",
+  };
+}
 
 export const createModelProfileFromApplication: CollectionAfterChangeHook = async ({
   doc,
@@ -178,7 +350,6 @@ export const createModelProfileFromApplication: CollectionAfterChangeHook = asyn
   const existingLinkedProfileID = relationshipID(sourceDoc.linkedModelProfile);
 
   if (req.context.createModelProfileFromApplication !== doc.id) return doc;
-  if (existingLinkedProfileID) return doc;
 
   const profileDisplayName =
     cleanString(sourceDoc.stageName) ??
@@ -189,71 +360,71 @@ export const createModelProfileFromApplication: CollectionAfterChangeHook = asyn
     throw new APIError("Add a display / stage name before creating a draft model profile.", 400);
   }
 
-  const slug = await createUniqueModelSlug(req, profileDisplayName);
   const preferredHeroImage = relationshipID(sourceDoc.preferredHeroImage);
   const additionalPortfolioImages = Array.isArray(sourceDoc.additionalPortfolioImages)
     ? sourceDoc.additionalPortfolioImages.map(relationshipID).filter(Boolean)
     : [];
+  const approveForPublicLineup = req.context.approveModelApplicationForFoundersEdition === true;
 
-  const profile = await req.payload.create({
-    collection: "model-profiles",
-    data: {
-      adminNotes: buildAdminNotes(sourceDoc),
-      approvalStatus: "draft",
-      artistStatement: sourceDoc.artistStatement,
-      biography: sourceDoc.shortBiography,
-      bookingPreferences: {
-        email: cleanString(sourceDoc.email),
-        mobilePhone: cleanString(sourceDoc.phone),
-        notifyByEmail: true,
-        notifyBySms: false,
-        notifyInDashboard: false,
-        shareEmail: true,
-        shareInstagram: false,
-        shareMobilePhone: false,
-        shareWebsite: false,
-      },
-      city: sourceDoc.city,
-      displayName: profileDisplayName,
-      featuredImage: preferredHeroImage,
-      instagram: sourceDoc.instagramURL,
-      modelingCategories: mapCreativeInterestsToProfileCategories(sourceDoc.creativeInterests),
-      portfolioImages: additionalPortfolioImages,
-      publicDisplay: {
-        artistStatement: false,
-        biography: false,
-        categories: false,
-        instagram: false,
-        location: false,
-        website: false,
-      },
-      publicIntroduction:
-        typeof sourceDoc.shortBiography === "string" ? sourceDoc.shortBiography.slice(0, 240) : undefined,
-      slug,
-      state: sourceDoc.state,
-      usagePermissionConfirmed: false,
-      website: sourceDoc.websiteURL || sourceDoc.portfolioURL,
-      _status: "draft",
-    },
-    overrideAccess: true,
-    req,
+  if (approveForPublicLineup && !preferredHeroImage) {
+    throw new APIError("Add a preferred profile image before approving the public lineup.", 400);
+  }
+
+  if (approveForPublicLineup) {
+    await approveApplicationMediaForPublicUse(req, [
+      preferredHeroImage,
+      ...additionalPortfolioImages,
+    ].filter((id): id is number => typeof id === "number"));
+  }
+
+  const profileSeed = buildModelProfileSeed({
+    additionalPortfolioImages,
+    approveForPublicLineup,
+    preferredHeroImage,
+    profileDisplayName,
+    sourceDoc,
+    slug: existingLinkedProfileID ? undefined : await createUniqueModelSlug(req, profileDisplayName),
   });
 
-  req.context.createModelProfileFromApplication = null;
-  req.context.createModelProfileFromApplicationName = null;
+  const profile = existingLinkedProfileID
+    ? await req.payload.update({
+        collection: "model-profiles",
+        data: profileSeed,
+        draft: true,
+        id: existingLinkedProfileID,
+        overrideAccess: true,
+        req,
+      })
+    : await req.payload.create({
+        collection: "model-profiles",
+        data: profileSeed,
+        draft: true,
+        overrideAccess: true,
+        req,
+      });
+
+  if (approveForPublicLineup) {
+    await addProfileToCurrentRetreat(req, profile.id);
+  }
+
+  const linkedModelProfile = existingLinkedProfileID || profile.id;
 
   await req.payload.update({
     collection: "model-applications",
     data: {
-      linkedModelProfile: profile.id,
+      linkedModelProfile,
     },
     id: doc.id,
     overrideAccess: true,
     req,
   });
 
+  req.context.createModelProfileFromApplication = null;
+  req.context.createModelProfileFromApplicationName = null;
+  req.context.approveModelApplicationForFoundersEdition = null;
+
   return {
     ...doc,
-    linkedModelProfile: profile.id,
+    linkedModelProfile,
   };
 };

@@ -64,24 +64,37 @@ export const ModelApplications: CollectionConfig = {
               name: "createProfileFromApplication",
               type: "checkbox",
               defaultValue: false,
-              label: "Step 2 — Create the private draft profile",
+              label: "Step 2 — Create private draft profile only",
               virtual: true,
               admin: {
                 condition: (_, siblingData) =>
                   siblingData?.applicationStatus === "accepted" && !siblingData?.linkedModelProfile,
                 description:
-                  "Only use this after Step 1 is Accepted. Check this box and save. The system will copy the application into a private draft Featured Model profile. This option disappears after the draft is created.",
+                  "Use this when you want to keep reviewing before anything can appear publicly. Check this box and save. The system copies the application into a private draft Featured Model profile.",
+                readOnly: false,
+              },
+            },
+            {
+              name: "approveForFoundersEdition",
+              type: "checkbox",
+              defaultValue: false,
+              label: "Step 2 — Approve for Founders Edition public lineup",
+              virtual: true,
+              admin: {
+                condition: (_, siblingData) => siblingData?.applicationStatus === "accepted",
+                description:
+                  "Use this when the applicant is accepted and ready to appear publicly. Check this box and save once. The system creates or updates the Featured Model profile, approves the submitted profile image for platform use, publishes the profile, adds the artist to the Founders Edition retreat, and approves that event assignment for public display.",
                 readOnly: false,
               },
             },
             {
               name: "linkedModelProfile",
               type: "relationship",
-              label: "Step 3 — Draft profile created?",
+              label: "Step 3 — Profile status receipt",
               relationTo: "model-profiles",
               admin: {
                 description:
-                  "This is a status receipt, not a task. If it says “Select a value,” no draft profile exists yet. If it shows a model name, the draft profile exists. Go to Models / Featured Artists in the left menu and open that same name. Do not use the plus button here.",
+                  "This is a receipt, not a task. If it shows a name, the Featured Model profile exists. If you used the public lineup approval above, the profile and Founders Edition event assignment are handled automatically.",
                 readOnly: true,
               },
             },
