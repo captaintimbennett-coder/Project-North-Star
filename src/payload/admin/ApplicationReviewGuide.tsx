@@ -42,17 +42,20 @@ export function ModelApplicationReviewGuide() {
   return (
     <section style={cardStyle}>
       <p style={eyebrowStyle}>What to do next</p>
-      <h3 style={titleStyle}>Process this model application in this order.</h3>
+      <h3 style={titleStyle}>One-screen review flow.</h3>
       <ol style={listStyle}>
         <li>Read the application and look at the submitted image.</li>
         <li>Set Step 1 to Accepted, Declined, Waitlist, or Reviewing.</li>
-        <li>If accepted and ready to publish, check “Approve for Founders Edition public lineup.”</li>
-        <li>Save once. The system creates the profile, approves the image, adds the artist to the retreat, and publishes the public lineup assignment.</li>
-        <li>If you only want a private draft, use “Create private draft profile only” instead.</li>
-        <li>Step 3 is only a receipt. If it shows a model name, the profile exists.</li>
+        <li>
+          If accepted and ready to show publicly, check “Approve for Founders Edition public lineup” and save once.
+        </li>
+        <li>
+          If accepted but not ready to show publicly, check “Create private draft profile only” and save once.
+        </li>
+        <li>After saving, Step 3 is just the receipt showing which Featured Model profile was created or updated.</li>
       </ol>
       <p style={noteStyle}>
-        Safe rule: only the public lineup checkbox publishes the artist-facing pieces. The private draft checkbox keeps the profile private.
+        Public lineup approval handles the whole chain: profile, image approval, Founders Edition event assignment, and public display status. Private draft keeps everything internal.
       </p>
     </section>
   );

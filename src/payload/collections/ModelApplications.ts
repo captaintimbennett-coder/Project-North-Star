@@ -64,13 +64,13 @@ export const ModelApplications: CollectionConfig = {
               name: "createProfileFromApplication",
               type: "checkbox",
               defaultValue: false,
-              label: "Step 2 — Create private draft profile only",
+              label: "Step 2A — Private draft only",
               virtual: true,
               admin: {
                 condition: (_, siblingData) =>
                   siblingData?.applicationStatus === "accepted" && !siblingData?.linkedModelProfile,
                 description:
-                  "Use this when you want to keep reviewing before anything can appear publicly. Check this box and save. The system copies the application into a private draft Featured Model profile.",
+                  "Use this if the applicant is accepted, but Tim still needs to review the profile before anything appears publicly. Check this box and save once. Nothing is added to the public lineup.",
                 readOnly: false,
               },
             },
@@ -78,12 +78,12 @@ export const ModelApplications: CollectionConfig = {
               name: "approveForFoundersEdition",
               type: "checkbox",
               defaultValue: false,
-              label: "Step 2 — Approve for Founders Edition public lineup",
+              label: "Step 2B — Approve publicly for Founders Edition",
               virtual: true,
               admin: {
                 condition: (_, siblingData) => siblingData?.applicationStatus === "accepted",
                 description:
-                  "Use this when the applicant is accepted and ready to appear publicly. Check this box and save once. The system creates or updates the Featured Model profile, approves the submitted profile image for platform use, publishes the profile, adds the artist to the Founders Edition retreat, and approves that event assignment for public display.",
+                  "Recommended when the applicant is accepted and ready to show on the site. Check this box and save once. The system creates or updates the Featured Model profile, approves the image, publishes the profile, adds the artist to Founders Edition, and approves the public lineup assignment.",
                 readOnly: false,
               },
             },
@@ -94,7 +94,7 @@ export const ModelApplications: CollectionConfig = {
               relationTo: "model-profiles",
               admin: {
                 description:
-                  "This is a receipt, not a task. If it shows a name, the Featured Model profile exists. If you used the public lineup approval above, the profile and Founders Edition event assignment are handled automatically.",
+                  "No action needed here. This shows the Featured Model profile created or updated by Step 2. If you chose Step 2B, the public profile and Founders Edition lineup assignment were handled automatically.",
                 readOnly: true,
               },
             },
@@ -106,7 +106,7 @@ export const ModelApplications: CollectionConfig = {
               relationTo: "media",
               admin: {
                 description:
-                  "Private review image submitted by the applicant. Nothing is published unless a media item is explicitly approved for platform use later.",
+                  "Private review image submitted by the applicant. Step 2B approves this image for platform use automatically.",
               },
             },
             {
