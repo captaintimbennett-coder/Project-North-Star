@@ -125,6 +125,21 @@ async function getFullModelApplication(
   return fullApplication as unknown as Record<string, unknown>;
 }
 
+async function runAsApplicationReviewSystemAction<T>(
+  req: Parameters<CollectionAfterChangeHook>[0]["req"],
+  action: () => Promise<T>,
+) {
+  const previousValue = req.context.applicationReviewSystemAction;
+  req.context.applicationReviewSystemAction = true;
+
+  try {
+    return await action();
+  } finally {
+    if (previousValue === undefined) delete req.context.applicationReviewSystemAction;
+    else req.context.applicationReviewSystemAction = previousValue;
+  }
+}
+
 async function repairLinkedModelProfileTitle({
   displayName,
   profileID,
@@ -144,13 +159,15 @@ async function repairLinkedModelProfileTitle({
 
   if (!titleNeedsRepair((profile as unknown as Record<string, unknown>).displayName)) return;
 
-  await req.payload.update({
-    collection: "model-profiles",
-    data: { displayName },
-    id: profileID,
-    overrideAccess: true,
-    req,
-  });
+  await runAsApplicationReviewSystemAction(req, () =>
+    req.payload.update({
+      collection: "model-profiles",
+      data: { displayName },
+      id: profileID,
+      overrideAccess: true,
+      req,
+    }),
+  );
 }
 
 async function repairApplicationMediaTitle({
@@ -172,13 +189,15 @@ async function repairApplicationMediaTitle({
 
   if (!titleNeedsRepair((media as unknown as Record<string, unknown>).alt)) return;
 
-  await req.payload.update({
-    collection: "media",
-    data: { alt: `Private application image — ${profileDisplayName}` },
-    id: mediaID,
-    overrideAccess: true,
-    req,
-  });
+  await runAsApplicationReviewSystemAction(req, () =>
+    req.payload.update({
+      collection: "media",
+      data: { alt: `Private application image — ${profileDisplayName}` },
+      id: mediaID,
+      overrideAccess: true,
+      req,
+    }),
+  );
 }
 
 async function repairApplicationReviewLabels({
