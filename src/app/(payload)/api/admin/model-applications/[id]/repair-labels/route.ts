@@ -1,6 +1,7 @@
 import config from "@payload-config";
 import { NextRequest, NextResponse } from "next/server";
 import { getPayload } from "payload";
+import { getCurrentAccount } from "@/lib/auth/current-account";
 import { isStaff } from "@/payload/access/account";
 import { repairApplicationReviewLabelsForApplication } from "@/payload/hooks/createModelProfileFromApplication";
 
@@ -10,11 +11,11 @@ type RouteContext = {
   params: Promise<{ id: string }>;
 };
 
-export async function POST(request: NextRequest, context: RouteContext) {
+export async function POST(_request: NextRequest, context: RouteContext) {
   const payload = await getPayload({ config });
-  const { user } = await payload.auth({ headers: request.headers });
+  const account = await getCurrentAccount();
 
-  if (!isStaff(user)) {
+  if (!isStaff(account)) {
     return NextResponse.json({ error: "Only active administrators can repair application labels." }, { status: 403 });
   }
 
