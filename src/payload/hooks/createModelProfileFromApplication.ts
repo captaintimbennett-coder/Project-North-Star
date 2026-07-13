@@ -10,12 +10,36 @@ type ModelProfileCategory =
   | "lifestyle"
   | "commercial";
 
-function relationshipID(value: unknown): number | null {
+type RepairApplicationReviewLabelsResult = {
+  displayName?: string;
+  mediaIDs: number[];
+  profileID?: number;
+  repairedMedia: number;
+  repairedProfile: boolean;
+};
+
+function numericID(value: unknown): number | null {
   if (typeof value === "number") return value;
+  if (typeof value === "string" && /^\d+$/.test(value)) return Number(value);
+  return null;
+}
+
+function relationshipID(value: unknown): number | null {
+  const directID = numericID(value);
+  if (directID) return directID;
+
   if (value && typeof value === "object" && "id" in value) {
     const id = (value as { id?: unknown }).id;
-    if (typeof id === "number") return id;
+    const nestedID = numericID(id);
+    if (nestedID) return nestedID;
   }
+
+  if (value && typeof value === "object" && "value" in value) {
+    const id = (value as { value?: unknown }).value;
+    const nestedID = numericID(id);
+    if (nestedID) return nestedID;
+  }
+
   return null;
 }
 
@@ -136,7 +160,10 @@ async function runDatabaseRepair(
 
   if (!db.drizzle) throw new APIError("The database repair connection is unavailable.", 500);
 
-  await db.drizzle.execute(query);
+  const result = await db.drizzle.execute(query);
+  const rowCount = (result as { rowCount?: unknown })?.rowCount;
+
+  return typeof rowCount === "number" ? rowCount : 0;
 }
 
 async function repairLinkedModelProfileTitle({
@@ -155,9 +182,9 @@ async function repairLinkedModelProfileTitle({
     overrideAccess: true,
   });
 
-  if (!titleNeedsRepair((profile as unknown as Record<string, unknown>).displayName)) return;
+  if (!titleNeedsRepair((profile as unknown as Record<string, unknown>).displayName)) return false;
 
-  await runDatabaseRepair(
+  const repairedRows = await runDatabaseRepair(
     payload,
     sql`
       update model_profiles
@@ -167,6 +194,8 @@ async function repairLinkedModelProfileTitle({
         and (display_name is null or btrim(display_name) = '' or display_name ilike 'untitled%')
     `,
   );
+
+  return repairedRows > 0;
 }
 
 async function repairApplicationMediaTitle({
@@ -185,9 +214,9 @@ async function repairApplicationMediaTitle({
     overrideAccess: true,
   });
 
-  if (!titleNeedsRepair((media as unknown as Record<string, unknown>).alt)) return;
+  if (!titleNeedsRepair((media as unknown as Record<string, unknown>).alt)) return false;
 
-  await runDatabaseRepair(
+  const repairedRows = await runDatabaseRepair(
     payload,
     sql`
       update media
@@ -197,6 +226,8 @@ async function repairApplicationMediaTitle({
         and (alt is null or btrim(alt) = '' or alt ilike 'untitled%')
     `,
   );
+
+  return repairedRows > 0;
 }
 
 async function repairApplicationReviewLabels({
@@ -205,13 +236,21 @@ async function repairApplicationReviewLabels({
 }: {
   payload: Payload;
   sourceDoc: Record<string, unknown>;
-}) {
+}): Promise<RepairApplicationReviewLabelsResult> {
   const profileDisplayName = cleanString(sourceDoc.stageName);
-  if (!profileDisplayName) return;
+  const result: RepairApplicationReviewLabelsResult = {
+    mediaIDs: [],
+    repairedMedia: 0,
+    repairedProfile: false,
+  };
+
+  if (!profileDisplayName) return result;
+  result.displayName = profileDisplayName;
 
   const linkedProfileID = relationshipID(sourceDoc.linkedModelProfile);
+  if (linkedProfileID) result.profileID = linkedProfileID;
   if (linkedProfileID) {
-    await repairLinkedModelProfileTitle({
+    result.repairedProfile = await repairLinkedModelProfileTitle({
       displayName: profileDisplayName,
       payload,
       profileID: linkedProfileID,
@@ -219,12 +258,14 @@ async function repairApplicationReviewLabels({
   }
 
   const preferredHeroImage = relationshipID(sourceDoc.preferredHeroImage);
+  if (preferredHeroImage) result.mediaIDs.push(preferredHeroImage);
   if (preferredHeroImage) {
-    await repairApplicationMediaTitle({
+    const repaired = await repairApplicationMediaTitle({
       mediaID: preferredHeroImage,
       payload,
       profileDisplayName,
     });
+    if (repaired) result.repairedMedia += 1;
   }
 
   if (Array.isArray(sourceDoc.additionalPortfolioImages)) {
@@ -232,13 +273,17 @@ async function repairApplicationReviewLabels({
       const mediaID = relationshipID(image);
       if (!mediaID) continue;
 
-      await repairApplicationMediaTitle({
+      result.mediaIDs.push(mediaID);
+      const repaired = await repairApplicationMediaTitle({
         mediaID,
         payload,
         profileDisplayName,
       });
+      if (repaired) result.repairedMedia += 1;
     }
   }
+
+  return result;
 }
 
 export async function repairApplicationReviewLabelsForApplication({
@@ -255,7 +300,7 @@ export async function repairApplicationReviewLabelsForApplication({
     overrideAccess: true,
   })) as unknown as Record<string, unknown>;
 
-  await repairApplicationReviewLabels({ payload, sourceDoc });
+  return repairApplicationReviewLabels({ payload, sourceDoc });
 }
 
 export const validateModelProfileCreationRequest: CollectionBeforeChangeHook = ({

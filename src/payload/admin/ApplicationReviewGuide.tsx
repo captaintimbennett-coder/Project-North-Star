@@ -98,13 +98,31 @@ function RepairModelApplicationLabelsButton() {
         method: "POST",
       });
 
+      const result = (await response.json().catch(() => null)) as {
+        error?: string;
+        result?: {
+          displayName?: string;
+          mediaIDs?: number[];
+          profileID?: number;
+          repairedMedia?: number;
+          repairedProfile?: boolean;
+        };
+      } | null;
+
       if (!response.ok) {
-        const result = (await response.json().catch(() => null)) as { error?: string } | null;
         throw new Error(result?.error || "The repair did not finish.");
       }
 
-      setMessage("Done. Refreshing this page now…");
-      window.location.reload();
+      const repairResult = result?.result;
+      const fixedSomething = repairResult?.repairedProfile || Number(repairResult?.repairedMedia ?? 0) > 0;
+
+      setMessage(
+        fixedSomething
+          ? `Done. Fixed profile: ${repairResult?.repairedProfile ? "yes" : "no"}. Fixed images: ${repairResult?.repairedMedia ?? 0}. Refreshing now…`
+          : `The repair ran, but did not change anything. Found profile: ${repairResult?.profileID ?? "no"}. Found images: ${repairResult?.mediaIDs?.length ?? 0}.`,
+      );
+
+      if (fixedSomething) window.setTimeout(() => window.location.reload(), 900);
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "The repair did not finish.");
     } finally {

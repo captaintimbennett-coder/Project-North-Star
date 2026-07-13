@@ -26,7 +26,7 @@ export async function POST(_request: NextRequest, context: RouteContext) {
     return NextResponse.json({ error: "That application ID is not valid." }, { status: 400 });
   }
 
-  await repairApplicationReviewLabelsForApplication({ applicationID, payload });
+  const result = await repairApplicationReviewLabelsForApplication({ applicationID, payload });
 
-  return NextResponse.json({ ok: true });
+  return NextResponse.json({ ok: true, result });
 }
