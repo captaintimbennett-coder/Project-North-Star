@@ -116,6 +116,12 @@ master classes, mentoring, and future creative experiences.
 - [x] Complete PR #7 production hardening: route smoke tests, production email
   smoke tests, SendGrid key rotation, media storage risk documentation, and Neon
   SSL follow-up.
+- [x] Complete Mission 04 Application Email Foundation using the existing
+  SendGrid/Payload transactional email infrastructure. Model and photographer
+  applications now send receipt-only applicant confirmations and minimal
+  internal admin notifications after the private application record is created,
+  without acceptance, decline, waitlist, payment, marketing, SMS, or CRM
+  automation.
 - [x] Complete PR #9 production media storage foundation with Vercel Blob as the
   approved durable object-storage standard for Payload media uploads.
   Production verification completed July 8, 2026: Payload Admin upload,

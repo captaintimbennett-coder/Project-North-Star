@@ -54,8 +54,9 @@ model is accepted; availability selections never replace explicit consent.
   to false. Anonymous media reads remain forbidden.
 - If the application record fails after media creation, the newly created media
   records are deleted to avoid orphaned private storage.
-- No submission creates an account, master profile, public page, message,
-  payment, or email.
+- No submission creates an account, master profile, public page, message, or
+  payment. After the private application record is created, the platform sends a
+  receipt-only applicant confirmation and a minimal internal admin notification.
 
 ## Deployment note
 

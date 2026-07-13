@@ -320,17 +320,24 @@ development behavior.
 ### Transactional email foundation
 
 SendGrid is the approved production transactional email provider for account
-invitations and password recovery. Payload email delivery is configured through
-a server-only SendGrid adapter. Account lifecycle email templates live in the
-shared email service layer and provide both branded HTML and plain-text output.
+invitations, password recovery, and application receipt notifications. Payload
+email delivery is configured through a server-only SendGrid adapter. Account
+lifecycle and application email templates live in the shared email service
+layer and provide both branded HTML and plain-text output.
 
 Account invitation creation generates a secure raw token, stores only the token
 hash, and sends the activation link through SendGrid. Password recovery uses a
 privacy-safe request endpoint that always returns the same response so account
 existence is not disclosed.
 
+Model and photographer application submissions send receipt-only applicant
+confirmations and minimal internal admin notifications after the private
+application record is created. Application email delivery failures are logged
+server-side and must not fail the application submission.
+
 Transactional email does not authorize marketing email, newsletters,
-notification automation, public registration, dashboards, or booking workflows.
+acceptance/decline/waitlist automation, public registration, dashboards, SMS,
+CRM messaging, payments, or booking workflows.
 
 ### Production deployment
 

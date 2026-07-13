@@ -1,5 +1,9 @@
 import config from "@payload-config";
 import { countryOptions, usStateOptions } from "@/data/location-options";
+import {
+  sendModelApplicationReceived,
+  sendPhotographerApplicationReceived,
+} from "@/lib/email/application-email";
 import { getPayload, type File as PayloadFile } from "payload";
 import {
   ACCEPTED_IMAGE_TYPES,
@@ -326,7 +330,8 @@ export async function createPublicModelApplication(formData: FormData) {
       mediaIDs.push(media.id);
     }
 
-    return await payload.create({
+    const submittedAt = new Date().toISOString();
+    const application = await payload.create({
       collection: "model-applications",
       data: {
         ...common,
@@ -346,10 +351,20 @@ export async function createPublicModelApplication(formData: FormData) {
         additionalPortfolioImages: mediaIDs.slice(1),
         applicationStatus: "new",
         consentImageUsageConfirmed,
-        submittedAt: new Date().toISOString(),
+        submittedAt,
       },
       overrideAccess: true,
     });
+
+    await sendModelApplicationReceived({
+      applicantEmail: common.email,
+      applicantName: stageName,
+      applicationId: application.id,
+      payload,
+      submittedAt,
+    });
+
+    return application;
   } catch (error) {
     await Promise.allSettled(
       mediaIDs.map((id) =>
@@ -391,7 +406,8 @@ export async function createPublicPhotographerApplication(formData: FormData) {
   assertValid(errors);
 
   const payload = await getPayload({ config });
-  return payload.create({
+  const submittedAt = new Date().toISOString();
+  const application = await payload.create({
     collection: "photographer-applications",
     data: {
       ...common,
@@ -407,10 +423,20 @@ export async function createPublicPhotographerApplication(formData: FormData) {
       collaborationStyleNotes: getOptionalString(formData, "collaborationStyleNotes"),
       applicationStatus: "new",
       internalImageReviewConfirmed,
-      submittedAt: new Date().toISOString(),
+      submittedAt,
     },
     overrideAccess: true,
   });
+
+  await sendPhotographerApplicationReceived({
+    applicantEmail: common.email,
+    applicantName: displayName || legalName,
+    applicationId: application.id,
+    payload,
+    submittedAt,
+  });
+
+  return application;
 }
 
 export { ApplicationValidationError };

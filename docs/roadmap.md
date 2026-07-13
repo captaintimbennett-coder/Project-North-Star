@@ -45,10 +45,10 @@ Status: Lone Star Retreat CMS foundation complete; site-wide migration deferred
 
 ## Phase 4 — Inquiries and applications
 
-Status: Version 1 Retreat applications complete; contact delivery and email deferred
+Status: Version 1 Retreat applications complete; application receipt email implemented; contact delivery deferred
 
 - connect secure contact form
-- add spam protection and email notifications
+- add spam protection and contact/inquiry email notifications
 - build inquiry review workflow
 - define model and photographer application requirements
 - implement application forms and review states
