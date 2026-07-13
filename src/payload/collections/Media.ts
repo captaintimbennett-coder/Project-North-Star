@@ -1,7 +1,6 @@
 import type { CollectionConfig } from "payload";
 import { ownerOnly, ownerOrEditorOnly } from "../access/account";
 import { authenticatedOrApprovedMedia } from "../access/authenticatedOrApprovedMedia";
-import { repairMediaLabelFromApplication } from "../hooks/createModelProfileFromApplication";
 
 export const Media: CollectionConfig = {
   slug: "media",
@@ -34,9 +33,6 @@ export const Media: CollectionConfig = {
       label: "Approved for platform use",
     },
   ],
-  hooks: {
-    afterRead: [repairMediaLabelFromApplication],
-  },
   upload: {
     focalPoint: true,
     imageSizes: [
