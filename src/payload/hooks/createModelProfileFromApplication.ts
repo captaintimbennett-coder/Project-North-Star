@@ -185,6 +185,10 @@ export const createModelProfileFromApplication: CollectionAfterChangeHook = asyn
     cleanString(req.context.createModelProfileFromApplicationName) ??
     `Model application #${doc.id}`;
 
+  if (!cleanString(sourceDoc.stageName) && !cleanString(req.context.createModelProfileFromApplicationName)) {
+    throw new APIError("Add a display / stage name before creating a draft model profile.", 400);
+  }
+
   const slug = await createUniqueModelSlug(req, profileDisplayName);
   const preferredHeroImage = relationshipID(sourceDoc.preferredHeroImage);
   const additionalPortfolioImages = Array.isArray(sourceDoc.additionalPortfolioImages)
