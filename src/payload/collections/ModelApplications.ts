@@ -64,24 +64,25 @@ export const ModelApplications: CollectionConfig = {
               name: "createProfileFromApplication",
               type: "checkbox",
               defaultValue: false,
-              label: "Step 2 — Create draft profile from this application",
+              label: "Step 2 — Create the private draft profile",
               virtual: true,
               admin: {
                 condition: (_, siblingData) =>
                   siblingData?.applicationStatus === "accepted" && !siblingData?.linkedModelProfile,
                 description:
-                  "Use this only after Step 1 is set to Accepted. Check the box, save, and the system will copy the application details into a private draft Featured Model profile. This option disappears after the draft profile is created.",
+                  "Only use this after Step 1 is Accepted. Check this box and save. The system will copy the application into a private draft Featured Model profile. This option disappears after the draft is created.",
                 readOnly: false,
               },
             },
             {
               name: "linkedModelProfile",
               type: "relationship",
-              label: "Step 3 — Draft profile status",
+              label: "Step 3 — Draft profile created?",
               relationTo: "model-profiles",
               admin: {
                 description:
-                  "If this says “Select a value,” no draft profile has been made for this application yet. Check Step 2 and save. If this shows a model name, go to Models / Featured Artists in the left menu and open that same name.",
+                  "This is a status receipt, not a task. If it says “Select a value,” no draft profile exists yet. If it shows a model name, the draft profile exists. Go to Models / Featured Artists in the left menu and open that same name. Do not use the plus button here.",
+                readOnly: true,
               },
             },
             { name: "privateAdminNotes", type: "textarea", label: "Private administrator notes" },
