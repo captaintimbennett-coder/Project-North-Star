@@ -18,6 +18,13 @@ function relationshipID(value: unknown): number | null {
   return null;
 }
 
+function cleanString(value: unknown): string | undefined {
+  if (typeof value !== "string") return undefined;
+
+  const trimmed = value.trim();
+  return trimmed || undefined;
+}
+
 function slugify(value: string): string {
   const slug = value
     .toLowerCase()
@@ -121,6 +128,7 @@ export const validateModelProfileCreationRequest: CollectionBeforeChangeHook = (
   }
 
   req.context.createModelProfileFromApplication = originalDoc?.id;
+  req.context.createModelProfileFromApplicationName = originalDoc?.stageName;
   delete data.createProfileFromApplication;
 
   return data;
@@ -136,24 +144,37 @@ export const createModelProfileFromApplication: CollectionAfterChangeHook = asyn
   if (doc.applicationStatus !== "accepted") return doc;
   if (relationshipID(doc.linkedModelProfile)) return doc;
 
-  const slug = await createUniqueModelSlug(req, doc.stageName);
-  const preferredHeroImage = relationshipID(doc.preferredHeroImage);
-  const additionalPortfolioImages = Array.isArray(doc.additionalPortfolioImages)
-    ? doc.additionalPortfolioImages.map(relationshipID).filter(Boolean)
+  const fullApplication = await req.payload.findByID({
+    collection: "model-applications",
+    depth: 0,
+    id: doc.id,
+    overrideAccess: true,
+    req,
+  });
+  const sourceDoc = { ...doc, ...fullApplication };
+  const profileDisplayName =
+    cleanString(sourceDoc.stageName) ??
+    cleanString(req.context.createModelProfileFromApplicationName) ??
+    `Model application #${doc.id}`;
+
+  const slug = await createUniqueModelSlug(req, profileDisplayName);
+  const preferredHeroImage = relationshipID(sourceDoc.preferredHeroImage);
+  const additionalPortfolioImages = Array.isArray(sourceDoc.additionalPortfolioImages)
+    ? sourceDoc.additionalPortfolioImages.map(relationshipID).filter(Boolean)
     : [];
 
   const profile = await req.payload.create({
     collection: "model-profiles",
     data: {
-      adminNotes: buildAdminNotes(doc),
+      adminNotes: buildAdminNotes(sourceDoc),
       approvalStatus: "draft",
-      artistStatement: doc.artistStatement,
-      biography: doc.shortBiography,
-      city: doc.city,
-      displayName: doc.stageName,
+      artistStatement: sourceDoc.artistStatement,
+      biography: sourceDoc.shortBiography,
+      city: sourceDoc.city,
+      displayName: profileDisplayName,
       featuredImage: preferredHeroImage,
-      instagram: doc.instagramURL,
-      modelingCategories: mapCreativeInterestsToProfileCategories(doc.creativeInterests),
+      instagram: sourceDoc.instagramURL,
+      modelingCategories: mapCreativeInterestsToProfileCategories(sourceDoc.creativeInterests),
       portfolioImages: additionalPortfolioImages,
       publicDisplay: {
         artistStatement: false,
@@ -164,11 +185,11 @@ export const createModelProfileFromApplication: CollectionAfterChangeHook = asyn
         website: false,
       },
       publicIntroduction:
-        typeof doc.shortBiography === "string" ? doc.shortBiography.slice(0, 240) : undefined,
+        typeof sourceDoc.shortBiography === "string" ? sourceDoc.shortBiography.slice(0, 240) : undefined,
       slug,
-      state: doc.state,
+      state: sourceDoc.state,
       usagePermissionConfirmed: false,
-      website: doc.websiteURL || doc.portfolioURL,
+      website: sourceDoc.websiteURL || sourceDoc.portfolioURL,
       _status: "draft",
     },
     overrideAccess: true,
@@ -176,6 +197,7 @@ export const createModelProfileFromApplication: CollectionAfterChangeHook = asyn
   });
 
   req.context.createModelProfileFromApplication = null;
+  req.context.createModelProfileFromApplicationName = null;
 
   await req.payload.update({
     collection: "model-applications",
