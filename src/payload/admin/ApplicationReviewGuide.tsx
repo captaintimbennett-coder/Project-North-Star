@@ -1,5 +1,7 @@
 "use client";
 
+import { useMemo, useState } from "react";
+
 const cardStyle = {
   background: "rgba(209, 162, 77, 0.10)",
   border: "1px solid rgba(209, 162, 77, 0.35)",
@@ -38,6 +40,91 @@ const noteStyle = {
   margin: "0.8rem 0 0",
 } as const;
 
+const actionStyle = {
+  alignItems: "flex-start",
+  background: "rgba(245, 240, 232, 0.06)",
+  border: "1px solid rgba(245, 240, 232, 0.18)",
+  borderRadius: "10px",
+  display: "flex",
+  flexDirection: "column",
+  gap: "0.65rem",
+  marginTop: "1rem",
+  padding: "0.85rem",
+} as const;
+
+const buttonStyle = {
+  background: "#d1a24d",
+  border: 0,
+  borderRadius: "999px",
+  color: "#111",
+  cursor: "pointer",
+  fontSize: "0.88rem",
+  fontWeight: 800,
+  padding: "0.65rem 0.95rem",
+} as const;
+
+const smallTextStyle = {
+  color: "rgba(245, 240, 232, 0.76)",
+  fontSize: "0.86rem",
+  lineHeight: 1.45,
+  margin: 0,
+} as const;
+
+function useModelApplicationID() {
+  return useMemo(() => {
+    if (typeof window === "undefined") return null;
+
+    const match = window.location.pathname.match(/\/admin\/collections\/model-applications\/(\d+)/);
+    if (!match?.[1]) return null;
+
+    return match[1];
+  }, []);
+}
+
+function RepairModelApplicationLabelsButton() {
+  const applicationID = useModelApplicationID();
+  const [message, setMessage] = useState<string | null>(null);
+  const [isRepairing, setIsRepairing] = useState(false);
+
+  if (!applicationID) return null;
+
+  async function repairLabels() {
+    setIsRepairing(true);
+    setMessage(null);
+
+    try {
+      const response = await fetch(`/api/admin/model-applications/${applicationID}/repair-labels`, {
+        credentials: "same-origin",
+        method: "POST",
+      });
+
+      if (!response.ok) {
+        const result = (await response.json().catch(() => null)) as { error?: string } | null;
+        throw new Error(result?.error || "The repair did not finish.");
+      }
+
+      setMessage("Done. Refreshing this page now…");
+      window.location.reload();
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "The repair did not finish.");
+    } finally {
+      setIsRepairing(false);
+    }
+  }
+
+  return (
+    <div style={actionStyle}>
+      <p style={smallTextStyle}>
+        If Step 3 or the image says “Untitled,” click this. It fixes the missing names without using the Save button.
+      </p>
+      <button disabled={isRepairing} onClick={repairLabels} style={buttonStyle} type="button">
+        {isRepairing ? "Fixing names…" : "Fix missing names now"}
+      </button>
+      {message ? <p style={smallTextStyle}>{message}</p> : null}
+    </div>
+  );
+}
+
 export function ModelApplicationReviewGuide() {
   return (
     <section style={cardStyle}>
@@ -54,6 +141,7 @@ export function ModelApplicationReviewGuide() {
       <p style={noteStyle}>
         Safe rule: nothing becomes public from this screen. The draft profile must still be reviewed and published later by Tim.
       </p>
+      <RepairModelApplicationLabelsButton />
     </section>
   );
 }

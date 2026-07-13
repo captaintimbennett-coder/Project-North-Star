@@ -84,20 +84,6 @@ export const ModelApplications: CollectionConfig = {
                   "If this says “Select a value,” no draft profile has been made for this application yet. Check Step 2 and save. If this shows a model name, go to Models / Featured Artists in the left menu and open that same name.",
               },
             },
-            {
-              name: "repairApplicationReviewLabels",
-              type: "checkbox",
-              defaultValue: false,
-              label: "Fix missing profile/image names",
-              virtual: true,
-              admin: {
-                condition: (_, siblingData) =>
-                  siblingData?.applicationStatus === "accepted" && Boolean(siblingData?.linkedModelProfile),
-                description:
-                  "Use this if Step 3 or the image says “Untitled.” Check this box, save, and the system will rename the draft profile and private image from this application.",
-                readOnly: false,
-              },
-            },
             { name: "privateAdminNotes", type: "textarea", label: "Private administrator notes" },
             {
               name: "preferredHeroImage",

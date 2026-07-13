@@ -455,10 +455,6 @@ export interface ModelApplication {
    * If this says “Select a value,” no draft profile has been made for this application yet. Check Step 2 and save. If this shows a model name, go to Models / Featured Artists in the left menu and open that same name.
    */
   linkedModelProfile?: (number | null) | ModelProfile;
-  /**
-   * Use this if Step 3 or the image says “Untitled.” Check this box, save, and the system will rename the draft profile and private image from this application.
-   */
-  repairApplicationReviewLabels?: boolean | null;
   privateAdminNotes?: string | null;
   /**
    * Private review image submitted by the applicant. Nothing is published unless a media item is explicitly approved for platform use later.
@@ -1094,7 +1090,6 @@ export interface ModelApplicationsSelect<T extends boolean = true> {
   applicationStatus?: T;
   createProfileFromApplication?: T;
   linkedModelProfile?: T;
-  repairApplicationReviewLabels?: T;
   privateAdminNotes?: T;
   preferredHeroImage?: T;
   additionalPortfolioImages?: T;

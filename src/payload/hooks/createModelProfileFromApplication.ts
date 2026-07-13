@@ -1,5 +1,5 @@
 import { sql } from "@payloadcms/db-postgres";
-import { APIError, type CollectionAfterChangeHook, type CollectionBeforeChangeHook } from "payload";
+import { APIError, type CollectionAfterChangeHook, type CollectionBeforeChangeHook, type Payload } from "payload";
 
 type ModelProfileCategory =
   | "glamour"
@@ -127,10 +127,10 @@ async function getFullModelApplication(
 }
 
 async function runDatabaseRepair(
-  req: Parameters<CollectionAfterChangeHook>[0]["req"],
+  payload: Payload,
   query: ReturnType<typeof sql>,
 ) {
-  const db = req.payload.db as unknown as {
+  const db = payload.db as unknown as {
     drizzle?: { execute: (query: ReturnType<typeof sql>) => Promise<unknown> };
   };
 
@@ -141,25 +141,24 @@ async function runDatabaseRepair(
 
 async function repairLinkedModelProfileTitle({
   displayName,
+  payload,
   profileID,
-  req,
 }: {
   displayName: string;
+  payload: Payload;
   profileID: number;
-  req: Parameters<CollectionAfterChangeHook>[0]["req"];
 }) {
-  const profile = await req.payload.findByID({
+  const profile = await payload.findByID({
     collection: "model-profiles",
     depth: 0,
     id: profileID,
     overrideAccess: true,
-    req,
   });
 
   if (!titleNeedsRepair((profile as unknown as Record<string, unknown>).displayName)) return;
 
   await runDatabaseRepair(
-    req,
+    payload,
     sql`
       update model_profiles
       set display_name = ${displayName},
@@ -172,25 +171,24 @@ async function repairLinkedModelProfileTitle({
 
 async function repairApplicationMediaTitle({
   mediaID,
+  payload,
   profileDisplayName,
-  req,
 }: {
   mediaID: number;
+  payload: Payload;
   profileDisplayName: string;
-  req: Parameters<CollectionAfterChangeHook>[0]["req"];
 }) {
-  const media = await req.payload.findByID({
+  const media = await payload.findByID({
     collection: "media",
     depth: 0,
     id: mediaID,
     overrideAccess: true,
-    req,
   });
 
   if (!titleNeedsRepair((media as unknown as Record<string, unknown>).alt)) return;
 
   await runDatabaseRepair(
-    req,
+    payload,
     sql`
       update media
       set alt = ${`Private application image — ${profileDisplayName}`},
@@ -202,10 +200,10 @@ async function repairApplicationMediaTitle({
 }
 
 async function repairApplicationReviewLabels({
-  req,
+  payload,
   sourceDoc,
 }: {
-  req: Parameters<CollectionAfterChangeHook>[0]["req"];
+  payload: Payload;
   sourceDoc: Record<string, unknown>;
 }) {
   const profileDisplayName = cleanString(sourceDoc.stageName);
@@ -215,8 +213,8 @@ async function repairApplicationReviewLabels({
   if (linkedProfileID) {
     await repairLinkedModelProfileTitle({
       displayName: profileDisplayName,
+      payload,
       profileID: linkedProfileID,
-      req,
     });
   }
 
@@ -224,8 +222,8 @@ async function repairApplicationReviewLabels({
   if (preferredHeroImage) {
     await repairApplicationMediaTitle({
       mediaID: preferredHeroImage,
+      payload,
       profileDisplayName,
-      req,
     });
   }
 
@@ -236,11 +234,28 @@ async function repairApplicationReviewLabels({
 
       await repairApplicationMediaTitle({
         mediaID,
+        payload,
         profileDisplayName,
-        req,
       });
     }
   }
+}
+
+export async function repairApplicationReviewLabelsForApplication({
+  applicationID,
+  payload,
+}: {
+  applicationID: number;
+  payload: Payload;
+}) {
+  const sourceDoc = (await payload.findByID({
+    collection: "model-applications",
+    depth: 0,
+    id: applicationID,
+    overrideAccess: true,
+  })) as unknown as Record<string, unknown>;
+
+  await repairApplicationReviewLabels({ payload, sourceDoc });
 }
 
 export const validateModelProfileCreationRequest: CollectionBeforeChangeHook = ({
@@ -249,15 +264,6 @@ export const validateModelProfileCreationRequest: CollectionBeforeChangeHook = (
   originalDoc,
   req,
 }) => {
-  if (data.repairApplicationReviewLabels) {
-    if (operation !== "update") {
-      throw new APIError("Save the application before fixing draft profile labels.", 400);
-    }
-
-    req.context.repairApplicationReviewLabels = originalDoc?.id;
-    delete data.repairApplicationReviewLabels;
-  }
-
   if (!data.createProfileFromApplication) return data;
 
   const nextStatus = data.applicationStatus ?? originalDoc?.applicationStatus;
@@ -293,9 +299,6 @@ export const createModelProfileFromApplication: CollectionAfterChangeHook = asyn
   const fullApplication = await getFullModelApplication(req, doc.id);
   const sourceDoc = { ...doc, ...fullApplication };
   const existingLinkedProfileID = relationshipID(sourceDoc.linkedModelProfile);
-
-  await repairApplicationReviewLabels({ req, sourceDoc });
-  req.context.repairApplicationReviewLabels = null;
 
   if (req.context.createModelProfileFromApplication !== doc.id) return doc;
   if (existingLinkedProfileID) return doc;
