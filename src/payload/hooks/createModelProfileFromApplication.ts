@@ -1,5 +1,11 @@
 import { sql } from "@payloadcms/db-postgres";
-import { APIError, type CollectionAfterChangeHook, type CollectionBeforeChangeHook, type Payload } from "payload";
+import {
+  APIError,
+  type CollectionAfterChangeHook,
+  type CollectionAfterReadHook,
+  type CollectionBeforeChangeHook,
+  type Payload,
+} from "payload";
 
 type ModelProfileCategory =
   | "glamour"
@@ -302,6 +308,98 @@ export async function repairApplicationReviewLabelsForApplication({
 
   return repairApplicationReviewLabels({ payload, sourceDoc });
 }
+
+async function findApplicationDisplayNameByLinkedProfile({
+  payload,
+  profileID,
+}: {
+  payload: Payload;
+  profileID: number;
+}) {
+  const applications = await payload.find({
+    collection: "model-applications",
+    depth: 0,
+    limit: 1,
+    overrideAccess: true,
+    where: { linkedModelProfile: { equals: profileID } },
+  });
+
+  return cleanString((applications.docs[0] as unknown as Record<string, unknown> | undefined)?.stageName);
+}
+
+async function findApplicationDisplayNameByPreferredImage({
+  mediaID,
+  payload,
+}: {
+  mediaID: number;
+  payload: Payload;
+}) {
+  const applications = await payload.find({
+    collection: "model-applications",
+    depth: 0,
+    limit: 1,
+    overrideAccess: true,
+    where: { preferredHeroImage: { equals: mediaID } },
+  });
+
+  return cleanString((applications.docs[0] as unknown as Record<string, unknown> | undefined)?.stageName);
+}
+
+export const repairModelProfileLabelFromApplication: CollectionAfterReadHook = async ({ doc, req }) => {
+  const profile = doc as Record<string, unknown>;
+  const profileID = relationshipID(profile.id);
+
+  if (!profileID || !titleNeedsRepair(profile.displayName)) return doc;
+
+  const displayName = await findApplicationDisplayNameByLinkedProfile({
+    payload: req.payload,
+    profileID,
+  });
+
+  if (!displayName) return doc;
+
+  profile.displayName = displayName;
+
+  try {
+    await repairLinkedModelProfileTitle({
+      displayName,
+      payload: req.payload,
+      profileID,
+    });
+  } catch {
+    // Do not block the admin screen if the legacy label repair cannot write immediately.
+  }
+
+  return doc;
+};
+
+export const repairMediaLabelFromApplication: CollectionAfterReadHook = async ({ doc, req }) => {
+  const media = doc as Record<string, unknown>;
+  const mediaID = relationshipID(media.id);
+
+  if (!mediaID || !titleNeedsRepair(media.alt)) return doc;
+
+  const displayName = await findApplicationDisplayNameByPreferredImage({
+    mediaID,
+    payload: req.payload,
+  });
+
+  if (!displayName) return doc;
+
+  media.alt = `Private application image — ${displayName}`;
+
+  try {
+    await repairApplicationMediaTitle({
+      mediaID,
+      payload: req.payload,
+      profileDisplayName: displayName,
+    });
+  } catch {
+    // Do not block the admin screen if the legacy label repair cannot write immediately.
+  }
+
+  return doc;
+};
 
 export const validateModelProfileCreationRequest: CollectionBeforeChangeHook = ({
   data,

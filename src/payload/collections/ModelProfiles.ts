@@ -1,6 +1,7 @@
 import type { CollectionConfig } from "payload";
 import { ownerOnly, ownerOrEditorOnly, staffOrOwnProfile, staffFieldAccess } from "../access/account";
 import { bookingPreferencesField } from "../fields/bookingPreferences";
+import { repairModelProfileLabelFromApplication } from "../hooks/createModelProfileFromApplication";
 import { validateProfileAccountRole } from "../hooks/validateProfileAccountRole";
 
 export const ModelProfiles: CollectionConfig = {
@@ -183,6 +184,7 @@ export const ModelProfiles: CollectionConfig = {
     bookingPreferencesField,
   ],
   hooks: {
+    afterRead: [repairModelProfileLabelFromApplication],
     beforeChange: [validateProfileAccountRole("model")],
   },
   versions: {
