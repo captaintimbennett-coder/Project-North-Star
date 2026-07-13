@@ -229,6 +229,15 @@ export const validateModelProfileCreationRequest: CollectionBeforeChangeHook = (
   originalDoc,
   req,
 }) => {
+  if (data.repairApplicationReviewLabels) {
+    if (operation !== "update") {
+      throw new APIError("Save the application before fixing draft profile labels.", 400);
+    }
+
+    req.context.repairApplicationReviewLabels = originalDoc?.id;
+    delete data.repairApplicationReviewLabels;
+  }
+
   if (!data.createProfileFromApplication) return data;
 
   const nextStatus = data.applicationStatus ?? originalDoc?.applicationStatus;
@@ -266,6 +275,7 @@ export const createModelProfileFromApplication: CollectionAfterChangeHook = asyn
   const existingLinkedProfileID = relationshipID(sourceDoc.linkedModelProfile);
 
   await repairApplicationReviewLabels({ req, sourceDoc });
+  req.context.repairApplicationReviewLabels = null;
 
   if (req.context.createModelProfileFromApplication !== doc.id) return doc;
   if (existingLinkedProfileID) return doc;
