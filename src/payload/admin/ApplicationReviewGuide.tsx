@@ -1,5 +1,7 @@
 "use client";
 
+import { currentRetreatEdition } from "@/data/retreat-editions";
+
 const cardStyle = {
   background: "rgba(209, 162, 77, 0.10)",
   border: "1px solid rgba(209, 162, 77, 0.35)",
@@ -47,7 +49,7 @@ export function ModelApplicationReviewGuide() {
         <li>Read the application and look at the submitted image.</li>
         <li>Set Step 1 to Accepted, Declined, Waitlist, or Reviewing.</li>
         <li>
-          If accepted and ready to show publicly, check “Approve for Founders Edition public lineup” and save once.
+          If accepted and ready to show publicly, check “Approve publicly for {currentRetreatEdition.shortTitle}” and save once.
         </li>
         <li>
           If accepted but not ready to show publicly, check “Create private draft profile only” and save once.
@@ -55,7 +57,7 @@ export function ModelApplicationReviewGuide() {
         <li>After saving, Step 3 is just the receipt showing which Featured Model profile was created or updated.</li>
       </ol>
       <p style={noteStyle}>
-        Public lineup approval handles the whole chain: profile, image approval, Founders Edition event assignment, and public display status. Private draft keeps everything internal.
+        Public lineup approval handles the whole chain: profile, image approval, {currentRetreatEdition.shortTitle} event assignment, and public display status. Private draft keeps everything internal.
       </p>
     </section>
   );

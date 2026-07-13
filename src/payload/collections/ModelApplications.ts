@@ -1,4 +1,5 @@
 import type { CollectionConfig } from "payload";
+import { currentRetreatEdition } from "@/data/retreat-editions";
 import { ownerOnly, ownerOrEditorOnly, staffOnly } from "../access/account";
 import {
   createModelProfileFromApplication,
@@ -78,13 +79,26 @@ export const ModelApplications: CollectionConfig = {
               name: "approveForFoundersEdition",
               type: "checkbox",
               defaultValue: false,
-              label: "Step 2B — Approve publicly for Founders Edition",
+              label: `Step 2B — Approve publicly for ${currentRetreatEdition.shortTitle}`,
               virtual: true,
               admin: {
-                condition: (_, siblingData) => siblingData?.applicationStatus === "accepted",
+                condition: (_, siblingData) =>
+                  siblingData?.applicationStatus === "accepted" && !siblingData?.publicLineupApprovedAt,
                 description:
-                  "Recommended when the applicant is accepted and ready to show on the site. Check this box and save once. The system creates or updates the Featured Model profile, approves the image, publishes the profile, adds the artist to Founders Edition, and approves the public lineup assignment.",
+                  `Recommended when the applicant is accepted and ready to show on the site. Check this box and save once. The system creates or updates the Featured Model profile, approves the image, publishes the profile, adds the artist to ${currentRetreatEdition.shortTitle}, and approves the public lineup assignment.`,
                 readOnly: false,
+              },
+            },
+            {
+              name: "publicLineupApprovedAt",
+              type: "date",
+              label: `Step 2B complete — Publicly approved for ${currentRetreatEdition.shortTitle}`,
+              admin: {
+                condition: (_, siblingData) => Boolean(siblingData?.publicLineupApprovedAt),
+                date: { pickerAppearance: "dayAndTime" },
+                description:
+                  `Done. This application has already created or updated the profile, approved the image, and added the artist to the ${currentRetreatEdition.shortTitle} public lineup.`,
+                readOnly: true,
               },
             },
             {
@@ -94,7 +108,7 @@ export const ModelApplications: CollectionConfig = {
               relationTo: "model-profiles",
               admin: {
                 description:
-                  "No action needed here. This shows the Featured Model profile created or updated by Step 2. If you chose Step 2B, the public profile and Founders Edition lineup assignment were handled automatically.",
+                  `No action needed here. This shows the Featured Model profile created or updated by Step 2. If you chose Step 2B, the public profile and ${currentRetreatEdition.shortTitle} lineup assignment were handled automatically.`,
                 readOnly: true,
               },
             },

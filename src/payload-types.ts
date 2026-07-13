@@ -456,6 +456,10 @@ export interface ModelApplication {
    */
   approveForFoundersEdition?: boolean | null;
   /**
+   * Done. This application has already created or updated the profile, approved the image, and added the artist to the Founders Edition public lineup.
+   */
+  publicLineupApprovedAt?: string | null;
+  /**
    * No action needed here. This shows the Featured Model profile created or updated by Step 2. If you chose Step 2B, the public profile and Founders Edition lineup assignment were handled automatically.
    */
   linkedModelProfile?: (number | null) | ModelProfile;
@@ -1094,6 +1098,7 @@ export interface ModelApplicationsSelect<T extends boolean = true> {
   applicationStatus?: T;
   createProfileFromApplication?: T;
   approveForFoundersEdition?: T;
+  publicLineupApprovedAt?: T;
   linkedModelProfile?: T;
   privateAdminNotes?: T;
   preferredHeroImage?: T;

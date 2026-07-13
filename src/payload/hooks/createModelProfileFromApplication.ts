@@ -247,7 +247,7 @@ async function addProfileToCurrentRetreat(
 
   const event = eventResult.docs[0];
   if (!event) {
-    throw new APIError("The Founders Edition retreat event could not be found.", 400);
+    throw new APIError(`The ${currentRetreatEdition.shortTitle} retreat event could not be found.`, 400);
   }
 
   type RetreatArtistAssignment = NonNullable<RetreatEvent["participatingArtists"]>[number];
@@ -417,6 +417,7 @@ export const createModelProfileFromApplication: CollectionAfterChangeHook = asyn
     collection: "model-applications",
     data: {
       linkedModelProfile,
+      ...(approveForPublicLineup ? { publicLineupApprovedAt: new Date().toISOString() } : {}),
     },
     id: doc.id,
     overrideAccess: true,
