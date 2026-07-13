@@ -1,3 +1,4 @@
+import { sql } from "@payloadcms/db-postgres";
 import { APIError, type CollectionAfterChangeHook, type CollectionBeforeChangeHook } from "payload";
 
 type ModelProfileCategory =
@@ -125,19 +126,17 @@ async function getFullModelApplication(
   return fullApplication as unknown as Record<string, unknown>;
 }
 
-async function runAsApplicationReviewSystemAction<T>(
+async function runDatabaseRepair(
   req: Parameters<CollectionAfterChangeHook>[0]["req"],
-  action: () => Promise<T>,
+  query: ReturnType<typeof sql>,
 ) {
-  const previousValue = req.context.applicationReviewSystemAction;
-  req.context.applicationReviewSystemAction = true;
+  const db = req.payload.db as unknown as {
+    drizzle?: { execute: (query: ReturnType<typeof sql>) => Promise<unknown> };
+  };
 
-  try {
-    return await action();
-  } finally {
-    if (previousValue === undefined) delete req.context.applicationReviewSystemAction;
-    else req.context.applicationReviewSystemAction = previousValue;
-  }
+  if (!db.drizzle) throw new APIError("The database repair connection is unavailable.", 500);
+
+  await db.drizzle.execute(query);
 }
 
 async function repairLinkedModelProfileTitle({
@@ -159,14 +158,15 @@ async function repairLinkedModelProfileTitle({
 
   if (!titleNeedsRepair((profile as unknown as Record<string, unknown>).displayName)) return;
 
-  await runAsApplicationReviewSystemAction(req, () =>
-    req.payload.update({
-      collection: "model-profiles",
-      data: { displayName },
-      id: profileID,
-      overrideAccess: true,
-      req,
-    }),
+  await runDatabaseRepair(
+    req,
+    sql`
+      update model_profiles
+      set display_name = ${displayName},
+          updated_at = now()
+      where id = ${profileID}
+        and (display_name is null or btrim(display_name) = '' or display_name ilike 'untitled%')
+    `,
   );
 }
 
@@ -189,14 +189,15 @@ async function repairApplicationMediaTitle({
 
   if (!titleNeedsRepair((media as unknown as Record<string, unknown>).alt)) return;
 
-  await runAsApplicationReviewSystemAction(req, () =>
-    req.payload.update({
-      collection: "media",
-      data: { alt: `Private application image — ${profileDisplayName}` },
-      id: mediaID,
-      overrideAccess: true,
-      req,
-    }),
+  await runDatabaseRepair(
+    req,
+    sql`
+      update media
+      set alt = ${`Private application image — ${profileDisplayName}`},
+          updated_at = now()
+      where id = ${mediaID}
+        and (alt is null or btrim(alt) = '' or alt ilike 'untitled%')
+    `,
   );
 }
 

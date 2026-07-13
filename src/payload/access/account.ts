@@ -39,15 +39,10 @@ export function hasStaffPermission(user: unknown, allowed: StaffPermission[]) {
   return Boolean(account && isStaff(account) && account.role && allowed.includes(account.role));
 }
 
-export function isApplicationReviewSystemAction(req: { context?: Record<string, unknown> }) {
-  return req.context?.applicationReviewSystemAction === true;
-}
-
 export const activeAccount: Access = ({ req }) => isActiveAccount(req.user);
 export const staffOnly: Access = ({ req }) => isStaff(req.user);
 export const ownerOnly: Access = ({ req }) => isOwner(req.user);
-export const ownerOrEditorOnly: Access = ({ req }) =>
-  isApplicationReviewSystemAction(req) || hasStaffPermission(req.user, ["owner", "editor"]);
+export const ownerOrEditorOnly: Access = ({ req }) => hasStaffPermission(req.user, ["owner", "editor"]);
 
 export const ownerOrSelf: Access = ({ req }) => {
   if (isOwner(req.user)) return true;
