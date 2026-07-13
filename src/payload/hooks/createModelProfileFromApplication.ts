@@ -25,6 +25,12 @@ function cleanString(value: unknown): string | undefined {
   return trimmed || undefined;
 }
 
+function titleNeedsRepair(value: unknown): boolean {
+  const title = cleanString(value);
+
+  return !title || /^untitled(?:\s*-\s*id:?\s*\d+)?$/i.test(title);
+}
+
 function slugify(value: string): string {
   const slug = value
     .toLowerCase()
@@ -104,6 +110,119 @@ function buildAdminNotes(doc: Record<string, unknown>): string {
   return notes.filter(Boolean).join("\n\n");
 }
 
+async function getFullModelApplication(
+  req: Parameters<CollectionAfterChangeHook>[0]["req"],
+  id: number,
+) {
+  const fullApplication = await req.payload.findByID({
+    collection: "model-applications",
+    depth: 0,
+    id,
+    overrideAccess: true,
+    req,
+  });
+
+  return fullApplication as unknown as Record<string, unknown>;
+}
+
+async function repairLinkedModelProfileTitle({
+  displayName,
+  profileID,
+  req,
+}: {
+  displayName: string;
+  profileID: number;
+  req: Parameters<CollectionAfterChangeHook>[0]["req"];
+}) {
+  const profile = await req.payload.findByID({
+    collection: "model-profiles",
+    depth: 0,
+    id: profileID,
+    overrideAccess: true,
+    req,
+  });
+
+  if (!titleNeedsRepair((profile as unknown as Record<string, unknown>).displayName)) return;
+
+  await req.payload.update({
+    collection: "model-profiles",
+    data: { displayName },
+    id: profileID,
+    overrideAccess: true,
+    req,
+  });
+}
+
+async function repairApplicationMediaTitle({
+  mediaID,
+  profileDisplayName,
+  req,
+}: {
+  mediaID: number;
+  profileDisplayName: string;
+  req: Parameters<CollectionAfterChangeHook>[0]["req"];
+}) {
+  const media = await req.payload.findByID({
+    collection: "media",
+    depth: 0,
+    id: mediaID,
+    overrideAccess: true,
+    req,
+  });
+
+  if (!titleNeedsRepair((media as unknown as Record<string, unknown>).alt)) return;
+
+  await req.payload.update({
+    collection: "media",
+    data: { alt: `Private application image — ${profileDisplayName}` },
+    id: mediaID,
+    overrideAccess: true,
+    req,
+  });
+}
+
+async function repairApplicationReviewLabels({
+  req,
+  sourceDoc,
+}: {
+  req: Parameters<CollectionAfterChangeHook>[0]["req"];
+  sourceDoc: Record<string, unknown>;
+}) {
+  const profileDisplayName = cleanString(sourceDoc.stageName);
+  if (!profileDisplayName) return;
+
+  const linkedProfileID = relationshipID(sourceDoc.linkedModelProfile);
+  if (linkedProfileID) {
+    await repairLinkedModelProfileTitle({
+      displayName: profileDisplayName,
+      profileID: linkedProfileID,
+      req,
+    });
+  }
+
+  const preferredHeroImage = relationshipID(sourceDoc.preferredHeroImage);
+  if (preferredHeroImage) {
+    await repairApplicationMediaTitle({
+      mediaID: preferredHeroImage,
+      profileDisplayName,
+      req,
+    });
+  }
+
+  if (Array.isArray(sourceDoc.additionalPortfolioImages)) {
+    for (const image of sourceDoc.additionalPortfolioImages) {
+      const mediaID = relationshipID(image);
+      if (!mediaID) continue;
+
+      await repairApplicationMediaTitle({
+        mediaID,
+        profileDisplayName,
+        req,
+      });
+    }
+  }
+}
+
 export const validateModelProfileCreationRequest: CollectionBeforeChangeHook = ({
   data,
   operation,
@@ -140,18 +259,17 @@ export const createModelProfileFromApplication: CollectionAfterChangeHook = asyn
   req,
 }) => {
   if (operation !== "update") return doc;
-  if (req.context.createModelProfileFromApplication !== doc.id) return doc;
   if (doc.applicationStatus !== "accepted") return doc;
-  if (relationshipID(doc.linkedModelProfile)) return doc;
 
-  const fullApplication = await req.payload.findByID({
-    collection: "model-applications",
-    depth: 0,
-    id: doc.id,
-    overrideAccess: true,
-    req,
-  });
+  const fullApplication = await getFullModelApplication(req, doc.id);
   const sourceDoc = { ...doc, ...fullApplication };
+  const existingLinkedProfileID = relationshipID(sourceDoc.linkedModelProfile);
+
+  await repairApplicationReviewLabels({ req, sourceDoc });
+
+  if (req.context.createModelProfileFromApplication !== doc.id) return doc;
+  if (existingLinkedProfileID) return doc;
+
   const profileDisplayName =
     cleanString(sourceDoc.stageName) ??
     cleanString(req.context.createModelProfileFromApplicationName) ??
