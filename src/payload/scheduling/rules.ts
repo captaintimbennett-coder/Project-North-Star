@@ -1,4 +1,6 @@
 import type { CollectionBeforeChangeHook } from "payload";
+import { hasAccountRole, isStaff } from "../access/account";
+import { acquireSchedulingLock } from "./lock";
 
 type RelationshipValue = number | string | { id: number | string } | null | undefined;
 
@@ -21,6 +23,7 @@ type BookingInput = {
   artist?: RelationshipValue;
   endAt?: string | null;
   event?: RelationshipValue;
+  exceptionReason?: string | null;
   photographer?: RelationshipValue;
   startAt?: string | null;
   status?: string | null;
@@ -76,7 +79,7 @@ async function eventArtistSchedulingContext(
   req: Parameters<CollectionBeforeChangeHook>[0]["req"],
   eventId: number | string,
   artistId: number | string,
-): Promise<{ minimumHours: number; timeZone: string }> {
+): Promise<{ endDay?: string; minimumHours: number; startDay?: string; timeZone: string }> {
   const event = await req.payload.findByID({
     collection: "retreat-events",
     id: eventId,
@@ -88,10 +91,27 @@ async function eventArtistSchedulingContext(
   if (!assignment || !["confirmed", "approved"].includes(assignment.participationStatus)) {
     throw new Error("The artist must be confirmed or approved for this retreat event.");
   }
+  const timeZone = event.timeZone || "America/Chicago";
   return {
+    endDay: event.endDate ? localParts(event.endDate, timeZone).day : undefined,
     minimumHours: Number(assignment.minimumBookingHours || 1),
-    timeZone: event.timeZone || "America/Chicago",
+    startDay: event.startDate ? localParts(event.startDate, timeZone).day : undefined,
+    timeZone,
   };
+}
+
+async function assertOwnParticipantProfile(
+  req: Parameters<CollectionBeforeChangeHook>[0]["req"],
+  collection: "model-profiles" | "photographer-profiles",
+  profileId: number | string,
+  role: "model" | "photographer",
+): Promise<void> {
+  if (isStaff(req.user)) return;
+  if (!hasAccountRole(req.user, role)) throw new Error("This account cannot manage this scheduling record.");
+  const profile = await req.payload.findByID({ collection, id: profileId, depth: 0, overrideAccess: true, req });
+  if (relationshipId(profile.account) !== req.user?.id) {
+    throw new Error("This scheduling record must belong to the signed-in participant.");
+  }
 }
 
 async function assertEventPhotographer(
@@ -126,6 +146,7 @@ export const protectConfirmedBookingsFromAvailability: CollectionBeforeChangeHoo
   const artistId = assertRequiredRelationship(next.artist ?? prior.artist, "Artist");
   const date = next.date ?? prior.date;
   if (!date) throw new Error("Availability date is required.");
+  await assertOwnParticipantProfile(req, "model-profiles", artistId, "model");
 
   const availableFrom = next.availableFrom ?? prior.availableFrom ?? "06:00";
   const availableUntil = next.availableUntil ?? prior.availableUntil ?? "18:00";
@@ -144,7 +165,12 @@ export const protectConfirmedBookingsFromAvailability: CollectionBeforeChangeHoo
     }
   }
 
-  const { timeZone } = await eventArtistSchedulingContext(req, eventId, artistId);
+  const { endDay, startDay, timeZone } = await eventArtistSchedulingContext(req, eventId, artistId);
+  const availabilityDay = storedDay(date);
+  if ((startDay && availabilityDay < startDay) || (endDay && availabilityDay > endDay)) {
+    throw new Error("Availability must fall on a retreat event day.");
+  }
+  await acquireSchedulingLock(req, eventId, artistId, availabilityDay);
 
   const duplicate = await req.payload.find({
     collection: "artist-availability",
@@ -211,7 +237,15 @@ export const validateRetreatBooking: CollectionBeforeChangeHook = async ({ data,
   const endAt = next.endAt ?? prior.endAt;
   const status = next.status ?? prior.status ?? "confirmed";
   const adminOverride = next.adminOverride ?? prior.adminOverride ?? false;
+  const exceptionReason = next.exceptionReason ?? prior.exceptionReason;
   if (!startAt || !endAt) throw new Error("Booking start and end times are required.");
+  await assertOwnParticipantProfile(req, "photographer-profiles", photographerId, "photographer");
+  if (!isStaff(req.user) && (status !== "confirmed" || adminOverride)) {
+    throw new Error("Participant bookings must be immediately confirmed without an administrator override.");
+  }
+  if (isStaff(req.user) && (adminOverride || ["cancelled", "rescheduled", "admin-review"].includes(status)) && !exceptionReason?.trim()) {
+    throw new Error("An administrator reason is required for overrides, cancellations, reschedules, and exceptions.");
+  }
 
   const start = new Date(startAt);
   const end = new Date(endAt);
@@ -219,12 +253,19 @@ export const validateRetreatBooking: CollectionBeforeChangeHook = async ({ data,
   if (durationMinutes <= 0 || durationMinutes % 60 !== 0) {
     throw new Error("Bookings must use consecutive 60-minute blocks.");
   }
-  const { minimumHours, timeZone } = await eventArtistSchedulingContext(req, eventId, artistId);
+  const { endDay, minimumHours, startDay, timeZone } = await eventArtistSchedulingContext(req, eventId, artistId);
   const startLocal = localParts(startAt, timeZone);
   const endLocal = localParts(endAt, timeZone);
+  if (!startLocal.clock.endsWith(":00") || !endLocal.clock.endsWith(":00")) {
+    throw new Error("Bookings must begin and end on whole event-local hours.");
+  }
   if (startLocal.day !== endLocal.day) {
     throw new Error("A Version 1 booking must begin and end on the same retreat day.");
   }
+  if ((startDay && startLocal.day < startDay) || (endDay && startLocal.day > endDay)) {
+    throw new Error("Bookings must fall on a retreat event day.");
+  }
+  await acquireSchedulingLock(req, eventId, artistId, startLocal.day);
 
   await assertEventPhotographer(req, eventId, photographerId);
   if (durationMinutes < minimumHours * 60) {
@@ -313,6 +354,13 @@ export const validateRetreatBooking: CollectionBeforeChangeHook = async ({ data,
         throw new Error("The booking overlaps an unavailable time block.");
       }
     }
+  }
+
+  if (originalDoc && isStaff(req.user) && (
+    startAt !== prior.startAt || endAt !== prior.endAt || status !== prior.status ||
+    artistId !== relationshipId(prior.artist) || photographerId !== relationshipId(prior.photographer)
+  )) {
+    return { ...data, administratorChangedAt: new Date().toISOString() };
   }
 
   return data;

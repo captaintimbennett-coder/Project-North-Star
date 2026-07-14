@@ -645,11 +645,16 @@ export interface RetreatBooking {
   startAt: string;
   endAt: string;
   status: 'confirmed' | 'cancelled' | 'rescheduled' | 'admin-review';
+  idempotencyKey?: string | null;
+  administratorChangedAt?: string | null;
   rescheduledFrom?: (number | null) | RetreatBooking;
   /**
    * Allows an authorized administrator to place a booking outside stated availability. It never permits double-booking.
    */
   adminOverride?: boolean | null;
+  /**
+   * Required for overrides, cancellations, reschedules, and administrator exceptions.
+   */
   exceptionReason?: string | null;
   adminNotes?: string | null;
   updatedAt: string;
@@ -1205,6 +1210,8 @@ export interface RetreatBookingsSelect<T extends boolean = true> {
   startAt?: T;
   endAt?: T;
   status?: T;
+  idempotencyKey?: T;
+  administratorChangedAt?: T;
   rescheduledFrom?: T;
   adminOverride?: T;
   exceptionReason?: T;

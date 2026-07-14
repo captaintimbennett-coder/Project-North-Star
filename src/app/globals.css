@@ -2442,12 +2442,42 @@ body.menu-open {
 .account-schedule-list article p,
 .account-schedule-list article time,
 .account-schedule-list article small { display: block; margin: 0.35rem 0; color: var(--color-text-inverse-medium); }
+.account-contact-methods { display: flex; flex-wrap: wrap; gap: 0.65rem 1.25rem; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--north-star-rule); }
+.account-contact-methods a,
+.account-contact-methods span { color: var(--north-star-gold); font-size: 0.72rem; letter-spacing: 0.06em; text-underline-offset: 0.25rem; }
 .account-form-success { display: grid; gap: 1rem; margin-top: 2rem; }
 .account-form-success h2 { margin: 0; font-size: clamp(2rem, 4vw, 3.25rem); }
 .account-form-success p { margin: 0; color: var(--color-text-inverse-medium); }
 .account-secondary-link { color: var(--north-star-gold); font-size: 0.72rem; letter-spacing: 0.16em; text-transform: uppercase; }
 .account-secondary-link:hover { color: var(--color-text-inverse); }
 .account-empty-state { padding: 2rem; border: 1px solid var(--north-star-rule); }
+.account-booking-form,
+.account-availability-form { display: grid; gap: 1.25rem; margin: 2.5rem 0; }
+.account-booking-form > label,
+.account-availability-form > label,
+.account-time-fields label { color: var(--north-star-gold); font-size: 0.62rem; letter-spacing: 0.14em; text-transform: uppercase; }
+.account-booking-form select,
+.account-availability-form select,
+.account-availability-form input { min-height: 52px; padding: 0 1rem; color: var(--north-star-ivory); background: #0d0d0c; border: 1px solid var(--north-star-rule); }
+.account-booking-review { padding: 1.5rem; border-left: 2px solid var(--north-star-gold); background: rgb(255 255 255 / 2%); }
+.account-booking-review span { display: block; color: var(--north-star-gold); font-size: 0.58rem; letter-spacing: 0.14em; text-transform: uppercase; }
+.account-booking-review strong { display: block; margin-top: 0.5rem; font-family: var(--font-display); font-size: 2rem; font-weight: 400; }
+.account-booking-review p,
+.account-form-success-message,
+.account-availability-form > p { color: var(--color-text-inverse-medium); }
+.account-day-heading { margin: 0; font-family: var(--font-display); font-size: 1.75rem; }
+.account-day-heading small { display: block; margin-top: 0.35rem; font-family: var(--font-body); font-size: 0.65rem; letter-spacing: 0.12em; }
+.account-time-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+.account-time-fields label { display: grid; gap: 0.55rem; }
+.account-block-list { display: grid; gap: 0.8rem; padding: 1.25rem; border: 1px solid var(--north-star-rule); }
+.account-block-list > div { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+.account-block-list button { padding: 0.5rem; color: var(--north-star-gold); background: transparent; border: 1px solid var(--north-star-rule); }
+.account-block-list fieldset { display: grid; grid-template-columns: 1fr 1fr 1.1fr auto; gap: 0.6rem; margin: 0; padding: 0.8rem; border: 1px solid var(--north-star-rule); }
+.account-block-list legend { padding: 0 0.4rem; color: var(--color-text-inverse-medium); font-size: 0.65rem; }
+@media (max-width: 760px) {
+  .account-time-fields,
+  .account-block-list fieldset { grid-template-columns: 1fr; }
+}
 
 @media (prefers-reduced-motion: reduce) {
   .artist-card__image img,

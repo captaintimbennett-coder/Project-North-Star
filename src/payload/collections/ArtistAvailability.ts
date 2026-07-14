@@ -1,6 +1,7 @@
 import type { CollectionConfig } from "payload";
-import { ownerOnly, ownerOrEditorOnly, staffOrOwnAvailability, staffFieldAccess } from "../access/account";
+import { ownerEditorOrOwnAvailability, ownerOnly, staffOrModel, staffOrOwnAvailability, staffFieldAccess } from "../access/account";
 import { protectConfirmedBookingsFromAvailability } from "../scheduling/rules";
+import { auditArtistAvailabilityChange } from "../hooks/auditSchedulingChange";
 
 export const ArtistAvailability: CollectionConfig = {
   slug: "artist-availability",
@@ -9,10 +10,10 @@ export const ArtistAvailability: CollectionConfig = {
     singular: "Artist Availability",
   },
   access: {
-    create: ownerOrEditorOnly,
+    create: staffOrModel,
     delete: ownerOnly,
     read: staffOrOwnAvailability,
-    update: ownerOrEditorOnly,
+    update: ownerEditorOrOwnAvailability,
   },
   admin: {
     defaultColumns: ["event", "artist", "date", "availableFrom", "availableUntil"],
@@ -79,6 +80,7 @@ export const ArtistAvailability: CollectionConfig = {
   ],
   hooks: {
     beforeChange: [protectConfirmedBookingsFromAvailability],
+    afterChange: [auditArtistAvailabilityChange],
   },
   timestamps: true,
 };

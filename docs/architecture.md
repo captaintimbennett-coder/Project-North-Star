@@ -251,6 +251,23 @@ participants according to their approved preferences after confirmation.
 Email, phone, payment information, private notes, and administrator fields never
 belong in Retreat Schedule output.
 
+Mission 05 activates authenticated participant scheduling without changing the
+canonical record model. Photographer booking requests are instantly confirmed
+or rejected; there is no artist approval queue. PostgreSQL exclusion constraints
+prevent overlapping active bookings for either participant under concurrent
+requests, while server hooks continue to enforce assignments, event-local whole
+hours, duration, availability, contact readiness, and administrator rules.
+Availability remains unique per event, artist, and day, and 60-minute ranges are
+derived rather than stored as slot records.
+
+Photographer and model personal itineraries are separate allowlisted
+projections. They include the partner, event-local time, duration, public event
+location, booking status, administrator-change state, and partner contact methods
+only for active confirmed bookings and only when that partner approved sharing.
+Participant mutations are authenticated and origin-protected. Public booking,
+payments, model rates, messaging, SMS, calendar sync, and automated booking email
+delivery remain outside this foundation.
+
 The scheduling domain intentionally contains no model rates, photographer-to-
 model payments, creative negotiations, or internal messaging records. Future
 event admission payment records are a separate Lone Star Retreat concern.

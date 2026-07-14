@@ -55,7 +55,7 @@ Status: Version 1 Retreat applications complete; application receipt email imple
 
 ## Phase 5 — Lone Star Retreat operations
 
-Status: active — event-centric publishing and scheduling foundation
+Status: active — event-centric publishing; Mission 05 authenticated booking foundation complete
 
 - publish complete Retreat experience pages
 - add dates, location, capacity, and team information
@@ -63,6 +63,9 @@ Status: active — event-centric publishing and scheduling foundation
 - add agreements and required acknowledgments
 - integrate Stripe when the financial workflow is approved
 - build participant communications and administrative reporting
+- activate authenticated photographer booking, model availability, and
+  privacy-safe personal itineraries without introducing public booking or
+  participant-to-participant payments
 
 ## Phase 6 — Education and membership
 

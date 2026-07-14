@@ -136,6 +136,13 @@ master classes, mentoring, and future creative experiences.
 - [ ] Complete Sprint 04B Retreat Operations Foundation as an architecture-only
   sprint before implementing production booking, payments, calendars,
   dashboards, messaging, or notification workflows.
+- [x] Complete Mission 05 Booking & Scheduling Foundation. The verified scope
+  activates the existing event-specific booking and artist-availability models
+  with authenticated photographer booking, model availability management,
+  role-specific personal itineraries, administrator controls, privacy-safe
+  projections, and database-enforced conflict prevention. Payments, public
+  booking, internal messaging, SMS, calendar sync, and automated booking email
+  delivery remain out of scope.
 
 ## Deferred Items
 
