@@ -77,7 +77,7 @@ export const photographerApplicationContent = {
 export const modelApplicationContent = {
   hero: {
     eyebrow: `${currentRetreatEdition.title} · ${currentRetreatEdition.dateLabel}`,
-    title: "Apply as Featured Model",
+    title: "Apply as Featured Artist",
     introduction:
       "Share your work, your creative range, and what you hope to bring to a thoughtful Founders Edition retreat community.",
   },
@@ -87,7 +87,7 @@ export const modelApplicationContent = {
     body:
       `This application gives us a clear sense of who you are, how you work, and the creative experiences you hope to build for ${currentRetreatEdition.title}. Be honest, take your time, and tell us what matters to you.`,
     note:
-      "Allow approximately 15–20 minutes. Required fields are marked with an asterisk. Submitting an application does not guarantee acceptance.",
+      "Allow approximately 10–15 minutes. Required fields are marked with an asterisk. Biography and artist statement are optional and may be completed after acceptance.",
   },
   sections: [
     { number: "01", title: "About you" },
@@ -133,11 +133,12 @@ export const modelApplicationContent = {
   consents: [
     { name: "informationAccurateConfirmed", label: "I confirm the information submitted is accurate." },
     { name: "noAcceptanceGuaranteeConfirmed", label: "I understand submitting an application does not guarantee acceptance." },
-    { name: "consentImageUsageConfirmed", label: "I understand my uploaded images are for internal review only and will not be published without approval." },
+    { name: "consentImageUsageConfirmed", label: "I give Lone Star Retreat permission to use my submitted images only to evaluate this application. This review permission does not authorize public publication." },
+    { name: "publicProfilePermissionConfirmed", label: "If I am accepted and Tim approves my public profile, I authorize Lone Star Retreat to publish my approved display name, selected profile information, and approved images on the Lone Star Retreat website and related promotional materials. I may request reasonable profile corrections or removal by contacting Lone Star Retreat. Draft language pending final legal and business review." },
     { name: "codeOfConductConfirmed", label: "I have read and agree to follow the Lone Star Retreat Professional Standards & Code of Conduct." },
     { name: "contactPermissionConfirmed", label: "I understand Lone Star Retreat may contact me using the information provided." },
   ],
-  submitLabel: "Submit Featured Model Application",
+  submitLabel: "Submit Featured Artist Application",
 } as const;
 
 export const applicationReceivedContent = {

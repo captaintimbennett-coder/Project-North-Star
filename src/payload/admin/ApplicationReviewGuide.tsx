@@ -49,12 +49,12 @@ export function ModelApplicationReviewGuide() {
         <li>Read the application and look at the submitted image.</li>
         <li>Set Step 1 to Accepted, Declined, Waitlist, or Reviewing.</li>
         <li>
-          If accepted and ready to show publicly, check “Approve publicly for {currentRetreatEdition.shortTitle}” and save once.
+          If accepted, publication permission is confirmed, and the profile is ready to show publicly, check “Approve publicly for {currentRetreatEdition.shortTitle}” and save once. The acceptance email is sent only after the public profile and event assignment succeed.
         </li>
         <li>
           If accepted but not ready to show publicly, check “Create private draft profile only” and save once.
         </li>
-        <li>After saving, Step 3 is just the receipt showing which Featured Model profile was created or updated.</li>
+        <li>After saving, Step 3 is just the receipt showing which Featured Artist profile was created or updated.</li>
       </ol>
       <p style={noteStyle}>
         Public lineup approval handles the whole chain: profile, image approval, {currentRetreatEdition.shortTitle} event assignment, and public display status. Private draft keeps everything internal.

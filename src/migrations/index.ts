@@ -16,6 +16,8 @@ import * as migration_20260706_062709_identity_access_foundation from './2026070
 import * as migration_20260706_211702_account_lifecycle_security from './20260706_211702_account_lifecycle_security';
 import * as migration_20260709_025300_add_media_blob_prefix from './20260709_025300_add_media_blob_prefix';
 import * as migration_20260713_230000_mission_05_scheduling_guards from './20260713_230000_mission_05_scheduling_guards';
+import * as migration_20260714_010000_mission_06_featured_artist_recruitment from './20260714_010000_mission_06_featured_artist_recruitment';
+import * as migration_20260714_020000_mission_06_consent_workflow_completion from './20260714_020000_mission_06_consent_workflow_completion';
 
 export const migrations = [
   {
@@ -107,5 +109,15 @@ export const migrations = [
     up: migration_20260713_230000_mission_05_scheduling_guards.up,
     down: migration_20260713_230000_mission_05_scheduling_guards.down,
     name: '20260713_230000_mission_05_scheduling_guards',
+  },
+  {
+    up: migration_20260714_010000_mission_06_featured_artist_recruitment.up,
+    down: migration_20260714_010000_mission_06_featured_artist_recruitment.down,
+    name: '20260714_010000_mission_06_featured_artist_recruitment',
+  },
+  {
+    up: migration_20260714_020000_mission_06_consent_workflow_completion.up,
+    down: migration_20260714_020000_mission_06_consent_workflow_completion.down,
+    name: '20260714_020000_mission_06_consent_workflow_completion',
   },
 ];

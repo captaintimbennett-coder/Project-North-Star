@@ -94,6 +94,25 @@ export function RetreatAudiencePage({ content, variant }: RetreatAudiencePagePro
         </Container>
       </section>
 
+      {"essentials" in content && (
+        <section className="retreat-audience-section retreat-audience-essentials" aria-labelledby="featured-artist-essentials-title">
+          <Container>
+            <div className="retreat-audience-heading">
+              <p className="ds-eyebrow">{content.essentials.eyebrow}</p>
+              <h2 id="featured-artist-essentials-title">{content.essentials.title}</h2>
+            </div>
+            <div className="retreat-audience-essentials__grid">
+              {content.essentials.items.map((item) => (
+                <article key={item.title}>
+                  <h3>{item.title}</h3>
+                  <p>{item.body}</p>
+                </article>
+              ))}
+            </div>
+          </Container>
+        </section>
+      )}
+
       <section className="retreat-audience-cta">
         <Container>
           <Image src="/images/brand/north-star-symbol-v1.0.png" alt="" width={54} height={58} />

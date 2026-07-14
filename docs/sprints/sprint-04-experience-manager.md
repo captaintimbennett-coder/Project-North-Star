@@ -143,6 +143,21 @@ master classes, mentoring, and future creative experiences.
   projections, and database-enforced conflict prevention. Payments, public
   booking, internal messaging, SMS, calendar sync, and automated booking email
   delivery remain out of scope.
+- [x] Implement Mission 06 Featured Artist Recruitment Ready on its dedicated
+  feature branch. The approved scope adds recruitment essentials, reduces the
+  initial application by making biography optional, separates private-review
+  and draft publication permission, adds application-specific email routing,
+  sends an idempotent branded acceptance email after successful public profile
+  and event publication, exposes delivery failure and retry state, and replaces
+  private-review media alt text at publication. Deployment, production email,
+  and production smoke testing remain separately authorized stop points.
+- [x] Reconcile the July 14 production migration-runner incident. Payload
+  applied the validated Mission 05 and Mission 06 migrations together in batch
+  18 because it scans the physical migration directory independently of the
+  exported registry. Production schema matched validation exactly, existing
+  records remained unchanged, historical consent remained false, and no email
+  was sent. Pre- and post-migration Neon checkpoints are retained. A guarded
+  host-and-allowlist migration wrapper now prevents the same procedure failure.
 
 ## Deferred Items
 

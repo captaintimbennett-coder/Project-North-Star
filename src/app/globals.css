@@ -2207,6 +2207,30 @@ body.menu-open {
   line-height: 1.8;
 }
 .retreat-audience-cta .ds-button { margin-top: 2.5rem; }
+.retreat-audience-essentials { background: var(--north-star-black); }
+.retreat-audience-essentials__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  border-top: 1px solid var(--north-star-rule);
+}
+.retreat-audience-essentials__grid article {
+  padding: clamp(2rem, 4vw, 4rem);
+  border-right: 1px solid var(--north-star-rule);
+  border-bottom: 1px solid var(--north-star-rule);
+}
+.retreat-audience-essentials__grid article:nth-child(even) { border-right: 0; }
+.retreat-audience-essentials__grid h3 {
+  margin: 0 0 1rem;
+  color: var(--north-star-ivory);
+  font-size: clamp(1.7rem, 2.4vw, 2.5rem);
+  font-weight: 400;
+}
+.retreat-audience-essentials__grid p {
+  max-width: 42rem;
+  margin: 0;
+  color: rgb(242 238 230 / 62%);
+  line-height: 1.8;
+}
 
 /* Featured Artists: approved public-profile experience */
 .event-detail-hero { position: relative; min-height: min(920px, 100svh); display: grid; overflow: hidden; border-bottom: 1px solid var(--north-star-rule); }
@@ -3756,6 +3780,8 @@ select.application-input {
     gap: 1rem;
   }
   .application-choice-grid { grid-template-columns: 1fr; }
+  .retreat-audience-essentials__grid { grid-template-columns: 1fr; }
+  .retreat-audience-essentials__grid article { border-right: 0; }
   .application-submit {
     grid-template-columns: 1fr;
     align-items: start;

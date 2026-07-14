@@ -84,11 +84,21 @@ SENDGRID_FROM_EMAIL=captaintimbennett@gmail.com
 SENDGRID_FROM_NAME=Tim Bennett · Project North Star
 SENDGRID_REPLY_TO=captaintimbennett@gmail.com
 SENDGRID_SANDBOX_MODE=false
+APPLICATION_EMAIL_FROM=no-reply@thelonestarretreat.com
+APPLICATION_EMAIL_FROM_NAME=Lone Star Retreat
+APPLICATION_EMAIL_REPLY_TO=tim@thelonestarretreat.com
+APPLICATION_EMAIL_ADMIN_TO=tim@thelonestarretreat.com
 ```
 
 Payload's console email behavior is development-only. If `SENDGRID_API_KEY` is
 missing, account lifecycle email will not be delivered and the server will log a
 warning.
+
+The `APPLICATION_EMAIL_*` settings isolate recruitment identity and routing
+from password recovery and account invitations. The sender address must be
+verified in SendGrid before production use. `APPLICATION_EMAIL_ADMIN_TO` may
+later move to `applications@thelonestarretreat.com` without changing applicant
+Reply-To behavior or other transactional mail.
 
 ## Verification commands
 
@@ -101,6 +111,60 @@ pnpm build
 
 After the database is connected, create and run a version-controlled migration
 before any production deployment.
+
+## Guarded production migration procedure
+
+Payload 3.85 discovers executable migrations by scanning the physical
+`src/migrations` directory. The exported registry in `src/migrations/index.ts`
+does not limit that scan. On July 14, 2026, registry filtering was incorrectly
+used to try to isolate the Mission 05 migration; Payload consequently applied
+all three physically pending Mission 05 and Mission 06 files in batch 18. The
+previously validated schema was accepted after exact schema and data
+reconciliation, but the event is a release-procedure incident.
+
+The accepted production state is protected by two non-expiring Neon branches:
+
+- pre-migration: `mission-06-production-pre-migration-20260714t185438z`
+  (`br-raspy-union-aj4muzpb`), created July 14, 2026 at 13:54:59 CDT;
+- accepted post-migration: `mission-06-production-post-migration-20260714t190219z`
+  (`br-fancy-wind-aj85f4jf`), created July 14, 2026 at 14:02:56 CDT.
+
+Both descend directly from the protected `production` branch and remain
+queryable. Preserve both until the Mission 06 production release is accepted.
+
+Never run `pnpm payload:migrate` directly against production. Plan with the
+guarded wrapper first:
+
+```bash
+pnpm payload:migrate:guarded -- \
+  --expect-host APPROVED_DATABASE_HOST \
+  --allow 20260714_010000_example
+```
+
+The wrapper safely prints the target hostname and discovered pending names,
+without printing credentials. It refuses any difference between the physical
+pending set and the ordered allowlist. Only after that plan matches exactly may
+the identical command be repeated with `--execute`.
+
+If only part of the pending physical set is authorized, use a reviewed release
+workspace in which unauthorized migration files are physically absent. Editing
+the exported migration registry is not sufficient isolation.
+
+## Mission 06 rollback policy
+
+The Mission 06 migration intentionally makes Featured Artist biography optional.
+That product decision survives an application-level rollback: the down migration
+removes Mission 06 consent-provenance and acceptance-email operational fields,
+but it does not restore `short_biography` or its version column to `NOT NULL`.
+The down migration is therefore intentionally partial rather than mechanically
+symmetric.
+
+A verified Neon recovery branch or point-in-time restore is the primary rollback
+strategy for Mission 06 because it restores schema and data together at the
+known pre-migration boundary. The version-controlled down migration remains a
+secondary operational tool when removing only Mission 06 application fields is
+appropriate. Do not use the secondary rollback to reverse the approved optional
+biography decision.
 
 ## Current boundaries
 

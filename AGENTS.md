@@ -94,6 +94,22 @@ Also visually check affected pages at desktop and compact mobile widths,
 including the browser console, keyboard navigation, focus, reduced motion,
 contrast, image behavior, and horizontal overflow when relevant.
 
+## Production migration safety
+
+- Payload discovers migrations from the physical `src/migrations` directory;
+  changing only `src/migrations/index.ts` does not restrict what `payload
+  migrate` executes.
+- Never run the unguarded `payload:migrate` command against production.
+- Before a production migration, enumerate the physical migration files and
+  compare the pending set to the explicitly authorized ordered allowlist.
+- Use `pnpm payload:migrate:guarded -- --expect-host HOST --allow NAME` first
+  without `--execute`. Add one `--allow` argument per authorized migration.
+- Execute only after the plan output matches exactly, using the same command
+  with `--execute`. The wrapper must abort on any host or pending-set mismatch.
+- If a release requires only part of the pending set, physically isolate the
+  authorized migration files in a reviewed release workspace; registry filtering
+  alone is not isolation.
+
 ## Git and delivery
 
 - Keep commits focused and do not stage unrelated changes.

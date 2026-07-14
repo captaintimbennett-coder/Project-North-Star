@@ -1,6 +1,12 @@
-import { APIError, type CollectionAfterChangeHook, type CollectionBeforeChangeHook } from "payload";
+import {
+  APIError,
+  type CollectionAfterChangeHook,
+  type CollectionBeforeChangeHook,
+  type RequiredDataFromCollectionSlug,
+} from "payload";
 import { currentRetreatEdition } from "@/data/retreat-editions";
 import type { Media, RetreatEvent } from "@/payload-types";
+import { sendFeaturedArtistAcceptance } from "@/lib/email/application-email";
 
 type ModelProfileCategory =
   | "glamour"
@@ -181,9 +187,47 @@ export const validateModelProfileCreationRequest: CollectionBeforeChangeHook = (
   originalDoc,
   req,
 }) => {
+  const recordDocumentedPublicProfilePermission =
+    data.recordDocumentedPublicProfilePermission === true;
+
+  if (operation === "update" && recordDocumentedPublicProfilePermission) {
+    data.publicProfilePermissionConfirmed = true;
+    data.publicProfilePermissionSource = "administrator-documented";
+    data.publicProfilePermissionConfirmedAt = new Date().toISOString();
+    delete data.recordDocumentedPublicProfilePermission;
+  } else if (operation === "update") {
+    const permissionFields = [
+      "publicProfilePermissionConfirmed",
+      "publicProfilePermissionSource",
+      "publicProfilePermissionConfirmedAt",
+    ] as const;
+    const changedDirectly = permissionFields.some(
+      (field) => data[field] !== undefined && data[field] !== originalDoc?.[field],
+    );
+    if (changedDirectly) {
+      throw new APIError(
+        "Use the documented public profile permission action instead of editing consent history directly.",
+        400,
+      );
+    }
+  }
+
   const approveForFoundersEdition = data.approveForFoundersEdition === true;
+  const retryAcceptanceEmail = data.retryAcceptanceEmail === true;
   const createProfileFromApplication =
     data.createProfileFromApplication === true || approveForFoundersEdition;
+
+  if (retryAcceptanceEmail) {
+    if (
+      !originalDoc?.publicLineupApprovedAt ||
+      originalDoc?.acceptanceEmailStatus !== "failed" ||
+      !relationshipID(originalDoc?.linkedModelProfile)
+    ) {
+      throw new APIError("Only a failed acceptance email for an approved public profile can be retried.", 400);
+    }
+    req.context.retryFeaturedArtistAcceptanceEmail = originalDoc.id;
+    delete data.retryAcceptanceEmail;
+  }
 
   if (!createProfileFromApplication) return data;
 
@@ -202,6 +246,18 @@ export const validateModelProfileCreationRequest: CollectionBeforeChangeHook = (
     throw new APIError("This application is already linked to a model profile.", 400);
   }
 
+  if (
+    approveForFoundersEdition &&
+    ((data.publicProfilePermissionConfirmed ?? originalDoc?.publicProfilePermissionConfirmed) !== true ||
+      !(data.publicProfilePermissionSource ?? originalDoc?.publicProfilePermissionSource) ||
+      !(data.publicProfilePermissionConfirmedAt ?? originalDoc?.publicProfilePermissionConfirmedAt))
+  ) {
+    throw new APIError(
+      "Explicit public profile permission, its source, and its recorded time are required before publication.",
+      400,
+    );
+  }
+
   req.context.createModelProfileFromApplication = originalDoc?.id;
   req.context.createModelProfileFromApplicationName = originalDoc?.stageName;
   req.context.approveModelApplicationForFoundersEdition = approveForFoundersEdition;
@@ -214,18 +270,77 @@ export const validateModelProfileCreationRequest: CollectionBeforeChangeHook = (
 async function approveApplicationMediaForPublicUse(
   req: Parameters<CollectionAfterChangeHook>[0]["req"],
   mediaIDs: number[],
+  profileDisplayName: string,
 ) {
   await Promise.all(
     Array.from(new Set(mediaIDs)).map((id) =>
       req.payload.update({
         collection: "media",
-        data: { usageApproved: true },
+        data: {
+          alt: `Portrait of ${profileDisplayName}`,
+          usageApproved: true,
+        },
         id,
         overrideAccess: true,
         req,
       }),
     ),
   );
+}
+
+async function deliverAcceptanceEmail({
+  application,
+  profileSlug,
+  req,
+}: {
+  application: Record<string, unknown>;
+  profileSlug: string;
+  req: Parameters<CollectionAfterChangeHook>[0]["req"];
+}) {
+  const applicationID = numericID(application.id);
+  const applicantEmail = cleanString(application.email);
+  const applicantName = cleanString(application.stageName);
+  if (!applicationID || !applicantEmail || !applicantName) {
+    throw new APIError("The acceptance email requires an application ID, stage name, and email address.", 400);
+  }
+
+  if (application.acceptanceEmailStatus === "sent" || application.acceptanceEmailSentAt) return;
+
+  await req.payload.update({
+    collection: "model-applications",
+    data: {
+      acceptanceEmailLastError: null,
+      acceptanceEmailStatus: "sending",
+    },
+    id: applicationID,
+    overrideAccess: true,
+    req,
+  });
+
+  const result = await sendFeaturedArtistAcceptance({
+    applicantEmail,
+    applicantName,
+    applicationId: applicationID,
+    payload: req.payload,
+    profileSlug,
+  });
+
+  await req.payload.update({
+    collection: "model-applications",
+    data: result.sent
+      ? {
+          acceptanceEmailLastError: null,
+          acceptanceEmailSentAt: new Date().toISOString(),
+          acceptanceEmailStatus: "sent",
+        }
+      : {
+          acceptanceEmailLastError: "Delivery failed. Verify the applicant address and application email configuration, then retry.",
+          acceptanceEmailStatus: "failed",
+        },
+    id: applicationID,
+    overrideAccess: true,
+    req,
+  });
 }
 
 async function addProfileToCurrentRetreat(
@@ -349,6 +464,24 @@ export const createModelProfileFromApplication: CollectionAfterChangeHook = asyn
   const sourceDoc = { ...doc, ...fullApplication };
   const existingLinkedProfileID = relationshipID(sourceDoc.linkedModelProfile);
 
+  if (req.context.retryFeaturedArtistAcceptanceEmail === doc.id) {
+    req.context.retryFeaturedArtistAcceptanceEmail = null;
+    if (!existingLinkedProfileID) return doc;
+    const profile = await req.payload.findByID({
+      collection: "model-profiles",
+      depth: 0,
+      id: existingLinkedProfileID,
+      overrideAccess: true,
+      req,
+    });
+    await deliverAcceptanceEmail({
+      application: sourceDoc,
+      profileSlug: profile.slug,
+      req,
+    });
+    return doc;
+  }
+
   if (req.context.createModelProfileFromApplication !== doc.id) return doc;
 
   const profileDisplayName =
@@ -374,7 +507,7 @@ export const createModelProfileFromApplication: CollectionAfterChangeHook = asyn
     await approveApplicationMediaForPublicUse(req, [
       preferredHeroImage,
       ...additionalPortfolioImages,
-    ].filter((id): id is number => typeof id === "number"));
+    ].filter((id): id is number => typeof id === "number"), profileDisplayName);
   }
 
   const profileSeed = buildModelProfileSeed({
@@ -385,23 +518,39 @@ export const createModelProfileFromApplication: CollectionAfterChangeHook = asyn
     sourceDoc,
     slug: existingLinkedProfileID ? undefined : await createUniqueModelSlug(req, profileDisplayName),
   });
+  const publishedCreateData = profileSeed as RequiredDataFromCollectionSlug<"model-profiles">;
 
   const profile = existingLinkedProfileID
-    ? await req.payload.update({
-        collection: "model-profiles",
-        data: profileSeed,
-        draft: true,
-        id: existingLinkedProfileID,
-        overrideAccess: true,
-        req,
-      })
-    : await req.payload.create({
-        collection: "model-profiles",
-        data: profileSeed,
-        draft: true,
-        overrideAccess: true,
-        req,
-      });
+    ? approveForPublicLineup
+      ? await req.payload.update({
+          collection: "model-profiles",
+          data: profileSeed,
+          id: existingLinkedProfileID,
+          overrideAccess: true,
+          req,
+        })
+      : await req.payload.update({
+          collection: "model-profiles",
+          data: profileSeed,
+          draft: true,
+          id: existingLinkedProfileID,
+          overrideAccess: true,
+          req,
+        })
+    : approveForPublicLineup
+      ? await req.payload.create({
+          collection: "model-profiles",
+          data: publishedCreateData,
+          overrideAccess: true,
+          req,
+        })
+      : await req.payload.create({
+          collection: "model-profiles",
+          data: profileSeed,
+          draft: true,
+          overrideAccess: true,
+          req,
+        });
 
   if (approveForPublicLineup) {
     await addProfileToCurrentRetreat(req, profile.id);
@@ -423,6 +572,17 @@ export const createModelProfileFromApplication: CollectionAfterChangeHook = asyn
     overrideAccess: true,
     req,
   });
+
+  if (approveForPublicLineup) {
+    await deliverAcceptanceEmail({
+      application: {
+        ...sourceDoc,
+        id: doc.id,
+      },
+      profileSlug: profile.slug,
+      req,
+    });
+  }
 
   return {
     ...doc,

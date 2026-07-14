@@ -7,7 +7,7 @@ import { images } from "@/data/assets";
 import { retreatDomainPath } from "@/lib/domain-routing";
 
 export const metadata: Metadata = {
-  title: "Featured Model Application | Lone Star Retreat",
+  title: "Featured Artist Application | Lone Star Retreat",
   description: content.hero.introduction,
   alternates: { canonical: retreatDomainPath("/lone-star-retreat/models/apply") },
   robots: { index: false, follow: true },

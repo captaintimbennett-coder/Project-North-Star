@@ -436,7 +436,7 @@ export interface RetreatEvent {
   _status?: ('draft' | 'published') | null;
 }
 /**
- * Private review inbox. Review the application, accept/decline it, then create a private draft Featured Model profile when you are ready. Nothing publishes automatically.
+ * Private review inbox. Review the application, accept/decline it, then create a private draft Featured Artist profile when you are ready. Nothing publishes automatically.
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "model-applications".
@@ -452,15 +452,25 @@ export interface ModelApplication {
    */
   createProfileFromApplication?: boolean | null;
   /**
-   * Recommended when the applicant is accepted and ready to show on the site. Check this box and save once. The system creates or updates the Featured Model profile, approves the image, publishes the profile, adds the artist to Founders Edition, and approves the public lineup assignment.
+   * Recommended when the applicant is accepted, has granted publication permission, and is ready to show on the site. Check this box and save once. The system creates or updates the Featured Artist profile, approves the image, publishes the profile, adds the artist to Founders Edition, approves the public lineup assignment, and sends the acceptance email.
    */
   approveForFoundersEdition?: boolean | null;
   /**
    * Done. This application has already created or updated the profile, approved the image, and added the artist to the Founders Edition public lineup.
    */
   publicLineupApprovedAt?: string | null;
+  acceptanceEmailStatus: 'pending' | 'sending' | 'sent' | 'failed';
+  acceptanceEmailSentAt?: string | null;
   /**
-   * No action needed here. This shows the Featured Model profile created or updated by Step 2. If you chose Step 2B, the public profile and Founders Edition lineup assignment were handled automatically.
+   * Non-sensitive delivery status. Retry after correcting email configuration or the applicant address.
+   */
+  acceptanceEmailLastError?: string | null;
+  /**
+   * Check and save once after correcting the delivery problem. A successfully sent acceptance email is never sent again automatically.
+   */
+  retryAcceptanceEmail?: boolean | null;
+  /**
+   * No action needed here. This shows the Featured Artist profile created or updated by Step 2. If you chose Step 2B, the public profile and Founders Edition lineup assignment were handled automatically.
    */
   linkedModelProfile?: (number | null) | ModelProfile;
   privateAdminNotes?: string | null;
@@ -538,11 +548,24 @@ export interface ModelApplication {
       )[]
     | null;
   otherRetreatGoal?: string | null;
-  shortBiography: string;
+  /**
+   * May be completed or refined after acceptance and before publication.
+   */
+  shortBiography?: string | null;
   artistStatement?: string | null;
   informationAccurateConfirmed: boolean;
   noAcceptanceGuaranteeConfirmed: boolean;
   consentImageUsageConfirmed: boolean;
+  /**
+   * Historical fact only. False is expected for legacy applications and never blocks ordinary review edits. Use the documented-permission action below to record permission received after application.
+   */
+  publicProfilePermissionConfirmed?: boolean | null;
+  publicProfilePermissionSource?: ('applicant-application' | 'administrator-documented') | null;
+  publicProfilePermissionConfirmedAt?: string | null;
+  /**
+   * Use only after the applicant has explicitly authorized public use of their approved profile information and images in a documented communication. This records administrator-documented permission; it does not represent that the applicant checked the original application box.
+   */
+  recordDocumentedPublicProfilePermission?: boolean | null;
   codeOfConductConfirmed: boolean;
   contactPermissionConfirmed: boolean;
   submittedAt: string;
@@ -1104,6 +1127,10 @@ export interface ModelApplicationsSelect<T extends boolean = true> {
   createProfileFromApplication?: T;
   approveForFoundersEdition?: T;
   publicLineupApprovedAt?: T;
+  acceptanceEmailStatus?: T;
+  acceptanceEmailSentAt?: T;
+  acceptanceEmailLastError?: T;
+  retryAcceptanceEmail?: T;
   linkedModelProfile?: T;
   privateAdminNotes?: T;
   preferredHeroImage?: T;
@@ -1134,6 +1161,10 @@ export interface ModelApplicationsSelect<T extends boolean = true> {
   informationAccurateConfirmed?: T;
   noAcceptanceGuaranteeConfirmed?: T;
   consentImageUsageConfirmed?: T;
+  publicProfilePermissionConfirmed?: T;
+  publicProfilePermissionSource?: T;
+  publicProfilePermissionConfirmedAt?: T;
+  recordDocumentedPublicProfilePermission?: T;
   codeOfConductConfirmed?: T;
   contactPermissionConfirmed?: T;
   submittedAt?: T;

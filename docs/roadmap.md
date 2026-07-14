@@ -45,7 +45,11 @@ Status: Lone Star Retreat CMS foundation complete; site-wide migration deferred
 
 ## Phase 4 — Inquiries and applications
 
-Status: Version 1 Retreat applications complete; application receipt email implemented; contact delivery deferred
+Status: Version 1 Retreat applications complete; Featured Artist recruitment implementation ready for deployment verification; contact delivery deferred
+
+Mission 06 production schema is reconciled to the validated state. Feature-code
+deployment and the controlled production recruitment smoke test remain the
+release gate before recruitment is declared operational.
 
 - connect secure contact form
 - add spam protection and contact/inquiry email notifications

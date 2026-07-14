@@ -41,6 +41,9 @@ model is accepted; availability selections never replace explicit consent.
 - Payload collection access remains authenticated-only. The public endpoints use
   narrowly scoped server-side Payload calls.
 - All required consent confirmations must be true.
+- Featured Artist applications distinguish private evaluation permission from
+  draft public-profile publication permission. The publication language remains
+  subject to final legal and business review before production recruitment.
 - Both applications present the approved
   [`foundation/lone-star-retreat-code-of-conduct.md`](foundation/lone-star-retreat-code-of-conduct.md)
   in an in-page disclosure and require `codeOfConductConfirmed` before submission.
@@ -54,9 +57,15 @@ model is accepted; availability selections never replace explicit consent.
   to false. Anonymous media reads remain forbidden.
 - If the application record fails after media creation, the newly created media
   records are deleted to avoid orphaned private storage.
+- Biography and artist statement are optional during the initial Featured Artist
+  application and may be completed after acceptance.
 - No submission creates an account, master profile, public page, message, or
   payment. After the private application record is created, the platform sends a
   receipt-only applicant confirmation and a minimal internal admin notification.
+- When an administrator later approves a permission-confirmed application for
+  the public lineup, the canonical profile, approved media, and event assignment
+  are completed before the acceptance email is attempted. Acceptance delivery
+  status is visible and successful sends are not repeated on later edits.
 
 ## Deployment note
 

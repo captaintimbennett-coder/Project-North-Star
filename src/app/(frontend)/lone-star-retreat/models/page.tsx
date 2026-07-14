@@ -8,11 +8,11 @@ import { retreatDomainPath } from "@/lib/domain-routing";
 const content = retreatAudienceContent.models;
 
 export const metadata: Metadata = {
-  title: "Featured Model Experience | Lone Star Retreat",
+  title: "Featured Artist Experience | Lone Star Retreat",
   description: content.hero.introduction,
   alternates: { canonical: retreatDomainPath("/lone-star-retreat/models") },
   openGraph: {
-    title: "Featured Model Experience | Lone Star Retreat",
+    title: "Featured Artist Experience | Lone Star Retreat",
     description: content.hero.introduction,
     url: retreatDomainPath("/lone-star-retreat/models"),
     siteName: siteConfig.loneStarRetreat.name,
@@ -20,7 +20,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Featured Model Experience | Lone Star Retreat",
+    title: "Featured Artist Experience | Lone Star Retreat",
     description: content.hero.introduction,
     images: [images.portfolio.redEditorial],
   },
