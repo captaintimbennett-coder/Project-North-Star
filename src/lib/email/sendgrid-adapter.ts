@@ -22,6 +22,10 @@ function fromPayloadAddress(value: SendEmailOptions["from"]) {
   return normalized ?? { email: configured.fromAddress, name: configured.fromName };
 }
 
+function replyToPayloadAddress(value: SendEmailOptions["replyTo"]) {
+  return normalizeAddress(value)[0];
+}
+
 export const sendgridEmailAdapter: EmailAdapter<Response | void> = ({ payload }) => {
   const config = getEmailConfig();
 
@@ -50,7 +54,8 @@ export const sendgridEmailAdapter: EmailAdapter<Response | void> = ({ payload })
           from: fromPayloadAddress(message.from),
           mail_settings: config.sandboxMode ? { sandbox_mode: { enable: true } } : undefined,
           personalizations: [{ to }],
-          reply_to: config.replyTo ? { email: config.replyTo } : undefined,
+          reply_to: replyToPayloadAddress(message.replyTo) ??
+            (config.replyTo ? { email: config.replyTo } : undefined),
           subject: message.subject,
         }),
         headers: {

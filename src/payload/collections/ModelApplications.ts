@@ -29,7 +29,7 @@ export const ModelApplications: CollectionConfig = {
   admin: {
     defaultColumns: ["stageName", "email", "applicationStatus", "submittedAt"],
     description:
-      "Private review inbox. Review the application, accept/decline it, then create a private draft Featured Model profile when you are ready. Nothing publishes automatically.",
+      "Private review inbox. Review the application, accept/decline it, then create a private draft Featured Artist profile when you are ready. Nothing publishes automatically.",
     group: "Lone Star Retreat",
     useAsTitle: "stageName",
   },
@@ -85,7 +85,7 @@ export const ModelApplications: CollectionConfig = {
                 condition: (_, siblingData) =>
                   siblingData?.applicationStatus === "accepted" && !siblingData?.publicLineupApprovedAt,
                 description:
-                  `Recommended when the applicant is accepted and ready to show on the site. Check this box and save once. The system creates or updates the Featured Model profile, approves the image, publishes the profile, adds the artist to ${currentRetreatEdition.shortTitle}, and approves the public lineup assignment.`,
+                  `Recommended when the applicant is accepted, has granted publication permission, and is ready to show on the site. Check this box and save once. The system creates or updates the Featured Artist profile, approves the image, publishes the profile, adds the artist to ${currentRetreatEdition.shortTitle}, approves the public lineup assignment, and sends the acceptance email.`,
                 readOnly: false,
               },
             },
@@ -102,13 +102,60 @@ export const ModelApplications: CollectionConfig = {
               },
             },
             {
+              name: "acceptanceEmailStatus",
+              type: "select",
+              defaultValue: "pending",
+              label: "Acceptance email",
+              options: [
+                { label: "Pending public approval", value: "pending" },
+                { label: "Sending", value: "sending" },
+                { label: "Sent", value: "sent" },
+                { label: "Failed — retry available", value: "failed" },
+              ],
+              required: true,
+              admin: { readOnly: true },
+            },
+            {
+              name: "acceptanceEmailSentAt",
+              type: "date",
+              label: "Acceptance email sent at",
+              admin: {
+                condition: (_, siblingData) => Boolean(siblingData?.acceptanceEmailSentAt),
+                date: { pickerAppearance: "dayAndTime" },
+                readOnly: true,
+              },
+            },
+            {
+              name: "acceptanceEmailLastError",
+              type: "text",
+              label: "Acceptance email delivery note",
+              admin: {
+                condition: (_, siblingData) => siblingData?.acceptanceEmailStatus === "failed",
+                description: "Non-sensitive delivery status. Retry after correcting email configuration or the applicant address.",
+                readOnly: true,
+              },
+            },
+            {
+              name: "retryAcceptanceEmail",
+              type: "checkbox",
+              defaultValue: false,
+              label: "Retry acceptance email",
+              virtual: true,
+              admin: {
+                condition: (_, siblingData) =>
+                  Boolean(siblingData?.publicLineupApprovedAt) &&
+                  siblingData?.acceptanceEmailStatus === "failed",
+                description: "Check and save once after correcting the delivery problem. A successfully sent acceptance email is never sent again automatically.",
+              },
+            },
+            {
               name: "linkedModelProfile",
               type: "relationship",
               label: "Step 3 — Profile status receipt",
               relationTo: "model-profiles",
               admin: {
                 description:
-                  `No action needed here. This shows the Featured Model profile created or updated by Step 2. If you chose Step 2B, the public profile and ${currentRetreatEdition.shortTitle} lineup assignment were handled automatically.`,
+                  `No action needed here. This shows the Featured Artist profile created or updated by Step 2. If you chose Step 2B, the public profile and ${currentRetreatEdition.shortTitle} lineup assignment were handled automatically.`,
                 readOnly: true,
               },
             },
@@ -291,7 +338,12 @@ export const ModelApplications: CollectionConfig = {
         {
           label: "Featured Artist Materials",
           fields: [
-            { name: "shortBiography", type: "textarea", label: "Short biography", required: true },
+            {
+              name: "shortBiography",
+              type: "textarea",
+              label: "Short biography (optional)",
+              admin: { description: "May be completed or refined after acceptance and before publication." },
+            },
             { name: "artistStatement", type: "textarea", label: "Artist statement (optional)" },
           ],
         },
@@ -317,8 +369,51 @@ export const ModelApplications: CollectionConfig = {
               type: "checkbox",
               defaultValue: false,
               label:
-                "I understand my uploaded images are for internal review only and will not be published without approval.",
+                "I give Lone Star Retreat permission to use my submitted images only to evaluate this application. This review permission does not authorize public publication.",
               required: true,
+            },
+            {
+              name: "publicProfilePermissionConfirmed",
+              type: "checkbox",
+              defaultValue: false,
+              label: "Public profile permission is on file",
+              admin: {
+                description:
+                  "Historical fact only. False is expected for legacy applications and never blocks ordinary review edits. Use the documented-permission action below to record permission received after application.",
+                readOnly: true,
+              },
+            },
+            {
+              name: "publicProfilePermissionSource",
+              dbName: "pub_perm_source",
+              type: "select",
+              label: "Public profile permission source",
+              options: [
+                { label: "Applicant granted permission in the application", value: "applicant-application" },
+                { label: "Administrator documented permission received later", value: "administrator-documented" },
+              ],
+              admin: { readOnly: true },
+            },
+            {
+              name: "publicProfilePermissionConfirmedAt",
+              type: "date",
+              label: "Public profile permission recorded at",
+              admin: {
+                date: { pickerAppearance: "dayAndTime" },
+                readOnly: true,
+              },
+            },
+            {
+              name: "recordDocumentedPublicProfilePermission",
+              type: "checkbox",
+              defaultValue: false,
+              label: "Record documented public profile permission received after application",
+              virtual: true,
+              admin: {
+                condition: (_, siblingData) => siblingData?.publicProfilePermissionConfirmed !== true,
+                description:
+                  "Use only after the applicant has explicitly authorized public use of their approved profile information and images in a documented communication. This records administrator-documented permission; it does not represent that the applicant checked the original application box.",
+              },
             },
             {
               name: "codeOfConductConfirmed",

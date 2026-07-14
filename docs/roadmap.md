@@ -45,7 +45,13 @@ Status: Lone Star Retreat CMS foundation complete; site-wide migration deferred
 
 ## Phase 4 — Inquiries and applications
 
-Status: Version 1 Retreat applications complete; application receipt email implemented; contact delivery deferred
+Status: Version 1 Retreat applications complete; Featured Artist recruitment operational in production; contact delivery deferred
+
+Mission 06 is complete. Production schema, feature deployment, and controlled
+recruitment workflow validation are complete. Domain-authenticated SendGrid
+delivery and a monitoring-only DMARC policy are active. The pending SendGrid
+Consumer Trust review is tracked as a non-blocking external operational
+dependency rather than unfinished Mission 06 engineering.
 
 - connect secure contact form
 - add spam protection and contact/inquiry email notifications
@@ -55,7 +61,7 @@ Status: Version 1 Retreat applications complete; application receipt email imple
 
 ## Phase 5 — Lone Star Retreat operations
 
-Status: active — event-centric publishing and scheduling foundation
+Status: active — event-centric publishing; Mission 05 authenticated booking foundation complete
 
 - publish complete Retreat experience pages
 - add dates, location, capacity, and team information
@@ -63,6 +69,21 @@ Status: active — event-centric publishing and scheduling foundation
 - add agreements and required acknowledgments
 - integrate Stripe when the financial workflow is approved
 - build participant communications and administrative reporting
+- activate authenticated photographer booking, model availability, and
+  privacy-safe personal itineraries without introducing public booking or
+  participant-to-participant payments
+
+### Mission 07 — Featured Artist Experience
+
+Status: awaiting executive planning and authorization
+
+Guiding principle: Help every visitor feel they have found their people.
+
+The next mission will focus on the public Featured Artist recruitment
+experience: immediate clarity, warmth and belonging, trust, simplicity, minimal
+friction, a clear Apply action, landing-page refinement, responsive desktop and
+mobile experience, and alignment with the Project North Star Brand Philosophy.
+Detailed scope and implementation remain deferred until executive approval.
 
 ## Phase 6 — Education and membership
 

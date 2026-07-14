@@ -1,6 +1,7 @@
 import type { Payload } from "payload";
 import { currentRetreatEdition } from "@/data/retreat-editions";
 import { siteConfig } from "@/data/site";
+import { getApplicationEmailConfig } from "./config";
 
 type ApplicationType = "model" | "photographer";
 
@@ -26,8 +27,12 @@ type EmailTemplate = {
   text: string;
 };
 
+export type ApplicationEmailDeliveryResult =
+  | { sent: true }
+  | { error: string; sent: false };
+
 const applicationLabels: Record<ApplicationType, string> = {
-  model: "featured model",
+  model: "Featured Artist",
   photographer: "photographer",
 };
 
@@ -62,7 +67,7 @@ function applicantApplicationReceivedTemplate(applicationType: ApplicationType):
   const label = applicationLabels[applicationType];
   const subject =
     applicationType === "model"
-      ? "Your featured model application was received"
+      ? "Your Featured Artist application was received"
       : "Your photographer application was received";
   const title = "Application received.";
   const preheader =
@@ -119,6 +124,60 @@ If you need to correct something, you can reply to this email.
   </body>
 </html>`;
 
+  return { html, subject, text };
+}
+
+function featuredArtistAcceptanceTemplate({
+  applicantName,
+  profileUrl,
+}: {
+  applicantName: string;
+  profileUrl: string;
+}): EmailTemplate {
+  const subject = `Welcome to ${currentRetreatEdition.shortTitle}`;
+  const title = "You’re a Featured Artist.";
+  const preheader = `${applicantName}, you have been selected for ${currentRetreatEdition.title}.`;
+  const text = `${siteConfig.loneStarRetreat.name}
+
+${title}
+
+${preheader}
+
+The retreat takes place ${currentRetreatEdition.dateLabel} in ${currentRetreatEdition.locationLabel}. Plan to arrive during the afternoon or evening before the retreat begins. Specific arrival and schedule details will follow.
+
+Featured Artists are compensated for each booked photography session. Travel and accommodations are your responsibility. Any meals provided by Lone Star Retreat will be confirmed before the event.
+
+Your public Featured Artist profile:
+${profileUrl}
+
+Please reply to this email if your public profile needs a correction or if you have questions about your next steps.
+`;
+  const html = `<!doctype html>
+<html lang="en">
+  <head><meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" /><title>${escapeHtml(subject)}</title></head>
+  <body style="margin:0;background:#050505;color:#f4efe6;font-family:Inter,Arial,sans-serif;">
+    <span style="display:none!important;opacity:0;color:transparent;height:0;width:0;overflow:hidden;">${escapeHtml(preheader)}</span>
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#050505;padding:48px 18px;">
+      <tr><td align="center">
+        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:620px;background:#0b0a08;border:1px solid rgba(184,132,45,.35);">
+          <tr><td style="padding:42px 42px 28px;text-align:center;">
+            <div style="font-family:Georgia,'Times New Roman',serif;font-size:26px;letter-spacing:.16em;text-transform:uppercase;color:#f4efe6;">${escapeHtml(siteConfig.loneStarRetreat.name)}</div>
+            <div style="margin-top:8px;font-size:11px;letter-spacing:.32em;text-transform:uppercase;color:#c7963f;">${escapeHtml(currentRetreatEdition.shortTitle)}</div>
+          </td></tr>
+          <tr><td style="padding:0 42px 42px;text-align:center;">
+            <div style="width:48px;height:1px;background:#c7963f;margin:0 auto 30px;"></div>
+            <h1 style="margin:0;font-family:Georgia,'Times New Roman',serif;font-size:38px;line-height:1.08;font-weight:400;color:#f4efe6;">${escapeHtml(title)}</h1>
+            <p style="margin:24px auto 0;max-width:470px;font-size:16px;line-height:1.7;color:#c9c1b3;">${escapeHtml(preheader)}</p>
+            <p style="margin:20px auto 0;max-width:470px;font-size:15px;line-height:1.8;color:#c9c1b3;">The retreat takes place ${escapeHtml(currentRetreatEdition.dateLabel)} in ${escapeHtml(currentRetreatEdition.locationLabel)}. Plan to arrive during the afternoon or evening before the retreat begins. Specific arrival and schedule details will follow.</p>
+            <p style="margin:18px auto 0;max-width:470px;font-size:15px;line-height:1.8;color:#c9c1b3;">Featured Artists are compensated for each booked photography session. Travel and accommodations are your responsibility. Any provided meals will be confirmed before the event.</p>
+            <a href="${escapeHtml(profileUrl)}" style="display:inline-block;margin-top:28px;padding:14px 20px;border:1px solid #c7963f;color:#f4efe6;text-decoration:none;text-transform:uppercase;letter-spacing:.18em;font-size:12px;">View your Featured Artist profile</a>
+            <p style="margin:24px auto 0;max-width:470px;font-size:13px;line-height:1.7;color:#948878;">Reply to this email if your public profile needs a correction or if you have questions about your next steps.</p>
+          </td></tr>
+        </table>
+      </td></tr>
+    </table>
+  </body>
+</html>`;
   return { html, subject, text };
 }
 
@@ -210,23 +269,47 @@ async function sendApplicationEmailSafely({
   purpose: string;
   template: EmailTemplate;
   to: string;
-}) {
+}): Promise<ApplicationEmailDeliveryResult> {
+  const applicationEmail = getApplicationEmailConfig();
   try {
     await payload.sendEmail({
+      from: { address: applicationEmail.fromAddress, name: applicationEmail.fromName },
       html: template.html,
+      replyTo: applicationEmail.replyTo,
       subject: template.subject,
       text: template.text,
       to,
     });
+    return { sent: true };
   } catch (error) {
+    const message = getErrorMessage(error);
     payload.logger.error({
       applicationId,
       applicationType,
-      error: getErrorMessage(error),
+      error: message,
       purpose,
       recipient: to,
     }, "Application email delivery failed.");
+    return { error: message, sent: false };
   }
+}
+
+export async function sendFeaturedArtistAcceptance({
+  applicantEmail,
+  applicantName,
+  applicationId,
+  payload,
+  profileSlug,
+}: Omit<ApplicationEmailInput, "submittedAt"> & { profileSlug: string }) {
+  const profileUrl = `${siteConfig.domains.loneStarRetreat.replace(/\/$/, "")}/lone-star-retreat/${currentRetreatEdition.publicSlug}/artists/${profileSlug}`;
+  return sendApplicationEmailSafely({
+    applicationId,
+    applicationType: "model",
+    payload,
+    purpose: "featured_artist_acceptance",
+    template: featuredArtistAcceptanceTemplate({ applicantName, profileUrl }),
+    to: applicantEmail,
+  });
 }
 
 export async function sendModelApplicationReceived({
@@ -286,6 +369,7 @@ export async function sendAdminApplicationNotification({
   payload,
   submittedAt,
 }: AdminApplicationNotificationInput) {
+  const applicationEmail = getApplicationEmailConfig();
   await sendApplicationEmailSafely({
     applicationId,
     applicationType,
@@ -297,6 +381,6 @@ export async function sendAdminApplicationNotification({
       applicationType,
       submittedAt,
     }),
-    to: siteConfig.email,
+    to: applicationEmail.adminRecipient,
   });
 }

@@ -11,7 +11,9 @@
     "typecheck": "tsc --noEmit",
     "payload": "payload",
     "payload:generate-types": "payload generate:types",
-    "payload:migrate": "payload migrate"
+    "payload:migrate": "payload migrate",
+    "payload:migrate:guarded": "node scripts/guarded-payload-migrate.mjs",
+    "mission:06:validate": "node scripts/mission-06-validation.mjs"
   },
   "dependencies": {
     "@payloadcms/db-postgres": "3.85.2",

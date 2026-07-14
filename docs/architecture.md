@@ -216,6 +216,22 @@ administrator notes, unassigned artists, and unapproved media are never part of
 the public mapping. Approved Media may be read publicly; all other Media remains
 authenticated-only.
 
+Mission 06 preserves that boundary while making recruitment operational. A
+Featured Artist application separately records private-review image permission
+and public-profile publication permission. New submissions record both the
+applicant-provided permission source and the time it was granted. Legacy
+applications remain false with no source or timestamp and remain editable; no
+migration or administrator edit may imply that the original applicant selected a
+checkbox that did not exist. If permission is obtained later, an administrator
+must use the distinct documented-permission action, which records
+`administrator-documented` provenance and a timestamp. Biography and artist
+statement remain optional at application time. Public approval still requires an accepted
+application, explicit publication permission with provenance, approved media, a published
+canonical profile, and an approved event assignment. Only after those public
+steps succeed does the platform attempt the branded acceptance email. Delivery
+state is recorded as pending, sending, sent, or failed; successful delivery is
+idempotent and failed delivery may be retried explicitly from the application.
+
 ### Lone Star Retreat scheduling domain
 
 The approved business rules are defined in
@@ -251,6 +267,23 @@ participants according to their approved preferences after confirmation.
 Email, phone, payment information, private notes, and administrator fields never
 belong in Retreat Schedule output.
 
+Mission 05 activates authenticated participant scheduling without changing the
+canonical record model. Photographer booking requests are instantly confirmed
+or rejected; there is no artist approval queue. PostgreSQL exclusion constraints
+prevent overlapping active bookings for either participant under concurrent
+requests, while server hooks continue to enforce assignments, event-local whole
+hours, duration, availability, contact readiness, and administrator rules.
+Availability remains unique per event, artist, and day, and 60-minute ranges are
+derived rather than stored as slot records.
+
+Photographer and model personal itineraries are separate allowlisted
+projections. They include the partner, event-local time, duration, public event
+location, booking status, administrator-change state, and partner contact methods
+only for active confirmed bookings and only when that partner approved sharing.
+Participant mutations are authenticated and origin-protected. Public booking,
+payments, model rates, messaging, SMS, calendar sync, and automated booking email
+delivery remain outside this foundation.
+
 The scheduling domain intentionally contains no model rates, photographer-to-
 model payments, creative negotiations, or internal messaging records. Future
 event admission payment records are a separate Lone Star Retreat concern.
@@ -269,6 +302,13 @@ event admission payment records are a separate Lone Star Retreat concern.
 Payload access controls must enforce Owner, Editor, and Reviewer roles on the
 server. Database credentials and the Payload secret must never reach browser
 code. PostgreSQL migrations remain version controlled.
+
+Production migrations use an explicit host guard and ordered pending-migration
+allowlist. Payload discovers migrations from the physical migration directory,
+independently of the exported migration registry, so registry filtering must
+never be treated as execution isolation. The guarded release command enumerates
+the physical pending set and refuses execution unless it exactly matches the
+authorized list.
 
 ## Identity and access foundation
 
@@ -335,8 +375,15 @@ confirmations and minimal internal admin notifications after the private
 application record is created. Application email delivery failures are logged
 server-side and must not fail the application submission.
 
+Featured Artist public approval may additionally send a branded acceptance
+email after the canonical profile and event assignment are successfully
+published. Application-specific sender, Reply-To, and administrative-recipient
+configuration remains separate from account lifecycle mail. Acceptance delivery
+state is stored on the private application so successful sends are idempotent and
+failed sends are visible and explicitly retryable.
+
 Transactional email does not authorize marketing email, newsletters,
-acceptance/decline/waitlist automation, public registration, dashboards, SMS,
+decline/waitlist automation, public registration, dashboards, SMS,
 CRM messaging, payments, or booking workflows.
 
 ### Production deployment

@@ -43,6 +43,10 @@ export const activeAccount: Access = ({ req }) => isActiveAccount(req.user);
 export const staffOnly: Access = ({ req }) => isStaff(req.user);
 export const ownerOnly: Access = ({ req }) => isOwner(req.user);
 export const ownerOrEditorOnly: Access = ({ req }) => hasStaffPermission(req.user, ["owner", "editor"]);
+export const staffOrPhotographer: Access = ({ req }) =>
+  hasStaffPermission(req.user, ["owner", "editor"]) || hasAccountRole(req.user, "photographer");
+export const staffOrModel: Access = ({ req }) =>
+  hasStaffPermission(req.user, ["owner", "editor"]) || hasAccountRole(req.user, "model");
 
 export const ownerOrSelf: Access = ({ req }) => {
   if (isOwner(req.user)) return true;
@@ -80,6 +84,13 @@ export const staffOrOwnBooking: Access = ({ req }) => {
 
 export const staffOrOwnAvailability: Access = ({ req }) => {
   if (isStaff(req.user)) return true;
+  const account = getAccount(req.user);
+  if (!isActiveAccount(account) || !hasAccountRole(account, "model")) return false;
+  return { "artist.account": { equals: account.id } };
+};
+
+export const ownerEditorOrOwnAvailability: Access = ({ req }) => {
+  if (hasStaffPermission(req.user, ["owner", "editor"])) return true;
   const account = getAccount(req.user);
   if (!isActiveAccount(account) || !hasAccountRole(account, "model")) return false;
   return { "artist.account": { equals: account.id } };

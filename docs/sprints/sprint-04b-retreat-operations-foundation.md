@@ -1,6 +1,6 @@
 # Sprint 04B — Retreat Operations Foundation
 
-Status: Active — architecture only
+Status: Complete — architecture approved and Mission 05 implementation verified
 
 ## Goal
 
@@ -104,6 +104,9 @@ responsibility.
 
 ## Notes for future Codex sessions
 
-Do not interpret Sprint 04B approval as authorization to build live operational
-features. Sprint 04B approval authorizes the architecture only. Production
-implementation must happen in later approved sprints with explicit scope.
+Sprint 04B approval established the architecture. Mission 05 completed the first
+approved implementation mission by activating authenticated photographer
+booking, model availability, participant personal itineraries, administrator
+booking controls, and privacy-safe schedule projections on the existing
+scheduling foundation. It does not authorize payments, public booking,
+messaging, SMS, calendar sync, or automated booking email delivery.

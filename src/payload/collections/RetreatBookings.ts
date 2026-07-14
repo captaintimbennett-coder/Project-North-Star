@@ -1,6 +1,7 @@
 import type { CollectionConfig } from "payload";
-import { ownerOnly, ownerOrEditorOnly, staffOrOwnBooking, staffFieldAccess } from "../access/account";
+import { ownerOnly, ownerOrEditorOnly, staffOrOwnBooking, staffFieldAccess, staffOrPhotographer } from "../access/account";
 import { validateRetreatBooking } from "../scheduling/rules";
+import { auditRetreatBookingChange } from "../hooks/auditSchedulingChange";
 
 export const RetreatBookings: CollectionConfig = {
   slug: "retreat-bookings",
@@ -9,7 +10,7 @@ export const RetreatBookings: CollectionConfig = {
     singular: "Retreat Booking",
   },
   access: {
-    create: ownerOrEditorOnly,
+    create: staffOrPhotographer,
     delete: ownerOnly,
     read: staffOrOwnBooking,
     update: ownerOrEditorOnly,
@@ -58,6 +59,20 @@ export const RetreatBookings: CollectionConfig = {
       index: true,
     },
     {
+      name: "idempotencyKey",
+      type: "text",
+      unique: true,
+      index: true,
+      admin: { hidden: true },
+      access: { read: staffFieldAccess },
+    },
+    {
+      name: "administratorChangedAt",
+      type: "date",
+      label: "Last administrator schedule change",
+      admin: { readOnly: true, date: { pickerAppearance: "dayAndTime", timeFormat: "h:mm a" } },
+    },
+    {
       name: "rescheduledFrom",
       type: "relationship",
       relationTo: "retreat-bookings",
@@ -79,6 +94,9 @@ export const RetreatBookings: CollectionConfig = {
       type: "textarea",
       label: "Private exception / cancellation reason",
       access: { read: staffFieldAccess },
+      admin: {
+        description: "Required for overrides, cancellations, reschedules, and administrator exceptions.",
+      },
     },
     {
       name: "adminNotes",
@@ -89,6 +107,7 @@ export const RetreatBookings: CollectionConfig = {
   ],
   hooks: {
     beforeChange: [validateRetreatBooking],
+    afterChange: [auditRetreatBookingChange],
   },
   versions: {
     maxPerDoc: 50,

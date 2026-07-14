@@ -60,9 +60,9 @@ export const loneStarRetreatContent = {
     {
       number: "02",
       eyebrow: "Founders Edition",
-      title: "Apply as Featured Model",
-      body: `${currentRetreatEdition.dateLabel} · Apply to participate as a featured model in a professional, safety-centered creative retreat.`,
-      action: "Featured Model Application",
+      title: "Apply as Featured Artist",
+      body: `${currentRetreatEdition.dateLabel} · Apply to participate as a Featured Artist in a professional, safety-centered creative retreat.`,
+      action: "Featured Artist Application",
       href: currentRetreatEdition.modelApplicationPath,
     },
     {
@@ -104,7 +104,7 @@ export const loneStarRetreatContent = {
     eyebrow: "Upcoming edition",
     status: currentRetreatEdition.dateLabel,
     title: currentRetreatEdition.title,
-    body: "The first Lone Star Retreat edition is being shaped for serious photographers and featured models who value professionalism, safety, and intentional creative work.",
+    body: "The first Lone Star Retreat edition is being shaped for serious photographers and Featured Artists who value professionalism, safety, and intentional creative work.",
     image: images.retreat.texasHillCountryHero,
     imageAlt: "Retreat landscape at sunset",
     action: { label: "Join the Founders Edition", href: currentRetreatEdition.publicPath },
@@ -191,7 +191,7 @@ export const retreatAudienceContent = {
   },
   models: {
     hero: {
-      eyebrow: "Lone Star Retreat · Featured Model Experience",
+      eyebrow: "Lone Star Retreat · Featured Artist Experience",
       title: "Your artistry belongs in the story.",
       introduction:
         "A professional destination experience for traveling models who value strong creative collaboration, clear boundaries, exceptional imagery, and work made with purpose.",
@@ -251,12 +251,42 @@ export const retreatAudienceContent = {
       body:
         "Genre selections and comfort levels are separate by design. No selected genre implies consent, and no participant may redefine an artist's boundaries. Clear communication, the Lone Star Retreat code of conduct, and a professional review process govern every experience.",
     },
+    essentials: {
+      eyebrow: "Founders Edition essentials",
+      title: "Know what participation asks of you.",
+      items: [
+        {
+          title: "Dates & arrival",
+          body: "The retreat takes place May 14–16, 2027, in the Dallas–Fort Worth area. Featured Artists should plan to arrive during the afternoon or evening of May 13. Specific arrival instructions follow acceptance.",
+        },
+        {
+          title: "Compensation",
+          body: "Featured Artists are compensated for each booked photography session. The exact compensation structure is managed separately from the application and shared with approved artists.",
+        },
+        {
+          title: "Travel & lodging",
+          body: "Featured Artists arrange and pay for their own travel and accommodations. Lodging is not provided as part of the Founders Edition.",
+        },
+        {
+          title: "Meals",
+          body: "Any meals provided by Lone Star Retreat will be confirmed with approved Featured Artists before the event. Applicants should not assume meals are included.",
+        },
+        {
+          title: "The schedule",
+          body: "Expect a professionally organized shooting schedule throughout the retreat. Individual schedules are shared before the event and include appropriate breaks and reasonable workload expectations.",
+        },
+        {
+          title: "After acceptance",
+          body: "Approved Featured Artists receive next steps by email and may complete or refine optional biography, artist statement, and public profile details before publication.",
+        },
+      ],
+    },
     cta: {
-      eyebrow: "Featured Model applications",
+      eyebrow: "Featured Artist applications",
       title: "Apply for the Founders Edition.",
       body:
         `Tell us about your work, your creative range, and the kind of professional experience you hope to help create for ${currentRetreatEdition.title}.`,
-      label: "Apply as Featured Model",
+      label: "Apply as Featured Artist",
       href: currentRetreatEdition.modelApplicationPath,
     },
   },

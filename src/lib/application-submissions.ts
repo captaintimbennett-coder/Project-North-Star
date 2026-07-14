@@ -257,10 +257,15 @@ export async function createPublicModelApplication(formData: FormData) {
   const alternateModelList = getRequiredString(formData, "alternateModelList", errors);
   const creativeInterests = getStringArray(formData, "creativeInterests");
   const retreatGoals = getStringArray(formData, "retreatGoals");
-  const shortBiography = getRequiredString(formData, "shortBiography", errors);
+  const shortBiography = getOptionalString(formData, "shortBiography");
   const consentImageUsageConfirmed = requireConfirmation(
     formData,
     "consentImageUsageConfirmed",
+    errors,
+  );
+  const publicProfilePermissionConfirmed = requireConfirmation(
+    formData,
+    "publicProfilePermissionConfirmed",
     errors,
   );
   const uploadedImageReferences = getUploadedImageReferences(formData, errors);
@@ -349,8 +354,12 @@ export async function createPublicModelApplication(formData: FormData) {
         artistStatement: getOptionalString(formData, "artistStatement"),
         preferredHeroImage: mediaIDs[0],
         additionalPortfolioImages: mediaIDs.slice(1),
+        acceptanceEmailStatus: "pending",
         applicationStatus: "new",
         consentImageUsageConfirmed,
+        publicProfilePermissionConfirmed,
+        publicProfilePermissionConfirmedAt: submittedAt,
+        publicProfilePermissionSource: "applicant-application",
         submittedAt,
       },
       overrideAccess: true,

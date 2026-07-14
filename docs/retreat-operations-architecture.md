@@ -14,9 +14,18 @@ The objective is to make the retreat feel simple for the people participating:
 - administrators guide and protect the experience, and
 - the platform carries the operational burden.
 
-This is an architecture document only. It does not authorize implementation of
-authentication, booking, payments, calendars, messaging, dashboards, or
-notification automation.
+The architecture was approved for implementation through Mission 05. Mission 05
+may activate the existing booking and artist-availability foundation for
+authenticated participants and administrators. Payments, public booking,
+messaging, SMS, calendar sync, and notification automation remain unauthorized.
+
+Mission 05 retains embedded event participant assignments for Version 1,
+treats `admin-review` as an active administrative exception rather than an
+approval queue, and derives 60-minute ranges rather than persisting slot rows.
+Photographer and model personal schedules must remove ambiguity by showing the
+event-local time, duration, partner, event location, status, administrator
+changes, and only the partner contact methods approved for an active confirmed
+booking.
 
 ## Operating philosophy
 
