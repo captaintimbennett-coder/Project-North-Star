@@ -84,7 +84,7 @@ SENDGRID_FROM_EMAIL=captaintimbennett@gmail.com
 SENDGRID_FROM_NAME=Tim Bennett · Project North Star
 SENDGRID_REPLY_TO=captaintimbennett@gmail.com
 SENDGRID_SANDBOX_MODE=false
-APPLICATION_EMAIL_FROM=no-reply@thelonestarretreat.com
+APPLICATION_EMAIL_FROM=applications@thelonestarretreat.com
 APPLICATION_EMAIL_FROM_NAME=Lone Star Retreat
 APPLICATION_EMAIL_REPLY_TO=tim@thelonestarretreat.com
 APPLICATION_EMAIL_ADMIN_TO=tim@thelonestarretreat.com
@@ -99,6 +99,41 @@ from password recovery and account invitations. The sender address must be
 verified in SendGrid before production use. `APPLICATION_EMAIL_ADMIN_TO` may
 later move to `applications@thelonestarretreat.com` without changing applicant
 Reply-To behavior or other transactional mail.
+
+## Mission 06 production operations
+
+Mission 06 production deployment completed on July 14, 2026 from commit
+`0e66dde`. The production migration history records the validated Mission 05
+and Mission 06 migrations together in batch 18; the incident and safeguards are
+documented in the guarded migration procedure below. The protected pre- and
+post-migration Neon branches are the production recovery checkpoints.
+
+Featured Artist recruitment mail uses the domain-authenticated identity
+`Lone Star Retreat <applications@thelonestarretreat.com>`, replies to
+`tim@thelonestarretreat.com`, and sends administrative notifications to
+`tim@thelonestarretreat.com`. SendGrid DKIM selectors `s1` and `s2` and the
+`em7928` branded return-path CNAME are published. Google Workspace mail delivery
+continues through `smtp.google.com`, with the `google` DKIM selector published.
+
+An initial monitoring-only DMARC policy was published on July 14, 2026:
+
+```text
+v=DMARC1; p=none; rua=mailto:tim@thelonestarretreat.com; adkim=r; aspf=r; pct=100
+```
+
+The record resolved identically through the local resolver, Google Public DNS,
+and Cloudflare after publication. No root-domain SPF TXT record is currently
+published. Existing production recruitment messages have authenticated through
+the aligned SendGrid DKIM configuration; Google Workspace messages authenticate
+through Google DKIM. Review aggregate DMARC reports before considering a staged
+move to `p=quarantine` and later `p=reject`, and add or consolidate a root SPF
+record only after inventorying every authorized sender.
+
+SendGrid production delivery is operational, but the account remains under
+Consumer Trust review and on a trial that ends September 5, 2026. The account
+must be approved and moved to an appropriate ongoing transactional plan before
+that date. Do not alter the validated sender authentication while that review is
+pending unless SendGrid specifically requires it.
 
 ## Verification commands
 

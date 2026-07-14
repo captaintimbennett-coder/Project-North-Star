@@ -158,6 +158,16 @@ master classes, mentoring, and future creative experiences.
   records remained unchanged, historical consent remained false, and no email
   was sent. Pre- and post-migration Neon checkpoints are retained. A guarded
   host-and-allowlist migration wrapper now prevents the same procedure failure.
+- [x] Complete the Mission 06 production deployment and controlled recruitment
+  validation. Domain-authenticated SendGrid mail uses
+  `applications@thelonestarretreat.com`, replies route to Tim, and the initial
+  `_dmarc` monitoring policy is published with aggregate reports directed to
+  Tim. Production recovery remains anchored by the retained pre- and
+  post-migration Neon checkpoints.
+- [ ] Close the remaining Mission 06 operational gate by obtaining SendGrid
+  Consumer Trust approval and moving the account off the trial before September
+  5, 2026. Transactional delivery is currently operational, but the trial is not
+  an acceptable long-term production dependency.
 
 ## Deferred Items
 

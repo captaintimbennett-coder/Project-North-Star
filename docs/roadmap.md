@@ -45,11 +45,13 @@ Status: Lone Star Retreat CMS foundation complete; site-wide migration deferred
 
 ## Phase 4 — Inquiries and applications
 
-Status: Version 1 Retreat applications complete; Featured Artist recruitment implementation ready for deployment verification; contact delivery deferred
+Status: Version 1 Retreat applications complete; Featured Artist recruitment operational in production; contact delivery deferred
 
-Mission 06 production schema is reconciled to the validated state. Feature-code
-deployment and the controlled production recruitment smoke test remain the
-release gate before recruitment is declared operational.
+Mission 06 production schema, feature deployment, and controlled recruitment
+workflow validation are complete. Domain-authenticated SendGrid delivery and a
+monitoring-only DMARC policy are active. SendGrid Consumer Trust approval and
+conversion from the time-limited trial remain the Mission 06 operational
+closeout gate.
 
 - connect secure contact form
 - add spam protection and contact/inquiry email notifications
