@@ -129,11 +129,13 @@ through Google DKIM. Review aggregate DMARC reports before considering a staged
 move to `p=quarantine` and later `p=reject`, and add or consolidate a root SPF
 record only after inventorying every authorized sender.
 
-SendGrid production delivery is operational, but the account remains under
-Consumer Trust review and on a trial that ends September 5, 2026. The account
-must be approved and moved to an appropriate ongoing transactional plan before
-that date. Do not alter the validated sender authentication while that review is
-pending unless SendGrid specifically requires it.
+Mission 06 engineering and production validation are complete. SendGrid
+production delivery is operational. The separate vendor dependency is tracked
+in [`operational-follow-ups.md`](operational-follow-ups.md): Consumer Trust
+review remains pending, and ongoing transactional-plan continuity must be
+confirmed before the trial ends September 5, 2026. Do not alter the validated
+sender authentication while that review is pending unless SendGrid specifically
+requires it.
 
 ## Verification commands
 

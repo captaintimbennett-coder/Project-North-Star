@@ -164,10 +164,10 @@ master classes, mentoring, and future creative experiences.
   `_dmarc` monitoring policy is published with aggregate reports directed to
   Tim. Production recovery remains anchored by the retained pre- and
   post-migration Neon checkpoints.
-- [ ] Close the remaining Mission 06 operational gate by obtaining SendGrid
-  Consumer Trust approval and moving the account off the trial before September
-  5, 2026. Transactional delivery is currently operational, but the trial is not
-  an acceptable long-term production dependency.
+- [x] Close Mission 06 engineering. The Featured Artist recruitment workflow is
+  deployed, validated, operational in production, and documented. SendGrid
+  Consumer Trust review is a separately tracked external operational dependency
+  and does not block Mission 06 completion.
 
 ## Deferred Items
 
