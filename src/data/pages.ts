@@ -72,8 +72,7 @@ export const contactContent = {
   location: "Dallas–Fort Worth, Texas",
   formUnavailableTitle: "Online inquiry form coming soon",
   formUnavailableBody:
-    "The online form is not yet connected. For commissions, retreat interest, and creative partnerships, please email Tim directly.",
-  emailActionLabel: "Email Tim directly",
+    "The online inquiry form and public contact details are currently being updated.",
   overview: {
     eyebrow: "How can Tim help?",
     title: "Choose the right starting point.",

@@ -168,6 +168,13 @@ master classes, mentoring, and future creative experiences.
   deployed, validated, operational in production, and documented. SendGrid
   Consumer Trust review is a separately tracked external operational dependency
   and does not block Mission 06 completion.
+- [ ] Complete Mission 07 Featured Artist Experience. The first implementation
+  iteration and executive refinement pass refine the Founders Edition page as
+  the primary recruitment landing experience with immediate event clarity,
+  visible application access, founder
+  accountability, community evidence, transparent participation terms, and an
+  inspectable Code of Conduct. Additional refinement, deployment, and production
+  changes remain paused pending executive feedback.
 
 ## Deferred Items
 

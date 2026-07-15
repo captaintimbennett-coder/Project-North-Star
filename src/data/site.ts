@@ -26,10 +26,6 @@ export const siteConfig = {
     ogImage: "/images/lone-star-retreat/texas-hill-country-hero-v1.jpg",
   },
   footer: {
-    signature: {
-      firstLine: { lead: "Create with ", emphasis: "intention." },
-      secondLine: { lead: "Build something worth ", emphasis: "remembering." },
-    },
-    note: "Photography, experiences, and a life shaped with intention.",
+    descriptor: "Photography • Education • Creative Community",
   },
 } as const;

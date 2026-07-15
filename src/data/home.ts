@@ -2,8 +2,8 @@ import { images } from "./assets";
 
 export const homeContent = {
   hero: {
-    image: images.hero.founderPortrait,
-    alt: "Tim Bennett seated against a dark studio background in a contemplative portrait",
+    image: images.hero.homeFounderPortrait,
+    alt: "Tim Bennett seated in a warmly lit studio portrait",
     headline: ["Capturing", "Confidence.", "Creating Legacy."],
     supporting: ["Photography with purpose.", "Imagery that endures."],
     signature: "Tim Bennett",

@@ -75,7 +75,7 @@ Status: active — event-centric publishing; Mission 05 authenticated booking fo
 
 ### Mission 07 — Featured Artist Experience
 
-Status: awaiting executive planning and authorization
+Status: first Founders Edition landing-page implementation iteration awaiting executive review
 
 Guiding principle: Help every visitor feel they have found their people.
 
@@ -83,7 +83,15 @@ The next mission will focus on the public Featured Artist recruitment
 experience: immediate clarity, warmth and belonging, trust, simplicity, minimal
 friction, a clear Apply action, landing-page refinement, responsive desktop and
 mobile experience, and alignment with the Project North Star Brand Philosophy.
-Detailed scope and implementation remain deferred until executive approval.
+The approved scope begins with the Founders Edition page as the primary landing
+experience for invitation-driven Featured Artist recruitment.
+
+Executive approval on July 14, 2026 narrowed the primary acquisition journey to
+the Founders Edition page. The first implementation iteration now prioritizes
+immediate event clarity, a visible Featured Artist application path, concise
+founder accountability, community evidence, transparent participation terms,
+and publicly inspectable professional standards. Further refinement remains
+paused for executive review.
 
 ## Phase 6 — Education and membership
 
