@@ -1,10 +1,12 @@
 export const images = {
   brand: {
     northStarSymbol: "/images/brand/north-star-symbol-v1.0.png",
+    loneStarRetreatLogo: "/images/brand/lone-star-retreat-logo.png",
     signature: "/images/brand/tim-bennett-signature-v1.0.png",
   },
   hero: {
     homepage: "/images/hero/homepage-hero-study-v6-glamour.jpg",
+    homeFounderPortrait: "/images/hero/tim-bennett-home-founder-v1.png",
     founderPortrait: "/images/hero/founder-portrait-v1.0.png",
     studies: {
       atmosphere: "/images/hero/homepage-hero-study-v1.jpg",
@@ -29,5 +31,7 @@ export const images = {
   },
   people: {
     timBennett: "/images/behind-the-scenes/tim-bennett-portrait.jpg",
+    loneStarRetreatFounder:
+      "/images/behind-the-scenes/tim-bennett-lone-star-retreat-founder.png",
   },
 } as const;

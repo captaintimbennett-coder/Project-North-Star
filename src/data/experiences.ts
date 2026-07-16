@@ -117,6 +117,132 @@ export const loneStarRetreatContent = {
   },
 } as const;
 
+export const foundersEditionLandingContent = {
+  hero: {
+    eyebrow: "Founders Edition",
+    titleLines: [
+      "Where Featured Artists",
+      "and photographers create",
+      "exceptional work together.",
+    ],
+    supportingLines: [
+      "Three days. Extraordinary people. Real connection.",
+      "Unforgettable images.",
+    ],
+    date: "May 14–16, 2027",
+    venue: "Private Venue",
+    location: "Fort Worth, Texas",
+    reviewNote: "Every application is reviewed personally.",
+  },
+  founder: {
+    eyebrow: "A welcome from the founder",
+    title: "Hi, I'm Tim Bennett.",
+    paragraphs: [
+      "I created Lone Star Retreat because I believe the best images happen when people feel respected, supported, and free to create.",
+      "I’ll be there every moment of the event.",
+    ],
+    values: [
+      {
+        icon: "people",
+        title: "People first",
+        body: "Kindness, preparation, and professionalism shape every interaction.",
+      },
+      {
+        icon: "star",
+        title: "Creative partners",
+        body: "Featured Artists bring ideas, perspective, and authorship to the work.",
+      },
+      {
+        icon: "shield",
+        title: "Built on trust",
+        body: "Clear expectations, open communication, and no surprises.",
+      },
+      {
+        icon: "handshake",
+        title: "No ego",
+        body: "It is not about us. It is about what we create together.",
+      },
+    ],
+  },
+  experience: {
+    eyebrow: "What to expect",
+    title: "A welcoming, professional event designed for collaboration and creativity.",
+    items: [
+      {
+        icon: "people",
+        title: "Come as you are",
+        body: "Prior experience is welcomed, not required. Professionalism, communication, and respect matter more than a résumé.",
+      },
+      {
+        icon: "camera",
+        title: "Create together",
+        body: "Planned shooting time gives Featured Artists and photographers room to exchange ideas and make thoughtful work.",
+      },
+      {
+        icon: "shield",
+        title: "Keep your boundaries",
+        body: "Consent is ongoing. Session interests never replace a clear conversation or your right to change your mind.",
+      },
+      {
+        icon: "compass",
+        title: "Feel supported",
+        body: "The event is intentionally hosted so questions, concerns, and practical needs have a clear place to go.",
+      },
+    ],
+  },
+  application: {
+    eyebrow: "The application",
+    title: "Simple. Respectful. Straightforward.",
+    introduction:
+      "We ask only for what helps us understand you, your availability, and the experience you hope to help create.",
+    steps: [
+      {
+        number: "01",
+        title: "Basic Information",
+        body: "Share the basic details we need to contact you and plan responsibly.",
+      },
+      {
+        number: "02",
+        title: "About You — Optional",
+        body: "Tell us how you like to work. Biography and Artist Statement are optional.",
+      },
+      {
+        number: "03",
+        title: "Review and Submit",
+        body: "Confirm our standards, privacy terms, and publication choices before submitting.",
+      },
+    ],
+    privacy:
+      "Application materials remain private during review. Nothing becomes public automatically.",
+  },
+  essentials: [
+    {
+      icon: "payment",
+      title: "Compensation",
+      body: "Each photographer pays the Featured Artist directly for the time booked. Arrangements are made directly between photographers and Featured Artists.",
+    },
+    {
+      icon: "travel",
+      title: "Travel",
+      body: "Each attendee is responsible for their own travel.",
+    },
+    {
+      icon: "home",
+      title: "Accommodations",
+      body: "Lodging is not provided. Attendees are responsible for arranging their own accommodations.",
+    },
+    {
+      icon: "lock",
+      title: "Privacy and consent",
+      body: "Privacy and image rights are protected. Consent is required for participation and public use.",
+    },
+  ],
+  closing: {
+    title: "If you’re ready to create something exceptional with exceptional people, we’d love to have you with us.",
+    body: "We can’t wait to see your work.",
+  },
+} as const;
+
 export const retreatAudienceContent = {
   photographers: {
     hero: {
