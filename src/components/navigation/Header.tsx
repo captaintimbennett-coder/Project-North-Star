@@ -12,6 +12,17 @@ export function Header() {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
   const isHome = pathname === "/";
+  const isAboutLanding = pathname === "/about";
+  const navigation = isAboutLanding
+    ? [
+        { label: "Home", href: "/" },
+        { label: "About", href: "/about" },
+        { label: "Experience", href: "/lone-star-retreat/founders-edition" },
+        { label: "Featured Artists", href: "/lone-star-retreat/founders-edition/artists" },
+        { label: "Apply", href: "/lone-star-retreat/models/apply" },
+        { label: "Contact", href: "/contact" },
+      ]
+    : primaryNavigation;
   const hasDarkHero = [
     "/portfolio",
     "/private-client",
@@ -35,6 +46,7 @@ export function Header() {
         "site-header",
         isHome ? "" : "site-header-interior",
         hasDarkHero ? "site-header-dark" : "",
+        isAboutLanding ? "site-header-about" : "",
         open ? "site-header-menu-open" : "",
       ].filter(Boolean).join(" ")}
     >
@@ -45,7 +57,14 @@ export function Header() {
         </nav>
       )}
 
-      <Link className="wordmark" href="/" aria-label="Tim Bennett — home">
+      <Link className={`wordmark ${isAboutLanding ? "about-retreat-wordmark" : ""}`} href={isAboutLanding ? "/lone-star-retreat/founders-edition" : "/"} aria-label={isAboutLanding ? "Lone Star Retreat" : "Tim Bennett — home"}>
+        {isAboutLanding ? (
+          <>
+            <Image src={images.brand.projectLoneStarMarkDimensionalWeb} alt="" width={44} height={44} priority />
+            <span>Lone Star<small>Retreat</small></span>
+          </>
+        ) : (
+          <>
         {isHome && (
           <Image
             className="wordmark-compass"
@@ -58,6 +77,8 @@ export function Header() {
         )}
         <span>{siteConfig.name}</span>
         <small>{isHome ? "Photography" : siteConfig.projectName}</small>
+          </>
+        )}
       </Link>
 
       {isHome && (
@@ -83,7 +104,7 @@ export function Header() {
         id="primary-navigation"
         aria-label="Primary navigation"
       >
-        {primaryNavigation.map((item) => (
+        {navigation.map((item) => (
           <Link
             key={item.href}
             href={item.href}

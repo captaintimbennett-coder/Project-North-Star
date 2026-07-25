@@ -1,6 +1,13 @@
 export const images = {
+  about: {
+    closing: "/images/about/lone-star-retreat-closing.png",
+    texasOutline: "/images/about/texas-outline-approved-comp.png",
+    texasFence: "/images/about/tim-bennett-texas-fence.png",
+    workingPortrait: "/images/about/tim-bennett-working-portrait.png",
+  },
   brand: {
     northStarSymbol: "/images/brand/north-star-symbol-v1.0.png",
+    projectLoneStarMarkDimensionalWeb: "/images/brand/project-lone-star-mark-dimensional-web.svg",
     loneStarRetreatLogo: "/images/brand/lone-star-retreat-logo.png",
     signature: "/images/brand/tim-bennett-signature-v1.0.png",
   },

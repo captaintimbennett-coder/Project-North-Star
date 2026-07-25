@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000" role="img" aria-labelledby="title desc">
+  <title id="title">Project Lone Star dimensional web logo</title>
+  <desc id="desc">A small-size optimized hollow double-outline star with a dimensional white outer star and brighter, heavier gold inner star.</desc>
+  <defs>
+    <linearGradient id="whiteThreadWeb" x1="0" y1="0" x2="0.85" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="0.42" stop-color="#faf7ef"/>
+      <stop offset="0.78" stop-color="#e7e2d8"/>
+      <stop offset="1" stop-color="#d2cdc3"/>
+    </linearGradient>
+    <linearGradient id="goldThreadWeb" x1="0" y1="0" x2="0.85" y2="1">
+      <stop offset="0" stop-color="#ffedb0"/>
+      <stop offset="0.38" stop-color="#f0cd72"/>
+      <stop offset="0.76" stop-color="#dcb34e"/>
+      <stop offset="1" stop-color="#c28e29"/>
+    </linearGradient>
+    <filter id="raisedWeb" x="-14%" y="-14%" width="134%" height="138%" color-interpolation-filters="sRGB">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="3.5" result="blur"/>
+      <feOffset in="blur" dx="3.5" dy="4.5" result="offsetBlur"/>
+      <feColorMatrix in="offsetBlur" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 .5 0" result="shadow"/>
+      <feMerge><feMergeNode in="shadow"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <g fill="none" stroke-linejoin="miter" stroke-miterlimit="8" stroke-linecap="square" filter="url(#raisedWeb)">
+    <path stroke="#68655f" stroke-width="39" opacity="0.52" transform="translate(2 3)" d="M500 80 L596 405 L955 406 L660 608 L780 920 L500 725 L219 920 L338 608 L46 406 L402 406 Z"/>
+    <path stroke="url(#whiteThreadWeb)" stroke-width="35" d="M500 80 L596 405 L955 406 L660 608 L780 920 L500 725 L219 920 L338 608 L46 406 L402 406 Z"/>
+    <path stroke="#ffffff" stroke-width="4.5" opacity="0.62" transform="translate(-1 -1.5)" d="M500 80 L596 405 L955 406 L660 608 L780 920 L500 725 L219 920 L338 608 L46 406 L402 406 Z"/>
+    <path stroke="#70470e" stroke-width="53" opacity="0.58" transform="translate(2.5 3.5)" d="M500 215 L571 451 L821 451 L616 591 L696 808 L500 671 L304 808 L384 591 L178 451 L430 451 Z"/>
+    <path stroke="url(#goldThreadWeb)" stroke-width="48" d="M500 215 L571 451 L821 451 L616 591 L696 808 L500 671 L304 808 L384 591 L178 451 L430 451 Z"/>
+    <path stroke="#fff3c8" stroke-width="5.5" opacity="0.66" transform="translate(-1.2 -1.8)" d="M500 215 L571 451 L821 451 L616 591 L696 808 L500 671 L304 808 L384 591 L178 451 L430 451 Z"/>
+  </g>
+</svg>
