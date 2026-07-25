@@ -4,6 +4,17 @@ This document records approved product-level decisions that govern multiple
 features or future sprints. Implementation detail remains in the relevant sprint
 and architecture documents.
 
+## July 24, 2026 — Scheduling Engine Proof of Concept
+
+- [`decisions/scheduling-engine-poc.md`](decisions/scheduling-engine-poc.md) is
+  the authoritative scope and execution record for the future scheduling-engine
+  proof of concept.
+- Scheduling is approved but parked until the completed calendar, DatePicker,
+  and booking-location work is deployed and scheduling is explicitly selected
+  as the active mission.
+- [`research/scheduling-engine-research-v2.md`](research/scheduling-engine-research-v2.md)
+  supplies background only and does not expand the approved scope.
+
 ## July 4, 2026 — Project North Star Design Principles
 
 - [`foundation/design-principles.md`](foundation/design-principles.md) is the
