@@ -460,6 +460,39 @@
 .site-header-interior.site-header-dark .wordmark small {
   color: var(--north-star-gold-bright);
 }
+.site-header-about {
+  width: 100%;
+  min-height: 88px;
+  padding-inline: max(4vw, calc((100vw - var(--layout-page)) / 2));
+  color: var(--north-star-ivory);
+  background: var(--north-star-black);
+  border-bottom-color: var(--north-star-rule);
+}
+.site-header-about .about-retreat-wordmark {
+  display: grid;
+  grid-template-columns: 44px auto;
+  align-items: center;
+  gap: 0.75rem;
+}
+.site-header-about .about-retreat-wordmark > img { width: 44px; height: 44px; object-fit: contain; }
+.site-header-about .about-retreat-wordmark > span {
+  color: var(--north-star-gold-bright);
+  font-family: var(--north-star-font-display);
+  font-size: 1.15rem;
+  letter-spacing: 0.16em;
+  line-height: 1;
+}
+.site-header-about .about-retreat-wordmark small {
+  margin-top: 0.4rem;
+  display: block;
+  color: var(--north-star-gold-bright);
+  font-family: var(--north-star-font-body);
+  font-size: 0.5rem;
+  letter-spacing: 0.56em;
+  text-align: center;
+}
+.site-header-about .primary-navigation { gap: clamp(1.2rem, 2vw, 2.4rem); }
+.site-header-about .primary-navigation a { font-size: 0.62rem; }
 .site-header-menu-open {
   color: var(--color-text-inverse);
   border-bottom-color: var(--color-rule-inverse-strong);
@@ -3548,18 +3581,58 @@ select.application-input {
 .journal-card > p { color: var(--color-text-inverse-medium); line-height: var(--line-height-body); }
 .journal-card .journal-status { color: var(--gold); }
 
-.about-intro { padding-bottom: clamp(7rem, 12vw, 12rem); }
-.about-story { padding: clamp(7rem, 12vw, 13rem) 0; color: var(--warm-white); background: var(--charcoal); }
-.about-story-grid { display: grid; grid-template-columns: 0.7fr 1.3fr; gap: 10vw; }
-.about-story-grid > .eyebrow { color: var(--gold); font-size: 0.72rem; }
-.about-story-grid > div > p:not(.eyebrow) {
-  margin: 0 0 2rem;
-  color: var(--color-text-inverse-medium);
-  font-family: var(--serif);
-  font-size: clamp(1.3rem, 2.2vw, 2rem);
-  line-height: 1.6;
-}
-.about-story-grid .eyebrow { margin-top: 4rem; color: var(--gold); }
+/* Mission 08: executive-approved About composition */
+.about-experience { padding-top: 88px; color: var(--north-star-ink); background: var(--north-star-ivory); }
+.about-experience .ds-eyebrow { color: var(--north-star-gold); }
+.about-rule { display: block; width: 48px; height: 1px; margin-block: 1.5rem; background: var(--north-star-gold); }
+.about-hero { position: relative; min-height: clamp(610px, 74svh, 760px); color: var(--north-star-ivory); overflow: hidden; }
+.about-hero__image { object-fit: cover; object-position: center top; }
+.about-hero__shade { position: absolute; inset: 0; background: linear-gradient(90deg, transparent 30%, rgb(5 6 7 / 28%) 47%, rgb(5 6 7 / 94%) 83%); }
+.about-hero__content { position: relative; z-index: 1; min-height: inherit; padding-top: 108px; padding-left: 52%; display: flex; flex-direction: column; justify-content: center; align-items: flex-start; }
+.about-hero__content h1 { margin: 0; font-size: clamp(4.4rem, 7vw, 7.6rem); font-weight: 400; letter-spacing: -0.045em; line-height: 0.92; }
+.about-hero__content > p:not(.ds-eyebrow) { max-width: 33rem; margin: 0 0 1.3rem; color: rgb(242 238 230 / 88%); font-size: clamp(1.05rem, 1.35vw, 1.3rem); line-height: 1.65; }
+.about-hero__content .about-hero__roles { max-width: 25rem; font-size: clamp(1.15rem, 1.55vw, 1.45rem); }
+.about-narrative { padding: clamp(5rem, 8vw, 8rem) 0; background: var(--north-star-ivory); }
+.about-narrative__grid { display: grid; grid-template-columns: minmax(330px, 0.86fr) minmax(0, 1.14fr); align-items: end; gap: clamp(3rem, 6vw, 7rem); }
+.about-narrative__copy h2, .about-retreat h2 { margin: 0; white-space: pre-line; font-size: clamp(3.2rem, 4.25vw, 4.6rem); font-weight: 400; letter-spacing: -0.04em; line-height: 0.96; }
+.about-retreat h2 { font-size: clamp(2.5rem, 3vw, 3.25rem); }
+.about-narrative__copy .about-rule { margin-block: 1rem; }
+.about-narrative__copy > p:not(.ds-eyebrow), .about-retreat__grid > div:nth-child(2) p { margin: 0 0 1rem; color: var(--north-star-ink); font-size: clamp(0.98rem, 1.05vw, 1.12rem); line-height: 1.55; }
+.about-narrative__copy blockquote { position: relative; margin: 1.75rem 0; padding: 0 0 0 2.4rem; font-family: var(--north-star-font-display); font-size: clamp(1.1rem, 1.25vw, 1.3rem); font-style: italic; line-height: 1.45; }
+.about-narrative__copy blockquote::before { content: "“"; position: absolute; top: -0.5rem; left: -0.2rem; color: var(--north-star-gold); font-size: 4.2rem; font-style: normal; line-height: 1; }
+.about-narrative__copy blockquote p { margin: 0 0 0.65rem; }
+.about-narrative__copy blockquote p:last-child { padding-bottom: 0.75rem; border-bottom: 1px solid var(--north-star-gold); }
+.about-narrative__image { position: relative; aspect-ratio: 1.34; overflow: hidden; }
+.about-narrative__image img { object-fit: cover; object-position: center; }
+.about-humility { min-height: 118px; padding: 1.6rem 2.5rem; display: grid; grid-template-columns: 58px 1fr; align-items: center; gap: 1.6rem; color: var(--north-star-ivory); background: var(--north-star-black); border-top: 1px solid rgb(242 238 230 / 58%); }
+.about-humility img { width: 54px; height: 54px; object-fit: contain; }
+.about-humility p { margin: 0; color: rgb(242 238 230 / 80%); line-height: 1.55; }
+.about-humility strong { display: block; margin-bottom: 0.35rem; color: var(--north-star-gold-bright); font-size: 0.78rem; font-weight: 500; letter-spacing: 0.09em; text-transform: uppercase; }
+.about-approach { padding: clamp(3.8rem, 5.5vw, 5.8rem) 0; color: var(--north-star-ivory); background: var(--north-star-black); }
+.about-approach__heading { margin-bottom: 2.2rem; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 1.5rem; }
+.about-approach__heading span { height: 1px; background: var(--north-star-rule); }
+.about-approach__heading p { margin: 0; }
+.about-approach__grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); }
+.about-approach__grid article { padding: 0 clamp(1.1rem, 2vw, 2rem); text-align: center; border-right: 1px solid var(--north-star-rule); }
+.about-approach__grid article:last-child { border-right: 0; }
+.about-approach__grid svg { width: 44px; height: 44px; color: var(--north-star-gold-bright); }
+.about-approach__grid h3 { margin: 1.2rem 0 0.9rem; font-family: var(--north-star-font-body); font-size: 0.82rem; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; }
+.about-approach__grid p { margin: 0; color: rgb(242 238 230 / 72%); font-size: 0.9rem; line-height: 1.6; }
+.about-retreat { padding: clamp(4.8rem, 7vw, 7rem) 0; background: var(--north-star-ivory); }
+.about-retreat__grid { display: grid; grid-template-columns: minmax(360px, 0.78fr) minmax(340px, 1fr) 180px; align-items: center; gap: clamp(2rem, 4vw, 5rem); }
+.about-texas { width: 200px; height: 160px; overflow: hidden; }
+.about-texas img { width: 200px; height: 170px; display: block; clip-path: inset(8px 0); transform: translateY(-5px); }
+.about-closing { position: relative; min-height: 320px; color: var(--north-star-ivory); background: var(--north-star-black); overflow: hidden; }
+.about-closing__image { position: absolute; inset: 0 auto 0 0; width: 45%; overflow: hidden; }
+.about-closing__image img { object-fit: cover; object-position: center 54%; }
+.about-closing__shade { position: absolute; inset: 0; background: linear-gradient(90deg, rgb(5 6 7 / 8%) 0%, rgb(5 6 7 / 18%) 34%, rgb(5 6 7 / 98%) 48%, var(--north-star-black) 100%); }
+.about-closing__content { position: relative; z-index: 1; min-height: inherit; padding: 3.5rem 0 3.5rem 39%; display: grid; grid-template-columns: auto minmax(0, 720px); justify-content: start; align-items: start; gap: 1.3rem; }
+.about-closing__mark { color: var(--north-star-gold-bright); font-family: var(--north-star-font-display); font-size: 5rem; line-height: 0.7; }
+.about-closing__content p { margin: 0; color: rgb(242 238 230 / 88%); font-size: 1.08rem; line-height: 1.65; }
+.about-closing__emphasis { margin-top: 1.4rem !important; color: var(--north-star-gold-bright) !important; font-size: 1.18rem !important; letter-spacing: 0.08em; text-transform: uppercase; }
+.about-closing__emphasis span { display: inline; }
+.about-closing__emphasis span:not(:last-child)::after { content: "  "; white-space: pre; }
+.about-closing__signature { width: 190px; height: 76px; margin: 0.8rem 0 0 auto; display: block; background: var(--north-star-gold-bright); mask: url("/images/brand/tim-bennett-signature-v1.0.png") center / contain no-repeat; }
 
 .contact-layout {
   padding-block: var(--space-section-sm) var(--space-section-lg);
@@ -4387,4 +4460,46 @@ select.application-input {
     font-size: 0.95rem;
     white-space: normal;
   }
+}
+
+@media (max-width: 980px) {
+  .about-hero { min-height: 680px; }
+  .about-hero__shade { background: linear-gradient(90deg, transparent 14%, rgb(5 6 7 / 32%) 38%, rgb(5 6 7 / 94%) 80%); }
+  .about-hero__content { padding-left: 46%; }
+  .about-narrative__grid { grid-template-columns: minmax(270px, 0.82fr) minmax(0, 1.18fr); gap: 3rem; }
+  .about-humility { padding-inline: 1.5rem; }
+  .about-approach__grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 2.5rem 0; }
+  .about-approach__grid article:nth-child(3) { border-right: 0; }
+  .about-retreat__grid { grid-template-columns: 0.8fr 1.2fr; }
+  .about-texas { display: none; }
+}
+
+@media (max-width: 760px) {
+  .about-hero { min-height: 760px; display: flex; align-items: flex-end; }
+  .about-experience { padding-top: 82px; }
+  .about-hero__image { object-position: 38% top; }
+  .about-hero__shade { background: linear-gradient(0deg, rgb(5 6 7 / 97%) 0%, rgb(5 6 7 / 72%) 42%, transparent 78%); }
+  .about-hero__content { min-height: 0; padding: 26rem 0 4rem; }
+  .about-hero__content h1 { font-size: clamp(3.8rem, 17vw, 5.5rem); }
+  .about-hero__content > p:not(.ds-eyebrow) { max-width: 31rem; }
+  .about-narrative { padding-block: 5rem; }
+  .about-narrative__grid { grid-template-columns: 1fr; gap: 4rem; }
+  .about-narrative__copy h2, .about-retreat h2 { font-size: clamp(3rem, 13vw, 4.6rem); }
+  .about-narrative__image { aspect-ratio: 1.15; }
+  .about-humility { grid-template-columns: 46px 1fr; gap: 1.1rem; }
+  .about-humility img { width: 44px; height: 44px; }
+  .about-approach__heading { margin-bottom: 3rem; }
+  .about-approach__grid { grid-template-columns: 1fr; gap: 0; }
+  .about-approach__grid article, .about-approach__grid article:nth-child(3) { padding: 2.2rem 1rem; border-right: 0; border-bottom: 1px solid var(--north-star-rule); }
+  .about-approach__grid article:last-child { border-bottom: 0; }
+  .about-approach__grid p { max-width: 24rem; margin-inline: auto; }
+  .about-retreat__grid { grid-template-columns: 1fr; gap: 2.5rem; }
+  .about-closing { min-height: 480px; }
+  .about-closing__image { width: 100%; }
+  .about-closing__image img { object-position: 38% center; }
+  .about-closing__shade { background: rgb(5 6 7 / 88%); }
+  .about-closing__content { padding: 4.5rem 0; grid-template-columns: auto 1fr; gap: 0.8rem; }
+  .about-closing__mark { font-size: 3.8rem; }
+  .about-closing__emphasis span { display: block; }
+  .about-closing__signature { margin-left: 0; }
 }
