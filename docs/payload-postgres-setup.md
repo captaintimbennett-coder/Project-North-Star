@@ -137,6 +137,38 @@ confirmed before the trial ends September 5, 2026. Do not alter the validated
 sender authentication while that review is pending unless SendGrid specifically
 requires it.
 
+### July 25, 2026 application-email revalidation
+
+Production application submissions continued to save successfully while
+SendGrid made no outbound request. Because recruitment email delivery is
+deliberately non-blocking, applicants still reached the received page even
+though neither the applicant receipt nor the administrator notification was
+sent. Vercel function logs showed the successful application request and no
+outgoing API call, and SendGrid activity showed no corresponding message.
+
+The production `SENDGRID_API_KEY` was replaced with a new restricted key whose
+only permission is full Mail Send access, and the Vercel production deployment
+was rebuilt. The previous key had worked during the July 14 validation, but the
+available evidence does not establish whether it was later revoked, replaced,
+corrupted, or otherwise became unusable. Do not record a more specific cause
+without SendGrid audit evidence.
+
+Post-redeployment controlled tests verified the complete production workflow:
+
+- Photographer application #4 saved successfully; the applicant receipt
+  reached `captaintimbennett@gmail.com` and the administrator notification
+  reached `tim@thelonestarretreat.com`.
+- Featured Artist application #12 saved successfully; the applicant receipt
+  reached `captaintimbennett@gmail.com` and the administrator notification
+  reached `tim@thelonestarretreat.com`.
+- Both administrator messages included the correct Payload Admin link, and
+  Reply-To remained `tim@thelonestarretreat.com`.
+
+Mission 06 remains closed. Both model and photographer application backends and
+their two-recipient email workflows were production-verified on July 25, 2026.
+The controlled test records must remain private and must not be accepted or
+published.
+
 ## Verification commands
 
 ```bash
