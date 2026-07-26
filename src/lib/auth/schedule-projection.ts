@@ -40,6 +40,19 @@ export type SharedRetreatScheduleItem = {
   status: "admin-review" | "confirmed";
 };
 
+export type SharedRetreatScheduleEvent = {
+  endAt: string;
+  eventId: number;
+  eventTitle: string;
+  items: SharedRetreatScheduleItem[];
+  startAt: string;
+  timeZone: string;
+};
+
+export function canViewSharedRetreatSchedule(account: User) {
+  return hasAccountRole(account, "model") || hasAccountRole(account, "photographer");
+}
+
 function approvedContacts(profile: ModelProfile | PhotographerProfile): ApprovedContactMethod[] {
   const preferences = profile.bookingPreferences;
   if (!preferences) return [];
@@ -127,14 +140,38 @@ export async function getPersonalItinerary(
   }));
 }
 
-export async function getSharedRetreatSchedule(account: User, eventID: number): Promise<SharedRetreatScheduleItem[]> {
-  const payload = await getPayload({ config });
+export async function getSharedRetreatSchedule(
+  account: User,
+  eventID: number,
+  context: ProjectionContext = {},
+): Promise<SharedRetreatScheduleItem[]> {
+  const payload = context.payload ?? await getPayload({ config });
   if (!hasAccountRole(account, "model") && !hasAccountRole(account, "photographer") && !isStaff(account)) return [];
-  const event = await payload.findByID({ collection: "retreat-events", id: eventID, depth: 0, overrideAccess: true });
+  const event = await payload.findByID({
+    collection: "retreat-events",
+    id: eventID,
+    depth: 0,
+    overrideAccess: true,
+    req: context.req,
+  });
   if (!isStaff(account)) {
     const [models, photographers] = await Promise.all([
-      hasAccountRole(account, "model") ? payload.find({ collection: "model-profiles", depth: 0, limit: 1, overrideAccess: true, where: { account: { equals: account.id } } }) : null,
-      hasAccountRole(account, "photographer") ? payload.find({ collection: "photographer-profiles", depth: 0, limit: 1, overrideAccess: true, where: { account: { equals: account.id } } }) : null,
+      hasAccountRole(account, "model") ? payload.find({
+        collection: "model-profiles",
+        depth: 0,
+        limit: 1,
+        overrideAccess: true,
+        req: context.req,
+        where: { account: { equals: account.id } },
+      }) : null,
+      hasAccountRole(account, "photographer") ? payload.find({
+        collection: "photographer-profiles",
+        depth: 0,
+        limit: 1,
+        overrideAccess: true,
+        req: context.req,
+        where: { account: { equals: account.id } },
+      }) : null,
     ]);
     const modelID = models?.docs[0]?.id;
     const photographerID = photographers?.docs[0]?.id;
@@ -147,12 +184,19 @@ export async function getSharedRetreatSchedule(account: User, eventID: number): 
   const assigned = event.participatingArtists?.map((entry) => relationshipID(entry.artist)).filter(Boolean) ?? [];
   const result = await payload.find({
     collection: "retreat-bookings", depth: 0, limit: 500, overrideAccess: true, pagination: false, sort: "startAt",
+    req: context.req,
     where: { and: [{ event: { equals: eventID } }, { status: { in: ["confirmed", "admin-review"] } }] },
   });
   return Promise.all(result.docs.filter((booking) => assigned.includes(relationshipID(booking.artist))).map(async (booking) => {
     const artistID = relationshipID(booking.artist);
     const artist = artistID
-      ? await payload.findByID({ collection: "model-profiles", id: artistID, depth: 0, overrideAccess: true })
+      ? await payload.findByID({
+        collection: "model-profiles",
+        id: artistID,
+        depth: 0,
+        overrideAccess: true,
+        req: context.req,
+      })
       : null;
     return {
       artistName: artist?.displayName || "Participating artist",
@@ -162,4 +206,60 @@ export async function getSharedRetreatSchedule(account: User, eventID: number): 
       status: booking.status as "admin-review" | "confirmed",
     };
   }));
+}
+
+export async function getSharedRetreatScheduleEvents(
+  account: User,
+  context: ProjectionContext = {},
+): Promise<SharedRetreatScheduleEvent[]> {
+  if (!canViewSharedRetreatSchedule(account)) return [];
+  const payload = context.payload ?? await getPayload({ config });
+  const [models, photographers, events] = await Promise.all([
+    hasAccountRole(account, "model") ? payload.find({
+      collection: "model-profiles",
+      depth: 0,
+      limit: 1,
+      overrideAccess: true,
+      req: context.req,
+      where: { account: { equals: account.id } },
+    }) : null,
+    hasAccountRole(account, "photographer") ? payload.find({
+      collection: "photographer-profiles",
+      depth: 0,
+      limit: 1,
+      overrideAccess: true,
+      req: context.req,
+      where: { account: { equals: account.id } },
+    }) : null,
+    payload.find({
+      collection: "retreat-events",
+      depth: 0,
+      limit: 20,
+      overrideAccess: true,
+      pagination: false,
+      req: context.req,
+      sort: "startDate",
+      where: { lifecycleStatus: { in: ["published", "closed"] } },
+    }),
+  ]);
+  const modelID = models?.docs[0]?.id;
+  const photographerID = photographers?.docs[0]?.id;
+  const eligibleEvents = events.docs.filter((event) => {
+    const eligibleModel = modelID && event.participatingArtists?.some((entry) =>
+      relationshipID(entry.artist) === modelID
+      && ["confirmed", "approved"].includes(entry.participationStatus));
+    const eligiblePhotographer = photographerID && event.participatingPhotographers?.some((entry) =>
+      relationshipID(entry.photographer) === photographerID
+      && entry.participationStatus === "approved");
+    return Boolean(eligibleModel || eligiblePhotographer) && event.startDate && event.endDate;
+  });
+
+  return Promise.all(eligibleEvents.map(async (event) => ({
+    endAt: event.endDate as string,
+    eventId: Number(event.id),
+    eventTitle: event.title,
+    items: await getSharedRetreatSchedule(account, Number(event.id), { ...context, payload }),
+    startAt: event.startDate as string,
+    timeZone: event.timeZone || "America/Chicago",
+  })));
 }

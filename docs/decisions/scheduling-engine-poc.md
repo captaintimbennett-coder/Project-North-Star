@@ -1,7 +1,7 @@
 # Project North Star — Mission 09 Skinny Native Scheduling
 
-**Status:** Active — Milestones 1–4 and Milestones 5.1–5.3 complete; stopped
-before Milestone 5.4
+**Status:** Active — Milestones 1–4 and Milestones 5.1–5.4A complete; stopped
+before Milestone 5.4B
 
 **Original decision date:** July 24, 2026
 
@@ -330,6 +330,71 @@ Work is deliberately stopped before Milestone 5.4. Shared Retreat Schedule and
 administrator master-calendar interface changes are not part of Milestone 5.3.
 Executive visual review may occur from this stable local baseline before the
 next milestone is authorized.
+
+#### Executive Visual Acceptance — Milestones 5.1–5.3
+
+Accepted July 26, 2026:
+
+- The Product Owner visually accepted the connected Schedule a Shoot selection
+  and review flow, Featured Artist Shape Your Day experience, and photographer
+  and Featured Artist private My Schedule views.
+- The controlled review used isolated development-only participant accounts
+  and records at 1440px desktop and 390px mobile widths. Ten captures completed
+  without horizontal overflow, failed final-state images, or browser-console
+  errors.
+- The temporary review accounts, booking, availability, delivery intents, and
+  matching audit records were removed, and the original development profile
+  relationships and values were restored. Production data was not changed.
+- One stale development-only Featured Artist media URL referenced a retired
+  local media host. The review used the existing initials fallback after
+  preserving the original profile value. One approved production portrait must
+  still be checked before participant launch; this does not expand or block the
+  scheduling milestone.
+
+The next candidate outcome was Milestone 5.4A. The Product Owner approved its
+small boundary before implementation. Milestone 5.4B remains separate and
+unauthorized.
+
+#### Milestone 5.4A — Shared Retreat Schedule
+
+Completed locally July 26, 2026:
+
+- Added one authenticated, read-only Shared Retreat Schedule for approved
+  photographers and Featured Artists assigned to the selected retreat.
+- Reused the existing `getSharedRetreatSchedule` projection and approved
+  premium Retreat Schedule direction. A small event adapter now resolves only
+  published or closed retreats to which the active participant is assigned.
+- The route displays only Featured Artist stage/display name, event-local date
+  and time, and confirmed or administrator-review status. The focused privacy
+  test confirms the booking item allowlist contains only `artistName`, `endAt`,
+  `id`, `startAt`, and `status`.
+- Preserved the secondary-view hierarchy. My Schedule remains the primary
+  participant action, and the new Shared Retreat Schedule is a separate
+  read-only account action with a return path to My Schedule.
+- Added the protected `/account/retreat-schedule` route, pure presentation
+  adapter, responsive editorial timeline and mobile agenda, and explicit
+  active-participant access gate. Administrator-only and suspended accounts
+  cannot use the participant route.
+- Verified the completed interface at 1440px and 390px using isolated typed
+  review data. The final mobile inspection reported no horizontal overflow,
+  clipped content, or browser-console errors. No database record, production
+  data, migration, external service, or notification was changed.
+- `pnpm mission:09:shared-schedule`, `pnpm mission:09:personal-schedule`,
+  `pnpm typecheck`, `pnpm lint`, `pnpm build`, and `git diff --check` pass.
+
+Milestone 5.4A does not include:
+
+- Photographer identity
+- Participant contact details
+- Shoot type, concept, theme, wardrobe, rates, payment, or private notes
+- Availability editing or participant booking mutation
+- Administrator drag, cancellation, rescheduling, reassignment, override, or
+  conflict-resolution controls
+- A new collection, database migration, dependency, notification, dashboard,
+  or generalized calendar abstraction
+
+Milestone 5.4A is complete locally. Milestone 5.4B administrator
+master-calendar controls remain a separate, unauthorized outcome.
 
 ## Implementation Boundary
 

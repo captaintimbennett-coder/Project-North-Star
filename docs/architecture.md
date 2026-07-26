@@ -271,6 +271,15 @@ participants according to their approved preferences after confirmation.
 Email, phone, payment information, private notes, and administrator fields never
 belong in Retreat Schedule output.
 
+The authenticated `/account/retreat-schedule` route consumes that allowlisted
+shared projection for active photographers and Featured Artists assigned to a
+published or closed retreat. It presents only Featured Artist display name,
+event-local date and time, and confirmed or administrator-review status through
+a read-only desktop timeline and compact mobile agenda. My Schedule remains the
+primary participant view. Administrator-only and suspended accounts are
+excluded, and administrator master-calendar controls remain a separate
+operational interface.
+
 Mission 05 activates authenticated participant scheduling without changing the
 canonical record model. Photographer booking requests are instantly confirmed
 or rejected; there is no artist approval queue. PostgreSQL exclusion constraints

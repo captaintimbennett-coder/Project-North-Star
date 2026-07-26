@@ -87,6 +87,13 @@ Retreat. Update it whenever an item is approved, completed, deferred, or changed
   Schedule a Shoot experience to each authenticated photographer's real
   eligible Featured Artists, event-local windows, review step, and protected
   immediate-confirmation workflow
+- [x] Complete Product Owner visual acceptance of Mission 09 Milestones
+  5.1–5.3 at desktop and mobile widths using isolated temporary participant
+  records, then remove the temporary data and restore the original development
+  records
+- [x] Complete Mission 09 Milestone 5.4A Shared Retreat Schedule as an
+  authenticated, read-only, privacy-safe participant view with Featured Artist
+  name, event-local time, and confirmed or administrator-review status only
 
 ## 6. Future Operational Systems — Deferred
 
@@ -117,6 +124,8 @@ approval workflow are complete and approved.
 
 ## Current Focus
 
-**Next item:** Stop for executive review before Mission 09 Milestone 5.4. Do
-not add shared Retreat Schedule or administrator master-calendar interfaces
-until that next small outcome is explicitly approved.
+**Next item:** Stop for executive review before Mission 09 Milestone 5.4B.
+Define and explicitly approve the smallest administrator master-calendar
+outcome before implementation. Do not add drag-and-drop, cancellation,
+rescheduling, reassignment, override, or conflict controls until that exact
+small outcome is approved.
