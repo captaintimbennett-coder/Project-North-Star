@@ -271,6 +271,12 @@ participants according to their approved preferences after confirmation.
 Email, phone, payment information, private notes, and administrator fields never
 belong in Retreat Schedule output.
 
+The separate administrator Master Calendar uses its own server-side allowlist.
+It adds photographer display name to the operational booking identity and
+includes confirmed, administrator-review, cancelled, and rescheduled records,
+but still excludes contact details, rates, payment, creative planning, private
+notes, and change reasons.
+
 The authenticated `/account/retreat-schedule` route consumes that allowlisted
 shared projection for active photographers and Featured Artists assigned to a
 published or closed retreat. It presents only Featured Artist display name,
@@ -279,6 +285,14 @@ a read-only desktop timeline and compact mobile agenda. My Schedule remains the
 primary participant view. Administrator-only and suspended accounts are
 excluded, and administrator master-calendar controls remain a separate
 operational interface.
+
+The authenticated `/account/master-calendar` route is available only to active
+administrator accounts. It resolves published and closed retreats, enumerates
+their days in event-local time, and presents all allowlisted booking records as
+a read-only desktop timeline or compact mobile agenda. Cancelled and
+rescheduled records appear in a separate schedule history. The route introduces
+no booking mutations; cancellation, rescheduling, reassignment, override, and
+conflict controls require a separately approved milestone.
 
 Mission 05 activates authenticated participant scheduling without changing the
 canonical record model. Photographer booking requests are instantly confirmed

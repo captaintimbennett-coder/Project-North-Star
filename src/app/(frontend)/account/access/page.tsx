@@ -33,6 +33,7 @@ export default async function AccountAccessPage() {
         {(roles.includes("photographer") || roles.includes("model")) && <Link className="button button-outline" href="/account/retreat-schedule">View Shared Retreat Schedule</Link>}
         {roles.includes("photographer") && <Link className="button button-outline" href="/account/book">Schedule a Shoot</Link>}
         {roles.includes("model") && <Link className="button button-outline" href="/account/availability">Manage Availability</Link>}
+        {roles.includes("administrator") && <Link className="button button-outline" href="/account/master-calendar">Open Master Calendar</Link>}
         {roles.includes("administrator") && <Link className="button button-outline" href="/admin">Open Payload Administration</Link>}
       </div>
       <SignOutButton />

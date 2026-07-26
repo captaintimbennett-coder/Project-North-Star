@@ -94,6 +94,10 @@ Retreat. Update it whenever an item is approved, completed, deferred, or changed
 - [x] Complete Mission 09 Milestone 5.4A Shared Retreat Schedule as an
   authenticated, read-only, privacy-safe participant view with Featured Artist
   name, event-local time, and confirmed or administrator-review status only
+- [x] Complete Mission 09 Milestone 5.4B-1 as an authenticated, read-only
+  administrator Master Calendar with event-day selection, every booking's
+  photographer, Featured Artist, event-local time, and status, and a separate
+  cancelled/rescheduled history
 
 ## 6. Future Operational Systems — Deferred
 
@@ -124,8 +128,8 @@ approval workflow are complete and approved.
 
 ## Current Focus
 
-**Next item:** Stop for executive review before Mission 09 Milestone 5.4B.
-Define and explicitly approve the smallest administrator master-calendar
+**Next item:** Stop for executive review of Mission 09 Milestone 5.4B-1. Define
+and explicitly approve the smallest Milestone 5.4B-2 administrator mutation
 outcome before implementation. Do not add drag-and-drop, cancellation,
-rescheduling, reassignment, override, or conflict controls until that exact
-small outcome is approved.
+rescheduling, reassignment, override, conflict resolution, payments, or
+messaging until that exact small outcome is approved.

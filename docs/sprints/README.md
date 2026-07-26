@@ -47,8 +47,10 @@ Milestones 1–4 and the separately approved Milestone 5.1 real visual My
 Schedule, Milestone 5.2 real visual Shape Your Day, and Milestone 5.3 real
 visual photographer-booking connections are complete and visually accepted.
 Milestone 5.4A now adds the authenticated, read-only, privacy-safe Shared
-Retreat Schedule. Work is deliberately stopped before a separately approved
-Milestone 5.4B administrator master-calendar outcome.
+Retreat Schedule. The separately approved Milestone 5.4B-1 now adds an
+authenticated, read-only administrator Master Calendar with complete
+operational visibility and a strict privacy allowlist. Work is deliberately
+stopped before any Milestone 5.4B-2 administrator mutation controls.
 Sprint 01 established the
 public foundation, Sprint 02 closed with Homepage Design Lock v1.1 and the
 multi-page marketing system, and Sprint 03 closed with the verified

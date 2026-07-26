@@ -217,6 +217,18 @@ master classes, mentoring, and future creative experiences.
   desktop/mobile visual validation. No database, migration, production data,
   external service, or notification was changed. Work is stopped before a
   separately approved Milestone 5.4B administrator outcome.
+- [x] Complete Mission 09 Milestone 5.4B-1 Read-Only Administrator Master
+  Calendar locally. Active administrator accounts can select a published or
+  closed retreat day and see every booking's photographer, Featured Artist,
+  event-local time, and status through a desktop timeline or compact mobile
+  agenda. A separate history preserves cancelled and rescheduled records. The
+  server projection exposes only six approved operational booking fields and
+  excludes contact details, rates, payment, creative planning, private notes,
+  and change reasons. Five focused checks, Shared Retreat Schedule and personal
+  My Schedule regressions, lint, typecheck, production build, and
+  desktop/mobile validation pass. No database, migration, production data,
+  external service, notification, or production deployment was changed. Work
+  is stopped before Milestone 5.4B-2 mutation controls.
 - [x] Implement Mission 06 Featured Artist Recruitment Ready on its dedicated
   feature branch. The approved scope adds recruitment essentials, reduces the
   initial application by making biography optional, separates private-review

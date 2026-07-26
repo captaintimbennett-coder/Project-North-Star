@@ -1,11 +1,11 @@
 # Project North Star — Mission 09 Skinny Native Scheduling
 
-**Status:** Active — Milestones 1–4 and Milestones 5.1–5.4A complete; stopped
-before Milestone 5.4B
+**Status:** Active — Milestones 1–4 and Milestones 5.1–5.4B-1 complete; stopped
+before Milestone 5.4B-2
 
 **Original decision date:** July 24, 2026
 
-**Revised decision date:** July 25, 2026
+**Revised decision date:** July 26, 2026
 
 **Applies to:** Project North Star / Lone Star Retreat
 
@@ -352,8 +352,8 @@ Accepted July 26, 2026:
   scheduling milestone.
 
 The next candidate outcome was Milestone 5.4A. The Product Owner approved its
-small boundary before implementation. Milestone 5.4B remains separate and
-unauthorized.
+small boundary before implementation. The administrator outcome remained
+separate and required its own later authorization.
 
 #### Milestone 5.4A — Shared Retreat Schedule
 
@@ -393,8 +393,44 @@ Milestone 5.4A does not include:
 - A new collection, database migration, dependency, notification, dashboard,
   or generalized calendar abstraction
 
-Milestone 5.4A is complete locally. Milestone 5.4B administrator
-master-calendar controls remain a separate, unauthorized outcome.
+Milestone 5.4A is complete locally. Work proceeded only into the separately
+approved Milestone 5.4B-1 read-only administrator view described below.
+
+#### Milestone 5.4B-1 — Read-Only Administrator Master Calendar
+
+Completed locally July 26, 2026:
+
+- Added the protected `/account/master-calendar` route for active
+  administrator accounts. Participant-only and suspended accounts are
+  excluded.
+- Added a dedicated server projection for published and closed retreats. It
+  exposes only booking ID, Featured Artist display name, photographer display
+  name, event-local start and end time, and booking status.
+- Included confirmed, administrator-review, cancelled, and rescheduled records
+  so the administrator receives both the active operating picture and the
+  preserved schedule history without receiving contact details, rates,
+  payment, creative planning, private notes, or change reasons.
+- Added event-day selection, four operational counts, a desktop
+  Featured-Artist timeline, a compact mobile agenda, and a separate schedule
+  history. The interface is explicitly read-only.
+- Added five focused access, event-local day, status, privacy-allowlist, and
+  presentation checks. The Shared Retreat Schedule and personal My Schedule
+  regressions remain green.
+- Verified the completed interface at 1440px and 390px with no horizontal
+  overflow, clipping, failed calendar resources, or page errors. The only
+  browser warning was the project's pre-existing missing global
+  `/favicon.ico`, which is outside this milestone.
+- `pnpm mission:09:admin-master-calendar`,
+  `pnpm mission:09:shared-schedule`, `pnpm mission:09:personal-schedule`,
+  `pnpm lint`, `pnpm typecheck`, `pnpm build`, and `git diff --check` pass.
+- No database record, migration, production data, external service,
+  notification, or production deployment was changed.
+
+Milestone 5.4B-1 does not include drag-and-drop, cancellation, rescheduling,
+reassignment, override, conflict resolution, payments, messaging, or any other
+mutation control. Work is deliberately stopped before Milestone 5.4B-2 so that
+the smallest administrator-control outcome can be defined and approved
+separately.
 
 ## Implementation Boundary
 
