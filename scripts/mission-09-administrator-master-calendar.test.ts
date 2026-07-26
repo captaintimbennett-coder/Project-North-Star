@@ -4,7 +4,10 @@ import type {
   AdministratorMasterCalendarBooking,
   AdministratorMasterCalendarEvent,
 } from "../src/lib/auth/administrator-master-calendar-projection";
-import { canViewAdministratorMasterCalendar } from "../src/lib/auth/administrator-master-calendar-projection";
+import {
+  canCancelAdministratorMasterCalendarBookings,
+  canViewAdministratorMasterCalendar,
+} from "../src/lib/auth/administrator-master-calendar-projection";
 import type { User } from "../src/payload-types";
 import {
   administratorMasterCalendarHourRange,
@@ -12,6 +15,8 @@ import {
   formatAdministratorMasterCalendarRange,
   groupAdministratorBookingsByArtist,
   isActiveAdministratorBooking,
+  isCancellableAdministratorBooking,
+  normalizedAdministratorCancellationReason,
 } from "../src/lib/scheduling/administrator-master-calendar";
 
 function booking(
@@ -44,11 +49,12 @@ function event(
 function account(
   roles: User["roles"],
   accountStatus: User["accountStatus"] = "active",
+  role: User["role"] = "owner",
 ) {
   return {
     accountStatus,
     id: 1,
-    role: "owner",
+    role,
     roles,
   } as User;
 }
@@ -60,6 +66,39 @@ test("allows only active administrator accounts into the master calendar", () =>
   assert.equal(
     canViewAdministratorMasterCalendar(
       account(["administrator"], "suspended"),
+    ),
+    false,
+  );
+});
+
+test("limits cancellation controls to active owner and editor administrators", () => {
+  assert.equal(
+    canCancelAdministratorMasterCalendarBookings(
+      account(["administrator"], "active", "owner"),
+    ),
+    true,
+  );
+  assert.equal(
+    canCancelAdministratorMasterCalendarBookings(
+      account(["administrator"], "active", "editor"),
+    ),
+    true,
+  );
+  assert.equal(
+    canCancelAdministratorMasterCalendarBookings(
+      account(["administrator"], "active", "reviewer"),
+    ),
+    false,
+  );
+  assert.equal(
+    canCancelAdministratorMasterCalendarBookings(
+      account(["administrator"], "suspended", "owner"),
+    ),
+    false,
+  );
+  assert.equal(
+    canCancelAdministratorMasterCalendarBookings(
+      account(["photographer"], "active", "owner"),
     ),
     false,
   );
@@ -156,4 +195,32 @@ test("formats active sessions and keeps changed records out of the live timeline
   assert.equal(range.firstHour, 6);
   assert.equal(range.span, 14);
   assert.deepEqual([range.hours[0], range.hours.at(-1)], [6, 19]);
+});
+
+test("permits cancellation only for active booking states", () => {
+  assert.equal(
+    isCancellableAdministratorBooking(booking({ status: "confirmed" })),
+    true,
+  );
+  assert.equal(
+    isCancellableAdministratorBooking(booking({ status: "admin-review" })),
+    true,
+  );
+  assert.equal(
+    isCancellableAdministratorBooking(booking({ status: "cancelled" })),
+    false,
+  );
+  assert.equal(
+    isCancellableAdministratorBooking(booking({ status: "rescheduled" })),
+    false,
+  );
+});
+
+test("normalizes a valid private reason and rejects empty guidance", () => {
+  assert.equal(
+    normalizedAdministratorCancellationReason("  Participant request  "),
+    "Participant request",
+  );
+  assert.equal(normalizedAdministratorCancellationReason("  "), null);
+  assert.equal(normalizedAdministratorCancellationReason("no"), null);
 });

@@ -290,9 +290,14 @@ The authenticated `/account/master-calendar` route is available only to active
 administrator accounts. It resolves published and closed retreats, enumerates
 their days in event-local time, and presents all allowlisted booking records as
 a read-only desktop timeline or compact mobile agenda. Cancelled and
-rescheduled records appear in a separate schedule history. The route introduces
-no booking mutations; cancellation, rescheduling, reassignment, override, and
-conflict controls require a separately approved milestone.
+rescheduled records appear in a separate schedule history. Active owner and
+editor administrators may select one active booking, review its operational
+identity and event-local time, provide a required private reason, and cancel it
+through the existing origin-protected cancellation endpoint. The interface
+does not optimistically change the booking and refreshes from the authoritative
+projection after success. Reviewer administrators remain read-only.
+Rescheduling, reassignment, override, and conflict controls require separately
+approved milestones.
 
 Mission 05 activates authenticated participant scheduling without changing the
 canonical record model. Photographer booking requests are instantly confirmed

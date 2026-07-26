@@ -98,6 +98,10 @@ Retreat. Update it whenever an item is approved, completed, deferred, or changed
   administrator Master Calendar with event-day selection, every booking's
   photographer, Featured Artist, event-local time, and status, and a separate
   cancelled/rescheduled history
+- [x] Complete Mission 09 Milestone 5.4B-2 as one owner/editor cancellation
+  control using the existing protected cancellation service, mandatory private
+  reason, authoritative calendar refresh, audit record, and two participant
+  email intents
 
 ## 6. Future Operational Systems — Deferred
 
@@ -128,8 +132,8 @@ approval workflow are complete and approved.
 
 ## Current Focus
 
-**Next item:** Stop for executive review of Mission 09 Milestone 5.4B-1. Define
-and explicitly approve the smallest Milestone 5.4B-2 administrator mutation
-outcome before implementation. Do not add drag-and-drop, cancellation,
-rescheduling, reassignment, override, conflict resolution, payments, or
-messaging until that exact small outcome is approved.
+**Next item:** Stop for executive review of the completed Mission 09 Milestone
+5.4B-2 one-booking cancellation control. Do not add drag-and-drop,
+rescheduling, reassignment, override, conflict resolution, payments, messaging,
+or any broader administrator workflow without a separately defined and
+approved milestone.

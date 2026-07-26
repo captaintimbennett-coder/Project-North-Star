@@ -1,7 +1,7 @@
 # Project North Star — Mission 09 Skinny Native Scheduling
 
-**Status:** Active — Milestones 1–4 and Milestones 5.1–5.4B-1 complete; stopped
-before Milestone 5.4B-2
+**Status:** Active — Milestones 1–4 and Milestones 5.1–5.4B-2 complete; stopped
+before any additional administrator control
 
 **Original decision date:** July 24, 2026
 
@@ -431,6 +431,66 @@ reassignment, override, conflict resolution, payments, messaging, or any other
 mutation control. Work is deliberately stopped before Milestone 5.4B-2 so that
 the smallest administrator-control outcome can be defined and approved
 separately.
+
+#### Milestone 5.4B-2 — One Booking Cancellation
+
+Completed locally July 26, 2026:
+
+The smallest useful administrator mutation is cancellation of one active
+booking at a time. Cancellation is selected before rescheduling because the
+existing protected service already validates permission, requires a private
+reason, writes the audit trail, creates the two participant email intents, and
+handles an exact retry safely. Rescheduling would additionally require new-time
+selection, availability, conflict, override, and recovery decisions.
+
+The completed interaction is:
+
+1. An owner or editor selects one confirmed or administrator-review booking
+   from the Master Calendar.
+2. A focused cancellation review panel repeats the Featured Artist,
+   photographer, event-local date and time, and current status.
+3. The administrator enters a required private reason and confirms the
+   cancellation explicitly.
+4. The interface submits to the existing origin-protected
+   `/api/scheduling/bookings/[id]/cancel` endpoint without an optimistic local
+   mutation.
+5. After server success, the calendar refreshes from its authoritative
+   projection, removes the booking from the active timeline, and shows it in
+   Schedule History as cancelled.
+
+Verified result:
+
+- Only active owner and editor administrator accounts receive the cancellation
+  action. Reviewer administrators retain the complete read-only calendar.
+- A focused review dialog repeats the booking identity and event-local time,
+  requires an explicit private reason of at least three trimmed characters,
+  and provides distinct keep-booking and confirm-cancellation actions.
+- Cancellation remains server-authoritative, audited, and idempotent. The
+  interface performs no optimistic booking mutation and refreshes from the
+  authoritative projection after success.
+- The existing required cancellation email creates one durable delivery intent
+  for each participant after the booking mutation commits. A failed send does
+  not reverse or duplicate the cancellation.
+- A failed or rejected request leaves the visible booking unchanged and gives
+  the administrator a clear safe error.
+- Eight focused access, status, reason, privacy, event-local presentation, and
+  cancellation-control checks pass. The 12-check controlled email proof
+  confirms two-recipient cancellation delivery, private-reason exclusion,
+  failure visibility, safe retry, idempotency, and fixture cleanup.
+- Desktop and mobile review at 1440px and 390px confirmed the open, close,
+  private-reason, cancel, success, and authoritative-refresh interactions with
+  no overflow, failed resources, console errors, or page errors.
+- `pnpm mission:09:admin-master-calendar`,
+  `pnpm mission:09:shared-schedule`, `pnpm mission:09:personal-schedule`,
+  `pnpm mission:09:email`, `pnpm lint`, `pnpm typecheck`, `pnpm build`, and
+  `git diff --check` pass.
+- No production data, production email, deployment, or external service was
+  changed.
+
+Milestone 5.4B-2 added no endpoint, collection, migration, dependency,
+drag-and-drop, rescheduling, reassignment, override, conflict-resolution
+control, delivery-retry dashboard, payment, or messaging feature. Those remain
+separate future decisions.
 
 ## Implementation Boundary
 

@@ -50,7 +50,10 @@ Milestone 5.4A now adds the authenticated, read-only, privacy-safe Shared
 Retreat Schedule. The separately approved Milestone 5.4B-1 now adds an
 authenticated, read-only administrator Master Calendar with complete
 operational visibility and a strict privacy allowlist. Work is deliberately
-stopped before any Milestone 5.4B-2 administrator mutation controls.
+stopped after the separately approved Milestone 5.4B-2 adds one
+owner/editor-only, reason-required booking cancellation control using the
+existing protected service. No additional administrator mutation is
+authorized.
 Sprint 01 established the
 public foundation, Sprint 02 closed with Homepage Design Lock v1.1 and the
 multi-page marketing system, and Sprint 03 closed with the verified

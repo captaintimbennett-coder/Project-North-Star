@@ -92,6 +92,17 @@ export function isActiveAdministratorBooking(
   return item.status === "confirmed" || item.status === "admin-review";
 }
 
+export function isCancellableAdministratorBooking(
+  item: AdministratorMasterCalendarBooking,
+) {
+  return isActiveAdministratorBooking(item);
+}
+
+export function normalizedAdministratorCancellationReason(reason: string) {
+  const value = reason.trim();
+  return value.length >= 3 ? value : null;
+}
+
 export function administratorMasterCalendarHour(
   value: string,
   timeZone: string,

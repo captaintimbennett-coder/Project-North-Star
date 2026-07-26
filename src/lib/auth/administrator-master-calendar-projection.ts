@@ -1,7 +1,7 @@
 import config from "@payload-config";
 import { getPayload, type Payload, type PayloadRequest } from "payload";
 import type { User } from "@/payload-types";
-import { isStaff } from "@/payload/access/account";
+import { hasStaffPermission, isStaff } from "@/payload/access/account";
 
 type RelationshipValue =
   | number
@@ -40,6 +40,10 @@ function relationshipID(value: RelationshipValue) {
 
 export function canViewAdministratorMasterCalendar(account: User) {
   return isStaff(account);
+}
+
+export function canCancelAdministratorMasterCalendarBookings(account: User) {
+  return hasStaffPermission(account, ["owner", "editor"]);
 }
 
 export async function getAdministratorMasterCalendarEvents(

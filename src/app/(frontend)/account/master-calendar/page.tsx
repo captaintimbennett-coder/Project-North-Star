@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { AdministratorMasterCalendar } from "@/components/retreat/AdministratorMasterCalendar";
 import {
+  canCancelAdministratorMasterCalendarBookings,
   canViewAdministratorMasterCalendar,
   getAdministratorMasterCalendarEvents,
 } from "@/lib/auth/administrator-master-calendar-projection";
@@ -21,5 +22,8 @@ export default async function AdministratorMasterCalendarPage() {
   }
 
   const events = await getAdministratorMasterCalendarEvents(account);
-  return <AdministratorMasterCalendar events={events} />;
+  return <AdministratorMasterCalendar
+    canCancelBookings={canCancelAdministratorMasterCalendarBookings(account)}
+    events={events}
+  />;
 }

@@ -229,6 +229,18 @@ master classes, mentoring, and future creative experiences.
   desktop/mobile validation pass. No database, migration, production data,
   external service, notification, or production deployment was changed. Work
   is stopped before Milestone 5.4B-2 mutation controls.
+- [x] Complete Mission 09 Milestone 5.4B-2 One Booking Cancellation locally.
+  Active owner and editor administrators can select a confirmed or
+  administrator-review booking, verify its operational identity and
+  event-local time, enter a required private reason, and explicitly cancel it
+  through the existing protected endpoint. Reviewer administrators remain
+  read-only. The interface performs no optimistic mutation and refreshes the
+  authoritative calendar after success. Eight focused checks, the 12-check
+  scheduling-email proof, Shared Retreat Schedule and personal My Schedule
+  regressions, lint, typecheck, production build, and desktop/mobile
+  interaction validation pass. No endpoint, collection, migration, dependency,
+  production data, production email, deployment, or external service was
+  changed. Work is stopped before any additional administrator control.
 - [x] Implement Mission 06 Featured Artist Recruitment Ready on its dedicated
   feature branch. The approved scope adds recruitment essentials, reduces the
   initial application by making biography optional, separates private-review

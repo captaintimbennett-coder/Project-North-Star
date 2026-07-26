@@ -2,8 +2,19 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useMemo, useState, type CSSProperties } from "react";
-import type { AdministratorMasterCalendarEvent } from "@/lib/auth/administrator-master-calendar-projection";
+import { useRouter } from "next/navigation";
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type CSSProperties,
+  type FormEvent,
+} from "react";
+import type {
+  AdministratorMasterCalendarBooking,
+  AdministratorMasterCalendarEvent,
+} from "@/lib/auth/administrator-master-calendar-projection";
 import {
   administratorBookingStatusLabels,
   administratorMasterCalendarHour,
@@ -13,11 +24,14 @@ import {
   formatAdministratorMasterCalendarRange,
   groupAdministratorBookingsByArtist,
   isActiveAdministratorBooking,
+  isCancellableAdministratorBooking,
+  normalizedAdministratorCancellationReason,
 } from "@/lib/scheduling/administrator-master-calendar";
 import calendarStyles from "./PersonalScheduleCalendar.module.css";
 import styles from "./AdministratorMasterCalendar.module.css";
 
 type AdministratorMasterCalendarProps = {
+  canCancelBookings: boolean;
   events: AdministratorMasterCalendarEvent[];
 };
 
@@ -27,14 +41,97 @@ type TimelineStyle = CSSProperties & {
 };
 
 export function AdministratorMasterCalendar({
+  canCancelBookings,
   events,
 }: AdministratorMasterCalendarProps) {
+  const router = useRouter();
+  const cancellationDialogRef = useRef<HTMLDialogElement>(null);
   const days = useMemo(
     () => buildAdministratorMasterCalendarDays(events),
     [events],
   );
   const [selectedDayID, setSelectedDayID] = useState(days[0]?.id ?? "");
+  const [cancellationBooking, setCancellationBooking] =
+    useState<AdministratorMasterCalendarBooking | null>(null);
+  const [cancellationError, setCancellationError] = useState("");
+  const [cancellationReason, setCancellationReason] = useState("");
+  const [cancellationSuccess, setCancellationSuccess] = useState("");
+  const [isCancelling, setIsCancelling] = useState(false);
   const selectedDay = days.find((day) => day.id === selectedDayID) ?? days[0];
+
+  function closeCancellationReview() {
+    if (isCancelling) return;
+    setCancellationBooking(null);
+    setCancellationError("");
+    setCancellationReason("");
+  }
+
+  function openCancellationReview(
+    booking: AdministratorMasterCalendarBooking,
+  ) {
+    if (
+      !canCancelBookings
+      || !isCancellableAdministratorBooking(booking)
+    ) return;
+    setCancellationBooking(booking);
+    setCancellationError("");
+    setCancellationReason("");
+    setCancellationSuccess("");
+  }
+
+  async function cancelBooking(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!cancellationBooking) return;
+
+    const reason = normalizedAdministratorCancellationReason(
+      cancellationReason,
+    );
+    if (!reason) {
+      setCancellationError(
+        "Enter a private cancellation reason of at least three characters.",
+      );
+      return;
+    }
+
+    setCancellationError("");
+    setIsCancelling(true);
+    try {
+      const response = await fetch(
+        `/api/scheduling/bookings/${cancellationBooking.id}/cancel`,
+        {
+          body: JSON.stringify({ reason }),
+          headers: { "Content-Type": "application/json" },
+          method: "POST",
+        },
+      );
+      const result = await response.json().catch(() => null);
+      if (!response.ok || !result?.ok) {
+        throw new Error(
+          result?.error || "The booking could not be cancelled.",
+        );
+      }
+
+      setCancellationBooking(null);
+      setCancellationReason("");
+      setCancellationSuccess(
+        `${cancellationBooking.artistName} and ${cancellationBooking.photographerName}'s session was cancelled.`,
+      );
+      router.refresh();
+    } catch (error) {
+      setCancellationError(
+        error instanceof Error
+          ? error.message
+          : "The booking could not be cancelled.",
+      );
+    } finally {
+      setIsCancelling(false);
+    }
+  }
+
+  useEffect(() => {
+    const dialog = cancellationDialogRef.current;
+    if (cancellationBooking && dialog && !dialog.open) dialog.showModal();
+  }, [cancellationBooking]);
 
   if (!selectedDay) {
     return <main className={calendarStyles.schedule} id="main-content">
@@ -99,7 +196,11 @@ export function AdministratorMasterCalendar({
       <header className={calendarStyles.privateHeader}>
         <div>
           <span>Administrator Master Calendar</span>
-          <strong>Complete operational view · Read only</strong>
+          <strong>
+            Complete operational view · {canCancelBookings
+              ? "Cancellation enabled"
+              : "Read only"}
+          </strong>
         </div>
         <Link className={styles.accountLink} href="/account/access">
           Return to Account
@@ -131,9 +232,19 @@ export function AdministratorMasterCalendar({
           </div>
           <p>
             Every photographer, Featured Artist, reservation, and exception for
-            the selected retreat day—without editing controls.
+            the selected retreat day. {canCancelBookings
+              ? "Select an active reservation to review cancellation."
+              : "This account has read-only access."}
           </p>
         </div>
+
+        {cancellationSuccess && <p
+          className={styles.successNotice}
+          role="status"
+        >
+          {cancellationSuccess} The calendar has been refreshed from the
+          authoritative schedule.
+        </p>}
 
         <div className={styles.summary} aria-label="Selected day summary">
           <span><strong>{selectedDay.items.length}</strong> bookings</span>
@@ -189,18 +300,10 @@ export function AdministratorMasterCalendar({
                       );
                       const label = `${artist.name} with ${item.photographerName}, ${administratorBookingStatusLabels[item.status]}, ${formatAdministratorMasterCalendarRange(item, selectedDay.timeZone)}`;
 
-                      return <span
-                        aria-label={label}
-                        className={item.status === "admin-review"
-                          ? styles.reviewBooking
-                          : styles.confirmedBooking}
-                        key={item.id}
-                        style={{
-                          "--timeline-span": end - start,
-                          "--timeline-start": start - timeline.firstHour,
-                        } as TimelineStyle}
-                      >
-                        <small>{administratorBookingStatusLabels[item.status]}</small>
+                      const bookingContent = <>
+                        <small>
+                          {administratorBookingStatusLabels[item.status]}
+                        </small>
                         <strong>{item.photographerName}</strong>
                         <b>
                           {formatAdministratorMasterCalendarRange(
@@ -208,7 +311,36 @@ export function AdministratorMasterCalendar({
                             selectedDay.timeZone,
                           )}
                         </b>
-                      </span>;
+                      </>;
+                      const className = `${styles.timelineBooking} ${
+                        item.status === "admin-review"
+                          ? styles.reviewBooking
+                          : styles.confirmedBooking
+                      }`;
+                      const timelineStyle = {
+                        "--timeline-span": end - start,
+                        "--timeline-start": start - timeline.firstHour,
+                      } as TimelineStyle;
+
+                      return canCancelBookings
+                        ? <button
+                            aria-label={`${label}. Review cancellation.`}
+                            className={className}
+                            key={item.id}
+                            onClick={() => openCancellationReview(item)}
+                            style={timelineStyle}
+                            type="button"
+                          >
+                            {bookingContent}
+                          </button>
+                        : <span
+                            aria-label={label}
+                            className={className}
+                            key={item.id}
+                            style={timelineStyle}
+                          >
+                            {bookingContent}
+                          </span>;
                     })}
                   </div>
                 </div>)}
@@ -217,21 +349,40 @@ export function AdministratorMasterCalendar({
               <div className={styles.mobileTimeline}>
                 {activeArtists.map((artist) => <article key={artist.name}>
                   <h3>{artist.name}</h3>
-                  {artist.items.map((item) => <div
-                    className={item.status === "admin-review"
-                      ? styles.mobileReview
-                      : ""}
-                    key={item.id}
-                  >
-                    <span>{administratorBookingStatusLabels[item.status]}</span>
-                    <strong>{item.photographerName}</strong>
-                    <p>
-                      {formatAdministratorMasterCalendarRange(
-                        item,
-                        selectedDay.timeZone,
-                      )}
-                    </p>
-                  </div>)}
+                  {artist.items.map((item) => {
+                    const bookingContent = <>
+                      <span>
+                        {administratorBookingStatusLabels[item.status]}
+                      </span>
+                      <strong>{item.photographerName}</strong>
+                      <p>
+                        {formatAdministratorMasterCalendarRange(
+                          item,
+                          selectedDay.timeZone,
+                        )}
+                      </p>
+                      {canCancelBookings && <small>Review cancellation</small>}
+                    </>;
+                    const className = `${styles.mobileBooking} ${
+                      item.status === "admin-review"
+                        ? styles.mobileReview
+                        : ""
+                    }`;
+
+                    return canCancelBookings
+                      ? <button
+                          aria-label={`${artist.name} with ${item.photographerName}, ${administratorBookingStatusLabels[item.status]}, ${formatAdministratorMasterCalendarRange(item, selectedDay.timeZone)}. Review cancellation.`}
+                          className={className}
+                          key={item.id}
+                          onClick={() => openCancellationReview(item)}
+                          type="button"
+                        >
+                          {bookingContent}
+                        </button>
+                      : <div className={className} key={item.id}>
+                          {bookingContent}
+                        </div>;
+                  })}
                 </article>)}
               </div>
             </>
@@ -266,11 +417,114 @@ export function AdministratorMasterCalendar({
 
         <p className={`${calendarStyles.privacyNote} ${styles.readOnlyNote}`}>
           <span aria-hidden="true">◇</span>
-          This milestone is intentionally read only. Cancellation,
-          rescheduling, reassignment, override, and conflict controls are not
-          available from this screen.
+          {canCancelBookings
+            ? "This milestone can cancel one active booking at a time. Rescheduling, reassignment, override, and conflict controls remain unavailable."
+            : "This account is intentionally read only. Cancellation, rescheduling, reassignment, override, and conflict controls are not available."}
         </p>
       </section>
     </div>
+
+    {cancellationBooking && <dialog
+        ref={cancellationDialogRef}
+        aria-describedby="cancellation-review-description"
+        aria-labelledby="cancellation-review-title"
+        className={styles.cancellationDialog}
+        onCancel={(event) => {
+          event.preventDefault();
+          closeCancellationReview();
+        }}
+      >
+        <button
+          aria-label="Close cancellation review"
+          className={styles.dialogClose}
+          disabled={isCancelling}
+          onClick={closeCancellationReview}
+          type="button"
+        >
+          ×
+        </button>
+        <p className="ds-eyebrow">Cancellation review</p>
+        <h2 id="cancellation-review-title">Cancel this session?</h2>
+        <p id="cancellation-review-description">
+          Review the reservation carefully. Cancellation changes both
+          participant schedules and begins the required email delivery.
+        </p>
+
+        <dl className={styles.cancellationDetails}>
+          <div>
+            <dt>Featured Artist</dt>
+            <dd>{cancellationBooking.artistName}</dd>
+          </div>
+          <div>
+            <dt>Photographer</dt>
+            <dd>{cancellationBooking.photographerName}</dd>
+          </div>
+          <div>
+            <dt>Retreat day</dt>
+            <dd>{selectedDay.dateLabel}</dd>
+          </div>
+          <div>
+            <dt>Session time</dt>
+            <dd>
+              {formatAdministratorMasterCalendarRange(
+                cancellationBooking,
+                selectedDay.timeZone,
+              )}
+            </dd>
+          </div>
+          <div>
+            <dt>Current status</dt>
+            <dd>
+              {administratorBookingStatusLabels[cancellationBooking.status]}
+            </dd>
+          </div>
+        </dl>
+
+        <form onSubmit={cancelBooking}>
+          <label htmlFor="cancellation-reason">
+            Private administrator reason
+          </label>
+          <small>
+            Required for the audit record. This reason is never shared with
+            either participant.
+          </small>
+          <textarea
+            autoFocus
+            disabled={isCancelling}
+            id="cancellation-reason"
+            minLength={3}
+            onChange={(event) => {
+              setCancellationReason(event.target.value);
+              if (cancellationError) setCancellationError("");
+            }}
+            placeholder="Why is this booking being cancelled?"
+            required
+            rows={4}
+            value={cancellationReason}
+          />
+          {cancellationError && <p
+            className={styles.cancellationError}
+            role="alert"
+          >
+            {cancellationError}
+          </p>}
+          <div className={styles.cancellationActions}>
+            <button
+              disabled={isCancelling}
+              onClick={closeCancellationReview}
+              type="button"
+            >
+              Keep booking
+            </button>
+            <button
+              className={styles.confirmCancellation}
+              disabled={isCancelling}
+              type="submit"
+            >
+              {isCancelling ? "Cancelling…" : "Confirm cancellation"}
+            </button>
+          </div>
+        </form>
+    </dialog>}
   </main>;
 }
