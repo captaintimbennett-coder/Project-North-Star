@@ -2883,6 +2883,36 @@ body.menu-open {
 .account-sign-in-form label { margin-top: 0.8rem; color: var(--north-star-gold); font-size: 0.62rem; letter-spacing: 0.15em; text-transform: uppercase; }
 .account-sign-in-form input { min-height: 54px; padding: 0 1rem; color: var(--north-star-ivory); background: #0d0d0c; border: 1px solid var(--north-star-rule); }
 .account-sign-in-form button { margin-top: 1rem; }
+.account-access-page .button-primary {
+  color: var(--north-star-black);
+  background: var(--north-star-gold-bright);
+  border-color: var(--north-star-gold-bright);
+}
+.account-access-page .button-primary:hover,
+.account-access-page .button-primary:focus-visible {
+  color: var(--north-star-black);
+  background: var(--north-star-ivory);
+  border-color: var(--north-star-ivory);
+}
+.account-access-page .button-outline {
+  color: var(--north-star-ivory);
+  background: transparent;
+  border-color: rgb(242 238 230 / 58%);
+}
+.account-access-page .button-outline:hover,
+.account-access-page .button-outline:focus-visible {
+  color: var(--north-star-black);
+  background: var(--north-star-ivory);
+  border-color: var(--north-star-ivory);
+}
+.account-access-page .button:focus-visible {
+  outline: 2px solid var(--north-star-gold-bright);
+  outline-offset: 4px;
+}
+.account-access-page .button:disabled {
+  cursor: wait;
+  opacity: 0.62;
+}
 .account-form-error { color: #e6b7a6; }
 .account-role-list { display: flex; flex-wrap: wrap; gap: 0.7rem; margin: 2rem 0; }
 .account-role-list span { padding: 0.65rem 0.85rem; color: var(--north-star-gold); border: 1px solid rgb(201 145 69 / 35%); font-size: 0.6rem; letter-spacing: 0.12em; text-transform: uppercase; }
