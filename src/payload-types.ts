@@ -78,6 +78,7 @@ export interface Config {
     'photographer-applications': PhotographerApplication;
     'artist-availability': ArtistAvailability;
     'retreat-bookings': RetreatBooking;
+    'scheduling-email-deliveries': SchedulingEmailDelivery;
     'payload-kv': PayloadKv;
     'payload-jobs': PayloadJob;
     'payload-locked-documents': PayloadLockedDocument;
@@ -97,6 +98,7 @@ export interface Config {
     'photographer-applications': PhotographerApplicationsSelect<false> | PhotographerApplicationsSelect<true>;
     'artist-availability': ArtistAvailabilitySelect<false> | ArtistAvailabilitySelect<true>;
     'retreat-bookings': RetreatBookingsSelect<false> | RetreatBookingsSelect<true>;
+    'scheduling-email-deliveries': SchedulingEmailDeliveriesSelect<false> | SchedulingEmailDeliveriesSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-jobs': PayloadJobsSelect<false> | PayloadJobsSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
@@ -684,6 +686,43 @@ export interface RetreatBooking {
   createdAt: string;
 }
 /**
+ * Private transactional-email history for booking confirmations, cancellations, and reschedules. Failed deliveries may be retried without changing the booking.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "scheduling-email-deliveries".
+ */
+export interface SchedulingEmailDelivery {
+  id: number;
+  booking: number | RetreatBooking;
+  notificationType: 'booking-confirmed' | 'booking-cancelled' | 'booking-rescheduled';
+  recipientRole: 'photographer' | 'model';
+  recipientName: string;
+  recipientEmail: string;
+  deliveryKey: string;
+  status: 'pending' | 'sending' | 'sent' | 'failed';
+  attempts: number;
+  lastAttemptAt?: string | null;
+  sentAt?: string | null;
+  /**
+   * Operational delivery error only. Participant and administrator private notes are never stored here.
+   */
+  lastError?: string | null;
+  /**
+   * Private deterministic message snapshot used for delivery and safe retry.
+   */
+  templateData:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
@@ -842,6 +881,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'retreat-bookings';
         value: number | RetreatBooking;
+      } | null)
+    | ({
+        relationTo: 'scheduling-email-deliveries';
+        value: number | SchedulingEmailDelivery;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -1247,6 +1290,26 @@ export interface RetreatBookingsSelect<T extends boolean = true> {
   adminOverride?: T;
   exceptionReason?: T;
   adminNotes?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "scheduling-email-deliveries_select".
+ */
+export interface SchedulingEmailDeliveriesSelect<T extends boolean = true> {
+  booking?: T;
+  notificationType?: T;
+  recipientRole?: T;
+  recipientName?: T;
+  recipientEmail?: T;
+  deliveryKey?: T;
+  status?: T;
+  attempts?: T;
+  lastAttemptAt?: T;
+  sentAt?: T;
+  lastError?: T;
+  templateData?: T;
   updatedAt?: T;
   createdAt?: T;
 }

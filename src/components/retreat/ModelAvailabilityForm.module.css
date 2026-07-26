@@ -1,0 +1,364 @@
+.view {
+  --calendar-gold: #c99145;
+  --calendar-rule: rgb(242 238 230 / 14%);
+  --calendar-ivory-soft: rgb(242 238 230 / 66%);
+}
+
+.heading {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(260px, 0.6fr);
+  gap: 4rem;
+  align-items: end;
+  padding-bottom: 4rem;
+  border-bottom: 1px solid var(--calendar-rule);
+}
+
+.heading h2 {
+  margin: 0;
+  font-size: clamp(3.2rem, 5.6vw, 6rem);
+  line-height: 0.94;
+  letter-spacing: -0.035em;
+}
+
+.heading > p {
+  max-width: 410px;
+  margin: 0;
+  color: var(--calendar-ivory-soft);
+  font-family: var(--north-star-font-display);
+  font-size: 1.2rem;
+  line-height: 1.6;
+}
+
+.summary {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 2rem;
+  padding: 2.5rem 0;
+}
+
+.summary span {
+  color: var(--calendar-gold);
+  font-size: 0.55rem;
+  letter-spacing: 0.17em;
+  text-transform: uppercase;
+}
+
+.summary strong {
+  display: block;
+  margin-top: 0.5rem;
+  font-family: var(--north-star-font-display);
+  font-size: 1.6rem;
+  font-weight: 400;
+}
+
+.summary p {
+  margin: 0;
+  color: var(--calendar-ivory-soft);
+  font-size: 0.6rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.ribbon {
+  border-top: 1px solid var(--calendar-rule);
+}
+
+.ribbon > div {
+  min-height: 62px;
+  display: grid;
+  grid-template-columns: 150px 1fr;
+  align-items: center;
+  border-bottom: 1px solid var(--calendar-rule);
+}
+
+.ribbon time {
+  color: var(--calendar-ivory-soft);
+  font-size: 0.65rem;
+}
+
+.ribbon span {
+  padding: 0.9rem 1.2rem;
+  font-size: 0.62rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.protected span {
+  color: var(--north-star-ivory);
+  background: rgb(215 154 63 / 14%);
+  border-left: 2px solid var(--calendar-gold);
+}
+
+.blocked span {
+  color: var(--calendar-ivory-soft);
+  background: repeating-linear-gradient(135deg, transparent 0 8px, rgb(242 238 230 / 5%) 8px 9px);
+}
+
+.open span {
+  color: var(--calendar-ivory-soft);
+}
+
+.closed span {
+  color: rgb(242 238 230 / 28%);
+}
+
+.controls {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  padding-top: 2rem;
+}
+
+.controls > div {
+  padding: 1.4rem;
+  border: 1px solid var(--calendar-rule);
+}
+
+.controls label {
+  display: block;
+  margin-bottom: 1rem;
+  font-family: var(--north-star-font-display);
+  font-size: 1.2rem;
+}
+
+.controls input,
+.blockList input,
+.blockList select {
+  width: 100%;
+  min-height: 52px;
+  padding: 0 1rem;
+  color: var(--north-star-ivory);
+  color-scheme: dark;
+  background: #0d0d0c;
+  border: 1px solid var(--calendar-rule);
+}
+
+.controls > div > div {
+  display: flex;
+  gap: 0.6rem;
+  margin-top: 1rem;
+}
+
+.controls button,
+.blocks header > button,
+.blockList fieldset > button {
+  min-height: 44px;
+  padding: 0.7rem 1rem;
+  color: var(--calendar-gold);
+  background: transparent;
+  border: 1px solid var(--calendar-rule);
+  cursor: pointer;
+}
+
+.controls button:disabled {
+  cursor: not-allowed;
+  opacity: 0.38;
+}
+
+.controls button:focus-visible,
+.blocks button:focus-visible,
+.saveBar button:focus-visible,
+.blockList input:focus-visible,
+.blockList select:focus-visible,
+.controls input:focus-visible {
+  outline: 2px solid var(--calendar-gold);
+  outline-offset: 3px;
+}
+
+.blocks {
+  padding-top: 5rem;
+}
+
+.blocks > header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--calendar-rule);
+}
+
+.blocks h3 {
+  margin: 0.5rem 0 0;
+  font-size: clamp(2rem, 4vw, 3.5rem);
+}
+
+.blockList {
+  display: grid;
+  gap: 0.75rem;
+  padding-top: 1.5rem;
+}
+
+.blockList fieldset {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1.15fr auto;
+  gap: 0.8rem;
+  align-items: end;
+  margin: 0;
+  padding: 1rem;
+  border: 1px solid var(--calendar-rule);
+}
+
+.blockList legend {
+  padding: 0 0.5rem;
+  color: var(--calendar-gold);
+  font-size: 0.55rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.blockList label {
+  display: grid;
+  gap: 0.55rem;
+  color: var(--calendar-ivory-soft);
+  font-size: 0.55rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.blockList fieldset > button {
+  min-height: 52px;
+}
+
+.noBlocks {
+  margin: 0;
+  padding: 2rem 0;
+  color: var(--calendar-ivory-soft);
+  border-bottom: 1px solid var(--calendar-rule);
+}
+
+.saveBar {
+  position: sticky;
+  z-index: 4;
+  bottom: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2rem;
+  margin-top: 3rem;
+  padding: 1.2rem 1.4rem;
+  background: rgb(8 8 7 / 94%);
+  border: 1px solid var(--calendar-rule);
+  backdrop-filter: blur(16px);
+}
+
+.saveBar span {
+  color: var(--calendar-ivory-soft);
+  font-size: 0.53rem;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+
+.saveBar strong {
+  display: block;
+  margin-top: 0.3rem;
+  font-family: var(--north-star-font-display);
+  font-size: 1.2rem;
+  font-weight: 400;
+}
+
+.saveBar button {
+  min-height: 58px;
+  padding: 0 1.8rem;
+  color: #080807;
+  background: var(--calendar-gold);
+  border: 1px solid var(--calendar-gold);
+  cursor: pointer;
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.saveBar button:disabled {
+  cursor: not-allowed;
+  opacity: 0.48;
+}
+
+.message {
+  min-height: 1.4rem;
+  margin: 1rem 0 0;
+  color: var(--calendar-gold);
+}
+
+.protectionNote {
+  margin: 2.5rem 0 0;
+  color: var(--calendar-ivory-soft);
+  font-size: 0.65rem;
+  letter-spacing: 0.08em;
+}
+
+.protectionNote span {
+  margin-right: 0.65rem;
+  color: var(--calendar-gold);
+}
+
+.scheduleLink {
+  width: fit-content;
+  margin-top: 2rem;
+  display: inline-block;
+  color: var(--calendar-gold);
+  font-size: 0.62rem;
+  letter-spacing: 0.14em;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+.scheduleLink:hover {
+  color: var(--north-star-ivory);
+}
+
+@media (max-width: 980px) {
+  .heading {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .blockList fieldset {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 760px) {
+  .heading {
+    padding-bottom: 2.5rem;
+  }
+
+  .heading h2 {
+    font-size: clamp(3rem, 15vw, 4.5rem);
+  }
+
+  .heading > p {
+    font-size: 1rem;
+  }
+
+  .summary {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .ribbon > div {
+    grid-template-columns: 90px 1fr;
+  }
+
+  .controls,
+  .blockList fieldset {
+    grid-template-columns: 1fr;
+  }
+
+  .blocks > header,
+  .saveBar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .saveBar {
+    bottom: 0.5rem;
+  }
+
+  .saveBar button {
+    width: 100%;
+  }
+}

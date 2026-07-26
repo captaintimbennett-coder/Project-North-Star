@@ -4,14 +4,36 @@ This document records approved product-level decisions that govern multiple
 features or future sprints. Implementation detail remains in the relevant sprint
 and architecture documents.
 
+## July 25, 2026 — Mission 09 Skinny Native Scheduling
+
+- [`decisions/scheduling-engine-poc.md`](decisions/scheduling-engine-poc.md) now
+  governs Mission 09 as a skinny native scheduling completion using the
+  foundation already implemented in Project North Star.
+- Cal.com is rejected for the initial implementation because its paid-seat
+  resource model and required adaptation do not fit Lone Star Retreat.
+- The Timekit proof of concept is stopped unless implementation demonstrates a
+  specific native limitation that Timekit would solve more simply.
+- Mission 09 must proceed through five separately verified milestones: real
+  availability, one real booking, concurrency proof, required transactional
+  email, and operational completion.
+- Version 1 is strictly event-specific. It does not authorize a generalized
+  scheduling platform, provider framework, payments, messaging, SMS, AI,
+  waitlists, recurring appointments, or speculative resource types.
+- Milestones 1–4 were verified on July 25, 2026. The real-booking proof
+  completed inside a rolled-back development transaction and left no test data.
+  Concurrency proof produced exactly one winner in all same-model and
+  same-photographer/different-model races, directly verified both PostgreSQL
+  exclusion constraints, and removed every temporary fixture. Milestone 4 adds
+  durable two-recipient booking, cancellation, and rescheduling email delivery
+  with visible failure state and explicit retry that never replays the booking
+  mutation. Work is deliberately stopped before Milestone 5 operational
+  interface completion.
+
 ## July 24, 2026 — Scheduling Engine Proof of Concept
 
 - [`decisions/scheduling-engine-poc.md`](decisions/scheduling-engine-poc.md) is
-  the authoritative scope and execution record for the future scheduling-engine
-  proof of concept.
-- Scheduling is approved but parked until the completed calendar, DatePicker,
-  and booking-location work is deployed and scheduling is explicitly selected
-  as the active mission.
+  the authoritative scope and execution record. The July 25 executive decision
+  supersedes the hosted-provider proof-of-concept direction recorded here.
 - [`research/scheduling-engine-research-v2.md`](research/scheduling-engine-research-v2.md)
   supplies background only and does not expand the approved scope.
 

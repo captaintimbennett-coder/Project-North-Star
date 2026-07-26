@@ -38,7 +38,16 @@ Also consult `content-strategy.md`, `roadmap.md`, and
 | 05 | Applications and review workflows | Planned |
 | 06 | Payments, automation, and CRM integration | Planned |
 
-Sprint 04 is the current implementation frontier. Sprint 01 established the
+Sprint 04 is the current implementation frontier. Mission 09 is the active
+Lone Star Retreat scheduling mission and is governed by
+[`../decisions/scheduling-engine-poc.md`](../decisions/scheduling-engine-poc.md).
+It completes the existing native scheduling foundation through five separately
+verified milestones and does not authorize a generalized scheduling platform.
+Milestones 1–4 and the separately approved Milestone 5.1 real visual My
+Schedule, Milestone 5.2 real visual Shape Your Day, and Milestone 5.3 real
+visual photographer-booking connections are complete locally. Work is
+deliberately stopped before Milestone 5.4.
+Sprint 01 established the
 public foundation, Sprint 02 closed with Homepage Design Lock v1.1 and the
 multi-page marketing system, and Sprint 03 closed with the verified
 Payload/PostgreSQL, protected-application, and canonical-profile foundation.

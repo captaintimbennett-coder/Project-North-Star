@@ -238,12 +238,20 @@ export const validateRetreatBooking: CollectionBeforeChangeHook = async ({ data,
   const status = next.status ?? prior.status ?? "confirmed";
   const adminOverride = next.adminOverride ?? prior.adminOverride ?? false;
   const exceptionReason = next.exceptionReason ?? prior.exceptionReason;
+  const changedByAdministrator = Boolean(originalDoc && isStaff(req.user) && (
+    startAt !== prior.startAt || endAt !== prior.endAt || status !== prior.status ||
+    artistId !== relationshipId(prior.artist) || photographerId !== relationshipId(prior.photographer)
+  ));
   if (!startAt || !endAt) throw new Error("Booking start and end times are required.");
   await assertOwnParticipantProfile(req, "photographer-profiles", photographerId, "photographer");
   if (!isStaff(req.user) && (status !== "confirmed" || adminOverride)) {
     throw new Error("Participant bookings must be immediately confirmed without an administrator override.");
   }
-  if (isStaff(req.user) && (adminOverride || ["cancelled", "rescheduled", "admin-review"].includes(status)) && !exceptionReason?.trim()) {
+  if (
+    isStaff(req.user)
+    && (adminOverride || changedByAdministrator || ["cancelled", "rescheduled", "admin-review"].includes(status))
+    && !exceptionReason?.trim()
+  ) {
     throw new Error("An administrator reason is required for overrides, cancellations, reschedules, and exceptions.");
   }
 
@@ -272,16 +280,20 @@ export const validateRetreatBooking: CollectionBeforeChangeHook = async ({ data,
     throw new Error(`This artist requires a minimum booking of ${minimumHours} hour(s).`);
   }
 
-  const [artist, photographer] = await Promise.all([
-    req.payload.findByID({ collection: "model-profiles", id: artistId, depth: 0, overrideAccess: true, req }),
-    req.payload.findByID({
-      collection: "photographer-profiles",
-      id: photographerId,
-      depth: 0,
-      overrideAccess: true,
-      req,
-    }),
-  ]);
+  const artist = await req.payload.findByID({
+    collection: "model-profiles",
+    id: artistId,
+    depth: 0,
+    overrideAccess: true,
+    req,
+  });
+  const photographer = await req.payload.findByID({
+    collection: "photographer-profiles",
+    id: photographerId,
+    depth: 0,
+    overrideAccess: true,
+    req,
+  });
   for (const [label, profile] of [
     ["Artist", artist],
     ["Photographer", photographer],
@@ -356,10 +368,7 @@ export const validateRetreatBooking: CollectionBeforeChangeHook = async ({ data,
     }
   }
 
-  if (originalDoc && isStaff(req.user) && (
-    startAt !== prior.startAt || endAt !== prior.endAt || status !== prior.status ||
-    artistId !== relationshipId(prior.artist) || photographerId !== relationshipId(prior.photographer)
-  )) {
+  if (changedByAdministrator) {
     return { ...data, administratorChangedAt: new Date().toISOString() };
   }
 

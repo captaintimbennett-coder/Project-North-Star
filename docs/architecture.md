@@ -248,6 +248,10 @@ The scheduling foundation is event-specific and uses the following records:
   photographer to an exact UTC start and end time. Event time zones translate
   those timestamps into local schedule time. Versions preserve operational
   history.
+- `scheduling-email-deliveries` is a private administrator-visible ledger of
+  required booking, cancellation, and rescheduling email. It stores
+  deterministic participant-specific message snapshots and delivery state, not
+  booking authority.
 - Canonical model and photographer profiles hold private contact-sharing and
   notification preferences. Email sharing and email notifications are required
   before a confirmed booking can be created.
@@ -280,9 +284,34 @@ Photographer and model personal itineraries are separate allowlisted
 projections. They include the partner, event-local time, duration, public event
 location, booking status, administrator-change state, and partner contact methods
 only for active confirmed bookings and only when that partner approved sharing.
-Participant mutations are authenticated and origin-protected. Public booking,
-payments, model rates, messaging, SMS, calendar sync, and automated booking email
-delivery remain outside this foundation.
+The authenticated visual My Schedule route consumes this projection directly
+and does not query canonical booking records from its presentation component.
+Administrator-only accounts are excluded from that participant route; the
+administrator master calendar remains a separate operational interface.
+The authenticated Featured Artist Shape Your Day route consumes a separate
+model-only availability projection. It contains eligible event days, canonical
+working hours and blocked periods, plus only the ID, event-local start and end
+time, and status of protected confirmed or administrator-review bookings.
+Photographer identity and contact information are deliberately excluded. Saves
+use the existing authenticated, origin-protected availability endpoint, and the
+server independently rejects changes that would hide protected time.
+The authenticated photographer Schedule a Shoot route consumes a separate
+allowlisted booking-option projection. It contains only eligible event and day,
+server-derived start and end time, duration, approved Featured Artist display
+name, event-specific minimum duration, and an approved profile image when
+available. It does not expose participant contact, rates, payment, creative
+planning, private profile, or administrator data. The review screen submits
+one exact projected option to the existing origin-protected booking endpoint;
+the server revalidates eligibility, availability, contact readiness, whole-hour
+rules, duration, conflicts, and idempotency before confirming.
+Participant mutations are authenticated and origin-protected. Mission 09 adds
+required booking, administrator-cancellation, and administrator-rescheduling
+email after the source mutation commits. The booking transaction also creates
+one delivery intent for each participant. A conditional state transition claims
+each pending or failed delivery exactly once; sent delivery cannot be replayed,
+and explicit retry changes only the delivery record rather than the canonical
+booking. Public booking, payments, model rates, messaging, SMS, calendar sync,
+automated reminders, and marketing email remain outside this foundation.
 
 The scheduling domain intentionally contains no model rates, photographer-to-
 model payments, creative negotiations, or internal messaging records. Future

@@ -157,7 +157,7 @@ export const AccountInvitations: CollectionConfig = {
           actor: typeof doc.invitedBy === "number" || typeof doc.invitedBy === "string" ? doc.invitedBy : req.user?.id,
           eventType: "account_invitation.created",
           metadata: { email: doc.email, invitationId: doc.id, roles: doc.roles },
-        });
+        }, req);
 
         const token = typeof req.context.generatedInvitationToken === "string" ? req.context.generatedInvitationToken : null;
         if (token) {
@@ -182,7 +182,7 @@ export const AccountInvitations: CollectionConfig = {
             to: doc.status,
           },
           severity: doc.status === "revoked" ? "warning" : "info",
-        });
+        }, req);
       }
     }],
   },

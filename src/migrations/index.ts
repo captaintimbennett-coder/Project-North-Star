@@ -18,6 +18,7 @@ import * as migration_20260709_025300_add_media_blob_prefix from './20260709_025
 import * as migration_20260713_230000_mission_05_scheduling_guards from './20260713_230000_mission_05_scheduling_guards';
 import * as migration_20260714_010000_mission_06_featured_artist_recruitment from './20260714_010000_mission_06_featured_artist_recruitment';
 import * as migration_20260714_020000_mission_06_consent_workflow_completion from './20260714_020000_mission_06_consent_workflow_completion';
+import * as migration_20260726_025545_mission_09_scheduling_email_delivery from './20260726_025545_mission_09_scheduling_email_delivery';
 
 export const migrations = [
   {
@@ -98,7 +99,7 @@ export const migrations = [
   {
     up: migration_20260706_211702_account_lifecycle_security.up,
     down: migration_20260706_211702_account_lifecycle_security.down,
-    name: '20260706_211702_account_lifecycle_security'
+    name: '20260706_211702_account_lifecycle_security',
   },
   {
     up: migration_20260709_025300_add_media_blob_prefix.up,
@@ -119,5 +120,10 @@ export const migrations = [
     up: migration_20260714_020000_mission_06_consent_workflow_completion.up,
     down: migration_20260714_020000_mission_06_consent_workflow_completion.down,
     name: '20260714_020000_mission_06_consent_workflow_completion',
+  },
+  {
+    up: migration_20260726_025545_mission_09_scheduling_email_delivery.up,
+    down: migration_20260726_025545_mission_09_scheduling_email_delivery.down,
+    name: '20260726_025545_mission_09_scheduling_email_delivery',
   },
 ];

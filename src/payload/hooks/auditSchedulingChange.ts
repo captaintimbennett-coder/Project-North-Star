@@ -9,9 +9,9 @@ export const auditRetreatBookingChange: CollectionAfterChangeHook = async ({ doc
     ? "booking.confirmed"
     : doc.status === "cancelled" && changedStatus
       ? "booking.cancelled"
-      : doc.status === "rescheduled" && changedStatus
+      : (doc.status === "rescheduled" && changedStatus) || changedTime
         ? "booking.rescheduled"
-        : changedTime || doc.adminOverride
+        : doc.adminOverride
           ? "booking.admin_changed"
           : "booking.updated";
 
@@ -25,7 +25,7 @@ export const auditRetreatBookingChange: CollectionAfterChangeHook = async ({ doc
       adminOverride: Boolean(doc.adminOverride),
     },
     severity: doc.adminOverride ? "warning" : "info",
-  });
+  }, req);
 
   if (operation === "create" && doc.adminOverride) {
     await writeSecurityAuditEvent(req.payload, {
@@ -39,7 +39,7 @@ export const auditRetreatBookingChange: CollectionAfterChangeHook = async ({ doc
         reason: doc.exceptionReason,
       },
       severity: "warning",
-    });
+    }, req);
   }
 };
 
@@ -53,5 +53,5 @@ export const auditArtistAvailabilityChange: CollectionAfterChangeHook = async ({
       artistId: typeof doc.artist === "object" ? doc.artist?.id : doc.artist,
       date: doc.date,
     },
-  });
+  }, req);
 };

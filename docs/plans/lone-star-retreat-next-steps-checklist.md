@@ -1,6 +1,6 @@
 # Lone Star Retreat — Working Checklist
 
-Last updated: July 6, 2026
+Last updated: July 25, 2026
 
 This is the shared Product Owner checklist for the next stage of Lone Star
 Retreat. Update it whenever an item is approved, completed, deferred, or changed.
@@ -70,11 +70,27 @@ Retreat. Update it whenever an item is approved, completed, deferred, or changed
   typed fixtures with no live booking connection
 - [x] Complete Product Owner visual review and approve the PR #3 Premium
   Calendar UX prototype
-- [ ] Add transaction-level concurrency protection before public booking access
+- [x] Verify transaction-level concurrency protection before participant
+  booking access: artist/day advisory locks and both PostgreSQL overlap
+  constraints passed Mission 09 Milestone 3 race validation
+- [x] Complete Mission 09 Milestone 4 required booking, administrator
+  cancellation, and administrator rescheduling email with two-recipient
+  delivery visibility and safe retry
+- [x] Complete Mission 09 Milestone 5.1 by connecting the approved visual My
+  Schedule experience to each authenticated photographer or Featured Artist's
+  real, allowlisted private itinerary
+- [x] Complete Mission 09 Milestone 5.2 locally by connecting the approved
+  Shape Your Day experience to each authenticated Featured Artist's real
+  retreat-day availability, privacy-safe protected session times, and
+  server-enforced save workflow
+- [x] Complete Mission 09 Milestone 5.3 locally by connecting the approved
+  Schedule a Shoot experience to each authenticated photographer's real
+  eligible Featured Artists, event-local windows, review step, and protected
+  immediate-confirmation workflow
 
 ## 6. Future Operational Systems — Deferred
 
-- [ ] SendGrid email notifications
+- [ ] Automated scheduling reminders beyond required transactional delivery
 - [ ] Stripe registration and payments
 - [ ] Public scheduling and booking tools
 - [ ] Applicant and member dashboards
@@ -101,5 +117,6 @@ approval workflow are complete and approved.
 
 ## Current Focus
 
-**Next item:** Complete PR #4 migration and access-boundary verification before
-any live participant scheduling work.
+**Next item:** Stop for executive review before Mission 09 Milestone 5.4. Do
+not add shared Retreat Schedule or administrator master-calendar interfaces
+until that next small outcome is explicitly approved.

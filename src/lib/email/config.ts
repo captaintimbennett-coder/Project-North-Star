@@ -24,3 +24,12 @@ export function getApplicationEmailConfig() {
     replyTo: process.env.APPLICATION_EMAIL_REPLY_TO || email.replyTo,
   };
 }
+
+export function getSchedulingEmailConfig() {
+  const email = getEmailConfig();
+  return {
+    fromAddress: process.env.SCHEDULING_EMAIL_FROM || email.fromAddress,
+    fromName: process.env.SCHEDULING_EMAIL_FROM_NAME || "Lone Star Retreat",
+    replyTo: process.env.SCHEDULING_EMAIL_REPLY_TO || email.replyTo,
+  };
+}

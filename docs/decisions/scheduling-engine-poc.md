@@ -1,234 +1,416 @@
-# Project North Star — Scheduling Engine Proof-of-Concept Decision
+# Project North Star — Mission 09 Skinny Native Scheduling
 
-**Status:** Approved and parked for a future scheduling mission
-**Decision date:** July 24, 2026
+**Status:** Active — Milestones 1–4 and Milestones 5.1–5.3 complete; stopped
+before Milestone 5.4
+
+**Original decision date:** July 24, 2026
+
+**Revised decision date:** July 25, 2026
+
 **Applies to:** Project North Star / Lone Star Retreat
-**Authority:** This document controls the scope of the scheduling-engine proof of concept. The accompanying research provides background but does not expand the approved scope.
+
+**Authority:** This document controls Mission 09 scope and execution. The
+accompanying research provides historical background but does not expand the
+approved scope.
 
 **Supporting research:** [`../research/scheduling-engine-research-v2.md`](../research/scheduling-engine-research-v2.md)
 
-## Objective
+## Executive Decision
 
-Select the quickest hosted scheduling engine that satisfactorily manages Lone Star Retreat scheduling without turning the evaluation into a new infrastructure project.
+Mission 09 will complete the smallest reliable native scheduling workflow for
+Lone Star Retreat using the scheduling foundation already implemented in
+Project North Star.
 
-This proof of concept covers scheduling only:
+Cal.com is rejected for the initial implementation because its user- and
+seat-oriented resource model does not fit a short event with multiple
+independently bookable models at an acceptable recurring cost or administrative
+burden. Making it fit would still require Project North Star integration and
+business-rule code.
 
-- Availability
-- Independent schedules
-- Session lengths
+The previously planned Timekit proof of concept is stopped. It may be reopened
+only if implementation reveals a specific, proven limitation in the existing
+native foundation that a hosted provider would solve more simply.
+
+This is not authorization to build a generalized scheduling product.
+
+> Build the Lone Star Retreat scheduler, not a general scheduling platform.
+
+## Why a Native Completion Is Proportionate
+
+Project North Star already owns the difficult scheduling foundation:
+
+- Canonical event, artist/model, and photographer identities
+- Event participation and booking eligibility
+- Event-local time zones and UTC booking timestamps
+- Artist availability, blocked periods, and minimum booking durations
+- Immediate first-come-first-served confirmation
+- Server-side permission and business-rule validation
+- PostgreSQL exclusion constraints preventing artist or photographer overlap
+- Idempotency protection and operational history
+- Private participant schedule projections
+- Administrator scheduling authority
+- A read-only premium calendar prototype
+
+Mission 09 connects and verifies this foundation. It does not begin from zero
+and must not reproduce Calendly, Cal.com, or a universal resource scheduler.
+
+## Version 1 Authorized Outcome
+
+Version 1 is complete when:
+
+1. Participating models can set their event availability and blocked periods.
+2. Approved photographers can see valid available times.
+3. An approved photographer can book a participating model for an allowed
+   duration.
+4. A valid booking is confirmed immediately.
+5. Neither participant can be double-booked, including under concurrent
+   requests.
+6. Models and photographers can see their own private schedules.
+7. The administrator can see all bookings and can cancel or reschedule them.
+8. Required booking, cancellation, and rescheduling emails are delivered
+   reliably.
+
+## Approved Milestone Sequence
+
+Complete one milestone, verify it, record the result, and stop before beginning
+the next milestone.
+
+### Milestone 1 — Real Availability
+
+Prove that one participating model's real event availability produces the
+correct bookable time ranges.
+
+Verify:
+
+- Event-local day and time handling
+- Default and customized availability
 - Blocked periods and breaks
-- Buffers
-- Conflict prevention
-- Calendar synchronization
-- Creating, canceling, and rescheduling sessions
+- Minimum booking duration
+- Existing confirmed-booking protection
+- No private information in participant-facing availability output
 
-Payments, registration, CRM, marketing, memberships, and the broader booking workflow remain separate Project North Star modules.
+No booking mutation is authorized in this milestone.
 
-## Decision
+**Result — July 25, 2026:** Complete.
 
-Evaluate **hosted Cal.com first** with a small representative proof of concept.
+- Extracted a deterministic event-local availability range calculator from the
+  broader booking service.
+- Corrected event-day enumeration to use the retreat time zone rather than UTC
+  calendar dates. The stored Founders Edition timestamps now correctly produce
+  May 14, May 15, and May 16 in `America/Chicago`.
+- Verified default and customized hours, lunch and unavailable blocks, minimum
+  duration, confirmed participant busy time, partial-hour boundaries, UTC
+  conversion, and the privacy-safe range shape with six focused automated
+  tests.
+- Performed a read-only development-database proof using approved participating
+  artist Lexi Anne. Her real event assignment produced the three correct
+  event-local days and 78 valid default one-hour-or-longer ranges per day.
+- Confirmed that existing collection hooks still prevent availability changes
+  from hiding or blocking confirmed reservations.
+- `pnpm mission:09:availability`, `pnpm lint`, `pnpm typecheck`, and
+  `pnpm build` pass.
 
-Evaluate **Timekit second only if** Cal.com’s resource model, feature gating, or long-term cost proves unacceptable.
+No booking was created or changed.
 
-Choose whichever hosted service reaches “good enough” fastest at an acceptable ongoing price. Do not seek a theoretically perfect scheduling platform.
+### Milestone 2 — One Real Booking
 
-## Agreed Architectural Boundary
+Allow one approved photographer to create one valid booking with one
+participating model through the Project North Star API and interface.
 
-Project North Star owns all canonical resources and identities.
+Verify:
 
-Examples include:
+- Authentication and origin protection
+- Event and participant eligibility
+- Exact duration and whole-hour rules
+- Availability validation
+- Immediate confirmation
+- Idempotent submission behavior
+- Correct private schedule updates for both participants
 
-- Models
-- Instructors
-- Rooms
-- Studios
-- Locations
-- Equipment
-- Staff
+**Result — July 25, 2026:** Complete.
 
-A vendor record is only a mapping:
+- Added a repeatable controlled-development validator that uses the real
+  booking service, Payload access rules, approved event assignments, artist
+  availability, PostgreSQL transaction handling, private schedule projections,
+  and security audit hooks.
+- Proved authentication role checks, allowed and rejected origins, approved
+  event eligibility, minimum duration, whole event-local hours, availability
+  boundaries, immediate confirmation, and rejection of a non-photographer
+  account.
+- Proved that the confirmed reservation appears correctly in both the
+  photographer's and model's private schedules.
+- Hardened idempotency so an exact retry returns the original reservation while
+  the same key cannot authorize different booking details. The browser now
+  preserves one key across a retry and creates a new key only when the selected
+  range changes.
+- Ensured scheduling and account audit records participate in the same database
+  transaction as their source mutation.
+- Removed concurrent queries sharing one transaction connection, preserving
+  compatibility with the PostgreSQL driver's future behavior.
+- The controlled proof passed all 16 checks and then rolled back. No temporary
+  booking, account, profile link, availability, or audit data remained.
+- `pnpm mission:09:booking`, `pnpm mission:09:availability`, `pnpm lint`,
+  `pnpm typecheck`, `pnpm build`, and `git diff --check` pass.
 
-```text
-Project North Star resource ID
-        |
-        +--> scheduling provider
-        +--> provider resource/user ID
-```
+Milestone 2 was completed and verified before concurrency work began.
 
-Cal.com users, Timekit resources, or other provider records must never become the canonical identity used throughout Project North Star.
+### Milestone 3 — Concurrency and Conflict Proof
 
-If Cal.com is selected, vendor API calls should be isolated in one thin adapter module. Project North Star retains its existing conflict rules, permissions, and business logic.
+Prove with automated concurrent requests that:
 
-Future AI actions must call Project North Star’s API first. AI must not bypass Project North Star’s validation by writing directly to the scheduling provider.
+- Two photographers cannot reserve the same model at overlapping times.
+- One photographer cannot reserve overlapping sessions with different models.
+- Exactly one competing valid request succeeds.
+- Database protection remains authoritative if application validation races.
 
-## Confirmed Planning Assumptions
+This milestone is not complete without a repeatable automated test.
 
-- Cal.com’s Platform offering stopped accepting new signups on December 15, 2025; this must not be assumed to provide managed resource-users for a new project.
-- Cal.com moved its commercial production codebase to a private repository on April 15, 2026.
-- Cal.diy remains a community/self-hostable edition but is excluded from current production planning because it is positioned for personal, non-production use without production security or support guarantees.
-- Cal.com must therefore be evaluated as a hosted SaaS vendor, not as a guaranteed production self-hosting escape route.
-- Timekit has stronger native resource semantics but remains a hosted-vendor dependency and has a weaker AI/MCP story.
-- A thin adapter is useful insurance against vendor change. A generalized multi-provider framework is not currently justified.
+**Result — July 25, 2026:** Complete.
 
-These facts should be rechecked when the scheduling mission begins because vendor plans and product terms may change.
+- Added a repeatable development-only concurrency validator with five race
+  rounds for each required scenario.
+- Same-model races passed 5/5: exactly one photographer booking succeeded in
+  every round.
+- Same-photographer/different-model races passed 5/5: exactly one booking
+  succeeded in every round.
+- Direct PostgreSQL probes verified `retreat_bookings_artist_no_overlap` and
+  `retreat_bookings_photographer_no_overlap`, both returning SQLSTATE `23P01`
+  on conflicts.
+- Nested PostgreSQL exclusion errors are now classified as safe booking
+  conflicts by the service and API route.
+- Temporary users, profiles, event data, bookings, availability records, and
+  matching audit records were removed after validation; no test fixture
+  remained.
+- `pnpm mission:09:concurrency`, `pnpm mission:09:availability`,
+  `pnpm mission:09:booking`, `pnpm lint`, `pnpm typecheck`, `pnpm build`, and
+  `git diff --check` pass.
 
-## Entry Condition
+### Milestone 4 — Required Transactional Email
 
-Do not begin this proof of concept until:
+Deliver and verify branded email for:
 
-1. The completed calendar, DatePicker, and booking-location work has been deployed.
-2. Scheduling has been explicitly selected as the active Project North Star mission.
+- Booking confirmation
+- Administrator cancellation
+- Administrator rescheduling
 
-This research must not delay already-completed work.
+Email failure must be observable and retryable without duplicating the
+underlying booking mutation.
 
-## Approved Execution Steps
+**Result — July 25, 2026:** Complete.
 
-### Step 1 — Revalidate current facts
+- Added private `scheduling-email-deliveries` records that preserve one
+  deterministic delivery intent per booking lifecycle event and participant.
+  Booking confirmation, administrator rescheduling, and administrator
+  cancellation each queue one message for the photographer and one for the
+  Featured Artist.
+- Delivery intent creation participates in the booking transaction. SendGrid
+  delivery begins only after the booking mutation commits, so a rolled-back
+  booking cannot send a participant email.
+- Added branded HTML and plain-text Lone Star Retreat templates with
+  event-local time, the public event location, and a private-schedule link.
+  Private administrator reasons and notes are excluded from message snapshots
+  and participant email.
+- Added owner/editor cancellation, rescheduling, and failed-delivery retry
+  services and protected API routes. Successful delivery is idempotent. Failed
+  delivery is recorded and may be retried explicitly without replaying or
+  changing the underlying booking.
+- Added administrator-visible pending, sending, sent, and failed delivery state
+  with attempt timestamps, safe errors, and sent timestamps.
+- Applied the additive delivery-ledger migration to the approved development
+  database only. No production migration, deployment, or live email was
+  authorized or performed.
+- The controlled development proof passed all 12 checks across confirmation,
+  rescheduling, cancellation, two-recipient delivery, private-reason
+  exclusion, provider failure, explicit retry, idempotency, and fixture cleanup.
+- `pnpm mission:09:email`, the existing Mission 09 validators, `pnpm lint`,
+  `pnpm typecheck`, `pnpm build`, and `git diff --check` pass.
 
-Check Cal.com’s current official documentation and pricing for:
+Milestone 4 is complete. Work proceeded only into the separately approved
+Milestone 5.1 private-schedule connection described below.
 
-- Free-plan limitations
-- Number and treatment of independent resources
-- Whether each resource requires a paid user/seat
-- API availability
-- Webhook availability
-- Embedding
-- Branding removal
-- Google Calendar synchronization
-- Cancellation and rescheduling
-- Current Platform or managed-user availability
+### Milestone 5 — Operational Completion
 
-Record exact plan names and costs. Do not rely on the July 2026 research if current vendor documentation differs.
+Connect the verified scheduling foundation to:
 
-### Step 2 — Run one small Cal.com test
+- Model availability management
+- Photographer booking experience
+- Photographer and model private schedules
+- Administrator master-calendar controls for viewing, cancellation, and
+  rescheduling
 
-Use hosted Cal.com to model one representative resource, such as one Lone Star model.
+Verify desktop and mobile usability, accessibility, privacy boundaries, and
+complete administrator visibility.
 
-Test only:
+#### Milestone 5.1 — Real Visual My Schedule
 
-- A small set of available time slots
-- A blocked break
-- A session buffer
-- One booking
-- One reschedule
-- One cancellation
-- Google Calendar synchronization
-- The attendee-facing booking experience
-- The administrator-facing schedule
+Completed July 25, 2026:
 
-Do not integrate it into Project North Star during this test.
+- Connected the authenticated `/account/my-schedule` route to the approved
+  premium personal-calendar visual direction without importing prototype
+  fixtures into production.
+- Preserved `getPersonalItinerary` as the only booking-data source for the
+  route. The interface receives only its existing allowlisted partner, event,
+  event-local time, duration, status, administrator-change, location, and
+  approved contact fields.
+- Limited the route to authenticated photographer and model accounts. An
+  administrator-only account cannot use this participant route as a substitute
+  master calendar.
+- Added real event-day selection, active-session agenda cards, approved contact
+  presentation, empty state, and a separate record of cancelled or rescheduled
+  items. The interface remains read-only.
+- Added three focused event-local presentation tests. The existing controlled
+  booking validator again proved that one authenticated photographer and one
+  authenticated model each receive their own private itinerary; all 16 checks
+  pass and temporary data is rolled back.
+- `pnpm mission:09:personal-schedule`, `pnpm mission:09:booking`, `pnpm lint`,
+  `pnpm typecheck`, `pnpm build`, and `git diff --check` pass.
+- No production deployment, production mutation, or live email was authorized
+  or performed.
 
-### Step 3 — Test resource scaling
+#### Milestone 5.2 — Real Visual Shape Your Day
 
-Determine how Cal.com would represent multiple independent models, instructors, rooms, and locations.
+Completed locally July 25, 2026:
 
-Answer:
+- Connected the authenticated `/account/availability` route to the approved
+  Shape Your Day visual direction using each Featured Artist's real eligible
+  retreat days and canonical `artist-availability` records.
+- Limited the route and mutation service to active model accounts. The
+  experience can edit one retreat day at a time, adjust working-day boundaries,
+  add, edit, and remove lunch or unavailable blocks, preserve unsaved changes
+  while switching days, and save through the existing origin-protected API.
+- Added a privacy-safe protected-time projection for confirmed and
+  administrator-review sessions. It exposes only booking ID, event-local start
+  and end time, and status; photographer identity and contact information do
+  not enter the availability interface.
+- Kept the server authoritative. Client validation gives immediate guidance,
+  while existing Payload hooks independently reject a working-day boundary or
+  blocked period that would hide protected booking time.
+- Added nine focused availability and presentation checks plus a 19-check
+  isolated development transaction proving the real projection, save and
+  reread flow, privacy allowlist, and protected-session rejection. The original
+  16-check booking proof, 8-check concurrency proof, 12-check email proof, and
+  3-check personal-calendar proof continue to pass, and temporary data is
+  rolled back.
+- No production deployment, production mutation, or live email was authorized
+  or performed.
 
-- Does each resource require a separate user or paid seat?
-- Can non-human resources have independent availability?
-- What is the real monthly and annual cost at the anticipated Lone Star scale?
-- Does the frozen Platform offering prevent the required setup?
-- Can the solution remain operationally simple for one administrator?
+#### Milestone 5.3 — Real Visual Photographer Booking
 
-### Step 4 — Apply the Cal.com decision gate
+Completed locally July 25, 2026:
 
-Accept Cal.com for the initial implementation only if:
+- Connected the authenticated `/account/book` route to the approved Schedule a
+  Shoot visual direction. An active photographer with an approved canonical
+  profile and event participation can choose a real retreat day, a real
+  server-derived start time and duration, and an eligible Featured Artist.
+- Preserved `getPhotographerBookingOptions` as the selection authority and the
+  existing origin-protected booking endpoint as the mutation authority. The
+  visual experience does not calculate or invent bookable ranges.
+- Added an allowlisted visual projection containing only event, date, time,
+  duration, approved artist display name, minimum duration, and an approved
+  profile image when one is available. Contact information, private profile
+  fields, rates, payment, concepts, wardrobe, and administrator data are not
+  exposed before confirmation.
+- Implemented the approved selection, review, and confirmed stages. A conflict
+  returns the existing safe message, refreshes authoritative availability, and
+  does not change either schedule. Exact retries retain the existing
+  idempotency protection.
+- Continued using the verified booking transaction to protect both participant
+  schedules and begin required two-recipient confirmation delivery only after
+  commit.
+- Added four focused presentation tests and a 17-check isolated development
+  transaction proving approved-role access, the privacy allowlist, exact
+  event-local ranges, immediate confirmation, both private schedule updates,
+  idempotency, audit participation, invalid-time rejection, and full rollback.
+  The 9-test/19-check model availability proof, 8-check concurrency proof,
+  12-check email proof, and 3-check personal-calendar proof remain green.
+- No production deployment, production mutation, or live email was authorized
+  or performed.
 
-- The required scheduling workflow works reliably.
-- Multiple resources can be represented without an awkward administrative process.
-- The recurring cost is acceptable.
-- Required API, webhook, embed, and Google Calendar features are available on an acceptable plan.
-- The attendee experience can feel sufficiently native to Lone Star.
-- The implementation does not require production self-hosting of Cal.diy.
+Work is deliberately stopped before Milestone 5.4. Shared Retreat Schedule and
+administrator master-calendar interface changes are not part of Milestone 5.3.
+Executive visual review may occur from this stable local baseline before the
+next milestone is authorized.
 
-Reject or pause Cal.com if:
+## Implementation Boundary
 
-- It requires an impractical paid seat for every non-human or human resource.
-- The Platform-plan freeze prevents the needed resource model.
-- Essential API or webhook features require unjustifiable pricing.
-- Embedding or branding limitations undermine the intended experience.
-- Multi-resource scheduling cannot be handled without excessive custom work.
-
-### Step 5 — Test Timekit only if necessary
-
-If Cal.com fails the decision gate, repeat the same representative test in Timekit.
-
-Compare only:
-
-- Correct resource modeling
-- Setup effort
-- Core scheduling reliability
-- API and webhook behavior
-- Embedding
-- Google Calendar integration
-- Total cost
-- Vendor viability
-
-Do not restart a broad market survey unless both Cal.com and Timekit fail.
-
-### Step 6 — Make and record the provider decision
-
-Select the first provider that reaches “good enough.”
-
-Record:
-
-- Chosen provider and plan
-- Verified cost
-- What was tested
-- Known limitations
-- Rejected alternative and reason
-- Date of decision
-
-Only after that decision should implementation instructions be drafted.
-
-## Implementation Limit
-
-If a provider is selected:
-
-- Keep Project North Star resource IDs canonical.
-- Add only the provider mappings required by the implementation.
-- Put provider-specific calls in one isolated adapter module.
-- Keep conflict and permission validation inside Project North Star.
-- Normalize incoming provider events at the application boundary.
-- Route future AI operations through Project North Star.
-
-Build the simplest implementation that supports the verified workflow.
+- Project North Star records remain canonical.
+- PostgreSQL remains the final authority for overlap prevention.
+- Business rules remain enforced on the server, never only in the browser.
+- Use the existing Payload, PostgreSQL, authentication, scheduling service, and
+  calendar foundations before adding abstractions or dependencies.
+- Add only the routes, services, fields, migrations, interfaces, and email
+  state required by the active milestone.
+- Preserve the approved privacy projections and administrator override rules.
+- Prefer event-specific code over a speculative generic resource framework.
 
 ## Explicit Non-Goals
 
-The following are outside the approved scope:
+Version 1 does not include:
 
+- Cal.com, Timekit, or simultaneous provider support
+- A provider-adapter framework
 - Production deployment of Cal.diy
-- Self-hosting research or infrastructure
-- A formal multi-provider Scheduling Service
-- A generalized provider interface built for hypothetical vendors
-- Simultaneous Cal.com and Timekit support
-- Migration tooling
-- Provider failover
-- Rebuilding a scheduling engine
-- AI concierge implementation
-- MCP integration
-- Payments or Stripe
-- Registration
-- CRM
-- Marketing automation
+- A general-purpose scheduling service
+- Public anonymous booking
+- Model rates or photographer-to-model payments
+- Event admission payments or Stripe
+- Internal participant messaging
+- Creative negotiations or shoot planning
+- SMS notifications
+- AI concierge or MCP integration
+- Waitlists
+- Recurring appointments
+- Group shoots or workshops
+- Calendar-provider synchronization
+- Automated reminders
+- CRM or marketing automation
 - Membership logic
+- Analytics or reporting dashboards
 - Unrelated calendar redesign
-- Another broad scheduling-platform comparison
+- Speculative rooms, equipment, instructors, or other resource types
+
+Any item above requires a later explicit product decision.
+
+## Decision Gates
+
+Stop and request executive review if:
+
+- A milestone requires changing an approved business rule.
+- Existing database constraints cannot enforce the required conflict behavior.
+- A security or privacy boundary cannot be maintained.
+- Reliable email delivery requires an unapproved paid service or account change.
+- The proposed work begins serving hypothetical events or resource types
+  instead of the approved Lone Star Retreat workflow.
+- A hosted provider becomes materially simpler only because a specific native
+  limitation has been demonstrated.
+
+## Model Reasoning Guidance
+
+- Documentation, routine interface work, and straightforward refinement:
+  GPT-5.6 Sol Low or Medium.
+- Booking mutations, database migrations, concurrency, authentication, privacy,
+  and release review: GPT-5.6 Sol High.
+- Use higher reasoning only for a demonstrated difficult architecture or
+  debugging problem, then return to the lower appropriate level.
 
 ## Focus-Drift Rule
 
-Any proposed work outside the approved steps or implementation limit must stop and be identified as a scope expansion.
+For every proposed addition, ask:
 
-Do not implement that expansion without a deliberate decision from the project owner.
+1. Is it required for the active milestone?
+2. Does it solve a real Version 1 problem?
+3. Can Mission 09 succeed without it?
+
+If it is not required now, record it as deferred and do not build it.
 
 When uncertain, prefer:
 
-1. The smallest representative test
-2. The fewest new abstractions
-3. The least custom code
-4. The fastest path to a reliable “good enough” result
+1. The smallest useful outcome
+2. Existing Project North Star foundations
+3. The fewest new abstractions
+4. The least custom code
+5. Verification before expansion
 
 ## Governing Principle
 
-> Own the resource IDs, isolate vendor calls, assume the vendor may change, and do not build the escape vehicle before it is needed.
+> Grand vision in planning. Tiny steps in coding.

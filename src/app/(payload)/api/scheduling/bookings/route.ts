@@ -3,7 +3,10 @@ import { getPayload } from "payload";
 import { NextRequest, NextResponse } from "next/server";
 import type { User } from "@/payload-types";
 import { checkRateLimit, getClientIP } from "@/lib/application-protection";
-import { confirmPhotographerBooking } from "@/lib/scheduling/booking-service";
+import {
+  confirmPhotographerBooking,
+  isBookingConflictError,
+} from "@/lib/scheduling/booking-service";
 import { assertAllowedMutationOrigin } from "@/lib/security/origin";
 import { hasAccountRole, isActiveAccount } from "@/payload/access/account";
 
@@ -32,10 +35,15 @@ export async function POST(request: NextRequest) {
   }
   try {
     const booking = await confirmPhotographerBooking(account, body);
-    return NextResponse.json({ ok: true, bookingId: booking.id, status: booking.status }, { status: 201 });
+    return NextResponse.json({
+      ok: true,
+      bookingId: booking.id,
+      replayed: booking.replayed,
+      status: booking.status,
+    }, { status: booking.replayed ? 200 : 201 });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Booking could not be confirmed.";
-    const conflict = /conflict|overlap|exclude|unique|available/i.test(message);
+    const conflict = isBookingConflictError(error);
     console.error("Booking confirmation failed.", error);
     return NextResponse.json({
       ok: false,

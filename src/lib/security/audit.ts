@@ -1,4 +1,4 @@
-import type { Payload } from "payload";
+import type { Payload, PayloadRequest } from "payload";
 
 type AuditSeverity = "info" | "warning" | "critical";
 
@@ -11,7 +11,11 @@ export type SecurityAuditInput = {
   targetInvitation?: number | null;
 };
 
-export async function writeSecurityAuditEvent(payload: Payload, input: SecurityAuditInput) {
+export async function writeSecurityAuditEvent(
+  payload: Payload,
+  input: SecurityAuditInput,
+  req?: PayloadRequest,
+) {
   try {
     await payload.create({
       collection: "security-audit-events",
@@ -25,6 +29,7 @@ export async function writeSecurityAuditEvent(payload: Payload, input: SecurityA
         targetInvitation: input.targetInvitation ?? undefined,
       },
       overrideAccess: true,
+      req,
     });
   } catch (error) {
     console.error("Security audit event could not be written.", error);

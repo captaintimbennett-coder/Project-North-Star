@@ -17,6 +17,7 @@ import { PhotographerProfiles } from "./payload/collections/PhotographerProfiles
 import { RetreatEvents } from "./payload/collections/RetreatEvents";
 import { RetreatBookings } from "./payload/collections/RetreatBookings";
 import { SecurityAuditEvents } from "./payload/collections/SecurityAuditEvents";
+import { SchedulingEmailDeliveries } from "./payload/collections/SchedulingEmailDeliveries";
 import { Users } from "./payload/collections/Users";
 
 const filename = fileURLToPath(import.meta.url);
@@ -52,6 +53,7 @@ export default buildConfig({
     PhotographerApplications,
     ArtistAvailability,
     RetreatBookings,
+    SchedulingEmailDeliveries,
   ],
   db: postgresAdapter({
     pool: {

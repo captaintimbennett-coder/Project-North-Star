@@ -232,7 +232,7 @@ export const Users: CollectionConfig = {
           actor: req.user?.id,
           eventType: "account.created",
           metadata: { createdAccountId: doc.id, roles: doc.roles, status: doc.accountStatus },
-        });
+        }, req);
       }
 
       if (operation === "update") {
@@ -243,7 +243,7 @@ export const Users: CollectionConfig = {
             metadata: { from: previousDoc?.accountStatus, to: doc.accountStatus },
             severity: doc.accountStatus === "suspended" ? "warning" : "info",
             targetAccount: doc.id,
-          });
+          }, req);
         }
 
         if (JSON.stringify(previousDoc?.roles ?? []) !== JSON.stringify(doc.roles ?? [])) {
@@ -253,7 +253,7 @@ export const Users: CollectionConfig = {
             metadata: { from: previousDoc?.roles, to: doc.roles },
             severity: "warning",
             targetAccount: doc.id,
-          });
+          }, req);
         }
       }
     }],

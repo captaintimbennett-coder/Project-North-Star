@@ -2,6 +2,7 @@ import type { CollectionConfig } from "payload";
 import { ownerOnly, ownerOrEditorOnly, staffOrOwnBooking, staffFieldAccess, staffOrPhotographer } from "../access/account";
 import { validateRetreatBooking } from "../scheduling/rules";
 import { auditRetreatBookingChange } from "../hooks/auditSchedulingChange";
+import { queueSchedulingEmailIntents } from "../hooks/queueSchedulingEmail";
 
 export const RetreatBookings: CollectionConfig = {
   slug: "retreat-bookings",
@@ -107,7 +108,7 @@ export const RetreatBookings: CollectionConfig = {
   ],
   hooks: {
     beforeChange: [validateRetreatBooking],
-    afterChange: [auditRetreatBookingChange],
+    afterChange: [auditRetreatBookingChange, queueSchedulingEmailIntents],
   },
   versions: {
     maxPerDoc: 50,

@@ -13,7 +13,14 @@
     "payload:generate-types": "payload generate:types",
     "payload:migrate": "payload migrate",
     "payload:migrate:guarded": "node scripts/guarded-payload-migrate.mjs",
-    "mission:06:validate": "node scripts/mission-06-validation.mjs"
+    "mission:06:validate": "node scripts/mission-06-validation.mjs",
+    "mission:09:availability": "node --experimental-strip-types --test scripts/mission-09-availability.test.mjs",
+    "mission:09:booking": "PAYLOAD_MIGRATING=true tsx --env-file=.env scripts/mission-09-booking-validation.ts",
+    "mission:09:concurrency": "PAYLOAD_MIGRATING=true tsx --env-file=.env scripts/mission-09-concurrency-validation.ts",
+    "mission:09:email": "PAYLOAD_MIGRATING=true tsx --env-file=.env scripts/mission-09-email-validation.ts",
+    "mission:09:model-availability": "pnpm mission:09:availability && MISSION_09_VALIDATE_MODEL_AVAILABILITY=true pnpm mission:09:booking",
+    "mission:09:personal-schedule": "tsx --test scripts/mission-09-personal-schedule.test.ts",
+    "mission:09:photographer-booking": "tsx --test scripts/mission-09-photographer-booking.test.ts && MISSION_09_VALIDATE_PHOTOGRAPHER_BOOKING=true pnpm mission:09:booking"
   },
   "dependencies": {
     "@payloadcms/db-postgres": "3.85.2",
@@ -36,6 +43,7 @@
     "@types/react-dom": "^19.1.6",
     "eslint": "^9.29.0",
     "eslint-config-next": "15.4.11",
+    "tsx": "4.22.4",
     "typescript": "^5.8.3"
   },
   "packageManager": "pnpm@10.12.1"

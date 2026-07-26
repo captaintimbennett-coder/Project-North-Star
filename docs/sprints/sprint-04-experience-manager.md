@@ -143,6 +143,63 @@ master classes, mentoring, and future creative experiences.
   projections, and database-enforced conflict prevention. Payments, public
   booking, internal messaging, SMS, calendar sync, and automated booking email
   delivery remain out of scope.
+- [x] Complete Mission 09 Milestone 1 Real Availability. The native scheduling
+  path now derives deterministic bookable ranges from event-local availability,
+  blocked periods, minimum duration, and confirmed participant busy time.
+  Event-day enumeration correctly translates stored UTC boundaries into the
+  approved May 14–16 `America/Chicago` retreat days. Six focused tests and a
+  read-only proof against an approved participating artist pass. Work remains
+  deliberately incremental.
+- [x] Complete Mission 09 Milestone 2 One Real Booking. A controlled
+  development transaction created one authenticated, immediately confirmed
+  reservation using approved event eligibility and real availability, exposed
+  it correctly to both private participant schedules, replayed an exact
+  idempotent retry, rejected a changed request and a non-whole-hour request,
+  verified the audit record, and rolled all temporary data back. Sixteen checks,
+  lint, typecheck, and the production build pass.
+- [x] Complete Mission 09 Milestone 3 Concurrency and Conflict Proof. Five
+  same-model races and five same-photographer/different-model races each
+  produced exactly one winner. Direct database probes verified both PostgreSQL
+  exclusion constraints return SQLSTATE `23P01`; nested database conflicts now
+  produce a safe booking conflict; all temporary fixtures were removed; and
+  all eight concurrency checks pass.
+- [x] Complete Mission 09 Milestone 4 Required Transactional Email. Booking
+  confirmation, administrator rescheduling, and administrator cancellation now
+  create durable, two-recipient delivery intents and branded participant
+  messages. Delivery state is administrator-visible, successful sends are
+  idempotent, and failed sends can be retried without replaying the booking
+  mutation. The additive ledger migration was applied to development only, and
+  all 12 controlled email checks pass. That checkpoint stopped before
+  operational interface work until Milestone 5.1 was separately approved.
+- [x] Complete Mission 09 Milestone 5.1 Real Visual My Schedule. The approved
+  premium personal-calendar presentation now consumes the authenticated,
+  allowlisted personal itinerary projection for photographer and Featured
+  Artist accounts. It presents real event-local days, active bookings, approved
+  partner contact methods, and schedule-change records without prototype
+  fixtures or mutation controls. Three focused presentation checks and all 16
+  controlled booking/privacy checks pass. No production action was performed,
+  and that checkpoint stopped before Milestone 5.2.
+- [x] Complete Mission 09 Milestone 5.2 Real Visual Shape Your Day locally.
+  The approved availability presentation now consumes each authenticated
+  Featured Artist's real event days, working hours, blocked periods, and
+  privacy-safe protected booking times. Featured Artists can edit and save one
+  eligible retreat day without exposing photographer identity, while existing
+  server hooks prevent a confirmed or administrator-review session from being
+  hidden. Nine focused tests and 19 controlled transaction checks pass, with
+  all earlier booking, concurrency, email, and personal-schedule regressions
+  remaining green. No production action was performed, and work is
+  deliberately stopped before Milestone 5.3.
+- [x] Complete Mission 09 Milestone 5.3 Real Visual Photographer Booking
+  locally. The approved Schedule a Shoot presentation now consumes real
+  server-derived retreat days, start times, durations, and eligible Featured
+  Artists; provides selection, review, and confirmed stages; and submits one
+  exact reservation through the existing protected booking endpoint. Its
+  allowlist exposes no participant contact, rates, payment, creative planning,
+  or private administrator data before confirmation. Four focused presentation
+  tests and 17 controlled transaction checks pass, with availability,
+  concurrency, email, and personal-schedule regressions remaining green. No
+  production action was performed, and work is deliberately stopped before
+  Milestone 5.4.
 - [x] Implement Mission 06 Featured Artist Recruitment Ready on its dedicated
   feature branch. The approved scope adds recruitment essentials, reduces the
   initial application by making biography optional, separates private-review

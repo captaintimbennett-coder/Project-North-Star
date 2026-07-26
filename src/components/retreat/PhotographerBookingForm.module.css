@@ -1,0 +1,677 @@
+.view {
+  --calendar-gold: #c99145;
+  --calendar-rule: rgb(242 238 230 / 14%);
+  --calendar-ivory-soft: rgb(242 238 230 / 66%);
+}
+
+.heading {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(260px, 0.6fr);
+  gap: 4rem;
+  align-items: end;
+  padding-bottom: 4rem;
+  border-bottom: 1px solid var(--calendar-rule);
+}
+
+.heading h2 {
+  margin: 0;
+  font-size: clamp(3.2rem, 5.6vw, 6rem);
+  line-height: 0.94;
+  letter-spacing: -0.035em;
+}
+
+.heading > p {
+  max-width: 410px;
+  margin: 0;
+  color: var(--calendar-ivory-soft);
+  font-family: var(--north-star-font-display);
+  font-size: 1.2rem;
+  line-height: 1.6;
+}
+
+.timeSelection {
+  padding: 3rem 0 2rem;
+}
+
+.timeSummary {
+  display: flex;
+  align-items: baseline;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.timeSummary span,
+.durationPicker span,
+.subheading span,
+.selectionFooter span,
+.selectionFooter p {
+  color: var(--calendar-gold);
+  font-size: 0.55rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.timeSummary strong {
+  font-family: var(--north-star-font-display);
+  font-size: 1.5rem;
+  font-weight: 400;
+}
+
+.timeSummary p {
+  margin: 0 0 0 auto;
+  color: var(--calendar-ivory-soft);
+  font-size: 0.6rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.timeRibbon {
+  display: grid;
+  grid-template-columns: repeat(14, minmax(0, 1fr));
+  border-block: 1px solid var(--calendar-rule);
+}
+
+.timeRibbon button {
+  position: relative;
+  min-height: 96px;
+  padding: 0;
+  color: var(--calendar-ivory-soft);
+  background: transparent;
+  border: 0;
+  border-right: 1px solid var(--calendar-rule);
+  cursor: pointer;
+}
+
+.timeRibbon button:last-child {
+  border-right: 0;
+}
+
+.timeRibbon button span {
+  font-size: 0.56rem;
+  letter-spacing: 0.06em;
+}
+
+.timeRibbon button i {
+  position: absolute;
+  inset: auto 20% 20px;
+  height: 2px;
+  background: rgb(242 238 230 / 18%);
+}
+
+.timeRibbon button.selected {
+  color: var(--north-star-ivory);
+  background: rgb(215 154 63 / 12%);
+}
+
+.timeRibbon button.selected i {
+  background: var(--calendar-gold);
+}
+
+.timeRibbon button.unavailable {
+  cursor: not-allowed;
+  opacity: 0.5;
+  background: repeating-linear-gradient(
+    135deg,
+    transparent 0 8px,
+    rgb(242 238 230 / 3%) 8px 9px
+  );
+}
+
+.durationPicker {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2rem;
+  padding: 1.5rem 0 3rem;
+  border-bottom: 1px solid var(--calendar-rule);
+}
+
+.durationPicker p {
+  margin: 0.5rem 0 0;
+  color: var(--calendar-ivory-soft);
+  font-size: 0.72rem;
+}
+
+.durationButtons {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.6rem;
+}
+
+.durationButtons button {
+  min-height: 44px;
+  padding: 0.7rem 1rem;
+  color: var(--calendar-ivory-soft);
+  background: transparent;
+  border: 1px solid var(--calendar-rule);
+  cursor: pointer;
+}
+
+.durationButtons button[aria-pressed="true"] {
+  color: #080807;
+  background: var(--calendar-gold);
+  border-color: var(--calendar-gold);
+}
+
+.availableArtists {
+  padding-top: 4rem;
+}
+
+.subheading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--calendar-rule);
+}
+
+.subheading p {
+  margin: 0;
+  color: var(--calendar-ivory-soft);
+  font-size: 0.7rem;
+}
+
+.artistCards {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(1.2rem, 2.5vw, 2.5rem);
+  padding-top: 2rem;
+}
+
+.artistCards > button {
+  padding: 0 0 1.6rem;
+  color: var(--north-star-ivory);
+  text-align: left;
+  background: rgb(255 255 255 / 2%);
+  border: 1px solid var(--calendar-rule);
+  cursor: pointer;
+  transition: border-color 180ms ease, transform 300ms ease;
+}
+
+.artistCards > button:hover {
+  transform: translateY(-4px);
+  border-color: rgb(215 154 63 / 60%);
+}
+
+.artistCards > button.artistSelected {
+  border-color: var(--calendar-gold);
+  box-shadow: inset 0 -2px var(--calendar-gold);
+}
+
+.artistImage {
+  position: relative;
+  aspect-ratio: 4 / 4.65;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 50% 35%, rgb(201 145 69 / 18%), transparent 40%),
+    #11100e;
+}
+
+.artistImage img,
+.reviewImage img,
+.confirmationPortrait img {
+  object-fit: cover;
+}
+
+.artistImage img {
+  transition: transform 700ms var(--ease-image);
+}
+
+.artistCards button:hover .artistImage img {
+  transform: scale(1.025);
+}
+
+.artistImage > span {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(0deg, rgb(4 4 3 / 65%), transparent 45%);
+}
+
+.artistPlaceholder {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background:
+    radial-gradient(circle, rgb(201 145 69 / 18%), transparent 42%),
+    linear-gradient(145deg, #181510, #090908);
+}
+
+.artistPlaceholder span {
+  color: var(--calendar-gold);
+  font-family: var(--north-star-font-display);
+  font-size: clamp(3.2rem, 8vw, 6rem);
+  letter-spacing: 0.05em;
+}
+
+.artistCards p,
+.artistCards h3,
+.artistCards small,
+.artistCards > button > i {
+  margin-inline: 1.3rem;
+}
+
+.artistCards p {
+  margin-top: 1.3rem;
+  color: var(--calendar-gold);
+  font-size: 0.5rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.artistCards h3 {
+  margin-top: 0.55rem;
+  margin-bottom: 0;
+  font-size: clamp(2rem, 3.5vw, 3.5rem);
+}
+
+.artistCards small {
+  display: block;
+  margin-top: 0.45rem;
+  color: var(--calendar-ivory-soft);
+}
+
+.artistCards > button > i {
+  display: block;
+  margin-top: 1.2rem;
+  color: var(--calendar-gold);
+  font-size: 0.55rem;
+  font-style: normal;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.selectionFooter {
+  position: sticky;
+  z-index: 4;
+  bottom: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 2rem;
+  margin-top: 2rem;
+  padding: 1.2rem 1.4rem;
+  background: rgb(8 8 7 / 94%);
+  border: 1px solid var(--calendar-rule);
+  backdrop-filter: blur(16px);
+}
+
+.selectionFooter span,
+.selectionFooter p {
+  color: var(--calendar-ivory-soft);
+  font-size: 0.53rem;
+  letter-spacing: 0.13em;
+}
+
+.selectionFooter strong {
+  display: block;
+  margin: 0.25rem 0;
+  font-family: var(--north-star-font-display);
+  font-size: 1.2rem;
+  font-weight: 400;
+}
+
+.selectionFooter p {
+  margin: 0;
+}
+
+.primaryAction {
+  min-height: 58px;
+  padding: 0 1.8rem;
+  color: #080807;
+  background: var(--calendar-gold);
+  border: 1px solid var(--calendar-gold);
+  cursor: pointer;
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.primaryAction span {
+  margin-left: 1rem;
+  color: inherit;
+}
+
+.primaryAction:disabled {
+  cursor: not-allowed;
+  opacity: 0.46;
+}
+
+.liveMessage {
+  min-height: 1.4rem;
+  margin: 1rem 0 0;
+  color: var(--calendar-gold);
+}
+
+.privacyNote {
+  margin: 2.5rem 0 0;
+  color: var(--calendar-ivory-soft);
+  font-size: 0.65rem;
+  letter-spacing: 0.08em;
+}
+
+.privacyNote span {
+  margin-right: 0.65rem;
+  color: var(--calendar-gold);
+}
+
+.scheduleLink,
+.emptyLink {
+  width: fit-content;
+  display: inline-block;
+  color: var(--calendar-gold);
+  font-size: 0.62rem;
+  letter-spacing: 0.14em;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+.scheduleLink {
+  margin-top: 2rem;
+}
+
+.emptyLink {
+  margin-top: 2.5rem;
+}
+
+.review {
+  --calendar-gold: #c99145;
+  --calendar-rule: rgb(242 238 230 / 14%);
+  --calendar-ivory-soft: rgb(242 238 230 / 66%);
+}
+
+.back {
+  margin-bottom: 2rem;
+  padding: 0;
+  color: var(--calendar-gold);
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  font-size: 0.62rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.reviewGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(360px, 1.1fr);
+  gap: clamp(3rem, 7vw, 8rem);
+  align-items: center;
+}
+
+.reviewImage {
+  position: relative;
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  background: #11100e;
+}
+
+.reviewImage::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(0deg, rgb(5 5 4 / 36%), transparent 45%);
+}
+
+.reviewDetails h1 {
+  margin: 0 0 2.5rem;
+  font-size: clamp(3rem, 5vw, 5.5rem);
+  line-height: 0.94;
+}
+
+.reviewDetails dl {
+  margin: 0;
+  border-block: 1px solid var(--calendar-rule);
+}
+
+.reviewDetails dl > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 2rem;
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--calendar-rule);
+}
+
+.reviewDetails dl > div:last-child {
+  border-bottom: 0;
+}
+
+.reviewDetails dt {
+  color: var(--calendar-ivory-soft);
+  font-size: 0.55rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+.reviewDetails dd {
+  margin: 0;
+  font-family: var(--north-star-font-display);
+  text-align: right;
+}
+
+.reviewNote {
+  margin: 2rem 0;
+  color: var(--calendar-ivory-soft);
+  line-height: 1.7;
+}
+
+.reviewDetails small {
+  display: block;
+  margin-top: 1rem;
+  color: rgb(242 238 230 / 42%);
+  line-height: 1.6;
+}
+
+.confirmation {
+  --calendar-gold: #c99145;
+  --calendar-rule: rgb(242 238 230 / 14%);
+  --calendar-ivory-soft: rgb(242 238 230 / 66%);
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 6rem 1.5rem;
+  text-align: center;
+  background:
+    radial-gradient(circle, rgb(215 154 63 / 13%), transparent 35%),
+    #080807;
+}
+
+.confirmation > img {
+  width: 42px;
+  height: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 0 18px rgb(201 145 69 / 30%));
+}
+
+.confirmation h1 {
+  margin: 0;
+  font-size: clamp(3.6rem, 7vw, 7rem);
+}
+
+.confirmationPortrait {
+  position: relative;
+  width: 210px;
+  aspect-ratio: 1;
+  margin: 2.5rem 0 1.5rem;
+  overflow: hidden;
+  border: 1px solid var(--calendar-gold);
+  border-radius: 50%;
+  background: #11100e;
+}
+
+.confirmationPortrait > span {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(0deg, rgb(5 5 4 / 35%), transparent);
+}
+
+.confirmation h2 {
+  margin: 0;
+  color: var(--calendar-gold);
+  font-size: 2.2rem;
+}
+
+.confirmation > p:not(:global(.ds-eyebrow)) {
+  color: var(--calendar-ivory-soft);
+  line-height: 1.7;
+}
+
+.confirmation > strong {
+  color: var(--north-star-ivory);
+  font-size: 0.62rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.confirmationMessage {
+  max-width: 620px;
+}
+
+.confirmationLinks {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.8rem;
+  margin-top: 1.5rem;
+}
+
+.confirmationLinks a,
+.confirmationLinks button {
+  padding: 0.9rem 1.2rem;
+  color: var(--calendar-gold);
+  background: transparent;
+  border: 1px solid var(--calendar-rule);
+  cursor: pointer;
+  font-size: 0.58rem;
+  font-family: inherit;
+  letter-spacing: 0.14em;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+.timeRibbon button:focus-visible,
+.durationButtons button:focus-visible,
+.artistCards > button:focus-visible,
+.primaryAction:focus-visible,
+.back:focus-visible,
+.confirmationLinks a:focus-visible,
+.confirmationLinks button:focus-visible,
+.scheduleLink:focus-visible,
+.emptyLink:focus-visible {
+  outline: 2px solid var(--calendar-gold);
+  outline-offset: 4px;
+}
+
+@media (max-width: 980px) {
+  .heading {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+}
+
+@media (max-width: 760px) {
+  .heading {
+    padding-bottom: 2.5rem;
+  }
+
+  .heading h2 {
+    font-size: clamp(3rem, 15vw, 4.5rem);
+  }
+
+  .heading > p {
+    font-size: 1rem;
+  }
+
+  .timeSummary {
+    display: grid;
+    gap: 0.5rem;
+  }
+
+  .timeSummary p {
+    margin-left: 0;
+  }
+
+  .timeRibbon {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--calendar-rule);
+  }
+
+  .timeRibbon button {
+    min-height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 1rem;
+    border-right: 0;
+    border-bottom: 1px solid var(--calendar-rule);
+  }
+
+  .timeRibbon button i {
+    position: static;
+    width: 36px;
+  }
+
+  .durationPicker,
+  .subheading,
+  .selectionFooter {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .durationButtons {
+    justify-content: flex-start;
+  }
+
+  .artistCards {
+    grid-template-columns: 1fr;
+  }
+
+  .selectionFooter {
+    bottom: 0.5rem;
+  }
+
+  .primaryAction {
+    width: 100%;
+  }
+
+  .reviewGrid {
+    grid-template-columns: 1fr;
+    gap: 3rem;
+  }
+
+  .reviewImage {
+    aspect-ratio: 4 / 4.5;
+  }
+
+  .reviewDetails h1 {
+    font-size: 3.2rem;
+  }
+
+  .reviewDetails dl > div {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 0.35rem;
+  }
+
+  .reviewDetails dd {
+    text-align: left;
+  }
+
+  .confirmationLinks {
+    align-items: stretch;
+    flex-direction: column;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .artistCards > button,
+  .artistImage img {
+    transition: none;
+  }
+}

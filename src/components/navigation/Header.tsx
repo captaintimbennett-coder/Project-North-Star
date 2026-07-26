@@ -29,6 +29,7 @@ export function Header() {
     "/lone-star-retreat",
     "/workshops-education",
     "/about",
+    "/account",
     "/contact",
   ].some((route) => pathname === route || pathname.startsWith(`${route}/`));
 

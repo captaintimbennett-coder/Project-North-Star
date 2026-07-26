@@ -1,9 +1,10 @@
 import config from "@payload-config";
-import { getPayload } from "payload";
+import { getPayload, type Payload, type PayloadRequest } from "payload";
 import type { ModelProfile, PhotographerProfile, User } from "@/payload-types";
 import { hasAccountRole, isStaff } from "@/payload/access/account";
 
 type RelationshipValue = number | string | { id: number | string } | null | undefined;
+type ProjectionContext = { payload?: Payload; req?: PayloadRequest };
 
 function relationshipID(value: RelationshipValue) {
   if (typeof value === "number" || typeof value === "string") return value;
@@ -60,10 +61,13 @@ function approvedContacts(profile: ModelProfile | PhotographerProfile): Approved
   return contacts;
 }
 
-export async function getPersonalItinerary(account: User): Promise<PersonalItineraryItem[]> {
-  const payload = await getPayload({ config });
+export async function getPersonalItinerary(
+  account: User,
+  context: ProjectionContext = {},
+): Promise<PersonalItineraryItem[]> {
   const participant = hasAccountRole(account, "model") || hasAccountRole(account, "photographer");
-  if (!participant && !isStaff(account)) return [];
+  if (!participant) return [];
+  const payload = context.payload ?? await getPayload({ config });
 
   const result = await payload.find({
     collection: "retreat-bookings",
@@ -71,6 +75,7 @@ export async function getPersonalItinerary(account: User): Promise<PersonalItine
     limit: 200,
     overrideAccess: false,
     pagination: false,
+    req: context.req,
     sort: "startAt",
     user: account,
     where: {},
@@ -80,11 +85,27 @@ export async function getPersonalItinerary(account: User): Promise<PersonalItine
     const eventID = relationshipID(booking.event);
     const artistID = relationshipID(booking.artist);
     const photographerID = relationshipID(booking.photographer);
-    const [event, artist, photographer] = await Promise.all([
-      eventID ? payload.findByID({ collection: "retreat-events", id: eventID, depth: 0, overrideAccess: true }) : null,
-      artistID ? payload.findByID({ collection: "model-profiles", id: artistID, depth: 0, overrideAccess: true }) : null,
-      photographerID ? payload.findByID({ collection: "photographer-profiles", id: photographerID, depth: 0, overrideAccess: true }) : null,
-    ]);
+    const event = eventID ? await payload.findByID({
+        collection: "retreat-events",
+        id: eventID,
+        depth: 0,
+        overrideAccess: true,
+        req: context.req,
+      }) : null;
+    const artist = artistID ? await payload.findByID({
+        collection: "model-profiles",
+        id: artistID,
+        depth: 0,
+        overrideAccess: true,
+        req: context.req,
+      }) : null;
+    const photographer = photographerID ? await payload.findByID({
+        collection: "photographer-profiles",
+        id: photographerID,
+        depth: 0,
+        overrideAccess: true,
+        req: context.req,
+      }) : null;
     const viewingAsModel = relationshipID(artist?.account) === account.id && relationshipID(photographer?.account) !== account.id;
     const partner = viewingAsModel ? photographer : artist;
     const contacts = booking.status === "confirmed" && partner ? approvedContacts(partner) : [];
