@@ -46,6 +46,12 @@ export function canCancelAdministratorMasterCalendarBookings(account: User) {
   return hasStaffPermission(account, ["owner", "editor"]);
 }
 
+export function canRescheduleAdministratorMasterCalendarBookings(
+  account: User,
+) {
+  return hasStaffPermission(account, ["owner", "editor"]);
+}
+
 export async function getAdministratorMasterCalendarEvents(
   account: User,
   context: ProjectionContext = {},

@@ -1,7 +1,7 @@
 # Project North Star — Mission 09 Skinny Native Scheduling
 
-**Status:** Active — Milestones 1–4 and Milestones 5.1–5.4B-2 complete; stopped
-before any additional administrator control
+**Status:** Active — Milestones 1–4 and Milestones 5.1–5.4B-3 complete;
+stopped before any broader administrator control
 
 **Original decision date:** July 24, 2026
 
@@ -491,6 +491,93 @@ Milestone 5.4B-2 added no endpoint, collection, migration, dependency,
 drag-and-drop, rescheduling, reassignment, override, conflict-resolution
 control, delivery-retry dashboard, payment, or messaging feature. Those remain
 separate future decisions.
+
+#### Milestone 5.4B-3 — One Booking Rescheduling
+
+Completed locally July 26, 2026.
+
+The smallest useful next administrator outcome is rescheduling one active
+booking while preserving its event, Featured Artist, photographer, and
+duration. The administrator does not type an arbitrary time or bypass
+availability. The interface offers only server-derived replacement times that
+are valid when requested.
+
+Completed interaction:
+
+1. An active owner or editor selects one confirmed or administrator-review
+   booking from the existing Master Calendar.
+2. The booking-management review repeats the Featured Artist, photographer,
+   current event-local date and time, duration, and status without exposing
+   contact details or private scheduling data.
+3. The administrator chooses rescheduling and receives only valid replacement
+   times for the same retreat, participants, and duration. Options may cross
+   retreat days but must respect the Featured Artist's availability and blocked
+   periods and both participants' active bookings.
+4. The current time is excluded. If no replacement is available, the booking
+   remains unchanged and the interface says so clearly.
+5. The administrator selects one replacement, enters a required private
+   reason, reviews the current and proposed times, and confirms explicitly.
+6. The interface submits the selected UTC start and end values to the existing
+   origin-protected `/api/scheduling/bookings/[id]/reschedule` endpoint. The
+   server revalidates event eligibility, duration, whole-hour boundaries,
+   availability, conflicts, permission, and reason at mutation time.
+7. The interface performs no optimistic mutation. After success it refreshes
+   the authoritative Master Calendar and reports the new event-local time.
+   Existing audit and two-participant rescheduling email behavior remain the
+   source of truth.
+
+Verified implementation boundary:
+
+- Add an owner/editor-only read operation to the existing reschedule route so
+  replacement options are calculated on demand rather than embedded for every
+  booking in the initial calendar payload.
+- Reuse the existing availability-range, event-local-time, booking-validation,
+  conflict-constraint, audit, email-intent, delivery, retry, and Master
+  Calendar foundations.
+- Preserve the visually accepted cancellation flow inside a neutral
+  booking-management review rather than creating a second competing calendar
+  control.
+- Keep reviewer administrators read-only.
+- Treat a race-time conflict as a safe rejection: do not change the visible
+  booking, explain that the option is no longer available, and allow the
+  administrator to reload valid choices.
+
+Milestone 5.4B-3 did not include:
+
+- Drag-and-drop or free-form date and time entry
+- Participant, Featured Artist, photographer, or event reassignment
+- Duration changes or split sessions
+- Administrator availability override or manual conflict resolution
+- Bulk rescheduling
+- A new collection, migration, dependency, calendar abstraction, dashboard,
+  payment, or messaging feature
+- Production data changes, live email, deployment, or external service changes
+
+Verification result:
+
+- Ten focused Master Calendar checks prove owner/editor rescheduling permission,
+  reviewer read-only behavior, same-retreat and same-participant preservation,
+  same-duration choices, current-booking exclusion, blocked-period filtering,
+  both-participant conflict filtering, privacy-safe output, and private-reason
+  validation.
+- The controlled scheduling-email proof passes all 13 checks across
+  rescheduling, cancellation, two-recipient delivery, private-reason
+  exclusion, provider failure, explicit retry, idempotency, and fixture
+  cleanup.
+- The existing availability, personal-schedule, shared-schedule, photographer
+  booking, and concurrency validators remain green. `pnpm lint`,
+  `pnpm typecheck`, `pnpm build`, and `git diff --check` pass.
+- A controlled browser proof presented 19 valid replacement choices, moved one
+  booking through the protected endpoint, refreshed the authoritative
+  calendar, preserved cancellation, and passed at 1440×1100 and 390×844 with
+  no overflow, failed requests, console errors, or page errors.
+- All temporary development records were removed. No migration, dependency,
+  production data, live email, deployment, or external service was changed.
+
+Milestone 5.4B-3 is complete. Work is deliberately stopped before
+drag-and-drop, free-form time entry, reassignment, duration changes, override,
+manual conflict resolution, bulk changes, payments, messaging, or any broader
+administrator workflow.
 
 ## Implementation Boundary
 

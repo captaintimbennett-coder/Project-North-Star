@@ -294,10 +294,17 @@ rescheduled records appear in a separate schedule history. Active owner and
 editor administrators may select one active booking, review its operational
 identity and event-local time, provide a required private reason, and cancel it
 through the existing origin-protected cancellation endpoint. The interface
-does not optimistically change the booking and refreshes from the authoritative
-projection after success. Reviewer administrators remain read-only.
-Rescheduling, reassignment, override, and conflict controls require separately
-approved milestones.
+also derives owner/editor-only replacement times on demand for one active
+booking. Those choices preserve the retreat, Featured Artist, photographer,
+and duration; exclude the current time; and respect availability, blocked
+periods, and both participants' active bookings. The administrator submits one
+exact choice and a required private reason through the existing
+origin-protected rescheduling endpoint, where eligibility and conflicts are
+revalidated. The interface does not optimistically change the booking and
+refreshes from the authoritative projection after success. Reviewer
+administrators remain read-only. Reassignment, duration changes, override,
+manual conflict resolution, and broader controls require separately approved
+milestones.
 
 Mission 05 activates authenticated participant scheduling without changing the
 canonical record model. Photographer booking requests are instantly confirmed

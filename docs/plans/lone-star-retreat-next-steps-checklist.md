@@ -102,6 +102,11 @@ Retreat. Update it whenever an item is approved, completed, deferred, or changed
   control using the existing protected cancellation service, mandatory private
   reason, authoritative calendar refresh, audit record, and two participant
   email intents
+- [x] Complete Mission 09 Milestone 5.4B-3 as one owner/editor reschedule of
+  the same retreat, Featured Artist,
+  photographer, and duration using only server-derived conflict-free times,
+  mandatory private reason, authoritative refresh, audit record, and two
+  participant email intents
 
 ## 6. Future Operational Systems — Deferred
 
@@ -132,8 +137,9 @@ approval workflow are complete and approved.
 
 ## Current Focus
 
-**Next item:** Stop for executive review of the completed Mission 09 Milestone
-5.4B-2 one-booking cancellation control. Do not add drag-and-drop,
-rescheduling, reassignment, override, conflict resolution, payments, messaging,
-or any broader administrator workflow without a separately defined and
-approved milestone.
+**Next item:** Executive visual review of the completed Mission 09 Milestone
+5.4B-3 one-booking rescheduling workflow. Do not begin another administrator
+control until this checkpoint is accepted. Do not add drag-and-drop, free-form
+time entry, reassignment, duration changes, override, manual conflict
+resolution, bulk changes, payments, messaging, or any broader administrator
+workflow.

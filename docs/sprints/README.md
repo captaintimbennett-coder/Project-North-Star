@@ -52,8 +52,12 @@ authenticated, read-only administrator Master Calendar with complete
 operational visibility and a strict privacy allowlist. Work is deliberately
 stopped after the separately approved Milestone 5.4B-2 adds one
 owner/editor-only, reason-required booking cancellation control using the
-existing protected service. No additional administrator mutation is
-authorized.
+existing protected service. The separately approved Milestone 5.4B-3 now adds
+one owner/editor-only, same-participant, same-duration reschedule using only
+server-derived valid times and the existing protected service, audit, email,
+and authoritative-refresh foundations. Reviewer administrators remain
+read-only. Work is deliberately stopped before any broader administrator
+control.
 Sprint 01 established the
 public foundation, Sprint 02 closed with Homepage Design Lock v1.1 and the
 multi-page marketing system, and Sprint 03 closed with the verified

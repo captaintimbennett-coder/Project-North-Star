@@ -22,18 +22,24 @@ import {
   buildAdministratorMasterCalendarDays,
   formatAdministratorMasterCalendarHour,
   formatAdministratorMasterCalendarRange,
+  formatAdministratorRescheduleDay,
   groupAdministratorBookingsByArtist,
   isActiveAdministratorBooking,
   isCancellableAdministratorBooking,
-  normalizedAdministratorCancellationReason,
+  isReschedulableAdministratorBooking,
+  normalizedAdministratorChangeReason,
+  type AdministratorRescheduleOption,
 } from "@/lib/scheduling/administrator-master-calendar";
 import calendarStyles from "./PersonalScheduleCalendar.module.css";
 import styles from "./AdministratorMasterCalendar.module.css";
 
 type AdministratorMasterCalendarProps = {
   canCancelBookings: boolean;
+  canRescheduleBookings: boolean;
   events: AdministratorMasterCalendarEvent[];
 };
+
+type BookingReviewMode = "cancel" | "reschedule" | "review";
 
 type TimelineStyle = CSSProperties & {
   "--timeline-span": number;
@@ -42,62 +48,143 @@ type TimelineStyle = CSSProperties & {
 
 export function AdministratorMasterCalendar({
   canCancelBookings,
+  canRescheduleBookings,
   events,
 }: AdministratorMasterCalendarProps) {
   const router = useRouter();
-  const cancellationDialogRef = useRef<HTMLDialogElement>(null);
+  const bookingDialogRef = useRef<HTMLDialogElement>(null);
   const days = useMemo(
     () => buildAdministratorMasterCalendarDays(events),
     [events],
   );
   const [selectedDayID, setSelectedDayID] = useState(days[0]?.id ?? "");
-  const [cancellationBooking, setCancellationBooking] =
+  const [bookingReview, setBookingReview] =
     useState<AdministratorMasterCalendarBooking | null>(null);
-  const [cancellationError, setCancellationError] = useState("");
-  const [cancellationReason, setCancellationReason] = useState("");
-  const [cancellationSuccess, setCancellationSuccess] = useState("");
-  const [isCancelling, setIsCancelling] = useState(false);
+  const [bookingReviewMode, setBookingReviewMode] =
+    useState<BookingReviewMode>("review");
+  const [bookingError, setBookingError] = useState("");
+  const [bookingReason, setBookingReason] = useState("");
+  const [bookingSuccess, setBookingSuccess] = useState("");
+  const [isSubmittingBooking, setIsSubmittingBooking] = useState(false);
+  const [isLoadingRescheduleOptions, setIsLoadingRescheduleOptions] =
+    useState(false);
+  const [rescheduleOptions, setRescheduleOptions] = useState<
+    AdministratorRescheduleOption[]
+  >([]);
+  const [rescheduleTimeZone, setRescheduleTimeZone] = useState("");
+  const [selectedRescheduleOption, setSelectedRescheduleOption] = useState("");
   const selectedDay = days.find((day) => day.id === selectedDayID) ?? days[0];
+  const canManageBookings = canCancelBookings || canRescheduleBookings;
 
-  function closeCancellationReview() {
-    if (isCancelling) return;
-    setCancellationBooking(null);
-    setCancellationError("");
-    setCancellationReason("");
+  function rescheduleOptionID(option: AdministratorRescheduleOption) {
+    return `${option.startAt}|${option.endAt}`;
   }
 
-  function openCancellationReview(
+  function resetBookingReviewState() {
+    setBookingError("");
+    setBookingReason("");
+    setBookingReviewMode("review");
+    setIsLoadingRescheduleOptions(false);
+    setRescheduleOptions([]);
+    setRescheduleTimeZone("");
+    setSelectedRescheduleOption("");
+  }
+
+  function closeBookingReview() {
+    if (isSubmittingBooking) return;
+    setBookingReview(null);
+    resetBookingReviewState();
+  }
+
+  function openBookingReview(
     booking: AdministratorMasterCalendarBooking,
   ) {
     if (
-      !canCancelBookings
-      || !isCancellableAdministratorBooking(booking)
+      !canManageBookings
+      || !isActiveAdministratorBooking(booking)
     ) return;
-    setCancellationBooking(booking);
-    setCancellationError("");
-    setCancellationReason("");
-    setCancellationSuccess("");
+    setBookingReview(booking);
+    resetBookingReviewState();
+    setBookingSuccess("");
+  }
+
+  function openCancellationReview() {
+    if (
+      !bookingReview
+      || !canCancelBookings
+      || !isCancellableAdministratorBooking(bookingReview)
+    ) return;
+    setBookingReviewMode("cancel");
+    setBookingError("");
+    setBookingReason("");
+  }
+
+  async function loadRescheduleOptions() {
+    if (
+      !bookingReview
+      || !canRescheduleBookings
+      || !isReschedulableAdministratorBooking(bookingReview)
+    ) return;
+
+    setBookingReviewMode("reschedule");
+    setBookingError("");
+    setIsLoadingRescheduleOptions(true);
+    setRescheduleOptions([]);
+    setSelectedRescheduleOption("");
+    try {
+      const response = await fetch(
+        `/api/scheduling/bookings/${bookingReview.id}/reschedule`,
+        { method: "GET" },
+      );
+      const result = await response.json().catch(() => null);
+      if (!response.ok || !result?.ok || !Array.isArray(result.options)) {
+        throw new Error(
+          result?.error || "Replacement times could not be loaded.",
+        );
+      }
+      const options = result.options as AdministratorRescheduleOption[];
+      setRescheduleOptions(options);
+      setRescheduleTimeZone(
+        typeof result.timeZone === "string"
+          ? result.timeZone
+          : selectedDay.timeZone,
+      );
+      setSelectedRescheduleOption(
+        options[0] ? rescheduleOptionID(options[0]) : "",
+      );
+    } catch (error) {
+      setBookingError(
+        error instanceof Error
+          ? error.message
+          : "Replacement times could not be loaded.",
+      );
+    } finally {
+      setIsLoadingRescheduleOptions(false);
+    }
+  }
+
+  function returnToBookingReview() {
+    if (isSubmittingBooking) return;
+    resetBookingReviewState();
   }
 
   async function cancelBooking(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!cancellationBooking) return;
+    if (!bookingReview) return;
 
-    const reason = normalizedAdministratorCancellationReason(
-      cancellationReason,
-    );
+    const reason = normalizedAdministratorChangeReason(bookingReason);
     if (!reason) {
-      setCancellationError(
+      setBookingError(
         "Enter a private cancellation reason of at least three characters.",
       );
       return;
     }
 
-    setCancellationError("");
-    setIsCancelling(true);
+    setBookingError("");
+    setIsSubmittingBooking(true);
     try {
       const response = await fetch(
-        `/api/scheduling/bookings/${cancellationBooking.id}/cancel`,
+        `/api/scheduling/bookings/${bookingReview.id}/cancel`,
         {
           body: JSON.stringify({ reason }),
           headers: { "Content-Type": "application/json" },
@@ -111,27 +198,87 @@ export function AdministratorMasterCalendar({
         );
       }
 
-      setCancellationBooking(null);
-      setCancellationReason("");
-      setCancellationSuccess(
-        `${cancellationBooking.artistName} and ${cancellationBooking.photographerName}'s session was cancelled.`,
+      setBookingReview(null);
+      resetBookingReviewState();
+      setBookingSuccess(
+        `${bookingReview.artistName} and ${bookingReview.photographerName}'s session was cancelled.`,
       );
       router.refresh();
     } catch (error) {
-      setCancellationError(
+      setBookingError(
         error instanceof Error
           ? error.message
           : "The booking could not be cancelled.",
       );
     } finally {
-      setIsCancelling(false);
+      setIsSubmittingBooking(false);
+    }
+  }
+
+  async function rescheduleBooking(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!bookingReview) return;
+
+    const option = rescheduleOptions.find(
+      (candidate) =>
+        rescheduleOptionID(candidate) === selectedRescheduleOption,
+    );
+    if (!option) {
+      setBookingError("Choose one available replacement time.");
+      return;
+    }
+    const reason = normalizedAdministratorChangeReason(bookingReason);
+    if (!reason) {
+      setBookingError(
+        "Enter a private rescheduling reason of at least three characters.",
+      );
+      return;
+    }
+
+    setBookingError("");
+    setIsSubmittingBooking(true);
+    try {
+      const response = await fetch(
+        `/api/scheduling/bookings/${bookingReview.id}/reschedule`,
+        {
+          body: JSON.stringify({
+            endAt: option.endAt,
+            reason,
+            startAt: option.startAt,
+          }),
+          headers: { "Content-Type": "application/json" },
+          method: "POST",
+        },
+      );
+      const result = await response.json().catch(() => null);
+      if (!response.ok || !result?.ok) {
+        throw new Error(
+          result?.error || "The booking could not be rescheduled.",
+        );
+      }
+
+      const timeZone = rescheduleTimeZone || selectedDay.timeZone;
+      setBookingReview(null);
+      resetBookingReviewState();
+      setBookingSuccess(
+        `${bookingReview.artistName} and ${bookingReview.photographerName}'s session was moved to ${formatAdministratorRescheduleDay(option.day)}, ${formatAdministratorMasterCalendarRange(option, timeZone)}.`,
+      );
+      router.refresh();
+    } catch (error) {
+      setBookingError(
+        error instanceof Error
+          ? error.message
+          : "The booking could not be rescheduled.",
+      );
+    } finally {
+      setIsSubmittingBooking(false);
     }
   }
 
   useEffect(() => {
-    const dialog = cancellationDialogRef.current;
-    if (cancellationBooking && dialog && !dialog.open) dialog.showModal();
-  }, [cancellationBooking]);
+    const dialog = bookingDialogRef.current;
+    if (bookingReview && dialog && !dialog.open) dialog.showModal();
+  }, [bookingReview]);
 
   if (!selectedDay) {
     return <main className={calendarStyles.schedule} id="main-content">
@@ -197,8 +344,8 @@ export function AdministratorMasterCalendar({
         <div>
           <span>Administrator Master Calendar</span>
           <strong>
-            Complete operational view · {canCancelBookings
-              ? "Cancellation enabled"
+            Complete operational view · {canManageBookings
+              ? "Booking management enabled"
               : "Read only"}
           </strong>
         </div>
@@ -232,17 +379,17 @@ export function AdministratorMasterCalendar({
           </div>
           <p>
             Every photographer, Featured Artist, reservation, and exception for
-            the selected retreat day. {canCancelBookings
-              ? "Select an active reservation to review cancellation."
+            the selected retreat day. {canManageBookings
+              ? "Select an active reservation to reschedule or cancel it."
               : "This account has read-only access."}
           </p>
         </div>
 
-        {cancellationSuccess && <p
+        {bookingSuccess && <p
           className={styles.successNotice}
           role="status"
         >
-          {cancellationSuccess} The calendar has been refreshed from the
+          {bookingSuccess} The calendar has been refreshed from the
           authoritative schedule.
         </p>}
 
@@ -322,12 +469,12 @@ export function AdministratorMasterCalendar({
                         "--timeline-start": start - timeline.firstHour,
                       } as TimelineStyle;
 
-                      return canCancelBookings
+                      return canManageBookings
                         ? <button
-                            aria-label={`${label}. Review cancellation.`}
+                            aria-label={`${label}. Manage booking.`}
                             className={className}
                             key={item.id}
-                            onClick={() => openCancellationReview(item)}
+                            onClick={() => openBookingReview(item)}
                             style={timelineStyle}
                             type="button"
                           >
@@ -361,7 +508,7 @@ export function AdministratorMasterCalendar({
                           selectedDay.timeZone,
                         )}
                       </p>
-                      {canCancelBookings && <small>Review cancellation</small>}
+                      {canManageBookings && <small>Manage booking</small>}
                     </>;
                     const className = `${styles.mobileBooking} ${
                       item.status === "admin-review"
@@ -369,12 +516,12 @@ export function AdministratorMasterCalendar({
                         : ""
                     }`;
 
-                    return canCancelBookings
+                    return canManageBookings
                       ? <button
-                          aria-label={`${artist.name} with ${item.photographerName}, ${administratorBookingStatusLabels[item.status]}, ${formatAdministratorMasterCalendarRange(item, selectedDay.timeZone)}. Review cancellation.`}
+                          aria-label={`${artist.name} with ${item.photographerName}, ${administratorBookingStatusLabels[item.status]}, ${formatAdministratorMasterCalendarRange(item, selectedDay.timeZone)}. Manage booking.`}
                           className={className}
                           key={item.id}
-                          onClick={() => openCancellationReview(item)}
+                          onClick={() => openBookingReview(item)}
                           type="button"
                         >
                           {bookingContent}
@@ -417,47 +564,62 @@ export function AdministratorMasterCalendar({
 
         <p className={`${calendarStyles.privacyNote} ${styles.readOnlyNote}`}>
           <span aria-hidden="true">◇</span>
-          {canCancelBookings
-            ? "This milestone can cancel one active booking at a time. Rescheduling, reassignment, override, and conflict controls remain unavailable."
+          {canManageBookings
+            ? "This milestone can reschedule or cancel one active booking at a time. Reassignment, duration changes, overrides, and manual conflict controls remain unavailable."
             : "This account is intentionally read only. Cancellation, rescheduling, reassignment, override, and conflict controls are not available."}
         </p>
       </section>
     </div>
 
-    {cancellationBooking && <dialog
-        ref={cancellationDialogRef}
-        aria-describedby="cancellation-review-description"
-        aria-labelledby="cancellation-review-title"
+    {bookingReview && <dialog
+        ref={bookingDialogRef}
+        aria-describedby="booking-review-description"
+        aria-labelledby="booking-review-title"
         className={styles.cancellationDialog}
         onCancel={(event) => {
           event.preventDefault();
-          closeCancellationReview();
+          closeBookingReview();
         }}
       >
         <button
-          aria-label="Close cancellation review"
+          aria-label="Close booking management"
           className={styles.dialogClose}
-          disabled={isCancelling}
-          onClick={closeCancellationReview}
+          disabled={isSubmittingBooking}
+          onClick={closeBookingReview}
           type="button"
         >
           ×
         </button>
-        <p className="ds-eyebrow">Cancellation review</p>
-        <h2 id="cancellation-review-title">Cancel this session?</h2>
-        <p id="cancellation-review-description">
-          Review the reservation carefully. Cancellation changes both
-          participant schedules and begins the required email delivery.
+        <p className="ds-eyebrow">
+          {bookingReviewMode === "cancel"
+            ? "Cancellation review"
+            : bookingReviewMode === "reschedule"
+              ? "Rescheduling review"
+              : "Booking management"}
+        </p>
+        <h2 id="booking-review-title">
+          {bookingReviewMode === "cancel"
+            ? "Cancel this session?"
+            : bookingReviewMode === "reschedule"
+              ? "Choose a new time."
+              : "Manage this session."}
+        </h2>
+        <p id="booking-review-description">
+          {bookingReviewMode === "cancel"
+            ? "Review the reservation carefully. Cancellation changes both participant schedules and begins the required email delivery."
+            : bookingReviewMode === "reschedule"
+              ? "The session keeps the same retreat, participants, and duration. Only currently valid replacement times are offered."
+              : "Review the reservation, then choose the one operational change you need to make."}
         </p>
 
         <dl className={styles.cancellationDetails}>
           <div>
             <dt>Featured Artist</dt>
-            <dd>{cancellationBooking.artistName}</dd>
+            <dd>{bookingReview.artistName}</dd>
           </div>
           <div>
             <dt>Photographer</dt>
-            <dd>{cancellationBooking.photographerName}</dd>
+            <dd>{bookingReview.photographerName}</dd>
           </div>
           <div>
             <dt>Retreat day</dt>
@@ -467,21 +629,55 @@ export function AdministratorMasterCalendar({
             <dt>Session time</dt>
             <dd>
               {formatAdministratorMasterCalendarRange(
-                cancellationBooking,
+                bookingReview,
                 selectedDay.timeZone,
               )}
             </dd>
           </div>
           <div>
+            <dt>Duration</dt>
+            <dd>
+              {(new Date(bookingReview.endAt).getTime()
+                - new Date(bookingReview.startAt).getTime()) / 3_600_000}
+              {" "}
+              {(new Date(bookingReview.endAt).getTime()
+                - new Date(bookingReview.startAt).getTime()) / 3_600_000 === 1
+                ? "hour"
+                : "hours"}
+            </dd>
+          </div>
+          <div>
             <dt>Current status</dt>
             <dd>
-              {administratorBookingStatusLabels[cancellationBooking.status]}
+              {administratorBookingStatusLabels[bookingReview.status]}
             </dd>
           </div>
         </dl>
 
-        <form onSubmit={cancelBooking}>
-          <label htmlFor="cancellation-reason">
+        {bookingReviewMode === "review" && <div
+          className={`${styles.cancellationActions} ${styles.bookingActionChoices}`}
+        >
+          <button onClick={closeBookingReview} type="button">
+            Keep booking
+          </button>
+          {canRescheduleBookings && <button
+            className={styles.confirmReschedule}
+            onClick={loadRescheduleOptions}
+            type="button"
+          >
+            Choose a new time
+          </button>}
+          {canCancelBookings && <button
+            className={styles.confirmCancellation}
+            onClick={openCancellationReview}
+            type="button"
+          >
+            Cancel booking
+          </button>}
+        </div>}
+
+        {bookingReviewMode === "cancel" && <form onSubmit={cancelBooking}>
+          <label htmlFor="booking-change-reason">
             Private administrator reason
           </label>
           <small>
@@ -490,41 +686,155 @@ export function AdministratorMasterCalendar({
           </small>
           <textarea
             autoFocus
-            disabled={isCancelling}
-            id="cancellation-reason"
+            disabled={isSubmittingBooking}
+            id="booking-change-reason"
             minLength={3}
             onChange={(event) => {
-              setCancellationReason(event.target.value);
-              if (cancellationError) setCancellationError("");
+              setBookingReason(event.target.value);
+              if (bookingError) setBookingError("");
             }}
             placeholder="Why is this booking being cancelled?"
             required
             rows={4}
-            value={cancellationReason}
+            value={bookingReason}
           />
-          {cancellationError && <p
+          {bookingError && <p
             className={styles.cancellationError}
             role="alert"
           >
-            {cancellationError}
+            {bookingError}
           </p>}
           <div className={styles.cancellationActions}>
             <button
-              disabled={isCancelling}
-              onClick={closeCancellationReview}
+              disabled={isSubmittingBooking}
+              onClick={returnToBookingReview}
               type="button"
             >
-              Keep booking
+              Back
             </button>
             <button
               className={styles.confirmCancellation}
-              disabled={isCancelling}
+              disabled={isSubmittingBooking}
               type="submit"
             >
-              {isCancelling ? "Cancelling…" : "Confirm cancellation"}
+              {isSubmittingBooking
+                ? "Cancelling…"
+                : "Confirm cancellation"}
             </button>
           </div>
-        </form>
+        </form>}
+
+        {bookingReviewMode === "reschedule" && <form
+          onSubmit={rescheduleBooking}
+        >
+          <fieldset
+            className={styles.rescheduleFieldset}
+            disabled={isLoadingRescheduleOptions || isSubmittingBooking}
+          >
+            <legend>Available replacement time</legend>
+            <small>
+              Same retreat, Featured Artist, photographer, and duration.
+            </small>
+            {isLoadingRescheduleOptions
+              ? <p className={styles.rescheduleLoading} role="status">
+                  Checking the authoritative schedule…
+                </p>
+              : rescheduleOptions.length
+                ? <div className={styles.rescheduleOptions}>
+                    {rescheduleOptions.map((option) => {
+                      const optionID = rescheduleOptionID(option);
+                      const timeZone =
+                        rescheduleTimeZone || selectedDay.timeZone;
+                      return <label key={optionID}>
+                        <input
+                          checked={selectedRescheduleOption === optionID}
+                          name="replacement-time"
+                          onChange={() => {
+                            setSelectedRescheduleOption(optionID);
+                            if (bookingError) setBookingError("");
+                          }}
+                          type="radio"
+                          value={optionID}
+                        />
+                        <span>
+                          <strong>
+                            {formatAdministratorRescheduleDay(option.day)}
+                          </strong>
+                          <small>
+                            {formatAdministratorMasterCalendarRange(
+                              option,
+                              timeZone,
+                            )}
+                          </small>
+                        </span>
+                      </label>;
+                    })}
+                  </div>
+                : <div className={styles.rescheduleEmpty}>
+                    <strong>No valid replacement time is available.</strong>
+                    <p>
+                      The booking has not changed. Keep it as scheduled or
+                      return later when availability changes.
+                    </p>
+                  </div>}
+            {!isLoadingRescheduleOptions && <button
+              className={styles.reloadOptions}
+              onClick={loadRescheduleOptions}
+              type="button"
+            >
+              Reload valid times
+            </button>}
+          </fieldset>
+
+          <label htmlFor="booking-change-reason">
+            Private administrator reason
+          </label>
+          <small>
+            Required for the audit record. This reason is never shared with
+            either participant.
+          </small>
+          <textarea
+            disabled={isLoadingRescheduleOptions || isSubmittingBooking}
+            id="booking-change-reason"
+            minLength={3}
+            onChange={(event) => {
+              setBookingReason(event.target.value);
+              if (bookingError) setBookingError("");
+            }}
+            placeholder="Why is this booking being rescheduled?"
+            required
+            rows={3}
+            value={bookingReason}
+          />
+          {bookingError && <p
+            className={styles.cancellationError}
+            role="alert"
+          >
+            {bookingError}
+          </p>}
+          <div className={styles.cancellationActions}>
+            <button
+              disabled={isSubmittingBooking}
+              onClick={returnToBookingReview}
+              type="button"
+            >
+              Back
+            </button>
+            <button
+              className={styles.confirmReschedule}
+              disabled={
+                isLoadingRescheduleOptions
+                || isSubmittingBooking
+                || !selectedRescheduleOption
+              }
+              type="submit"
+            >
+              {isSubmittingBooking
+                ? "Rescheduling…"
+                : "Confirm new time"}
+            </button>
+          </div>
+        </form>}
     </dialog>}
   </main>;
 }

@@ -6,16 +6,20 @@ import type {
 } from "../src/lib/auth/administrator-master-calendar-projection";
 import {
   canCancelAdministratorMasterCalendarBookings,
+  canRescheduleAdministratorMasterCalendarBookings,
   canViewAdministratorMasterCalendar,
 } from "../src/lib/auth/administrator-master-calendar-projection";
 import type { User } from "../src/payload-types";
 import {
   administratorMasterCalendarHourRange,
+  buildAdministratorRescheduleOptions,
   buildAdministratorMasterCalendarDays,
   formatAdministratorMasterCalendarRange,
   groupAdministratorBookingsByArtist,
   isActiveAdministratorBooking,
   isCancellableAdministratorBooking,
+  isReschedulableAdministratorBooking,
+  normalizedAdministratorChangeReason,
   normalizedAdministratorCancellationReason,
 } from "../src/lib/scheduling/administrator-master-calendar";
 
@@ -71,7 +75,7 @@ test("allows only active administrator accounts into the master calendar", () =>
   );
 });
 
-test("limits cancellation controls to active owner and editor administrators", () => {
+test("limits booking-management controls to active owner and editor administrators", () => {
   assert.equal(
     canCancelAdministratorMasterCalendarBookings(
       account(["administrator"], "active", "owner"),
@@ -87,6 +91,30 @@ test("limits cancellation controls to active owner and editor administrators", (
   assert.equal(
     canCancelAdministratorMasterCalendarBookings(
       account(["administrator"], "active", "reviewer"),
+    ),
+    false,
+  );
+  assert.equal(
+    canRescheduleAdministratorMasterCalendarBookings(
+      account(["administrator"], "active", "owner"),
+    ),
+    true,
+  );
+  assert.equal(
+    canRescheduleAdministratorMasterCalendarBookings(
+      account(["administrator"], "active", "editor"),
+    ),
+    true,
+  );
+  assert.equal(
+    canRescheduleAdministratorMasterCalendarBookings(
+      account(["administrator"], "active", "reviewer"),
+    ),
+    false,
+  );
+  assert.equal(
+    canRescheduleAdministratorMasterCalendarBookings(
+      account(["administrator"], "suspended", "owner"),
     ),
     false,
   );
@@ -216,7 +244,147 @@ test("permits cancellation only for active booking states", () => {
   );
 });
 
-test("normalizes a valid private reason and rejects empty guidance", () => {
+test("permits rescheduling only for active booking states", () => {
+  assert.equal(
+    isReschedulableAdministratorBooking(booking({ status: "confirmed" })),
+    true,
+  );
+  assert.equal(
+    isReschedulableAdministratorBooking(
+      booking({ status: "admin-review" }),
+    ),
+    true,
+  );
+  assert.equal(
+    isReschedulableAdministratorBooking(booking({ status: "cancelled" })),
+    false,
+  );
+  assert.equal(
+    isReschedulableAdministratorBooking(booking({ status: "rescheduled" })),
+    false,
+  );
+});
+
+test("builds only same-duration conflict-free replacement times", () => {
+  const options = buildAdministratorRescheduleOptions({
+    artistId: 10,
+    availability: [
+      {
+        availableFrom: "08:00",
+        availableUntil: "17:00",
+        blockedTimes: [{ endTime: "13:00", startTime: "12:00" }],
+        date: "2027-05-14T00:00:00.000Z",
+      },
+      {
+        availableFrom: "09:00",
+        availableUntil: "12:00",
+        date: "2027-05-15T00:00:00.000Z",
+      },
+    ],
+    bookings: [
+      {
+        artistId: 10,
+        endAt: "2027-05-14T16:00:00.000Z",
+        id: 1,
+        photographerId: 20,
+        startAt: "2027-05-14T14:00:00.000Z",
+        status: "confirmed",
+      },
+      {
+        artistId: 99,
+        endAt: "2027-05-14T17:00:00.000Z",
+        id: 2,
+        photographerId: 20,
+        startAt: "2027-05-14T16:00:00.000Z",
+        status: "confirmed",
+      },
+      {
+        artistId: 10,
+        endAt: "2027-05-14T19:00:00.000Z",
+        id: 3,
+        photographerId: 99,
+        startAt: "2027-05-14T18:00:00.000Z",
+        status: "admin-review",
+      },
+      {
+        artistId: 10,
+        endAt: "2027-05-14T21:00:00.000Z",
+        id: 4,
+        photographerId: 20,
+        startAt: "2027-05-14T20:00:00.000Z",
+        status: "cancelled",
+      },
+      {
+        artistId: 99,
+        endAt: "2027-05-14T19:00:00.000Z",
+        id: 5,
+        photographerId: 99,
+        startAt: "2027-05-14T17:00:00.000Z",
+        status: "confirmed",
+      },
+    ],
+    currentBookingId: 1,
+    currentEndAt: "2027-05-14T16:00:00.000Z",
+    currentStartAt: "2027-05-14T14:00:00.000Z",
+    photographerId: 20,
+    timeZone: "America/Chicago",
+  });
+
+  assert.deepEqual(
+    options.map((option) => [option.day, option.startAt, option.endAt]),
+    [
+      [
+        "2027-05-14",
+        "2027-05-14T13:00:00.000Z",
+        "2027-05-14T15:00:00.000Z",
+      ],
+      [
+        "2027-05-14",
+        "2027-05-14T19:00:00.000Z",
+        "2027-05-14T21:00:00.000Z",
+      ],
+      [
+        "2027-05-14",
+        "2027-05-14T20:00:00.000Z",
+        "2027-05-14T22:00:00.000Z",
+      ],
+      [
+        "2027-05-15",
+        "2027-05-15T14:00:00.000Z",
+        "2027-05-15T16:00:00.000Z",
+      ],
+      [
+        "2027-05-15",
+        "2027-05-15T15:00:00.000Z",
+        "2027-05-15T17:00:00.000Z",
+      ],
+    ],
+  );
+  assert.equal(
+    options.some((option) =>
+      option.startAt === "2027-05-14T14:00:00.000Z"
+      && option.endAt === "2027-05-14T16:00:00.000Z"),
+    false,
+  );
+  assert.equal(
+    options.every((option) =>
+      new Date(option.endAt).getTime() - new Date(option.startAt).getTime()
+      === 7_200_000),
+    true,
+  );
+  assert.deepEqual(
+    Object.keys(options[0]).sort(),
+    ["day", "endAt", "startAt"],
+  );
+});
+
+test("normalizes a valid private change reason and rejects empty guidance", () => {
+  assert.equal(
+    normalizedAdministratorChangeReason("  Participant request  "),
+    "Participant request",
+  );
+  assert.equal(normalizedAdministratorChangeReason("  "), null);
+  assert.equal(normalizedAdministratorChangeReason("no"), null);
   assert.equal(
     normalizedAdministratorCancellationReason("  Participant request  "),
     "Participant request",

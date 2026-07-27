@@ -241,6 +241,23 @@ master classes, mentoring, and future creative experiences.
   interaction validation pass. No endpoint, collection, migration, dependency,
   production data, production email, deployment, or external service was
   changed. Work is stopped before any additional administrator control.
+- [x] Complete Mission 09 Milestone 5.4B-3 One Booking Rescheduling locally.
+  Active owner and editor administrators can select one confirmed or
+  administrator-review booking and choose only server-derived replacement
+  times for the same retreat, Featured Artist, photographer, and duration.
+  The choices respect availability, blocked periods, the current-booking
+  exclusion, and both participants' active bookings. A private reason is
+  required; the existing protected mutation, audit, two-participant email,
+  delivery retry, conflict constraint, and authoritative-refresh machinery
+  remains canonical. Reviewer administrators remain read-only. Ten focused
+  Master Calendar checks, the 13-check scheduling-email proof, all Mission 09
+  regressions, lint, typecheck, production build, and desktop/mobile
+  interaction validation pass. Temporary development records were removed.
+  No migration, dependency, production data, live email, deployment, or
+  external service was changed. Work is stopped before drag-and-drop,
+  free-form time entry, reassignment, duration changes, availability override,
+  manual conflict resolution, bulk changes, or any broader administrator
+  control.
 - [x] Implement Mission 06 Featured Artist Recruitment Ready on its dedicated
   feature branch. The approved scope adds recruitment essentials, reduces the
   initial application by making biography optional, separates private-review
