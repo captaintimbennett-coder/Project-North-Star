@@ -3,7 +3,9 @@ import type {
   AdministratorMasterCalendarEvent,
 } from "@/lib/auth/administrator-master-calendar-projection";
 import {
+  buildAvailabilityRanges,
   enumerateEventDays,
+  eventLocalDateTimeToUTC,
   eventLocalParts,
 } from "@/lib/scheduling/availability-ranges";
 
@@ -21,6 +23,31 @@ export type AdministratorMasterCalendarDay = {
 export type AdministratorMasterCalendarArtist = {
   items: AdministratorMasterCalendarBooking[];
   name: string;
+};
+
+export type AdministratorRescheduleOption = {
+  day: string;
+  endAt: string;
+  startAt: string;
+};
+
+type AdministratorRescheduleAvailability = {
+  availableFrom: string;
+  availableUntil: string;
+  blockedTimes?: {
+    endTime: string;
+    startTime: string;
+  }[] | null;
+  date: string;
+};
+
+type AdministratorRescheduleBooking = {
+  artistId: number | string;
+  endAt: string;
+  id: number | string;
+  photographerId: number | string;
+  startAt: string;
+  status: AdministratorMasterCalendarBooking["status"];
 };
 
 export const administratorBookingStatusLabels = {
@@ -87,7 +114,7 @@ export function groupAdministratorBookingsByArtist(
 }
 
 export function isActiveAdministratorBooking(
-  item: AdministratorMasterCalendarBooking,
+  item: Pick<AdministratorMasterCalendarBooking, "status">,
 ) {
   return item.status === "confirmed" || item.status === "admin-review";
 }
@@ -98,9 +125,110 @@ export function isCancellableAdministratorBooking(
   return isActiveAdministratorBooking(item);
 }
 
-export function normalizedAdministratorCancellationReason(reason: string) {
+export function isReschedulableAdministratorBooking(
+  item: AdministratorMasterCalendarBooking,
+) {
+  return isActiveAdministratorBooking(item);
+}
+
+export function normalizedAdministratorChangeReason(reason: string) {
   const value = reason.trim();
   return value.length >= 3 ? value : null;
+}
+
+export function normalizedAdministratorCancellationReason(reason: string) {
+  return normalizedAdministratorChangeReason(reason);
+}
+
+export function buildAdministratorRescheduleOptions(input: {
+  artistId: number | string;
+  availability: AdministratorRescheduleAvailability[];
+  bookings: AdministratorRescheduleBooking[];
+  currentBookingId: number | string;
+  currentEndAt: string;
+  currentStartAt: string;
+  photographerId: number | string;
+  timeZone: string;
+}): AdministratorRescheduleOption[] {
+  const durationMilliseconds =
+    new Date(input.currentEndAt).getTime()
+    - new Date(input.currentStartAt).getTime();
+  const durationHours = durationMilliseconds / 3_600_000;
+  if (
+    !Number.isInteger(durationHours)
+    || durationHours < 1
+  ) {
+    throw new Error(
+      "The current booking must use a positive whole-hour duration.",
+    );
+  }
+
+  const options = new Map<string, AdministratorRescheduleOption>();
+  const sameRelationship = (
+    left: number | string,
+    right: number | string,
+  ) => String(left) === String(right);
+
+  for (const schedule of [...input.availability].sort((left, right) =>
+    left.date.localeCompare(right.date))) {
+    const day = schedule.date.slice(0, 10);
+    const busyRanges = input.bookings.flatMap((booking) => {
+      if (
+        sameRelationship(booking.id, input.currentBookingId)
+        || !isActiveAdministratorBooking(booking)
+        || (
+          !sameRelationship(booking.artistId, input.artistId)
+          && !sameRelationship(booking.photographerId, input.photographerId)
+        )
+      ) {
+        return [];
+      }
+
+      const start = eventLocalParts(booking.startAt, input.timeZone);
+      const end = eventLocalParts(booking.endAt, input.timeZone);
+      if (start.day !== day || end.day !== day) return [];
+      return [{ endClock: end.clock, startClock: start.clock }];
+    });
+    const ranges = buildAvailabilityRanges({
+      availableFrom: schedule.availableFrom,
+      availableUntil: schedule.availableUntil,
+      blockedRanges: schedule.blockedTimes?.map((block) => ({
+        endClock: block.endTime,
+        startClock: block.startTime,
+      })),
+      busyRanges,
+      minimumHours: durationHours,
+    });
+
+    for (const range of ranges) {
+      if (range.durationHours !== durationHours) continue;
+      const option = {
+        day,
+        endAt: eventLocalDateTimeToUTC(
+          day,
+          range.endClock,
+          input.timeZone,
+        ),
+        startAt: eventLocalDateTimeToUTC(
+          day,
+          range.startClock,
+          input.timeZone,
+        ),
+      };
+      if (
+        new Date(option.startAt).getTime()
+          === new Date(input.currentStartAt).getTime()
+        && new Date(option.endAt).getTime()
+          === new Date(input.currentEndAt).getTime()
+      ) {
+        continue;
+      }
+      options.set(`${option.startAt}|${option.endAt}`, option);
+    }
+  }
+
+  return [...options.values()].sort((left, right) =>
+    left.startAt.localeCompare(right.startAt));
 }
 
 export function administratorMasterCalendarHour(
@@ -145,10 +273,18 @@ export function formatAdministratorMasterCalendarTime(
 }
 
 export function formatAdministratorMasterCalendarRange(
-  item: AdministratorMasterCalendarBooking,
+  item: Pick<AdministratorMasterCalendarBooking, "endAt" | "startAt">,
   timeZone: string,
 ) {
   return `${formatAdministratorMasterCalendarTime(item.startAt, timeZone)}–${formatAdministratorMasterCalendarTime(item.endAt, timeZone)}`;
+}
+
+export function formatAdministratorRescheduleDay(day: string) {
+  return formatDay(day, {
+    day: "numeric",
+    month: "long",
+    weekday: "long",
+  });
 }
 
 export function formatAdministratorMasterCalendarHour(hour: number) {

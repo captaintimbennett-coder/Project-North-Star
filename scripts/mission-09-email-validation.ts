@@ -7,6 +7,7 @@ import {
 } from "@/lib/email/scheduling-email";
 import {
   cancelRetreatBooking,
+  getAdministratorRescheduleOptions,
   rescheduleRetreatBooking,
 } from "@/lib/scheduling/admin-booking-service";
 import { confirmPhotographerBooking } from "@/lib/scheduling/booking-service";
@@ -280,6 +281,24 @@ async function validate() {
     record(
       "Successful confirmation cannot be sent twice",
       confirmationReplay.sent === 0 && sentMessages.length === 2,
+    );
+
+    const replacementOptions = await getAdministratorRescheduleOptions(
+      owner,
+      confirmed.id,
+      { payload },
+    );
+    record(
+      "Administrator receives only same-duration replacement times",
+      replacementOptions.durationHours === 1
+      && replacementOptions.timeZone === "America/Chicago"
+      && replacementOptions.options.length === 5
+      && replacementOptions.options.every((option) =>
+        new Date(option.endAt).getTime() - new Date(option.startAt).getTime()
+        === 3_600_000)
+      && replacementOptions.options.every((option) =>
+        option.startAt !== confirmed.startAt
+        || option.endAt !== confirmed.endAt),
     );
 
     const rescheduled = await rescheduleRetreatBooking(
