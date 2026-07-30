@@ -2882,6 +2882,9 @@ body.menu-open {
 .account-sign-in-form { display: grid; gap: 0.7rem; margin-top: 2.5rem; }
 .account-sign-in-form label { margin-top: 0.8rem; color: var(--north-star-gold); font-size: 0.62rem; letter-spacing: 0.15em; text-transform: uppercase; }
 .account-sign-in-form input { min-height: 54px; padding: 0 1rem; color: var(--north-star-ivory); background: #0d0d0c; border: 1px solid var(--north-star-rule); }
+.account-sign-in-form input[aria-invalid="true"] { border-color: #b97b67; }
+.account-field-guidance { color: var(--color-text-inverse-medium); }
+.account-field-guidance--ready { color: #a9bea2; }
 .account-sign-in-form button { margin-top: 1rem; }
 .account-access-page .button-primary {
   color: var(--north-star-black);

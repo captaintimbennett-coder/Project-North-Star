@@ -2,25 +2,39 @@
 
 import { useState } from "react";
 
+const minimumPasswordLength = 12;
+
 export function ResetPasswordForm({ token }: { token: string }) {
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [complete, setComplete] = useState(false);
+  const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const charactersRemaining = Math.max(
+    minimumPasswordLength - password.length,
+    0,
+  );
+  const passwordIsLongEnough = charactersRemaining === 0;
+  const passwordsMatch =
+    confirmPassword.length === 0 || password === confirmPassword;
 
   async function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError("");
-    setSubmitting(true);
 
-    const form = new FormData(event.currentTarget);
-    const password = String(form.get("password") ?? "");
-    const confirmPassword = String(form.get("confirmPassword") ?? "");
+    if (!passwordIsLongEnough) {
+      setError(
+        `Add ${charactersRemaining} more ${charactersRemaining === 1 ? "character" : "characters"} to your new password.`,
+      );
+      return;
+    }
 
     if (password !== confirmPassword) {
       setError("Passwords do not match.");
-      setSubmitting(false);
       return;
     }
+
+    setSubmitting(true);
 
     const response = await fetch("/api/account/reset-password", {
       body: JSON.stringify({ password, token }),
@@ -30,7 +44,8 @@ export function ResetPasswordForm({ token }: { token: string }) {
     });
 
     if (!response.ok) {
-      setError("This reset link is invalid or has expired.");
+      const payload = await response.json().catch(() => null);
+      setError(payload?.error ?? "This reset link is invalid or has expired.");
       setSubmitting(false);
       return;
     }
@@ -47,12 +62,59 @@ export function ResetPasswordForm({ token }: { token: string }) {
     </div>;
   }
 
-  return <form className="account-sign-in-form" onSubmit={submit}>
+  return <form className="account-sign-in-form" noValidate onSubmit={submit}>
     <label htmlFor="reset-password">New password</label>
-    <input autoComplete="new-password" id="reset-password" minLength={12} name="password" required type="password" />
+    <input
+      aria-describedby="reset-password-guidance"
+      aria-invalid={password.length > 0 && !passwordIsLongEnough}
+      autoComplete="new-password"
+      id="reset-password"
+      name="password"
+      onChange={(event) => {
+        setPassword(event.target.value);
+        setError("");
+      }}
+      required
+      type="password"
+      value={password}
+    />
+    <small
+      aria-live="polite"
+      className={`account-field-guidance${passwordIsLongEnough ? " account-field-guidance--ready" : ""}`}
+      id="reset-password-guidance"
+    >
+      {password.length === 0
+        ? "Use 12 or more characters."
+        : passwordIsLongEnough
+          ? "Password length is ready."
+          : `${charactersRemaining} more ${charactersRemaining === 1 ? "character" : "characters"} needed.`}
+    </small>
     <label htmlFor="reset-confirm-password">Confirm new password</label>
-    <input autoComplete="new-password" id="reset-confirm-password" minLength={12} name="confirmPassword" required type="password" />
-    <small>Use at least 12 characters.</small>
+    <input
+      aria-describedby="reset-confirm-guidance"
+      aria-invalid={!passwordsMatch}
+      autoComplete="new-password"
+      id="reset-confirm-password"
+      name="confirmPassword"
+      onChange={(event) => {
+        setConfirmPassword(event.target.value);
+        setError("");
+      }}
+      required
+      type="password"
+      value={confirmPassword}
+    />
+    <small
+      aria-live="polite"
+      className={`account-field-guidance${confirmPassword.length > 0 && passwordsMatch ? " account-field-guidance--ready" : ""}`}
+      id="reset-confirm-guidance"
+    >
+      {confirmPassword.length === 0
+        ? "Enter the same password again."
+        : passwordsMatch
+          ? "Passwords match."
+          : "Passwords do not match yet."}
+    </small>
     {error && <p className="account-form-error" role="alert">{error}</p>}
     <button className="button button-primary" disabled={submitting} type="submit">
       {submitting ? "Updating…" : "Reset password"}

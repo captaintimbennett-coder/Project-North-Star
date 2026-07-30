@@ -1,7 +1,7 @@
 import { APIError, UnauthorizedError, type CollectionConfig } from "payload";
 import { writeSecurityAuditEvent } from "@/lib/security/audit";
+import { buildAccountActionUrl } from "@/lib/email/account-action-url";
 import { passwordRecoveryEmailTemplate } from "@/lib/email/templates";
-import { siteConfig } from "@/data/site";
 import { isStaff, ownerFieldAccess, ownerOnly, ownerOrSelf } from "../access/account";
 import { firstUserOrAuthenticated } from "../access/firstUserOrAuthenticated";
 
@@ -18,7 +18,7 @@ export const Users: CollectionConfig = {
       expiration: 60 * 60 * 1000,
       generateEmailHTML: (args) => {
         const token = args?.token ?? "";
-        const actionUrl = `${siteConfig.url.replace(/\/$/, "")}/account/reset-password?token=${encodeURIComponent(token ?? "")}`;
+        const actionUrl = buildAccountActionUrl("/account/reset-password", token);
         return passwordRecoveryEmailTemplate(actionUrl, "in one hour").html;
       },
       generateEmailSubject: () => passwordRecoveryEmailTemplate("", "in one hour").subject,

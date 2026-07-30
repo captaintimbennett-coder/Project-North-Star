@@ -22,7 +22,8 @@
     "mission:09:personal-schedule": "tsx --test scripts/mission-09-personal-schedule.test.ts",
     "mission:09:shared-schedule": "tsx --test scripts/mission-09-shared-retreat-schedule.test.ts",
     "mission:09:admin-master-calendar": "tsx --test scripts/mission-09-administrator-master-calendar.test.ts",
-    "mission:09:photographer-booking": "tsx --test scripts/mission-09-photographer-booking.test.ts && MISSION_09_VALIDATE_PHOTOGRAPHER_BOOKING=true pnpm mission:09:booking"
+    "mission:09:photographer-booking": "tsx --test scripts/mission-09-photographer-booking.test.ts && MISSION_09_VALIDATE_PHOTOGRAPHER_BOOKING=true pnpm mission:09:booking",
+    "test:account-action-urls": "tsx --test scripts/account-action-url.test.ts"
   },
   "dependencies": {
     "@payloadcms/db-postgres": "3.85.2",
