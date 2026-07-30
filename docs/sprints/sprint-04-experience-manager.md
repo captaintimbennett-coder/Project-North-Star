@@ -116,6 +116,15 @@ master classes, mentoring, and future creative experiences.
 - [x] Complete PR #7 production hardening: route smoke tests, production email
   smoke tests, SendGrid key rotation, media storage risk documentation, and Neon
   SSL follow-up.
+- [ ] Complete the July 29 account-recovery friction revalidation. Controlled
+  Mission 09 testing exposed that a reset token created against a non-live Neon
+  environment could be emailed with a live production URL, where it was
+  correctly rejected as invalid. The local fix now keeps password-reset and
+  account-activation links in their token-creating runtime, replaces late
+  browser password-length validation with clear inline guidance, and passes
+  focused link tests, lint, typecheck, production build, and desktop/mobile
+  visual checks. Production deployment and a fresh live reset remain separate
+  approval and verification steps.
 - [x] Complete Mission 04 Application Email Foundation using the existing
   SendGrid/Payload transactional email infrastructure. Model and photographer
   applications now send receipt-only applicant confirmations and minimal

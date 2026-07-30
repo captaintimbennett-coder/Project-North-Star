@@ -100,6 +100,14 @@ verified in SendGrid before production use. `APPLICATION_EMAIL_ADMIN_TO` may
 later move to `applications@thelonestarretreat.com` without changing applicant
 Reply-To behavior or other transactional mail.
 
+Password-reset and account-activation links must point to the same runtime
+environment that created their secure token. The account lifecycle email
+builders prefer `NEXT_PUBLIC_SERVER_URL`, use the active Vercel preview URL for
+preview deployments, and fall back to the public site URL only when neither is
+available. Never generate a token against one Neon database and test it on a
+deployment connected to another database; the valid token will correctly be
+rejected there.
+
 ## Mission 06 production operations
 
 Mission 06 production deployment completed on July 14, 2026 from commit

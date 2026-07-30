@@ -2,7 +2,7 @@ import type { CollectionConfig } from "payload";
 import { ownerOnly, ownerOrEditorOnly, staffFieldAccess, staffOnly } from "../access/account";
 import { writeSecurityAuditEvent } from "@/lib/security/audit";
 import { sendAccountInvitationEmail } from "@/lib/email/account-email";
-import { siteConfig } from "@/data/site";
+import { buildAccountActionUrl } from "@/lib/email/account-action-url";
 import { addDays, createSecureToken, hashSecurityToken } from "@/lib/security/tokens";
 
 export const AccountInvitations: CollectionConfig = {
@@ -162,7 +162,7 @@ export const AccountInvitations: CollectionConfig = {
         const token = typeof req.context.generatedInvitationToken === "string" ? req.context.generatedInvitationToken : null;
         if (token) {
           await sendAccountInvitationEmail({
-            activationUrl: `${siteConfig.url.replace(/\/$/, "")}/account/activate?token=${encodeURIComponent(token)}`,
+            activationUrl: buildAccountActionUrl("/account/activate", token),
             email: doc.email,
             expiresAt: doc.tokenExpiresAt,
             invitationId: doc.id,
