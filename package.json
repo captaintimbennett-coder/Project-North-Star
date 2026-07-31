@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "postbuild": "PAYLOAD_MIGRATING=true tsx scripts/temporary-production-test-artist-purge.ts",
     "start": "next start",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
