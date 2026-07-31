@@ -267,6 +267,19 @@ master classes, mentoring, and future creative experiences.
   free-form time entry, reassignment, duration changes, availability override,
   manual conflict resolution, bulk changes, or any broader administrator
   control.
+- [x] Complete Mission 09 final acceptance on July 30, 2026. The full
+  availability, booking, model-availability, photographer-booking, personal
+  schedule, shared schedule, administrator Master Calendar, concurrency, and
+  transactional-email validators passed with fixture cleanup. Controlled QA
+  booking `171` proved protected rescheduling and cancellation, authoritative
+  administrator and participant projections, audit persistence,
+  private-reason exclusion, and exactly two successful participant deliveries
+  for each change. Gmail placed both rescheduling and both cancellation
+  messages in the Inbox from
+  `Lone Star Retreat <tim@thelonestarretreat.com>`. `pnpm lint`,
+  `pnpm typecheck`, `pnpm build`, and `git diff --check` passed. No production
+  booking or real participant was changed. Mission 09 Version 1 is closed
+  before all deferred broader scheduling controls.
 - [x] Implement Mission 06 Featured Artist Recruitment Ready on its dedicated
   feature branch. The approved scope adds recruitment essentials, reduces the
   initial application by making biography optional, separates private-review

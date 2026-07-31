@@ -1,7 +1,7 @@
 # Project North Star — Mission 09 Skinny Native Scheduling
 
-**Status:** Active — Milestones 1–4 and Milestones 5.1–5.4B-3 complete;
-stopped before any broader administrator control
+**Status:** Complete — Version 1 accepted July 30, 2026; broader administrator
+controls remain outside the approved scope
 
 **Original decision date:** July 24, 2026
 
@@ -578,6 +578,47 @@ Milestone 5.4B-3 is complete. Work is deliberately stopped before
 drag-and-drop, free-form time entry, reassignment, duration changes, override,
 manual conflict resolution, bulk changes, payments, messaging, or any broader
 administrator workflow.
+
+## Final Acceptance — July 30, 2026
+
+Mission 09 Version 1 is complete and accepted.
+
+The final controlled QA proof used the isolated Mission 09 Neon database and
+the existing test participant accounts. It did not mutate a production booking
+or involve a real retreat participant.
+
+- Controlled booking `171` was rescheduled through the protected service and
+  returned to its original 9:00–10:00 AM event-local time. The administrator,
+  Featured Artist, and photographer projections agreed after each change.
+- The same controlled booking was then cancelled through the protected
+  service. Its audit record and private reason were retained, it left the
+  active shared schedule, and it appeared as cancelled in the administrator,
+  Featured Artist, and photographer history projections.
+- Rescheduling and cancellation each created exactly one durable delivery for
+  the Featured Artist and one for the photographer. Every delivery recorded
+  one successful attempt with no operational error, and private administrator
+  reasons did not enter participant email data.
+- The authenticated scheduling sender is
+  `Lone Star Retreat <tim@thelonestarretreat.com>`, with replies routed to the
+  same address. Gmail received both rescheduling messages and both cancellation
+  messages in the Inbox rather than Spam for the controlled participant
+  aliases.
+- The production Vercel sender configuration was corrected and the existing
+  production release was redeployed without changing application source or
+  production booking data. Live controlled delivery remained isolated to the
+  QA booking fixture.
+- All Mission 09 validators passed: availability, booking, model availability,
+  photographer booking, personal schedule, shared schedule, administrator
+  Master Calendar, five-round concurrency and overlap protection, and the
+  13-check transactional-email lifecycle proof.
+- `pnpm lint`, `pnpm typecheck`, `pnpm build`, and `git diff --check` passed.
+  The optimized production build completed all 37 static pages and the
+  protected dynamic scheduling routes.
+
+This acceptance closes the approved scheduling mission. It does not authorize
+drag-and-drop, arbitrary time entry, reassignment, duration changes, manual
+overrides, bulk operations, payments, messaging, reminders, calendar-provider
+synchronization, or a generalized scheduling platform.
 
 ## Implementation Boundary
 
