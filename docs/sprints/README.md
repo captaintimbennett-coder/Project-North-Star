@@ -38,7 +38,7 @@ Also consult `content-strategy.md`, `roadmap.md`, and
 | 05 | Applications and review workflows | Planned |
 | 06 | Payments, automation, and CRM integration | Planned |
 
-Sprint 04 is the current implementation frontier. Mission 09 is the active
+Sprint 04 is the current implementation frontier. Mission 09 is the completed
 Lone Star Retreat scheduling mission and is governed by
 [`../decisions/scheduling-engine-poc.md`](../decisions/scheduling-engine-poc.md).
 It completes the existing native scheduling foundation through five separately
@@ -56,8 +56,10 @@ existing protected service. The separately approved Milestone 5.4B-3 now adds
 one owner/editor-only, same-participant, same-duration reschedule using only
 server-derived valid times and the existing protected service, audit, email,
 and authoritative-refresh foundations. Reviewer administrators remain
-read-only. Work is deliberately stopped before any broader administrator
-control.
+read-only. Final acceptance on July 30, 2026 verified the full regression
+suite, optimized production build, isolated QA rescheduling and cancellation,
+authenticated two-recipient email delivery, and Gmail Inbox placement.
+Mission 09 is closed before any broader administrator control.
 Sprint 01 established the
 public foundation, Sprint 02 closed with Homepage Design Lock v1.1 and the
 multi-page marketing system, and Sprint 03 closed with the verified
