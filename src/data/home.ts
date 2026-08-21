@@ -2,36 +2,25 @@ import { images } from "./assets";
 
 export const homeContent = {
   hero: {
-    image: images.hero.homeFounderPortrait,
-    alt: "Tim Bennett seated in a warmly lit studio portrait",
-    headline: ["Capturing", "Confidence.", "Creating Legacy."],
+    headline: ["Capturing Confidence.", "Creating Legacy."],
     supporting: ["Photography with purpose.", "Imagery that endures."],
-    signature: "Tim Bennett",
     signatureImage: images.brand.signature,
     paths: [
       {
         title: "Portfolio",
-        description: "The body of work that establishes the North Star standard.",
         href: "/portfolio",
-        icon: "camera",
       },
       {
         title: "Private Client",
-        description: "Luxury portrait, glamour, boudoir, and commissioned photography experiences.",
         href: "/private-client",
-        icon: "person",
       },
       {
         title: "Lone Star Retreat",
-        description: "Curated creative retreats for photographers and models.",
         href: "/lone-star-retreat",
-        icon: "star",
       },
       {
         title: "Workshops & Education",
-        description: "Mentoring, workshops, and educational experiences · Coming soon.",
         href: "/workshops-education",
-        icon: "education",
       },
     ],
   },
