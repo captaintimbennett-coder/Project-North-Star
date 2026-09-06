@@ -618,8 +618,8 @@ export interface PhotographerApplication {
     'glamour' | 'boudoir' | 'editorial' | 'artistic-nude' | 'fashion' | 'swimwear' | 'beauty' | 'other'
   )[];
   otherGenreInterest?: string | null;
-  whatTheyHopeToCreate: string;
-  retreatGoals: string;
+  whatTheyHopeToCreate?: string | null;
+  retreatGoals?: string | null;
   collaborationStyleNotes?: string | null;
   informationAccurateConfirmed: boolean;
   noAcceptanceGuaranteeConfirmed: boolean;
