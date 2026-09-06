@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { FormEvent, useRef, useState } from "react";
+import { FormEvent, useEffect, useRef, useState } from "react";
 import { Button } from "@/components/buttons";
 import { photographerApplicationContent as content } from "@/data/applications";
 import { countryOptions, usStateOptions } from "@/data/location-options";
@@ -43,12 +43,19 @@ function describedBy(name: string, description: boolean, error?: string) {
 export function PhotographerApplicationForm() {
   const router = useRouter();
   const formRef = useRef<HTMLFormElement>(null);
+  const errorNoticeRef = useRef<HTMLDivElement>(null);
   const genresRef = useRef<HTMLFieldSetElement>(null);
   const [errors, setErrors] = useState<FieldErrors>({});
   const [formError, setFormError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [marketingSource, setMarketingSource] = useState("");
   const [country, setCountry] = useState("");
+
+  useEffect(() => {
+    if (!formError || isSubmitting) return;
+    errorNoticeRef.current?.focus({ preventScroll: true });
+    errorNoticeRef.current?.scrollIntoView({ behavior: "instant", block: "center" });
+  }, [formError, errors, isSubmitting]);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -95,7 +102,6 @@ export function PhotographerApplicationForm() {
               ? "Please review the highlighted fields before submitting."
               : "We could not receive your application. Please try again."),
         );
-        formRef.current?.querySelector<HTMLElement>("[aria-invalid='true']")?.focus();
         return;
       }
 
@@ -115,8 +121,8 @@ export function PhotographerApplicationForm() {
       </div>
 
       {formError && (
-        <div className="application-form__notice" role="alert" tabIndex={-1}>
-          <strong>We need a little more information.</strong>
+        <div className="application-form__notice" ref={errorNoticeRef} role="alert" tabIndex={-1}>
+          <strong>{Object.keys(errors).length ? "Please review your application." : "Your application could not be submitted."}</strong>
           <p>{formError}</p>
         </div>
       )}

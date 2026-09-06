@@ -351,3 +351,28 @@ Do not assume every experience uses the same commercial model. Keep experience
 content reusable while allowing applications, invitations, or direct
 registration to be attached later. Operational clarity matters more than adding
 decorative features.
+
+## September 6, 2026 — Photographer application repair
+
+Production logs identified four failed photographer submissions: Payload rejected
+blank `retreatGoals` despite the public form describing it as optional.
+`whatTheyHopeToCreate` had the same required/optional mismatch. These failures
+occurred before transactional email delivery.
+
+Local repair removes the two required validators, supplies empty-string defaults,
+and normalizes null/omitted values to empty strings to preserve existing NOT NULL
+storage compatibility. The public submission service already supplies empty
+strings. No production migration is required for this public submission repair.
+The error notice now distinguishes field validation from submission failure.
+Regression coverage checks both optional fields with missing, null, blank, and
+populated answers using Payload's textarea validator, and preserves required
+identity fields. Production release and post-release submission/email verification
+remain pending; do not mark the live form fixed until those are completed.
+
+Read-only SendGrid verification on September 6 confirmed Email API Essentials 50K
+($19.95/month) and verified retreat sending domain. The expired trial belongs to
+Marketing Campaigns. No September sends were present at the time of inspection.
+
+Local validation passed: three regression tests, `pnpm lint`, `pnpm typecheck`,
+`pnpm build`, and `git diff --check`. Local application page rendered in Chrome
+without captured console errors. Live submission and inbox delivery remain unverified.
