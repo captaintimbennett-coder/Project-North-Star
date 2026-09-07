@@ -1,3 +1,4 @@
+import { getAllowedOrigins } from "./lib/security/origin";
 import { postgresAdapter } from "@payloadcms/db-postgres";
 import { lexicalEditor } from "@payloadcms/richtext-lexical";
 import { vercelBlobStorage } from "@payloadcms/storage-vercel-blob";
@@ -76,6 +77,7 @@ export default buildConfig({
   ],
   secret: process.env.PAYLOAD_SECRET || "",
   serverURL,
+  csrf: [...getAllowedOrigins()],
   sharp,
   typescript: {
     outputFile: path.resolve(dirname, "payload-types.ts"),
