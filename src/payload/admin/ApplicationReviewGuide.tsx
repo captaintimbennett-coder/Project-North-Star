@@ -55,9 +55,12 @@ export function ModelApplicationReviewGuide() {
           If accepted but not ready to show publicly, check “Create private draft profile only” and save once.
         </li>
         <li>After saving, Step 3 is just the receipt showing which Featured Artist profile was created or updated.</li>
+        <li>When participation is confirmed, check the artist’s assignment in the retreat event. “Confirmed” grants participant eligibility without public display; public lineup approval uses “Approved for public display.”</li>
+        <li>In Account Invitations, use the applicant’s email, select Model, and connect that same model profile before saving. This sends a separate account activation email.</li>
+        <li>After activation, verify the profile’s linked user account. The artist can sign in and use Manage Availability and their retreat schedules. Check the profile’s booking email and contact permissions before booking begins.</li>
       </ol>
       <p style={noteStyle}>
-        Public lineup approval handles the whole chain: profile, image approval, {currentRetreatEdition.shortTitle} event assignment, and public display status. Private draft keeps everything internal.
+        Acceptance and account access are separate. The acceptance email does not create a login. If the applicant already has an account, connect that account with the Model role to the profile instead of sending a new-account invitation. Keep event assignment and invitations pending until you are ready to grant participation.
       </p>
     </section>
   );
@@ -71,12 +74,15 @@ export function PhotographerApplicationReviewGuide() {
       <ol style={listStyle}>
         <li>Read the application and review the submitted information.</li>
         <li>Set Step 1 to Accepted, Declined, Waitlist, or Reviewing.</li>
-        <li>If accepted, connect the right private photographer profile.</li>
+        <li>If accepted, create or connect the right private photographer profile in Photographers / Participants.</li>
         <li>Add any private notes your team needs.</li>
         <li>Save the application.</li>
+        <li>When participation is confirmed, add that profile to Participating photographers in the retreat event and select “Approved for booking.” “Invited” and “Registered” do not grant booking access.</li>
+        <li>In Account Invitations, use the applicant’s email, select Photographer, and connect that same photographer profile before saving. This sends the account activation email.</li>
+        <li>After activation, verify the profile’s linked user account. The photographer can sign in and use Schedule a Shoot and their retreat schedules. Check the profile’s booking email and contact permissions before booking begins.</li>
       </ol>
       <p style={noteStyle}>
-        Safe rule: nothing becomes public from this screen. Publishing happens later from the profile itself.
+        Accepting this application does not create an account or grant event access. If the applicant already has an account, connect that account with the Photographer role to the profile instead of sending a new-account invitation. Keep event assignment and invitations pending until you are ready to grant participation.
       </p>
     </section>
   );

@@ -1,4 +1,4 @@
-import type { Payload } from "payload";
+import type { Payload, PayloadRequest } from "payload";
 import { writeSecurityAuditEvent } from "@/lib/security/audit";
 import { invitationEmailTemplate } from "./templates";
 
@@ -8,6 +8,7 @@ type SendInvitationEmailInput = {
   expiresAt: string;
   invitationId?: number;
   payload: Payload;
+  req?: PayloadRequest;
 };
 
 function formatExpiration(value: string) {
@@ -24,6 +25,7 @@ export async function sendAccountInvitationEmail({
   expiresAt,
   invitationId,
   payload,
+  req,
 }: SendInvitationEmailInput) {
   const template = invitationEmailTemplate(activationUrl, formatExpiration(expiresAt));
 
@@ -39,7 +41,7 @@ export async function sendAccountInvitationEmail({
       eventType: "account_invitation.email_sent",
       metadata: { email, invitationId },
       targetInvitation: invitationId ?? null,
-    });
+    }, req);
   } catch (error) {
     await writeSecurityAuditEvent(payload, {
       eventType: "account_invitation.email_failed",
@@ -50,6 +52,6 @@ export async function sendAccountInvitationEmail({
       },
       severity: "warning",
       targetInvitation: invitationId ?? null,
-    });
+    }, req);
   }
 }

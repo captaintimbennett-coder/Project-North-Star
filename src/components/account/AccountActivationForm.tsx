@@ -13,26 +13,30 @@ export function AccountActivationForm({ token }: { token: string }) {
     setSubmitting(true);
 
     const form = new FormData(event.currentTarget);
-    const response = await fetch("/api/account/activate", {
-      method: "POST",
-      credentials: "same-origin",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        name: String(form.get("name") ?? ""),
-        password: String(form.get("password") ?? ""),
-        token,
-      }),
-    });
+    try {
+      const response = await fetch("/api/account/activate", {
+        method: "POST",
+        credentials: "same-origin",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: String(form.get("name") ?? ""),
+          password: String(form.get("password") ?? ""),
+          token,
+        }),
+      });
 
-    if (!response.ok) {
-      const payload = await response.json().catch(() => null);
-      setError(payload?.error ?? "We could not activate this invitation.");
+      if (!response.ok) {
+        const payload = await response.json().catch(() => null);
+        setError(payload?.error ?? "We could not activate this invitation.");
+        return;
+      }
+
+      setComplete(true);
+    } catch {
+      setError("We could not confirm account activation. Try signing in first; if your account is not active, try this invitation again.");
+    } finally {
       setSubmitting(false);
-      return;
     }
-
-    setComplete(true);
-    setSubmitting(false);
   }
 
   if (complete) {

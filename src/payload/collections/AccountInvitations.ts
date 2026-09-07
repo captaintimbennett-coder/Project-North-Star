@@ -167,6 +167,7 @@ export const AccountInvitations: CollectionConfig = {
             expiresAt: doc.tokenExpiresAt,
             invitationId: doc.id,
             payload: req.payload,
+            req,
           });
         }
       }
