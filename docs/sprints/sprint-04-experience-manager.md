@@ -376,3 +376,52 @@ Marketing Campaigns. No September sends were present at the time of inspection.
 Local validation passed: three regression tests, `pnpm lint`, `pnpm typecheck`,
 `pnpm build`, and `git diff --check`. Local application page rendered in Chrome
 without captured console errors. Live submission and inbox delivery remain unverified.
+
+### Production verification — September 6, 2026
+
+PR #27 was merged with explicit authorization as `5a4ea12` and deployed to
+production by Vercel (`du19nB1WqajgRqgiui7PFgGJhKPC`, Ready at 18:38 CDT).
+Production browser verification confirmed the validation notice receives focus
+and scrolls fully into view. One clearly labeled photographer email-test record
+was submitted with both optional goal answers blank: the POST returned 201 at
+23:39:52 UTC and the browser reached Application Received.
+
+Vercel recorded two SendGrid mail calls, both accepted with 202. SendGrid Email
+Logs confirmed both messages Delivered with recipient-server 250 responses at
+23:39:54 UTC: applicant receipt to Tim's personal Gmail and administrator notice
+to `tim@thelonestarretreat.com`. The applicant receipt was independently verified
+in Gmail INBOX. Administrator inbox placement was not independently inspected;
+provider delivery is confirmed. The clearly labeled test application remains in
+private review; it was not approved, published, or deleted. No migration ran.
+
+
+### Participant access review — September 6, 2026
+
+Tim requested verification of photographer onboarding and explicitly included new
+Featured Artists, while retaining his decision about holding the event.
+Application acceptance, public lineup approval, account activation, and event
+eligibility remain separate controls. Account Invitations can connect either
+participant profile during activation; an existing account must instead be linked
+with the matching participant role. A model event assignment of Confirmed or
+Approved permits participant schedule access; photographers require Approved for
+booking. Booking also requires an approved artist profile, saved availability,
+and the participants’ booking contact preferences. Merely accepting an application
+does not perform these steps.
+
+Local changes complete the missing administrator guidance for both application
+review screens and recover account activation after a failed network request.
+Twelve isolated tests exercise actual schedule/availability services and profile
+role validation with in-memory data: assignment eligibility for both roles,
+wrong-role profile rejection, new model availability defaults, and suspension.
+No database or real recipient is used by these tests. Lint, typecheck, and build
+passed. Browser checks covered desktop and 390px mobile activation, keyboard
+focus, mobile overflow, and a stopped local server to prove a network failure
+shows an alert and re-enables activation. No console errors occurred before the
+intentional connection failure.
+
+These changes are local on codex/participant-access-verification, not deployed.
+A fresh end-to-end production invitation, activation, sign-in, profile-link, and
+retreat-access check for both roles remains unverified. Existing historical
+invitation delivery evidence and today’s application delivery evidence do not
+substitute for that check. No real applicant was accepted, invited, published,
+assigned, or changed; no migration or production deployment ran.
