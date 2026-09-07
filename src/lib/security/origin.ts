@@ -38,6 +38,13 @@ export function getAllowedOrigins() {
   if (configured) origins.add(configured.replace(/\/$/, ""));
   if (siteUrl) origins.add(siteUrl.replace(/\/$/, ""));
   if (vercelUrl) origins.add(`https://${vercelUrl.replace(/\/$/, "")}`);
+  // Both owned public domains serve this production application. Keep preview
+  // and local origins tied to their own runtime configuration.
+  if (process.env.VERCEL_ENV === "production") {
+    for (const domain of Object.values(siteConfig.domains)) {
+      origins.add(new URL(domain).origin);
+    }
+  }
   if (process.env.NODE_ENV !== "production") {
     for (const origin of LOCAL_ALLOWED_ORIGINS) origins.add(origin);
   }
@@ -61,3 +68,4 @@ export function assertAllowedMutationOrigin(request: Request) {
 
   return null;
 }
+import { siteConfig } from "@/data/site";
