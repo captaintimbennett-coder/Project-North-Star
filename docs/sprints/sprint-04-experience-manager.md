@@ -446,3 +446,20 @@ exactly one persisted delivery audit entry for each invitation without the forme
 foreign-key error. Fifteen isolated access/link checks, lint, typecheck, and the
 production build passed after this repair. No migrations are needed. Production
 publication remains pending at this entry.
+
+### Live onboarding origin repair — September 6, 2026
+
+Tim authorized two controlled live onboarding checks and necessary repairs.
+The first invitation arrived in his Gmail inbox, but the live activation POST
+from the retreat domain returned 403 before reaching account validation. An empty
+request reproduced the difference: the retreat origin was rejected while the
+primary domain reached normal field validation. The shared origin guard only
+included runtime server/site settings and omitted the already configured retreat
+marketing domain.
+
+The repair includes both explicitly configured site domains in the production
+origin allowlist only. Preview/local behavior stays tied to runtime settings;
+unrelated domains, lookalike hosts, and insecure retreat origins stay rejected.
+Focused tests cover the production domain pair, hostile origins, and preview
+isolation. No migration or authentication bypass is involved. Live onboarding
+and cleanup remain pending until the repair is deployed.
