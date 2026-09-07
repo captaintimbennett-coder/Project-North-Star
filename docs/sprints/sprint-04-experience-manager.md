@@ -463,3 +463,8 @@ unrelated domains, lookalike hosts, and insecure retreat origins stay rejected.
 Focused tests cover the production domain pair, hostile origins, and preview
 isolation. No migration or authentication bypass is involved. Live onboarding
 and cleanup remain pending until the repair is deployed.
+
+
+### Live onboarding session origin follow-up
+
+Live activation and browser-equivalent participant pages passed after PR #29. Authenticated availability saving still failed because Payload cookie authentication uses its own CSRF origin allowlist. Payload now consumes the same explicit trusted origins as account mutations, preserving production domain scoping and preview isolation. No migration is required.
