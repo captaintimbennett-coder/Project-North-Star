@@ -425,3 +425,24 @@ retreat-access check for both roles remains unverified. Existing historical
 invitation delivery evidence and today’s application delivery evidence do not
 substitute for that check. No real applicant was accepted, invited, published,
 assigned, or changed; no migration or production deployment ran.
+
+### Authorized release validation — September 6, 2026
+
+Tim authorized committing, pushing a draft, testing both participant roles, and
+publishing after those tests pass. Draft PR #28 contains the reviewed changes.
+The guarded database-backed validator now creates disposable profiles, an event,
+and invitations only on the known non-production validation host. It captures
+invitation messages in memory, activates through the actual route handler,
+checks password login, profile links, token reuse rejection, event schedule
+access, model availability saving, and photographer booking options for that
+new artist. Both role journeys passed and their disposable records were removed.
+This validates application services against a real database; it is not a fresh
+production inbox or browser-session onboarding test.
+
+The first run exposed an invitation-delivery audit write occurring outside the
+invitation creation transaction. The email helper now passes the current Payload
+request to its audit writes when called from the invitation hook. A rerun verified
+exactly one persisted delivery audit entry for each invitation without the former
+foreign-key error. Fifteen isolated access/link checks, lint, typecheck, and the
+production build passed after this repair. No migrations are needed. Production
+publication remains pending at this entry.
