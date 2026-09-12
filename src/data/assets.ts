@@ -26,7 +26,10 @@ export const images = {
   },
   portfolio: {
     balletEvening: "/images/portfolio/ballet-evening.jpg",
+    boudoirAzuraGrace: "/images/portfolio/boudoir-azura-grace.jpg",
     goldEditorial: "/images/portfolio/gold-editorial.jpg",
+    glamourLizAshley: "/images/portfolio/glamour-liz-ashley.jpg",
+    editorialAlysonBeauty: "/images/portfolio/editorial-alyson-beauty.jpg",
     redEditorial: "/images/portfolio/red-editorial.jpg",
     silkBeauty: "/images/portfolio/silk-beauty.jpg",
     heroReal: "/images/portfolio/portfolio-hero-real.jpg",
