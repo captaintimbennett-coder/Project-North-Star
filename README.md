@@ -52,8 +52,9 @@ Use **Demo scenarios** to load pre-filled takeoffs for a walkthrough:
 | Gusty crosswind (card example) | Authorized, 26K/TO max recommended |
 | Warmer than plan temperature | New TPS or Airport Analysis check |
 | Unplanned tailwind | Method 2 weight check, QRH V-speeds |
+| Tailwind beyond the TPS | New TPS, dispatch change, or manual calculation |
 | Wet runway, dry TPS | New TPS required |
-| Contaminated runway | CRC/MEL message thrust and V-speeds only |
+| Contaminated runway | CRC/MEL message thrust and V-speeds only, limits checked |
 
 ## What is covered
 
@@ -66,18 +67,19 @@ Use **Demo scenarios** to load pre-filled takeoffs for a walkthrough:
 - FMC QRH V-speed entry steps as a tap-through checklist
 - Wet runway rules
 
-## Known gaps
+## Open items
 
-The supplied card scan cropped the right-hand panel of each page. These are
-not yet fully modeled:
+All panels of the card (rev. 24 JUN 26) are now modeled, including the full
+Wind Variation chart, ACARS Takeoff Data Request, Manual Takeoff Calculation,
+and contaminated runway data usage and limitations. Still open:
 
-- The tailwind branch of the Wind Variation chart
-- ACARS Takeoff Data Request and Manual Takeoff Calculation
-- Contaminated runway data usage and operational limitations
+- One interpretation to confirm with the card owner: with standard thrust
+  planned and takeoff weight above ATOW but within MTOW, the guide offers max
+  thrust at the planned rating with FMC QRH V-speeds, or a new TPS.
+- Not reviewed or approved for line use.
 
 ## Next steps toward a product
 
-- Fill the gaps above from a complete copy of the card.
 - Move the rules into a versioned data file reviewed by the card's owner.
 - Add automated tests for every path through the decision tree.
-- Add a service worker and manifest for managed EFB deployment.
+- Deploy through the company's managed iPad system instead of GitHub Pages.

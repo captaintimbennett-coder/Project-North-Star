@@ -168,6 +168,7 @@
   .tgl[aria-checked="true"] .sw { background: var(--accent); }
   .tgl[aria-checked="true"] .sw::after { transform: translateX(20px); }
   .sub { margin: 8px 0 0 18px; padding-left: 12px; border-left: 3px solid var(--line); }
+  .subh { margin: 4px 0 0; font-size: 14px; letter-spacing: .6px; text-transform: uppercase; color: var(--muted); }
 
   .grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
   label.num { display: block; }
@@ -332,9 +333,18 @@
   "use strict";
 
   const CARD_REV = "24 JUN 26";
-  const APP_VERSION = "2026-10-06.1"; // keep in step with VERSION in sw.js
+  const APP_VERSION = "2026-10-06.2"; // keep in step with VERSION in sw.js
   const RATINGS = ["22K", "24K", "26K", "27K", "TO2", "TO1", "TO"];
-  const HIGH = ["26K", "27K", "TO"]; // ratings that satisfy "26K, 27K Bump, or TO" requirements
+  const HIGH = ["26K", "27K", "TO"];
+  // Takeoff on Contaminated Runways — Data Usage levels, plus the two over-limit cases.
+  const CONTAM = [
+    ["W25", "¼ in. standing water"], ["W50", "½ in. standing water"],
+    ["S25", "¼ in. slush"], ["S50", "½ in. slush"],
+    ["WS25", "¼ in. wet snow"], ["WS50", "½ in. wet snow"],
+    ["DS2", "2 in. dry snow"], ["DS4", "4 in. dry snow"],
+    ["CS", "Compacted snow"], ["ICE", "Ice"],
+    ["OVERWET", "Over ½ in. water, slush or wet snow"], ["OVERDRY", "Over 4 in. dry snow"],
+  ]; // ratings that satisfy "26K, 27K Bump, or TO" requirements
   const STEPS = [
     { id: "setup", label: "Setup" },
     { id: "conditions", label: "Conditions" },
@@ -347,6 +357,7 @@
   const blank = () => ({
     aircraft: "NG", closeout: null, plan: null, rating: null, ip: false, bumpAuth: false,
     runway: "DRY", tpsWet: false, grooved: false, trInop: false,
+    contam: "", contamChunks: false, antiSkidInop: false,
     windshear: false, adv7: false, antiIce: false, tpsAntiIce: false,
     melWt: false, melAuto: false, crcmel: false, eecAlt: false, flaps25: false,
     tow: "", atow: "", ptow: "", mtow: "", mtowCode: "",
@@ -445,6 +456,7 @@
       if (!s.tpsWet) {
         why("Takeoff on Wet Runways", "Runway is wet but the TPS header does not specify “WET.” Wet-runway takeoffs require TPS data labeled WET.", "red");
         act("Request a new TPS based on a wet runway.");
+        if (!R.speedsOnly) R.speedsOnly = "From the new wet-runway TPS";
       } else {
         why("Takeoff on Wet Runways", "TPS header specifies WET, so all TPS data including Airport Analysis is wet-runway data.");
       }
@@ -459,10 +471,23 @@
     if (s.runway === "CONTAM") {
       max(2); penalty.push("contaminated runway");
       R.speedsOnly = "CRC/MEL message V-speeds only";
+      R.noQRH.push("Contaminated runway — only V-speeds from the CRC/MEL message");
       R.thrustOverride = "Maximum: 26K, 27K Bump, or TO (as listed on the CRC/MEL message)";
-      why("Use of Standard Thrust not authorized", "Runway contaminated by standing water, slush, snow or ice: maximum thrust at 26K, 27K Bump or TO is required.", "amber");
+      const OL = "Operational Limitations - Contaminated Runways";
+      const noGo = (text) => { R.noGo = true; why(OL, text, "red"); };
+      why(OL, "Maximum 26K, 27K Bump or TO thrust, whichever is listed on the CRC/MEL message, must be used. 22K, 24K, TO2, TO1 or standard thrust at any rating is not authorized.", "amber");
+      act("Contact Dispatch for contaminated runway data (CRC/MEL message). Dispatch normally selects BLD ON; request BLD OFF if needed to maximize the weight.");
       act("Use the CRC/MEL message for maximum weight, thrust rating and V-speeds.");
-      caution("Contaminated-runway operational limitations are on a card panel not captured in this demo. Review them before takeoff.");
+      const lvl = CONTAM.find(([k]) => k === s.contam);
+      if (!lvl) R.missing.push("Contaminant type and depth (Conditions step)");
+      else if (s.contam === "OVERWET" || s.contam === "OVERDRY") noGo("Takeoff is not authorized with more than ½ inch of wet snow, slush or standing water, or more than 4 inches of dry snow.");
+      else why("Takeoff on Contaminated Runways · Data Usage", `Use the contaminated runway data for ${lvl[1]}.`);
+      if (s.contamChunks) noGo("Takeoff is not authorized with chunks of hardened snow or ice.");
+      if (s.antiSkidInop) noGo("The anti-skid system must be operative.");
+      if (s.trInop) noGo("Both thrust reversers must be operative.");
+      if (s.ip) noGo("Use of Improved Performance is not authorized.");
+      caution("Flaps 15 is recommended on contaminated runways to minimize takeoff speeds. Try flaps 15 first; if the maximum weight is insufficient, try another flap setting.");
+      caution("If runway conditions change, or the actual takeoff weight exceeds PTOW by more than 2,000 lb, request new data from Dispatch.");
     }
     if (s.crcmel && s.runway !== "CONTAM") {
       max(2); penalty.push("CRC/MEL data");
@@ -576,6 +601,11 @@
       } else overMTOW(WV);
     }
 
+    if (s.runway === "CONTAM" && tow != null && ptow != null && tow > ptow + 2000) {
+      why("Takeoff on Contaminated Runways", `Takeoff weight exceeds PTOW by ${fmt(tow - ptow)} lb (more than 2,000).`, "red");
+      act("Request new contaminated runway data from Dispatch.");
+    }
+
     // --- 2. Temperature variation
     const TV = "Temperature Variation";
     if (s.plan === "STD") {
@@ -601,6 +631,16 @@
 
     // --- 3. Wind variation
     const WIND = "Wind Variation";
+    // Actual wind worse than the TPS wind: the card's three options (only the dispatcher route with Improved Performance).
+    const windOptions = (kind) => {
+      const change = `Ask the dispatcher or load planner to change the planned ${kind} and request a new TPS (required for Improved Performance).`;
+      if (!R.speedsOnly) R.speedsOnly = s.ip ? "From the new TPS" : "From the new TPS or the manual calculation";
+      if (s.ip) { act(change); return; }
+      act("Request a new TPS with updated wind.");
+      R.alts.push(change);
+      R.alts.push("Manually compute takeoff data with AOM 1p.4.8 Manual Takeoff Calculation (steps below).");
+      R.showManual = true;
+    };
     if (!w.ok) R.missing.push("Wind (runway, direction, speed)");
     else {
       const tpsKt = num(s.tpsWindKt) || 0;
@@ -611,16 +651,19 @@
           why(WIND, `Actual headwind ${w.hw} kt is greater than or equal to the TPS wind ${tpsKt} kt: takeoff is authorized using the TPS data.`);
         } else {
           why(WIND, `Actual headwind ${w.hw} kt is less than the TPS headwind ${tpsKt} kt.`, "red");
-          act("Request a new TPS with the actual wind.");
-          R.alts.push("Request a dispatch/load planning change (a headwind request TPS).");
-          R.alts.push("Manually compute takeoff data (AOM 1p Manual Calculation).");
+          windOptions("headwind");
         }
       } else {
         const tail = r1(-w.hw);
         const UT = "Unplanned Tailwind Takeoff";
-        if (s.tpsWind === "TAIL" && tail <= tpsKt) {
-          why(WIND, `Tailwind ${tail} kt is within the TPS tailwind ${tpsKt} kt.`);
-          caution("The tailwind branch of the Wind Variation chart was cropped on the supplied card. Verify this case against the full card.");
+        if (s.runway === "CONTAM") {
+          R.noGo = true;
+          why("Operational Limitations - Contaminated Runways", `Takeoff is not authorized with a tailwind (${tail} kt) on a contaminated runway.`, "red");
+        } else if (s.tpsWind === "TAIL" && tail <= tpsKt) {
+          why(WIND, `Actual tailwind ${tail} kt is less than or equal to the TPS tailwind ${tpsKt} kt: takeoff is authorized using the TPS Thrust/V-speed section.`);
+        } else if (s.tpsWind === "TAIL") {
+          why(WIND, `Actual tailwind ${tail} kt is greater than the TPS tailwind ${tpsKt} kt.`, "red");
+          windOptions("tailwind");
         } else {
           const zw = wnum(s.zwMax), corr = num(s.twCorr);
           const lim = zw != null && corr != null ? zw - corr * tail : null;
@@ -673,7 +716,16 @@
     else if (R.thrust === 1) thrust = `Maximum at ${rating}`;
     else thrust = HIGH.includes(s.rating) ? `Maximum at ${rating}` : "Maximum at 26K or TO (new TPS)";
 
+    if (R.noGo) {
+      thrust = "Not authorized";
+      speeds = "Not authorized";
+      qrhSteps = false;
+      R.actions = ["Do not take off under these conditions. Contact Dispatch."];
+      R.alts = [];
+      R.showManual = false;
+    }
     if (R.missing.length && R.status !== "red") R.status = "pending";
+    R.showAcars = [...R.actions, ...R.alts].some((a) => /\bTPS\b/.test(a));
     return { ...R, speeds, thrust, qrhSteps, wind: w };
   }
 
@@ -719,6 +771,13 @@
         ${S.runway === "WET" ? `<div class="sub toggles">
             ${tgl("tpsWet", "TPS header specifies “WET”")}
             ${tgl("grooved", "Runway grooved or PFC", "Listed under Additional Runway Information or NOTAM (not wire-combed)")}
+            ${tgl("trInop", "Thrust reverser inoperative")}</div>` : ""}
+        ${S.runway === "CONTAM" ? `<div class="sub toggles">
+            <p class="hint">Contaminated: more than 25% of the required field length, within the width used, is covered by standing water, slush or wet snow deeper than ⅛ in. (3 mm), dry snow deeper than 1 in. (25 mm), compacted snow, or ice.</p>
+            <h4 class="subh">Contaminant and depth</h4>
+            ${seg("contam", CONTAM.map(([k, t]) => [k, t]), "Contaminant and depth")}
+            ${tgl("contamChunks", "Chunks of hardened snow or ice")}
+            ${tgl("antiSkidInop", "Anti-skid inoperative")}
             ${tgl("trInop", "Thrust reverser inoperative")}</div>` : ""}
         ${S.runway === "DRY" ? `<div class="sub toggles">${tgl("tpsWet", "TPS header specifies “WET”", "Permissible on a dry runway")}</div>` : ""}
       </div>
@@ -798,6 +857,7 @@
         red: ["New data required", "Stop · Action required"],
         pending: ["More information needed", "Incomplete"],
       }[E.status];
+      if (E.noGo) { head[0] = "Takeoff not authorized"; head[1] = "Stop · Limitation"; }
       const cls = E.status === "pending" ? "amber" : E.status;
       const aa = E.needAA ? `
         <div class="card"><h3>Airport Analysis check</h3>
@@ -827,6 +887,8 @@
       ${E.cautions.length ? `<div class="card"><h3>Cautions</h3><ul class="list">${E.cautions.map((c) => `<li class="amber"><span class="dot"></span><span class="body">${esc(c)}</span></li>`).join("")}</ul></div>` : ""}
       ${E.noQRH.length ? `<div class="card"><h3>FMC QRH V-speeds not permitted</h3><ul class="list">${E.noQRH.map((c) => `<li class="red"><span class="dot"></span><span class="body">${esc(c)}</span></li>`).join("")}</ul></div>` : ""}
       ${fmc}
+      ${E.showManual ? manualCard() : ""}
+      ${E.showAcars ? acarsCard() : ""}
       <div class="card"><h3>Why</h3><p class="hint">Checked in card order: weight, then temperature, then wind.</p>
         <ul class="list">${E.reasons.map((r) => `<li class="${r.lvl}"><span class="dot"></span><span class="body">${esc(r.text)}<br><span class="src">${esc(r.sec)}</span></span></li>`).join("") || `<li><span class="body">No findings yet.</span></li>`}</ul>
       </div>
@@ -847,7 +909,7 @@
     const T = E.tail;
     const rtg = esc(S.rating === "27K" ? "27K Bump" : S.rating || "");
     const rwy = S.rwy ? `runway ${esc(S.rwy.toUpperCase())}` : "the runway";
-    const intro = `<p class="hint">The TPS was based on ${T.basis}, but the actual wind gives a <b>${T.tail} kt tailwind</b>. Compute takeoff data with Method 1 or Method 2. If Improved Performance is required, use Method 1.</p>`;
+    const intro = `<p class="hint">The TPS was based on ${T.basis}, but the actual wind gives a <b>${T.tail} kt tailwind</b>. Request a TPS with updated wind, or follow AOM 1p.4.7 Unplanned Tailwind Takeoff (Method 2). If Improved Performance is required, use Method 1.</p>`;
     const m1 = `<ol class="msteps">
         ${mstep(1, "Request tailwind takeoff data", "", [chkBtn("m1a", "Send an ACARS Takeoff Data Request with the actual wind, or contact Dispatch")], ["m1a"])}
         ${mstep(2, "Run the guide with the new TPS", "", [chkBtn("m1b", "When the new TPS arrives, tap <b>New takeoff</b> and enter its data")], ["m1b"])}
@@ -912,6 +974,28 @@
       body = `<ol class="msteps">${steps.join("")}</ol>`;
     }
     return `<section class="card tailcard"><h3>Unplanned tailwind · ${T.tail} kt</h3>${intro}${choice}${body}</section>`;
+  }
+
+  function manualCard() {
+    return `<div class="card"><h3>Manual Takeoff Calculation · AOM 1p.4.8</h3>
+      <p class="hint">Use the TPS Airport Analysis with the weight adjustments, thrust and V-speeds in the takeoff performance section, and the MEL/CDL manual as applicable.</p>
+      <ol class="actions">
+        <li>Determine the maximum weight from the CLIMB and RWY limits, and apply any corrections to get the maximum takeoff weight.</li>
+        <li>Look up V-speeds in the takeoff performance section, or use FMC QRH V-speeds.</li>
+        <li>Use maximum thrust for the thrust rating. If the TPS temperature is valid, use takeoff N1 from the TPS; otherwise look it up in the takeoff performance section.</li>
+        <li>Standard thrust cannot be used, because an assumed temperature cannot be determined.</li>
+      </ol>
+      <p class="mtext" style="margin-top:10px"><span class="pill red">Not with Improved Performance</span> If the weight requires Improved Performance, request a new TPS.</p>
+    </div>`;
+  }
+
+  function acarsCard() {
+    return `<div class="card"><h3>ACARS Takeoff Data Request</h3>
+      <ul class="list">
+        <li><span class="dot"></span><span class="body">Thrust RTG on 3RA–3VR: enter <b>0</b> (TO), <b>1</b> (TO1) or <b>2</b> (TO2).</span></li>
+        <li><span class="dot"></span><span class="body">Runway without an L, C or R: leave the third digit blank (e.g. 33_X). Enter space (SP), then X.</span></li>
+      </ul>
+    </div>`;
   }
 
   function mstep(n, title, hint, parts, ids, failed) {
@@ -1077,8 +1161,9 @@
     { t: "Gusty crosswind (card example)", d: "Runway 36, wind 300° at 10 gusting 22.", s: { plan: "MAX", rating: "24K", closeout: true, tow: "150.1", ptow: "151.2", mtow: "157.8", oat: "12", planTemp: "15", rwy: "36", windDir: "300", windSpd: "10", windGust: "22" } },
     { t: "Warmer than plan temperature", d: "Max thrust planned; it's 1.5°C warmer than planned.", s: { plan: "MAX", rating: "26K", closeout: true, tow: "154.0", ptow: "154.3", mtow: "157.9", oat: "35.5", planTemp: "34", rwy: "8", windDir: "090", windSpd: "6" } },
     { t: "Unplanned tailwind", d: "TPS based on zero wind; tower reports a 6 kt tailwind.", s: { plan: "MAX", rating: "24K", closeout: true, tow: "150.0", ptow: "151.5", mtow: "158.0", oat: "16", planTemp: "20", rwy: "18", windDir: "360", windSpd: "6", zwMax: "160.0", twCorr: "1100" } },
+    { t: "Tailwind beyond the TPS", d: "TPS planned a 3 kt tailwind; the wind has swung to a 9 kt tailwind.", s: { plan: "MAX", rating: "26K", closeout: true, tow: "149.0", ptow: "150.2", mtow: "156.5", oat: "21", planTemp: "24", rwy: "27", windDir: "090", windSpd: "9", tpsWind: "TAIL", tpsWindKt: "3" } },
     { t: "Wet runway, dry TPS", d: "Light rain began after the TPS was issued.", s: { plan: "STD", rating: "24K", closeout: true, runway: "WET", tow: "147.0", atow: "150.5", mtow: "157.0", oat: "14", at: "39", rwy: "27", windDir: "260", windSpd: "11" } },
-    { t: "Contaminated runway", d: "Slush on the runway; CRC/MEL message in use.", s: { plan: "MAX", rating: "26K", closeout: true, runway: "CONTAM", antiIce: true, tpsAntiIce: true, tow: "141.0", ptow: "142.0", mtow: "146.5", oat: "-3", planTemp: "-1", rwy: "4R", windDir: "030", windSpd: "7" } },
+    { t: "Contaminated runway", d: "Slush on the runway; CRC/MEL message in use.", s: { plan: "MAX", rating: "26K", closeout: true, runway: "CONTAM", contam: "S25", antiIce: true, tpsAntiIce: true, tow: "141.0", ptow: "142.0", mtow: "146.5", oat: "-3", planTemp: "-1", rwy: "4R", windDir: "030", windSpd: "7" } },
   ];
   $("#scn-list").innerHTML = SCENARIOS.map((x, i) => `<button type="button" class="scn" data-scn="${i}"><b>${esc(x.t)}</b><span>${esc(x.d)}</span></button>`).join("");
   const dlg = $("#dlg-scn");
