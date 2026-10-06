@@ -12,10 +12,35 @@ This prototype is separate from the Project North Star website. It is a single
 self-contained HTML file with no dependencies and no network calls, so it works
 offline.
 
-## Run it
+## Install on an iPad (works offline)
 
-Open `index.html` in any browser. On an iPad, open it in Safari and use
-Share → Add to Home Screen for a full-screen app.
+The app is published with GitHub Pages from the `gh-pages` branch:
+https://captaintimbennett-coder.github.io/Project-North-Star/
+
+1. Open that address in Safari or Chrome while online.
+2. Tap Share → Add to Home Screen → Add.
+3. Open it once from the new icon. It then works with no connection.
+
+It checks for a new version whenever it opens online. The installed version
+is shown at the bottom of the Result screen.
+
+## Files
+
+- `index.html` — the whole app
+- `manifest.webmanifest` — Home Screen name, icon and full-screen display
+- `sw.js` — service worker that saves the app for offline use
+- `icons/` — Home Screen icons
+
+When changing any file, bump `VERSION` in `sw.js` and `APP_VERSION` in
+`index.html` together, then republish the `gh-pages` branch:
+
+```bash
+git subtree split --prefix prototypes/b737-takeoff-guide -b gh-pages-build
+git push -f origin gh-pages-build:gh-pages
+```
+
+Opening `index.html` directly from disk also works on a computer, without
+offline support.
 
 Use **Demo scenarios** to load pre-filled takeoffs for a walkthrough:
 
