@@ -30,6 +30,7 @@ is shown at the bottom of the Result screen.
 - `manifest.webmanifest` — Home Screen name, icon and full-screen display
 - `sw.js` — service worker that saves the app for offline use
 - `icons/` — Home Screen icons
+- `vercel.json` — stops Vercel from trying to build the `gh-pages` branch
 
 When changing any file, bump `VERSION` in `sw.js` and `APP_VERSION` in
 `index.html` together, then republish the `gh-pages` branch:
