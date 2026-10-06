@@ -7,6 +7,10 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#0b111c">
 <title>B737 Takeoff Guide</title>
+<meta name="apple-mobile-web-app-title" content="Takeoff Guide">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" href="icons/icon-192.png">
 <style>
   :root {
     --bg: #eef1f5;
@@ -328,6 +332,7 @@
   "use strict";
 
   const CARD_REV = "24 JUN 26";
+  const APP_VERSION = "2026-10-06.1"; // keep in step with VERSION in sw.js
   const RATINGS = ["22K", "24K", "26K", "27K", "TO2", "TO1", "TO"];
   const HIGH = ["26K", "27K", "TO"]; // ratings that satisfy "26K, 27K Bump, or TO" requirements
   const STEPS = [
@@ -825,7 +830,7 @@
       <div class="card"><h3>Why</h3><p class="hint">Checked in card order: weight, then temperature, then wind.</p>
         <ul class="list">${E.reasons.map((r) => `<li class="${r.lvl}"><span class="dot"></span><span class="body">${esc(r.text)}<br><span class="src">${esc(r.sec)}</span></span></li>`).join("") || `<li><span class="body">No findings yet.</span></li>`}</ul>
       </div>
-      <p class="disclaimer">Demonstration prototype built from B737 Takeoff Card rev. ${CARD_REV}. Not approved for operational use. Always use the current card and company procedures.</p>`;
+      <p class="disclaimer">Demonstration prototype built from B737 Takeoff Card rev. ${CARD_REV}. Not approved for operational use. Always use the current card and company procedures.<br>App version ${APP_VERSION}</p>`;
     },
   };
 
@@ -1090,6 +1095,11 @@
 
   $("#rev").textContent = CARD_REV;
   render();
+
+  // Offline support: only when served from a web address.
+  if ("serviceWorker" in navigator && (location.protocol === "https:" || location.hostname === "localhost")) {
+    navigator.serviceWorker.register("sw.js").catch(() => {});
+  }
 })();
 </script>
 </body>
