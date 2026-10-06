@@ -249,6 +249,7 @@
   .crow small { display: block; font-size: 13px; color: var(--muted); }
   .crow b { font-variant-numeric: tabular-nums; white-space: nowrap; font-size: 17px; }
   .crow.total { background: var(--panel); }
+  .crow.head { padding: 6px 14px; font-size: 12px; font-weight: 700; letter-spacing: .6px; text-transform: uppercase; color: var(--muted); background: var(--panel); }
   .crow.total b { color: var(--accent); }
   .btn.small { min-height: 48px; font-size: 15px; justify-self: start; }
   .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
@@ -361,6 +362,10 @@
   const num = (v) => (v === "" || v == null || isNaN(Number(v)) ? null : Number(v));
   const fmt = (n) => Math.round(n).toLocaleString("en-US");
   const r1 = (n) => Math.round(n * 10) / 10;
+  // TPS weights are written in thousands of pounds (135.4 = 135,400 lb).
+  // A full figure (135400) is accepted too. Returns pounds.
+  const wnum = (v) => { const n = num(v); return n == null ? null : n < 1000 ? Math.round(n * 1000) : n; };
+  const fmtW = (lb) => (lb / 1000).toFixed(1);
 
   function rwyHeading(str) {
     const m = String(str || "").match(/^\s*(\d{1,2})/);
@@ -489,7 +494,7 @@
     if (s.eecAlt) R.noQRH.push("EECs in Alternate mode");
 
     // Standard planned but a limitation requires maximum thrust.
-    const tow = num(s.tow), atow = num(s.atow), ptow = num(s.ptow), mtow = num(s.mtow);
+    const tow = wnum(s.tow), atow = wnum(s.atow), ptow = wnum(s.ptow), mtow = wnum(s.mtow);
     const oat = num(s.oat), at = num(s.at), plan = num(s.planTemp);
     if (s.plan === "STD" && (penalty.length || noPenalty.length)) {
       R.speedChange = true;
@@ -543,7 +548,7 @@
     const WV = "Weight Variation";
     if (s.plan === "STD") {
       if (tow == null || atow == null || mtow == null) R.missing.push("Weights (TOW, ATOW, MTOW)");
-      else if (tow <= atow) why(WV, `Takeoff weight ${fmt(tow)} is lighter than or equal to ATOW ${fmt(atow)}: standard thrust is authorized.`);
+      else if (tow <= atow) why(WV, `Takeoff weight ${fmtW(tow)} is lighter than or equal to ATOW ${fmtW(atow)}: standard thrust is authorized.`);
       else if (tow <= mtow) {
         max(1); R.speedChange = true;
         why(WV, `Takeoff weight is ${fmt(tow - atow)} lb heavier than ATOW: maximum thrust at the planned rating is required and V-speeds must change.`, "amber");
@@ -551,7 +556,7 @@
       } else overMTOW(WV);
     } else if (s.plan === "MAX") {
       if (tow == null || ptow == null || mtow == null) R.missing.push("Weights (TOW, PTOW, MTOW)");
-      else if (tow <= ptow) why(WV, `Takeoff weight ${fmt(tow)} is lighter than or equal to PTOW ${fmt(ptow)}: use MAX thrust.`);
+      else if (tow <= ptow) why(WV, `Takeoff weight ${fmtW(tow)} is lighter than or equal to PTOW ${fmtW(ptow)}: use MAX thrust.`);
       else if (tow <= ptow + 2000 && tow <= mtow) {
         why(WV, `Takeoff weight exceeds PTOW by ${fmt(tow - ptow)} lb (≤ 2,000) and is within MTOW: use the TPS Thrust/V-speed section data for the runway.`);
         if (s.ip) caution("Improved Performance: TOW must also not exceed the Improved Performance maximum takeoff weight in Airport Analysis.");
@@ -561,7 +566,7 @@
           act("Request a new TPS.");
         } else {
           R.speedChange = true;
-          why(WV, `Takeoff weight exceeds ATOW (PTOW + 2,000 = ${fmt(ptow + 2000)}) and is within MTOW: use MAX thrust with FMC QRH V-speeds or AOM 6p.7 V-speeds.`, "amber");
+          why(WV, `Takeoff weight exceeds ATOW (PTOW + 2,000 lb = ${fmtW(ptow + 2000)}) and is within MTOW: use MAX thrust with FMC QRH V-speeds or AOM 6p.7 V-speeds.`, "amber");
         }
       } else overMTOW(WV);
     }
@@ -612,7 +617,7 @@
           why(WIND, `Tailwind ${tail} kt is within the TPS tailwind ${tpsKt} kt.`);
           caution("The tailwind branch of the Wind Variation chart was cropped on the supplied card. Verify this case against the full card.");
         } else {
-          const zw = num(s.zwMax), corr = num(s.twCorr);
+          const zw = wnum(s.zwMax), corr = num(s.twCorr);
           const lim = zw != null && corr != null ? zw - corr * tail : null;
           const T = R.tail = {
             tail, lim, zw, corr, ip: !!s.ip, m2: false,
@@ -629,9 +634,9 @@
             max(1); R.speedChange = true;
             if (T.ok === true) {
               T.m2 = true;
-              why(UT, `Method 2: max allowable weight ${fmt(zw)} − (${fmt(corr)} × ${tail} kt) = ${fmt(lim)} lb. Takeoff weight ${fmt(tow)} is within it. Use maximum thrust for the rating.`, "amber");
+              why(UT, `Method 2: max allowable weight ${fmtW(zw)} − (${fmt(corr)} lb × ${tail} kt) = ${fmtW(lim)}. Takeoff weight ${fmtW(tow)} is within it. Use maximum thrust for the rating.`, "amber");
             } else if (T.ok === false) {
-              why(UT, `Method 2: max allowable weight is ${fmt(lim)} lb; takeoff weight ${fmt(tow)} is ${fmt(tow - lim)} lb heavier. Method 2 cannot be used.`, "red");
+              why(UT, `Method 2: max allowable weight is ${fmtW(lim)}; takeoff weight ${fmtW(tow)} is ${fmt(tow - lim)} lb heavier. Method 2 cannot be used.`, "red");
               act("Use Method 1: request a TPS based on the tailwind via ACARS, or contact Dispatch.");
               if (!R.speedsOnly) R.speedsOnly = "From the new tailwind TPS";
             } else {
@@ -729,12 +734,12 @@
       const std = S.plan === "STD";
       return `
       <h2 class="step-title">1 · Weight variation</h2>
-      <p class="lead">Compare the actual takeoff weight (GW on TAKEOFF REF 1/2) with the TPS.</p>
+      <p class="lead">Compare the actual takeoff weight (GW on TAKEOFF REF 1/2) with the TPS. Enter weights as they appear on the TPS, for example 135.4.</p>
       <div class="card">
         <div class="grid2">
-          ${field("tow", "Actual takeoff weight", "lb", "e.g. 152400")}
-          ${std ? field("atow", "ATOW (assumed takeoff weight)", "lb") : field("ptow", "PTOW (planned takeoff weight)", "lb")}
-          ${field("mtow", "MTOW (Thrust/V-speed section)", "lb")}
+          ${field("tow", "Actual takeoff weight", "× 1000 lb", "e.g. 152.4", "decimal")}
+          ${std ? field("atow", "ATOW (assumed takeoff weight)", "× 1000 lb", "e.g. 151.0", "decimal") : field("ptow", "PTOW (planned takeoff weight)", "× 1000 lb", "e.g. 151.0", "decimal")}
+          ${field("mtow", "MTOW (Thrust/V-speed section)", "× 1000 lb", "e.g. 158.4", "decimal")}
         </div>
         <div class="readout" data-live="weight" aria-live="polite"></div>
       </div>
@@ -774,7 +779,7 @@
         <h3>Unplanned tailwind · Method 2 values</h3>
         <p class="hint">Only needed for Method 2. Take both numbers from the TPS Airport Analysis for this runway. The guide computes: zero-wind max weight − (tailwind correction × tailwind).</p>
         <div class="grid2">
-          ${field("zwMax", "Zero-wind max weight", "lb")}
+          ${field("zwMax", "Zero-wind max weight", "× 1000 lb", "e.g. 160.0", "decimal")}
           ${field("twCorr", "Tailwind correction", "lb / kt")}
         </div>
         <div class="readout" data-live="tailcalc" aria-live="polite"></div>
@@ -855,15 +860,16 @@
         calc = `<p class="mtext">Enter the zero-wind max weight and tailwind correction from the TPS Airport Analysis.</p>
           <button type="button" class="btn small" data-goto="4">Enter Airport Analysis values</button>`;
       } else {
-        const tow = num(S.tow);
+        const tow = wnum(S.tow);
         const verdict = T.ok == null ? `<p class="mtext">Enter the actual takeoff weight on the Weight step to compare.</p>`
           : T.ok ? `<p class="mtext"><span class="pill go">Within limit</span> ${fmt(T.lim - tow)} lb margin.</p>`
           : `<p class="mtext"><span class="pill red">Too heavy</span> ${fmt(tow - T.lim)} lb over. Method 2 can't be used: switch to Method 1.</p>`;
         calc = `<div class="calc">
-            <div class="crow"><span>Zero-wind max weight, ${rwy}</span><b>${fmt(T.zw)} lb</b></div>
-            <div class="crow"><span>Tailwind correction<small>${fmt(T.corr)} lb/kt × ${T.tail} kt</small></span><b>− ${fmt(T.corr * T.tail)} lb</b></div>
-            <div class="crow total"><span>Max allowable takeoff weight</span><b>${fmt(T.lim)} lb</b></div>
-            ${tow != null ? `<div class="crow"><span>Actual takeoff weight</span><b>${fmt(tow)} lb</b></div>` : ""}
+            <div class="crow head"><span>Weights in 1000 lb, as on the TPS</span></div>
+            <div class="crow"><span>Zero-wind max weight, ${rwy}</span><b>${fmtW(T.zw)}</b></div>
+            <div class="crow"><span>Tailwind correction<small>${fmt(T.corr)} lb/kt × ${T.tail} kt</small></span><b>− ${fmtW(T.corr * T.tail)}</b></div>
+            <div class="crow total"><span>Max allowable takeoff weight</span><b>${fmtW(T.lim)}</b></div>
+            ${tow != null ? `<div class="crow"><span>Actual takeoff weight</span><b>${fmtW(tow)}</b></div>` : ""}
           </div>${verdict}
           ${chkBtn("m2c", "Values confirmed against the TPS Airport Analysis")}`;
       }
@@ -882,7 +888,7 @@
         const cond = S.runway === "WET" ? (S.grooved ? "SK-R" : "WET") : "DRY";
         const oat = num(S.oat);
         const rows = aom ? [
-          chkBtn("m2s1", `Look up V-speeds in the AOM Takeoff chapter for <b>${num(S.tow) != null ? fmt(num(S.tow)) + " lb" : "the takeoff weight"}</b> at the actual temperature <b>${oat != null ? oat + "°C" : ""}</b>`),
+          chkBtn("m2s1", `Look up V-speeds in the AOM Takeoff chapter for <b>${wnum(S.tow) != null ? fmtW(wnum(S.tow)) : "the takeoff weight"}</b> at the actual temperature <b>${oat != null ? oat + "°C" : ""}</b>`),
           chkBtn("m2s2", `Correct V1 for the <b>${T.tail} kt tailwind</b>`),
           chkBtn("m2s3", `TAKEOFF REF 1/2: enter V1, VR and V2 <span class="key">1R–3R</span>`),
         ] : [
@@ -939,10 +945,10 @@
   // ---------- live readouts (update without re-rendering inputs) ----------
   function updateLive() {
     const el = (k) => document.querySelector(`[data-live="${k}"]`);
-    const tow = num(S.tow), mtow = num(S.mtow);
+    const tow = wnum(S.tow), mtow = wnum(S.mtow);
     const w = el("weight");
     if (w) {
-      const ref = S.plan === "STD" ? num(S.atow) : num(S.ptow);
+      const ref = S.plan === "STD" ? wnum(S.atow) : wnum(S.ptow);
       const refName = S.plan === "STD" ? "ATOW" : "PTOW";
       let out = "";
       if (tow != null && ref != null) {
@@ -983,12 +989,12 @@
       const isTail = wc.ok && wc.hw < 0;
       tailCard.hidden = !(isTail && !(S.tpsWind === "TAIL" && -wc.hw <= tpsKt));
       const tc = el("tailcalc");
-      const zw = num(S.zwMax), corr = num(S.twCorr);
+      const zw = wnum(S.zwMax), corr = num(S.twCorr);
       if (tc) {
         if (isTail && zw != null && corr != null) {
           const lim = zw - corr * r1(-wc.hw);
           const ok = tow != null && tow <= lim;
-          tc.innerHTML = `Max allowable: <b>${fmt(lim)} lb</b>${tow != null ? ` <span class="pill ${ok ? "go" : "red"}">${ok ? "TOW within limit" : "TOW too heavy"}</span>` : ""}`;
+          tc.innerHTML = `Max allowable: <b>${fmtW(lim)}</b>${tow != null ? ` <span class="pill ${ok ? "go" : "red"}">${ok ? "TOW within limit" : "TOW too heavy"}</span>` : ""}`;
         } else tc.innerHTML = "";
       }
     }
@@ -1060,14 +1066,14 @@
 
   // ---------- demo scenarios ----------
   const SCENARIOS = [
-    { t: "Routine standard-thrust takeoff", d: "Everything within TPS limits.", s: { plan: "STD", rating: "24K", closeout: true, tow: "148200", atow: "151000", mtow: "158400", oat: "18", at: "44", rwy: "36", windDir: "010", windSpd: "8" } },
-    { t: "Heavier than ATOW", d: "Late bags push weight over the assumed takeoff weight.", s: { plan: "STD", rating: "24K", closeout: true, tow: "152900", atow: "151000", mtow: "158400", oat: "22", at: "41", rwy: "17R", windDir: "160", windSpd: "9" } },
-    { t: "Windshear advisory", d: "Standard thrust planned at 26K; windshear advisory issued.", s: { plan: "STD", rating: "26K", closeout: true, windshear: true, tow: "149500", atow: "151000", mtow: "158400", oat: "29", at: "48", rwy: "35C", windDir: "330", windSpd: "14", windGust: "24" } },
-    { t: "Gusty crosswind (card example)", d: "Runway 36, wind 300° at 10 gusting 22.", s: { plan: "MAX", rating: "24K", closeout: true, tow: "150100", ptow: "151200", mtow: "157800", oat: "12", planTemp: "15", rwy: "36", windDir: "300", windSpd: "10", windGust: "22" } },
-    { t: "Warmer than plan temperature", d: "Max thrust planned; it's 1.5°C warmer than planned.", s: { plan: "MAX", rating: "26K", closeout: true, tow: "154000", ptow: "154300", mtow: "157900", oat: "35.5", planTemp: "34", rwy: "8", windDir: "090", windSpd: "6" } },
-    { t: "Unplanned tailwind", d: "TPS based on zero wind; tower reports a 6 kt tailwind.", s: { plan: "MAX", rating: "24K", closeout: true, tow: "150000", ptow: "151500", mtow: "158000", oat: "16", planTemp: "20", rwy: "18", windDir: "360", windSpd: "6", zwMax: "160000", twCorr: "1100" } },
-    { t: "Wet runway, dry TPS", d: "Light rain began after the TPS was issued.", s: { plan: "STD", rating: "24K", closeout: true, runway: "WET", tow: "147000", atow: "150500", mtow: "157000", oat: "14", at: "39", rwy: "27", windDir: "260", windSpd: "11" } },
-    { t: "Contaminated runway", d: "Slush on the runway; CRC/MEL message in use.", s: { plan: "MAX", rating: "26K", closeout: true, runway: "CONTAM", antiIce: true, tpsAntiIce: true, tow: "141000", ptow: "142000", mtow: "146500", oat: "-3", planTemp: "-1", rwy: "4R", windDir: "030", windSpd: "7" } },
+    { t: "Routine standard-thrust takeoff", d: "Everything within TPS limits.", s: { plan: "STD", rating: "24K", closeout: true, tow: "148.2", atow: "151.0", mtow: "158.4", oat: "18", at: "44", rwy: "36", windDir: "010", windSpd: "8" } },
+    { t: "Heavier than ATOW", d: "Late bags push weight over the assumed takeoff weight.", s: { plan: "STD", rating: "24K", closeout: true, tow: "152.9", atow: "151.0", mtow: "158.4", oat: "22", at: "41", rwy: "17R", windDir: "160", windSpd: "9" } },
+    { t: "Windshear advisory", d: "Standard thrust planned at 26K; windshear advisory issued.", s: { plan: "STD", rating: "26K", closeout: true, windshear: true, tow: "149.5", atow: "151.0", mtow: "158.4", oat: "29", at: "48", rwy: "35C", windDir: "330", windSpd: "14", windGust: "24" } },
+    { t: "Gusty crosswind (card example)", d: "Runway 36, wind 300° at 10 gusting 22.", s: { plan: "MAX", rating: "24K", closeout: true, tow: "150.1", ptow: "151.2", mtow: "157.8", oat: "12", planTemp: "15", rwy: "36", windDir: "300", windSpd: "10", windGust: "22" } },
+    { t: "Warmer than plan temperature", d: "Max thrust planned; it's 1.5°C warmer than planned.", s: { plan: "MAX", rating: "26K", closeout: true, tow: "154.0", ptow: "154.3", mtow: "157.9", oat: "35.5", planTemp: "34", rwy: "8", windDir: "090", windSpd: "6" } },
+    { t: "Unplanned tailwind", d: "TPS based on zero wind; tower reports a 6 kt tailwind.", s: { plan: "MAX", rating: "24K", closeout: true, tow: "150.0", ptow: "151.5", mtow: "158.0", oat: "16", planTemp: "20", rwy: "18", windDir: "360", windSpd: "6", zwMax: "160.0", twCorr: "1100" } },
+    { t: "Wet runway, dry TPS", d: "Light rain began after the TPS was issued.", s: { plan: "STD", rating: "24K", closeout: true, runway: "WET", tow: "147.0", atow: "150.5", mtow: "157.0", oat: "14", at: "39", rwy: "27", windDir: "260", windSpd: "11" } },
+    { t: "Contaminated runway", d: "Slush on the runway; CRC/MEL message in use.", s: { plan: "MAX", rating: "26K", closeout: true, runway: "CONTAM", antiIce: true, tpsAntiIce: true, tow: "141.0", ptow: "142.0", mtow: "146.5", oat: "-3", planTemp: "-1", rwy: "4R", windDir: "030", windSpd: "7" } },
   ];
   $("#scn-list").innerHTML = SCENARIOS.map((x, i) => `<button type="button" class="scn" data-scn="${i}"><b>${esc(x.t)}</b><span>${esc(x.d)}</span></button>`).join("");
   const dlg = $("#dlg-scn");
