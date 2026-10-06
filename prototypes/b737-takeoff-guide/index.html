@@ -1,0 +1,961 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0b111c">
+<title>B737 Takeoff Guide</title>
+<style>
+  :root {
+    --bg: #eef1f5;
+    --panel: #ffffff;
+    --panel-2: #f5f7fa;
+    --line: #d5dbe4;
+    --text: #0e1622;
+    --muted: #5a6577;
+    --accent: #1d5fd1;
+    --accent-ink: #ffffff;
+    --go: #11804a;
+    --go-bg: #e3f5eb;
+    --amber: #9a5b00;
+    --amber-bg: #fff2d6;
+    --red: #b42318;
+    --red-bg: #fde6e4;
+    --focus: #1d5fd1;
+    --radius: 14px;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0b111c;
+      --panel: #131b29;
+      --panel-2: #1a2436;
+      --line: #2a364c;
+      --text: #e8edf5;
+      --muted: #94a1b8;
+      --accent: #5b9bff;
+      --accent-ink: #06101f;
+      --go: #3ddc84;
+      --go-bg: #0f2a1d;
+      --amber: #ffbe3d;
+      --amber-bg: #2d2210;
+      --red: #ff6b5e;
+      --red-bg: #321615;
+      --focus: #8fbcff;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0b111c;
+    --panel: #131b29;
+    --panel-2: #1a2436;
+    --line: #2a364c;
+    --text: #e8edf5;
+    --muted: #94a1b8;
+    --accent: #5b9bff;
+    --accent-ink: #06101f;
+    --go: #3ddc84;
+    --go-bg: #0f2a1d;
+    --amber: #ffbe3d;
+    --amber-bg: #2d2210;
+    --red: #ff6b5e;
+    --red-bg: #321615;
+    --focus: #8fbcff;
+    color-scheme: dark;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font: 16px/1.45 -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
+    -webkit-text-size-adjust: 100%;
+    min-height: 100vh;
+    padding-bottom: calc(88px + env(safe-area-inset-bottom));
+  }
+  button, input, select { font: inherit; color: inherit; }
+  :focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+
+  .wrap { max-width: 880px; margin: 0 auto; padding: 0 16px; }
+
+  header.top {
+    position: sticky; top: 0; z-index: 5;
+    background: color-mix(in srgb, var(--bg) 88%, transparent);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--line);
+    padding-top: env(safe-area-inset-top);
+  }
+  .top-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; padding: 12px 0 10px; }
+  .top-actions { display: flex; gap: 8px; }
+  @media (max-width: 560px) {
+    .top-row .brand { flex: 1 1 100%; }
+    .top-actions { flex: 1; }
+    .top-actions .icon-btn { flex: 1; }
+  }
+  .brand { flex: 1; min-width: 0; }
+  .brand h1 { margin: 0; font-size: 19px; letter-spacing: .2px; }
+  .brand p { margin: 2px 0 0; font-size: 13px; color: var(--muted); }
+  .badge {
+    display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: .6px;
+    text-transform: uppercase; padding: 3px 8px; border-radius: 999px;
+    background: var(--amber-bg); color: var(--amber); vertical-align: 2px; margin-left: 6px;
+  }
+  .icon-btn {
+    border: 1px solid var(--line); background: var(--panel); border-radius: 10px;
+    padding: 8px 12px; font-size: 14px; font-weight: 600; cursor: pointer; white-space: nowrap;
+  }
+
+  ol.steps { list-style: none; display: flex; gap: 6px; margin: 0; padding: 0 0 12px; }
+  ol.steps li { flex: 1; }
+  ol.steps button {
+    width: 100%; border: 0; background: none; padding: 0; cursor: pointer; text-align: left;
+    font-size: 12px; color: var(--muted);
+  }
+  ol.steps .bar { display: block; height: 5px; border-radius: 3px; background: var(--line); margin-bottom: 5px; }
+  ol.steps .done .bar { background: var(--accent); }
+  ol.steps .current .bar { background: var(--accent); }
+  ol.steps .current { color: var(--text); font-weight: 700; }
+  @media (max-width: 560px) { ol.steps .lbl { display: none; } }
+
+  main { padding: 20px 0 24px; }
+  h2.step-title { font-size: 26px; margin: 0 0 4px; }
+  p.lead { margin: 0 0 18px; color: var(--muted); }
+
+  .card {
+    background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 16px; margin-bottom: 14px;
+  }
+  .card h3 { margin: 0 0 4px; font-size: 16px; }
+  .card .hint { margin: 0 0 12px; font-size: 14px; color: var(--muted); }
+  .src { font-size: 12px; color: var(--muted); font-style: italic; }
+
+  .seg { display: flex; flex-wrap: wrap; gap: 8px; }
+  .seg button {
+    flex: 1 1 96px; min-width: 0; min-height: 52px; padding: 10px 6px;
+    border: 1.5px solid var(--line); border-radius: 12px; background: var(--panel-2);
+    font-weight: 600; cursor: pointer;
+  }
+  .seg button small { display: block; font-weight: 500; font-size: 12px; color: var(--muted); overflow-wrap: anywhere; }
+  .seg button[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+  .seg button[aria-pressed="true"] small { color: inherit; opacity: .85; }
+
+  .toggles { display: grid; gap: 8px; }
+  .tgl {
+    display: flex; align-items: center; gap: 14px; width: 100%; text-align: left;
+    border: 1.5px solid var(--line); background: var(--panel-2); border-radius: 12px;
+    padding: 12px 14px; cursor: pointer; min-height: 56px;
+  }
+  .tgl .txt { flex: 1; }
+  .tgl .txt b { display: block; font-weight: 600; }
+  .tgl .txt span { font-size: 13px; color: var(--muted); }
+  .tgl .sw {
+    flex: none; width: 50px; height: 30px; border-radius: 15px; background: var(--line); position: relative;
+    transition: background .15s;
+  }
+  .tgl .sw::after {
+    content: ""; position: absolute; top: 3px; left: 3px; width: 24px; height: 24px; border-radius: 50%;
+    background: #fff; transition: transform .15s; box-shadow: 0 1px 3px rgba(0,0,0,.3);
+  }
+  .tgl[aria-checked="true"] { border-color: var(--accent); }
+  .tgl[aria-checked="true"] .sw { background: var(--accent); }
+  .tgl[aria-checked="true"] .sw::after { transform: translateX(20px); }
+  .sub { margin: 8px 0 0 18px; padding-left: 12px; border-left: 3px solid var(--line); }
+
+  .grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
+  label.num { display: block; }
+  label.num > span:first-child { display: block; font-size: 13px; font-weight: 600; color: var(--muted); margin-bottom: 4px; }
+  .inp { display: flex; align-items: center; border: 1.5px solid var(--line); border-radius: 12px; background: var(--panel-2); }
+  .inp:focus-within { border-color: var(--accent); }
+  .inp input {
+    flex: 1; min-width: 0; border: 0; background: transparent; padding: 12px; font-size: 20px;
+    font-variant-numeric: tabular-nums; outline: none;
+  }
+  .inp em { font-style: normal; color: var(--muted); padding-right: 12px; font-size: 14px; }
+
+  .readout {
+    margin-top: 12px; padding: 12px 14px; border-radius: 12px; background: var(--panel-2);
+    font-size: 15px; border: 1px dashed var(--line);
+  }
+  .readout:empty { display: none; }
+  .readout b { font-variant-numeric: tabular-nums; }
+  .pill { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 12px; font-weight: 700; }
+  .pill.go { background: var(--go-bg); color: var(--go); }
+  .pill.amber { background: var(--amber-bg); color: var(--amber); }
+  .pill.red { background: var(--red-bg); color: var(--red); }
+
+  /* Result */
+  .verdict { border-radius: var(--radius); padding: 20px; margin-bottom: 14px; border: 2px solid; }
+  .verdict.go { background: var(--go-bg); border-color: var(--go); }
+  .verdict.amber { background: var(--amber-bg); border-color: var(--amber); }
+  .verdict.red { background: var(--red-bg); border-color: var(--red); }
+  .verdict .kicker { font-size: 12px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; }
+  .verdict.go .kicker { color: var(--go); }
+  .verdict.amber .kicker { color: var(--amber); }
+  .verdict.red .kicker { color: var(--red); }
+  .verdict h2 { margin: 4px 0 14px; font-size: 28px; line-height: 1.15; }
+  .vgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; }
+  .vbox { background: var(--panel); border-radius: 12px; padding: 12px 14px; border: 1px solid var(--line); }
+  .vbox .k { font-size: 12px; text-transform: uppercase; letter-spacing: .6px; color: var(--muted); font-weight: 700; }
+  .vbox .v { font-size: 18px; font-weight: 700; margin-top: 2px; }
+
+  ul.list { margin: 0; padding: 0; list-style: none; display: grid; gap: 8px; }
+  ul.list li { display: flex; gap: 10px; align-items: flex-start; padding: 10px 12px; border-radius: 10px; background: var(--panel-2); }
+  ul.list li .dot { flex: none; width: 10px; height: 10px; border-radius: 50%; margin-top: 7px; background: var(--muted); }
+  ul.list li.go .dot { background: var(--go); }
+  ul.list li.amber .dot { background: var(--amber); }
+  ul.list li.red .dot { background: var(--red); }
+  ul.list li .body { flex: 1; }
+  ol.actions { margin: 0; padding-left: 22px; display: grid; gap: 6px; }
+  ol.actions li { padding-left: 4px; }
+  .or { font-size: 12px; font-weight: 800; color: var(--muted); letter-spacing: 1px; }
+
+  .fmc-page { margin-bottom: 12px; }
+  .fmc-page h4 { margin: 0 0 6px; font-size: 13px; letter-spacing: .8px; text-transform: uppercase; color: var(--muted); }
+  .chk {
+    display: flex; gap: 12px; align-items: center; width: 100%; text-align: left; cursor: pointer;
+    border: 1.5px solid var(--line); border-radius: 12px; background: var(--panel-2);
+    padding: 12px 14px; margin-bottom: 6px; min-height: 52px;
+  }
+  .chk .box { flex: none; width: 26px; height: 26px; border-radius: 7px; border: 2px solid var(--muted); display: grid; place-items: center; font-weight: 900; }
+  .chk[aria-checked="true"] { border-color: var(--go); }
+  .chk[aria-checked="true"] .box { background: var(--go); border-color: var(--go); color: var(--panel); }
+  .chk[aria-checked="true"] .t { text-decoration: line-through; color: var(--muted); }
+  .key { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 13px; padding: 1px 6px; border-radius: 6px; background: var(--line); }
+
+  footer.nav {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 5;
+    background: color-mix(in srgb, var(--panel) 94%, transparent);
+    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+    border-top: 1px solid var(--line);
+    padding: 12px 0 calc(12px + env(safe-area-inset-bottom));
+  }
+  footer.nav .wrap { display: flex; gap: 10px; }
+  .btn {
+    min-height: 56px; border-radius: 14px; padding: 0 22px; font-weight: 700; font-size: 17px; cursor: pointer;
+    border: 1.5px solid var(--line); background: var(--panel-2);
+  }
+  .btn.primary { flex: 1; background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+  .btn:disabled { opacity: .45; cursor: not-allowed; }
+
+  dialog {
+    border: 1px solid var(--line); border-radius: 18px; background: var(--panel); color: var(--text);
+    width: min(560px, calc(100vw - 32px)); padding: 0;
+  }
+  dialog::backdrop { background: rgba(0,0,0,.55); }
+  dialog .dh { padding: 18px 18px 6px; }
+  dialog .dh h2 { margin: 0; font-size: 20px; }
+  dialog .dh p { margin: 4px 0 0; color: var(--muted); font-size: 14px; }
+  dialog .db { padding: 10px 18px 18px; display: grid; gap: 8px; max-height: 65vh; overflow: auto; }
+  .scn { text-align: left; border: 1.5px solid var(--line); background: var(--panel-2); border-radius: 12px; padding: 12px 14px; cursor: pointer; }
+  .scn b { display: block; }
+  .scn span { font-size: 13px; color: var(--muted); }
+
+  .disclaimer { font-size: 12px; color: var(--muted); text-align: center; margin: 18px 0 0; }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <div class="top-row">
+      <div class="brand">
+        <h1>B737 Takeoff Guide <span class="badge">Demo</span></h1>
+        <p>Based on B737 Takeoff Card rev. <span id="rev"></span> · Not for operational use</p>
+      </div>
+      <div class="top-actions">
+        <button class="icon-btn" id="btn-scn" type="button">Demo scenarios</button>
+        <button class="icon-btn" id="btn-reset" type="button" aria-label="Start over">Restart</button>
+      </div>
+    </div>
+    <ol class="steps" id="steps" aria-label="Progress"></ol>
+  </div>
+</header>
+
+<main class="wrap" id="app" tabindex="-1"></main>
+
+<footer class="nav">
+  <div class="wrap">
+    <button class="btn" id="btn-back" type="button">Back</button>
+    <button class="btn primary" id="btn-next" type="button">Next</button>
+  </div>
+</footer>
+
+<dialog id="dlg-scn" aria-labelledby="scn-title">
+  <div class="dh">
+    <h2 id="scn-title">Demo scenarios</h2>
+    <p>Load a pre-filled takeoff to walk through. Values are invented for demonstration.</p>
+  </div>
+  <div class="db" id="scn-list"></div>
+  <div class="db" style="padding-top:0"><button class="btn" type="button" id="scn-close">Close</button></div>
+</dialog>
+
+<script>
+(() => {
+  "use strict";
+
+  const CARD_REV = "24 JUN 26";
+  const RATINGS = ["22K", "24K", "26K", "27K", "TO2", "TO1", "TO"];
+  const HIGH = ["26K", "27K", "TO"]; // ratings that satisfy "26K, 27K Bump, or TO" requirements
+  const STEPS = [
+    { id: "setup", label: "Setup" },
+    { id: "conditions", label: "Conditions" },
+    { id: "weight", label: "Weight" },
+    { id: "temp", label: "Temperature" },
+    { id: "wind", label: "Wind" },
+    { id: "result", label: "Result" },
+  ];
+
+  const blank = () => ({
+    aircraft: "NG", closeout: null, plan: null, rating: null, ip: false, bumpAuth: false,
+    runway: "DRY", tpsWet: false, grooved: false, trInop: false,
+    windshear: false, adv7: false, antiIce: false, tpsAntiIce: false,
+    melWt: false, melAuto: false, crcmel: false, eecAlt: false, flaps25: false,
+    tow: "", atow: "", ptow: "", mtow: "", mtowCode: "",
+    oat: "", at: "", planTemp: "",
+    rwy: "", windDir: "", windSpd: "", windGust: "", calm: false,
+    tpsWind: "NONE", tpsWindKt: "",
+    zwMax: "", twCorr: "",
+    aa: "",
+  });
+
+  let S = blank();
+  let step = 0;
+  let checks = {};
+
+  // ---------- helpers ----------
+  const $ = (sel, el = document) => el.querySelector(sel);
+  const esc = (v) => String(v).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const num = (v) => (v === "" || v == null || isNaN(Number(v)) ? null : Number(v));
+  const fmt = (n) => Math.round(n).toLocaleString("en-US");
+  const r1 = (n) => Math.round(n * 10) / 10;
+
+  function rwyHeading(str) {
+    const m = String(str || "").match(/^\s*(\d{1,2})/);
+    if (!m) return null;
+    const n = Number(m[1]);
+    return n >= 1 && n <= 36 ? n * 10 : null;
+  }
+
+  function windCalc(s) {
+    const g = num(s.windGust), v = num(s.windSpd);
+    if (s.calm) return { ok: true, hw: 0, xw: 0, gi: 0, calm: true };
+    const r = rwyHeading(s.rwy), d = num(s.windDir);
+    if (r == null || d == null || v == null) return { ok: false };
+    const a = ((d - r) * Math.PI) / 180;
+    return {
+      ok: true,
+      hw: r1(v * Math.cos(a)),
+      xw: r1(Math.abs(v * Math.sin(a))),
+      gi: g != null && g > v ? g - v : 0,
+    };
+  }
+
+  // ---------- rules engine ----------
+  // Every rule cites the card section it comes from. Status: go < amber < red.
+  function evaluate(s) {
+    const R = {
+      status: "go", thrust: 0, thrustOverride: null,
+      reasons: [], actions: [], alts: [], cautions: [], missing: [],
+      speedChange: false, noQRH: [], speedsOnly: null, needAA: false,
+    };
+    const rank = { go: 0, amber: 1, red: 2 };
+    const bump = (lvl) => { if (rank[lvl] > rank[R.status]) R.status = lvl; };
+    const why = (sec, text, lvl = "go") => { R.reasons.push({ sec, text, lvl }); bump(lvl); };
+    const act = (t) => { if (!R.actions.includes(t)) R.actions.push(t); };
+    const caution = (t) => { if (!R.cautions.includes(t)) R.cautions.push(t); };
+    const max = (lvl) => { R.thrust = Math.max(R.thrust, lvl); };
+    const rating = s.rating || "—";
+    const contamOrCRC = s.runway === "CONTAM" || s.crcmel;
+
+    // --- Preconditions
+    if (s.closeout === false) {
+      why("TPS Quick Reference Guide", "Load Closeout has not been received. Ensure Load Closeout is received prior to takeoff; FMC QRH V-speeds may only be used after it is received and accepted.", "red");
+      act("Obtain Load Closeout before continuing.");
+    }
+    if (s.plan === "MAX") max(1);
+
+    // --- Thrust rating rules
+    if (s.rating === "27K") {
+      max(1);
+      why("27K Bump Thrust", "27K Bump always requires maximum thrust. Standard thrust is prohibited.", s.plan === "STD" ? "amber" : "go");
+      if (!s.bumpAuth) {
+        why("27K Bump Thrust", "Other than SNA, 27K Bump is only available on pre-authorized routes, when needed to carry payload, with dispatch and load agent concurrence.", "red");
+        act("Confirm 27K Bump authorization (SNA, or dispatch and load agent concurrence) or select another rating.");
+      }
+    }
+    if (s.flaps25) {
+      if (s.aircraft === "NG") {
+        max(1);
+        if (!["26K", "27K"].includes(s.rating)) {
+          why("Flaps 25 Takeoff Thrust", "-NG flaps 25 takeoff data is only available for 26K or 27K Bump at maximum thrust.", "red");
+          act("Request a new TPS for flaps 25 at 26K or 27K Bump maximum thrust.");
+        } else {
+          why("Flaps 25 Takeoff Thrust", "-NG flaps 25: TPS limits to maximum thrust only (no standard thrust).", s.plan === "STD" ? "amber" : "go");
+        }
+      } else {
+        why("Flaps 25 Takeoff Thrust", "-MAX 8 flaps 25 data may be available for all ratings and may be used with standard thrust.");
+      }
+    }
+
+    // --- Runway surface
+    if (s.runway === "WET") {
+      if (!s.tpsWet) {
+        why("Takeoff on Wet Runways", "Runway is wet but the TPS header does not specify “WET.” Wet-runway takeoffs require TPS data labeled WET.", "red");
+        act("Request a new TPS based on a wet runway.");
+      } else {
+        why("Takeoff on Wet Runways", "TPS header specifies WET, so all TPS data including Airport Analysis is wet-runway data.");
+      }
+      if (s.trInop) caution("Thrust reverser inoperative on a wet runway: the MEL wet-runway penalty must be applied.");
+    }
+    if (s.runway === "DRY" && s.tpsWet) {
+      why("Takeoff on Wet Runways", "Runway is dry: taking off with wet-runway data is permissible.");
+    }
+
+    // --- Limitations that require maximum thrust
+    const penalty = [], noPenalty = [];
+    if (s.runway === "CONTAM") {
+      max(2); penalty.push("contaminated runway");
+      R.speedsOnly = "CRC/MEL message V-speeds only";
+      R.thrustOverride = "Maximum: 26K, 27K Bump, or TO (as listed on the CRC/MEL message)";
+      why("Use of Standard Thrust not authorized", "Runway contaminated by standing water, slush, snow or ice: maximum thrust at 26K, 27K Bump or TO is required.", "amber");
+      act("Use the CRC/MEL message for maximum weight, thrust rating and V-speeds.");
+      caution("Contaminated-runway operational limitations are on a card panel not captured in this demo. Review them before takeoff.");
+    }
+    if (s.crcmel && s.runway !== "CONTAM") {
+      max(2); penalty.push("CRC/MEL data");
+      R.speedsOnly = "CRC/MEL message V-speeds only";
+      R.thrustOverride = "Maximum: 26K, 27K Bump, or TO (as listed on the CRC/MEL message)";
+      why("Use of Standard Thrust not authorized", "Takeoff data from the CRC/MEL message for an MEL/CDL item requires maximum thrust.", "amber");
+    }
+    if (s.ip) {
+      max(2);
+      R.noQRH.push("Improved Performance — only TPS V-speeds can be used");
+      if (!R.speedsOnly) R.speedsOnly = "TPS Thrust/V-speed section only";
+      why("Use of Standard Thrust not authorized", "Improved Performance requires maximum thrust at 26K, 27K Bump or TO.", s.plan === "STD" ? "amber" : "go");
+    }
+    if (s.windshear) {
+      max(2); noPenalty.push("windshear"); R.speedChange = true;
+      why("Use of Standard Thrust not authorized", "Windshear reported or expected (including advisories): maximum thrust at 26K (27K at KSNA or with a planned 27K TPS) or TO.", "amber");
+      caution("Windshear: if able, use flaps 5, 10 (-MAX 8 only) or 15 for takeoff.");
+    }
+    if (s.adv7) {
+      max(2); noPenalty.push("airport ops advisory");
+      why("Use of Standard Thrust not authorized", "Airport ops advisory (##-7) page requires maximum thrust.", s.plan === "STD" ? "amber" : "go");
+    }
+    if (s.antiIce && !s.tpsAntiIce) {
+      max(1); penalty.push("engine anti-ice"); R.speedChange = true;
+      why("Use of Standard Thrust not authorized", "Engine anti-ice is used and the TPS Thrust/V-speed section does not indicate ANTI-ICE ON: maximum thrust at the planned rating.", "amber");
+      act("Request a new TPS with anti-ice, or check Airport Analysis (corrected for anti-ice).");
+    }
+    if (s.melWt && !s.melAuto) {
+      max(1); penalty.push("MEL/CDL weight correction");
+      R.noQRH.push("MEL/CDL V-speed correction — use V-speeds corrected by TPS or manually corrected");
+      if (!R.speedsOnly) R.speedsOnly = "V-speeds corrected by TPS or manually corrected (no FMC QRH)";
+      why("Use of Standard Thrust not authorized", "MEL/CDL item with a takeoff weight correction that TPS (TPAS) did not apply automatically: maximum thrust; do not use QRH V-speeds.", "amber");
+    }
+    if (s.eecAlt) R.noQRH.push("EECs in Alternate mode");
+
+    // Standard planned but a limitation requires maximum thrust.
+    const tow = num(s.tow), atow = num(s.atow), ptow = num(s.ptow), mtow = num(s.mtow);
+    const oat = num(s.oat), at = num(s.at), plan = num(s.planTemp);
+    if (s.plan === "STD" && (penalty.length || noPenalty.length)) {
+      R.speedChange = true;
+      if (penalty.length) {
+        why("Standard Thrust Planned, Maximum Required", `Limitation with a weight penalty (${penalty.join(", ")}): takeoff weight must not exceed the Airport Analysis maximum including penalties. Standard-thrust V-speeds on the TPS may not be valid.`, "amber");
+        act("Check AIRPORT ANALYSIS DATA: confirm takeoff weight does not exceed maximum takeoff weight with all applicable weight penalties.");
+      } else if (tow != null && atow != null && oat != null && at != null && tow <= atow && oat <= at) {
+        why("Standard Thrust Planned, Maximum Required", "No-weight-penalty limitation, takeoff weight ≤ ATOW and temperature ≤ AT: no further maximum-weight check is necessary.");
+      } else {
+        why("Standard Thrust Planned, Maximum Required", "Takeoff weight or temperature exceeds the TPS assumed values: check maximum weight in Airport Analysis.", "amber");
+        act("Check AIRPORT ANALYSIS DATA for maximum takeoff weight.");
+      }
+    }
+    if (R.thrust === 2 && !contamOrCRC && s.rating && !HIGH.includes(s.rating)) {
+      why("Takeoff Thrust Ratings", `Maximum thrust at 26K, 27K Bump or TO is required, but the TPS rating is ${rating}. Using any rating other than the current TPS rating requires a new TPS.`, "red");
+      act("Request a new TPS at 26K or TO maximum thrust.");
+    }
+
+    // Gusts / crosswind (recommendation)
+    const w = windCalc(s);
+    if (w.ok && (w.gi > 10 || w.xw > 15)) {
+      caution(`Gust increment ${w.gi} kt / crosswind ${w.xw} kt: 26K max or TO max thrust is recommended to maximize available runway.`);
+    }
+
+    // --- 1. Weight variation
+    const aaPath = (ctx) => {
+      R.needAA = true;
+      if (s.aa === "NOIP") {
+        max(1); R.speedChange = true;
+        why(ctx, "Airport Analysis: weight can be accommodated without Improved Performance. Use MAX thrust with FMC QRH V-speeds or AOM 6p.7 V-speeds.", "amber");
+      } else if (s.aa === "IP") {
+        why(ctx, "Airport Analysis: weight can be accommodated only with Improved Performance.", "red");
+        act("Request a new TPS (Improved Performance).");
+      } else if (s.aa === "NO") {
+        why(ctx, "Airport Analysis: weight cannot be accommodated.", "red");
+        act("Contact Dispatch.");
+      } else {
+        why(ctx, "Check the AIRPORT ANALYSIS DATA section for a Flap/Bleed/Temp combination (corrected for wind/anti-ice) that allows the takeoff — answer below.", "red");
+        R.missing.push("Airport Analysis result");
+      }
+    };
+    const overMTOW = (ctx) => {
+      if (["E", "L", "D"].includes(s.mtowCode)) {
+        why(ctx, `Takeoff weight exceeds MTOW and the TPS is ${{ E: "Enroute", L: "Landing", D: "Dispatch" }[s.mtowCode]} weight limited.`, "red");
+        act("Contact Dispatch.");
+      } else {
+        why(ctx, "Takeoff weight is heavier than MTOW in the Thrust/V-speed section.", "red");
+        aaPath(ctx);
+      }
+    };
+    const WV = "Weight Variation";
+    if (s.plan === "STD") {
+      if (tow == null || atow == null || mtow == null) R.missing.push("Weights (TOW, ATOW, MTOW)");
+      else if (tow <= atow) why(WV, `Takeoff weight ${fmt(tow)} is lighter than or equal to ATOW ${fmt(atow)}: standard thrust is authorized.`);
+      else if (tow <= mtow) {
+        max(1); R.speedChange = true;
+        why(WV, `Takeoff weight is ${fmt(tow - atow)} lb heavier than ATOW: maximum thrust at the planned rating is required and V-speeds must change.`, "amber");
+        R.alts.push("Request a new TPS authorizing standard thrust at the actual takeoff weight.");
+      } else overMTOW(WV);
+    } else if (s.plan === "MAX") {
+      if (tow == null || ptow == null || mtow == null) R.missing.push("Weights (TOW, PTOW, MTOW)");
+      else if (tow <= ptow) why(WV, `Takeoff weight ${fmt(tow)} is lighter than or equal to PTOW ${fmt(ptow)}: use MAX thrust.`);
+      else if (tow <= ptow + 2000 && tow <= mtow) {
+        why(WV, `Takeoff weight exceeds PTOW by ${fmt(tow - ptow)} lb (≤ 2,000) and is within MTOW: use the TPS Thrust/V-speed section data for the runway.`);
+        if (s.ip) caution("Improved Performance: TOW must also not exceed the Improved Performance maximum takeoff weight in Airport Analysis.");
+      } else if (tow <= mtow) {
+        if (s.ip) {
+          why(WV, "Improved Performance TPS and takeoff weight exceeds PTOW by more than 2,000 lb: TPS V-speeds are no longer valid and QRH V-speeds may not be used.", "red");
+          act("Request a new TPS.");
+        } else {
+          R.speedChange = true;
+          why(WV, `Takeoff weight exceeds ATOW (PTOW + 2,000 = ${fmt(ptow + 2000)}) and is within MTOW: use MAX thrust with FMC QRH V-speeds or AOM 6p.7 V-speeds.`, "amber");
+        }
+      } else overMTOW(WV);
+    }
+
+    // --- 2. Temperature variation
+    const TV = "Temperature Variation";
+    if (s.plan === "STD") {
+      if (oat == null || at == null) R.missing.push("Temperatures (current, AT)");
+      else if (oat <= at) why(TV, `Current temperature ${oat}°C is colder than or equal to AT ${at}°C.`);
+      else {
+        why(TV, `Current temperature ${oat}°C is warmer than the assumed temperature ${at}°C.`, "red");
+        act("Request a new TPS.");
+      }
+    } else if (s.plan === "MAX") {
+      if (oat == null || plan == null) R.missing.push("Temperatures (current, plan)");
+      else if (oat <= plan) why(TV, `Current temperature ${oat}°C is colder than or equal to plan temperature ${plan}°C.`);
+      else if (oat - plan <= 2) {
+        if (s.aa) R.alts.push("Request a new TPS (warmer than plan temperature).");
+        else act("Request a new TPS, or complete the Airport Analysis check above.");
+        aaPath(TV + ` (+${r1(oat - plan)}°C)`);
+        if (s.ip) caution("Improved Performance TPS: V-speeds may still be used only if TOW ≤ PTOW + 2,000 lb and ≤ the Improved Performance maximum takeoff weight.");
+      } else {
+        why(TV, `Current temperature is ${r1(oat - plan)}°C warmer than plan (more than 2°C).`, "red");
+        act("Request a new TPS.");
+      }
+    }
+
+    // --- 3. Wind variation
+    const WIND = "Wind Variation";
+    if (!w.ok) R.missing.push("Wind (runway, direction, speed)");
+    else {
+      const tpsKt = num(s.tpsWindKt) || 0;
+      if (w.hw >= 0) {
+        if (s.tpsWind !== "HEAD") {
+          why(WIND, `Headwind component ${w.hw} kt; the TPS Thrust/V-speed section shows ${s.tpsWind === "TAIL" ? "a tailwind" : "no wind"}: takeoff is authorized using the TPS data.`);
+        } else if (w.hw >= tpsKt) {
+          why(WIND, `Actual headwind ${w.hw} kt is greater than or equal to the TPS wind ${tpsKt} kt: takeoff is authorized using the TPS data.`);
+        } else {
+          why(WIND, `Actual headwind ${w.hw} kt is less than the TPS headwind ${tpsKt} kt.`, "red");
+          act("Request a new TPS with the actual wind.");
+          R.alts.push("Request a dispatch/load planning change (a headwind request TPS).");
+          R.alts.push("Manually compute takeoff data (AOM 1p Manual Calculation).");
+        }
+      } else {
+        const tail = r1(-w.hw);
+        const UT = "Unplanned Tailwind Takeoff";
+        if (s.tpsWind === "TAIL" && tail <= tpsKt) {
+          why(WIND, `Tailwind ${tail} kt is within the TPS tailwind ${tpsKt} kt.`);
+          caution("The tailwind branch of the Wind Variation chart was cropped on the supplied card. Verify this case against the full card.");
+        } else if (s.ip) {
+          why(UT, `Unplanned tailwind ${tail} kt with Improved Performance: Method 1 is required.`, "red");
+          act("Request a TPS based on the tailwind via ACARS, or contact Dispatch.");
+        } else {
+          max(1); R.speedChange = true;
+          const zw = num(s.zwMax), corr = num(s.twCorr);
+          if (zw != null && corr != null && tow != null) {
+            const lim = zw - corr * tail;
+            if (tow <= lim) {
+              why(UT, `Method 2: max allowable weight ${fmt(zw)} − (${fmt(corr)} × ${tail} kt) = ${fmt(lim)} lb. Takeoff weight ${fmt(tow)} is within it. Use maximum thrust for the rating.`, "amber");
+              R.alts.push("Method 1: request a TPS based on the tailwind via ACARS, or contact Dispatch.");
+            } else {
+              why(UT, `Method 2: max allowable weight is ${fmt(lim)} lb; takeoff weight ${fmt(tow)} is heavier.`, "red");
+              act("Method 1: request a TPS based on the tailwind via ACARS, or contact Dispatch.");
+            }
+          } else {
+            why(UT, `Unplanned tailwind ${tail} kt: TPS was based on ${s.tpsWind === "HEAD" ? "a headwind" : "zero wind"}.`, "red");
+            act("Method 1: request a TPS based on the tailwind via ACARS, or contact Dispatch.");
+            R.alts.push("Method 2: enter the Airport Analysis zero-wind max weight and tailwind correction on the Wind step to check manually.");
+          }
+        }
+      }
+    }
+
+    // --- Speeds
+    let speeds;
+    let qrhSteps = false;
+    if (R.speedsOnly) speeds = R.speedsOnly;
+    else if (!R.speedChange) speeds = "Uplinked, FMC QRH, or TPS Thrust/V-speed section";
+    else if (R.noQRH.length) speeds = "AOM 6p.7 Takeoff Data (FMC QRH not permitted)";
+    else { speeds = "FMC QRH V-speeds (or AOM 6p.7 Takeoff Data)"; qrhSteps = true; }
+
+    let thrust;
+    if (R.thrustOverride) thrust = R.thrustOverride;
+    else if (R.thrust === 0) thrust = `Standard (assumed temperature) at ${rating}`;
+    else if (R.thrust === 1) thrust = `Maximum at ${rating}`;
+    else thrust = HIGH.includes(s.rating) ? `Maximum at ${rating}` : "Maximum at 26K or TO (new TPS)";
+
+    if (R.missing.length && R.status !== "red") R.status = "pending";
+    return { ...R, speeds, thrust, qrhSteps, wind: w };
+  }
+
+  // ---------- UI building blocks ----------
+  const isOn = (k, v) => String(S[k]) === String(v);
+  const seg = (key, opts, label) => `
+    <div class="seg" role="group" aria-label="${esc(label)}">
+      ${opts.map(([v, t, sub]) => `<button type="button" data-set="${key}" data-val="${esc(v)}" aria-pressed="${isOn(key, v)}">${esc(t)}${sub ? `<small>${esc(sub)}</small>` : ""}</button>`).join("")}
+    </div>`;
+  const tgl = (key, title, hint) => `
+    <button type="button" class="tgl" role="switch" data-toggle="${key}" aria-checked="${!!S[key]}">
+      <span class="txt"><b>${esc(title)}</b>${hint ? `<span>${esc(hint)}</span>` : ""}</span><span class="sw" aria-hidden="true"></span>
+    </button>`;
+  const field = (key, label, unit, ph, mode = "numeric") => `
+    <label class="num"><span>${esc(label)}</span>
+      <span class="inp"><input data-num="${key}" inputmode="${mode}" autocomplete="off" value="${esc(S[key])}" placeholder="${esc(ph || "")}">${unit ? `<em>${esc(unit)}</em>` : ""}</span>
+    </label>`;
+
+  // ---------- steps ----------
+  const views = {
+    setup: () => `
+      <h2 class="step-title">Takeoff setup</h2>
+      <p class="lead">Start with what the TPS planned. The guide then checks weight, temperature and wind in the card's required order.</p>
+      <div class="card"><h3>Aircraft</h3><p class="hint">Some rules differ for flaps 10 and flaps 25.</p>
+        ${seg("aircraft", [["NG", "737 -NG"], ["MAX8", "737 -MAX 8"]], "Aircraft")}</div>
+      <div class="card"><h3>Load Closeout received?</h3><p class="hint">Required before takeoff, and before FMC QRH V-speeds may be used.</p>
+        ${seg("closeout", [[true, "Yes"], [false, "Not yet"]], "Load Closeout")}</div>
+      <div class="card"><h3>Thrust planned by TPS</h3>
+        ${seg("plan", [["STD", "Standard", "Assumed temp"], ["MAX", "Maximum"]], "Planned thrust")}</div>
+      <div class="card"><h3>TPS thrust rating</h3>
+        ${seg("rating", RATINGS.map((r) => [r, r === "27K" ? "27K Bump" : r]), "Thrust rating")}
+        ${S.rating === "27K" ? `<div class="sub">${tgl("bumpAuth", "27K Bump authorized", "SNA, or pre-authorized route with dispatch and load agent concurrence")}</div>` : ""}
+      </div>
+      <div class="card"><h3>TPS type</h3>
+        <div class="toggles">${tgl("ip", "Improved Performance TPS", "Requires 26K, 27K Bump or TO max thrust; TPS V-speeds only")}</div></div>`,
+
+    conditions: () => `
+      <h2 class="step-title">Runway &amp; conditions</h2>
+      <p class="lead">Turn on anything that applies today. Each one may require maximum thrust or change which V-speeds are allowed.</p>
+      <div class="card"><h3>Runway condition</h3>
+        <p class="hint">Wet: visible moisture or water ⅛ in. or less. Contaminated: standing water, slush, snow or ice. The Captain decides.</p>
+        ${seg("runway", [["DRY", "Dry"], ["WET", "Wet"], ["CONTAM", "Contaminated"]], "Runway condition")}
+        ${S.runway === "WET" ? `<div class="sub toggles">
+            ${tgl("tpsWet", "TPS header specifies “WET”")}
+            ${tgl("grooved", "Runway grooved or PFC", "Listed under Additional Runway Information or NOTAM (not wire-combed)")}
+            ${tgl("trInop", "Thrust reverser inoperative")}</div>` : ""}
+        ${S.runway === "DRY" ? `<div class="sub toggles">${tgl("tpsWet", "TPS header specifies “WET”", "Permissible on a dry runway")}</div>` : ""}
+      </div>
+      <div class="card"><h3>Conditions</h3>
+        <div class="toggles">
+          ${tgl("windshear", "Windshear reported or expected", "Including windshear advisories")}
+          ${tgl("adv7", "Airport ops advisory (##-7) requires max thrust")}
+          ${tgl("antiIce", "Engine anti-ice will be used")}
+          ${S.antiIce ? `<div class="sub">${tgl("tpsAntiIce", "TPS Thrust/V-speed section shows ANTI-ICE ON")}</div>` : ""}
+          ${tgl("melWt", "MEL/CDL item with a takeoff weight correction")}
+          ${S.melWt ? `<div class="sub">${tgl("melAuto", "Corrected automatically by TPS (TPAS), or MEL permits standard thrust")}</div>` : ""}
+          ${tgl("crcmel", "Using takeoff data from a CRC/MEL message")}
+          ${tgl("eecAlt", "EECs in Alternate mode")}
+          ${tgl("flaps25", "Flaps 25 takeoff")}
+        </div></div>`,
+
+    weight: () => {
+      const std = S.plan === "STD";
+      return `
+      <h2 class="step-title">1 · Weight variation</h2>
+      <p class="lead">Compare the actual takeoff weight (GW on TAKEOFF REF 1/2) with the TPS.</p>
+      <div class="card">
+        <div class="grid2">
+          ${field("tow", "Actual takeoff weight", "lb", "e.g. 152400")}
+          ${std ? field("atow", "ATOW (assumed takeoff weight)", "lb") : field("ptow", "PTOW (planned takeoff weight)", "lb")}
+          ${field("mtow", "MTOW (Thrust/V-speed section)", "lb")}
+        </div>
+        <div class="readout" data-live="weight" aria-live="polite"></div>
+      </div>
+      <div class="card"><h3>MTOW limit code</h3><p class="hint">Only matters if you are heavier than MTOW.</p>
+        ${seg("mtowCode", [["", "None"], ["E", "E", "Enroute"], ["L", "L", "Landing"], ["D", "D", "Dispatch"]], "MTOW limit code")}</div>`;
+    },
+
+    temp: () => {
+      const std = S.plan === "STD";
+      return `
+      <h2 class="step-title">2 · Temperature variation</h2>
+      <p class="lead">${std ? "Standard thrust planned: compare with the assumed temperature (AT)." : "Maximum thrust planned: compare with the plan temperature."}</p>
+      <div class="card"><div class="grid2">
+        ${field("oat", "Current temperature", "°C", "", "decimal")}
+        ${std ? field("at", "Assumed temperature (AT)", "°C", "", "decimal") : field("planTemp", "Plan temperature", "°C", "", "decimal")}
+      </div><div class="readout" data-live="temp" aria-live="polite"></div></div>`;
+    },
+
+    wind: () => `
+      <h2 class="step-title">3 · Wind variation</h2>
+      <p class="lead">Enter the ATC wind. The guide works out headwind, crosswind and gust increment.</p>
+      <div class="card">
+        <div class="grid2">
+          ${field("rwy", "Runway", "", "e.g. 36L", "text")}
+          ${field("windDir", "Wind direction", "°", "300")}
+          ${field("windSpd", "Wind speed", "kt", "10")}
+          ${field("windGust", "Gusting to", "kt", "optional")}
+        </div>
+        <div class="toggles" style="margin-top:12px">${tgl("calm", "Winds calm")}</div>
+        <div class="readout" data-live="wind" aria-live="polite"></div>
+      </div>
+      <div class="card"><h3>Wind in the TPS Thrust/V-speed section</h3>
+        ${seg("tpsWind", [["NONE", "No wind"], ["HEAD", "Headwind"], ["TAIL", "Tailwind"]], "TPS wind")}
+        ${S.tpsWind !== "NONE" ? `<div class="grid2" style="margin-top:12px">${field("tpsWindKt", "TPS wind component", "kt")}</div>` : ""}
+      </div>
+      <div class="card" data-live-show="tail">
+        <h3>Unplanned tailwind · Method 2 check</h3>
+        <p class="hint">From the TPS Airport Analysis: max weight − (tailwind correction × tailwind).</p>
+        <div class="grid2">
+          ${field("zwMax", "Zero-wind max weight", "lb")}
+          ${field("twCorr", "Tailwind correction", "lb / kt")}
+        </div>
+        <div class="readout" data-live="tailcalc" aria-live="polite"></div>
+      </div>`,
+
+    result: () => {
+      const E = evaluate(S);
+      const head = {
+        go: ["Takeoff authorized", "Using TPS data"],
+        amber: ["Authorized with changes", "Changes required"],
+        red: ["New data required", "Stop · Action required"],
+        pending: ["More information needed", "Incomplete"],
+      }[E.status];
+      const cls = E.status === "pending" ? "amber" : E.status;
+      const aa = E.needAA ? `
+        <div class="card"><h3>Airport Analysis check</h3>
+          <p class="hint">Check AIRPORT ANALYSIS DATA for a Flap/Bleed/Temp combination (corrected for wind/anti-ice) that allows the takeoff. The weight can be accommodated…</p>
+          ${seg("aa", [["NOIP", "Yes", "Without Improved Perf."], ["IP", "Only with IP", "Improved Performance"], ["NO", "No", "Cannot be accommodated"]], "Airport Analysis result")}
+        </div>` : "";
+      const fmc = E.qrhSteps && E.status !== "red" ? fmcSteps(E) : "";
+      return `
+      <section class="verdict ${cls}" aria-live="polite">
+        <div class="kicker">${esc(head[1])}</div>
+        <h2>${esc(head[0])}</h2>
+        <div class="vgrid">
+          <div class="vbox"><div class="k">Thrust</div><div class="v">${esc(E.thrust)}</div></div>
+          <div class="vbox"><div class="k">V-speeds</div><div class="v">${esc(E.speeds)}</div></div>
+        </div>
+      </section>
+      ${E.missing.length ? `<div class="card"><h3>Still needed</h3><p class="hint">${esc(E.missing.join(" · "))}</p></div>` : ""}
+      ${aa}
+      ${E.actions.length ? `<div class="card"><h3>What to do</h3>
+        <ol class="actions">${E.actions.map((a) => `<li>${esc(a)}</li>`).join("")}</ol>
+        ${E.alts.length ? `<p class="or">OR</p><ol class="actions">${E.alts.map((a) => `<li>${esc(a)}</li>`).join("")}</ol>` : ""}
+      </div>` : ""}
+      ${!E.actions.length && E.alts.length ? `<div class="card"><h3>Other options</h3><p class="hint">Not required. The card also allows:</p>
+        <ul class="list">${E.alts.map((a) => `<li><span class="dot"></span><span class="body">${esc(a)}</span></li>`).join("")}</ul>
+      </div>` : ""}
+      ${E.cautions.length ? `<div class="card"><h3>Cautions</h3><ul class="list">${E.cautions.map((c) => `<li class="amber"><span class="dot"></span><span class="body">${esc(c)}</span></li>`).join("")}</ul></div>` : ""}
+      ${E.noQRH.length ? `<div class="card"><h3>FMC QRH V-speeds not permitted</h3><ul class="list">${E.noQRH.map((c) => `<li class="red"><span class="dot"></span><span class="body">${esc(c)}</span></li>`).join("")}</ul></div>` : ""}
+      ${fmc}
+      <div class="card"><h3>Why</h3><p class="hint">Checked in card order: weight, then temperature, then wind.</p>
+        <ul class="list">${E.reasons.map((r) => `<li class="${r.lvl}"><span class="dot"></span><span class="body">${esc(r.text)}<br><span class="src">${esc(r.sec)}</span></span></li>`).join("") || `<li><span class="body">No findings yet.</span></li>`}</ul>
+      </div>
+      <p class="disclaimer">Demonstration prototype built from B737 Takeoff Card rev. ${CARD_REV}. Not approved for operational use. Always use the current card and company procedures.</p>`;
+    },
+  };
+
+  function fmcSteps(E) {
+    const w = E.wind;
+    const maxThrust = !/^Standard/.test(E.thrust);
+    const windTxt = w.ok && !w.calm && num(S.windDir) != null
+      ? `${String(Math.round(num(S.windDir))).padStart(3, "0")}/${num(S.windSpd)}` : w.calm ? "calm" : "ATC wind";
+    const cond = S.runway === "WET" ? (S.grooved ? "SK-R" : "WET") : "DRY";
+    const items = [
+      ["N1 LIMIT", [
+        ...(maxThrust ? [["n1a", `DELETE the SEL temperature <span class="key">1L</span>`]] : []),
+        ["n1b", `Select thrust rating <b>${esc(S.rating === "27K" ? "27K Bump" : S.rating || "")}</b>`],
+      ]],
+      ["TAKEOFF REF 2/2", [
+        ["t2a", `Enter ATC wind <b>${esc(windTxt)}</b> <span class="key">1L</span>`],
+        ["t2b", `Verify or enter runway slope from TPS Airport Analysis <span class="key">2L</span>`],
+        ["t2c", `Select runway condition <b>${cond}</b> <span class="key">1R</span>`],
+      ]],
+      ["TAKEOFF REF 1/2", [
+        ["t1a", `Select QRH ON <span class="key">6R</span>`],
+        ["t1b", `Select QRH speeds into the active fields <span class="key">1R–3R</span>`],
+      ]],
+    ];
+    return `<div class="card"><h3>Selecting FMC QRH V-speeds</h3><p class="hint">Tap each step as you complete it.</p>
+      ${items.map(([page, rows]) => `<div class="fmc-page"><h4>${page}</h4>${rows.map(([id, t]) =>
+        `<button type="button" class="chk" role="checkbox" data-check="${id}" aria-checked="${!!checks[id]}"><span class="box" aria-hidden="true">${checks[id] ? "✓" : ""}</span><span class="t">${t}</span></button>`).join("")}</div>`).join("")}
+    </div>`;
+  }
+
+  // ---------- live readouts (update without re-rendering inputs) ----------
+  function updateLive() {
+    const el = (k) => document.querySelector(`[data-live="${k}"]`);
+    const tow = num(S.tow), mtow = num(S.mtow);
+    const w = el("weight");
+    if (w) {
+      const ref = S.plan === "STD" ? num(S.atow) : num(S.ptow);
+      const refName = S.plan === "STD" ? "ATOW" : "PTOW";
+      let out = "";
+      if (tow != null && ref != null) {
+        const d = tow - ref;
+        const lvl = d <= 0 ? "go" : S.plan === "MAX" && d <= 2000 ? "go" : "amber";
+        out += `<span class="pill ${lvl}">${d <= 0 ? "Lighter / equal" : "Heavier"}</span> TOW is <b>${fmt(Math.abs(d))} lb</b> ${d <= 0 ? "below" : "above"} ${refName}.`;
+        if (S.plan === "MAX" && d > 0) out += ` ${d <= 2000 ? "(within the 2,000 lb allowance)" : "(beyond PTOW + 2,000)"}`;
+      }
+      if (tow != null && mtow != null && tow > mtow) out += `<br><span class="pill red">Over MTOW</span> by <b>${fmt(tow - mtow)} lb</b>.`;
+      w.innerHTML = out;
+    }
+    const t = el("temp");
+    if (t) {
+      const oat = num(S.oat), ref = S.plan === "STD" ? num(S.at) : num(S.planTemp);
+      let out = "";
+      if (oat != null && ref != null) {
+        const d = r1(oat - ref);
+        if (d <= 0) out = `<span class="pill go">Colder / equal</span> <b>${Math.abs(d)}°C</b> at or below ${S.plan === "STD" ? "AT" : "plan temperature"}.`;
+        else if (S.plan === "MAX" && d <= 2) out = `<span class="pill amber">Warmer by ${d}°C</span> Within 2°C: new TPS, or check Airport Analysis.`;
+        else out = `<span class="pill red">Warmer by ${d}°C</span> Request a new TPS.`;
+      }
+      t.innerHTML = out;
+    }
+    const wc = windCalc(S);
+    const wo = el("wind");
+    if (wo) {
+      if (!wc.ok) wo.innerHTML = "";
+      else {
+        const comp = wc.hw >= 0 ? `Headwind <b>${wc.hw} kt</b>` : `<span class="pill amber">Tailwind</span> <b>${r1(-wc.hw)} kt</b>`;
+        let out = `${comp} · Crosswind <b>${wc.xw} kt</b>${wc.gi ? ` · Gust increment <b>${wc.gi} kt</b>` : ""}`;
+        if (wc.gi > 10 || wc.xw > 15) out += `<br><span class="pill amber">Recommend</span> 26K max or TO max thrust (gusts &gt; 10 kt or crosswind &gt; 15 kt).`;
+        wo.innerHTML = out;
+      }
+    }
+    const tailCard = document.querySelector('[data-live-show="tail"]');
+    if (tailCard) {
+      const tpsKt = num(S.tpsWindKt) || 0;
+      const isTail = wc.ok && wc.hw < 0;
+      tailCard.hidden = !(isTail && !(S.tpsWind === "TAIL" && -wc.hw <= tpsKt));
+      const tc = el("tailcalc");
+      const zw = num(S.zwMax), corr = num(S.twCorr);
+      if (tc) {
+        if (isTail && zw != null && corr != null) {
+          const lim = zw - corr * r1(-wc.hw);
+          const ok = tow != null && tow <= lim;
+          tc.innerHTML = `Max allowable: <b>${fmt(lim)} lb</b>${tow != null ? ` <span class="pill ${ok ? "go" : "red"}">${ok ? "TOW within limit" : "TOW too heavy"}</span>` : ""}`;
+        } else tc.innerHTML = "";
+      }
+    }
+  }
+
+  // ---------- render ----------
+  function canNext() {
+    if (STEPS[step].id === "setup") return S.closeout !== null && S.plan && S.rating;
+    return true;
+  }
+
+  function renderSteps() {
+    $("#steps").innerHTML = STEPS.map((st, i) => `
+      <li class="${i < step ? "done" : i === step ? "current" : ""}">
+        <button type="button" data-goto="${i}" ${i > step && !canReach(i) ? "disabled" : ""} aria-current="${i === step ? "step" : "false"}">
+          <span class="bar"></span><span class="lbl">${st.label}</span>
+        </button></li>`).join("");
+  }
+  const canReach = () => S.closeout !== null && S.plan && S.rating;
+
+  function render(focusSel) {
+    $("#app").innerHTML = views[STEPS[step].id]();
+    renderSteps();
+    const last = step === STEPS.length - 1;
+    $("#btn-back").disabled = step === 0;
+    const next = $("#btn-next");
+    next.textContent = last ? "New takeoff" : step === STEPS.length - 2 ? "See result" : "Next";
+    next.disabled = !canNext();
+    updateLive();
+    if (focusSel) { const f = document.querySelector(focusSel); if (f) f.focus({ preventScroll: true }); }
+  }
+
+  function go(i) {
+    step = Math.max(0, Math.min(STEPS.length - 1, i));
+    render();
+    window.scrollTo({ top: 0, behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+    $("#app").focus({ preventScroll: true });
+  }
+
+  function reset() { S = blank(); checks = {}; go(0); }
+
+  // ---------- events ----------
+  const parse = (v) => (v === "true" ? true : v === "false" ? false : v);
+  document.addEventListener("click", (e) => {
+    const b = e.target.closest("button");
+    if (!b) return;
+    if (b.dataset.set) {
+      S[b.dataset.set] = parse(b.dataset.val);
+      render(`[data-set="${b.dataset.set}"][data-val="${CSS.escape(b.dataset.val)}"]`);
+    } else if (b.dataset.toggle) {
+      S[b.dataset.toggle] = !S[b.dataset.toggle];
+      render(`[data-toggle="${b.dataset.toggle}"]`);
+    } else if (b.dataset.check) {
+      checks[b.dataset.check] = !checks[b.dataset.check];
+      render(`[data-check="${b.dataset.check}"]`);
+    } else if (b.dataset.goto) {
+      go(Number(b.dataset.goto));
+    }
+  });
+  document.addEventListener("input", (e) => {
+    const k = e.target.dataset && e.target.dataset.num;
+    if (!k) return;
+    S[k] = e.target.value.trim();
+    updateLive();
+  });
+  $("#btn-back").addEventListener("click", () => go(step - 1));
+  $("#btn-next").addEventListener("click", () => (step === STEPS.length - 1 ? reset() : go(step + 1)));
+  $("#btn-reset").addEventListener("click", reset);
+
+  // ---------- demo scenarios ----------
+  const SCENARIOS = [
+    { t: "Routine standard-thrust takeoff", d: "Everything within TPS limits.", s: { plan: "STD", rating: "24K", closeout: true, tow: "148200", atow: "151000", mtow: "158400", oat: "18", at: "44", rwy: "36", windDir: "010", windSpd: "8" } },
+    { t: "Heavier than ATOW", d: "Late bags push weight over the assumed takeoff weight.", s: { plan: "STD", rating: "24K", closeout: true, tow: "152900", atow: "151000", mtow: "158400", oat: "22", at: "41", rwy: "17R", windDir: "160", windSpd: "9" } },
+    { t: "Windshear advisory", d: "Standard thrust planned at 26K; windshear advisory issued.", s: { plan: "STD", rating: "26K", closeout: true, windshear: true, tow: "149500", atow: "151000", mtow: "158400", oat: "29", at: "48", rwy: "35C", windDir: "330", windSpd: "14", windGust: "24" } },
+    { t: "Gusty crosswind (card example)", d: "Runway 36, wind 300° at 10 gusting 22.", s: { plan: "MAX", rating: "24K", closeout: true, tow: "150100", ptow: "151200", mtow: "157800", oat: "12", planTemp: "15", rwy: "36", windDir: "300", windSpd: "10", windGust: "22" } },
+    { t: "Warmer than plan temperature", d: "Max thrust planned; it's 1.5°C warmer than planned.", s: { plan: "MAX", rating: "26K", closeout: true, tow: "154000", ptow: "154300", mtow: "157900", oat: "35.5", planTemp: "34", rwy: "8", windDir: "090", windSpd: "6" } },
+    { t: "Unplanned tailwind", d: "TPS based on zero wind; tower reports a 6 kt tailwind.", s: { plan: "MAX", rating: "24K", closeout: true, tow: "150000", ptow: "151500", mtow: "158000", oat: "16", planTemp: "20", rwy: "18", windDir: "360", windSpd: "6", zwMax: "160000", twCorr: "1100" } },
+    { t: "Wet runway, dry TPS", d: "Light rain began after the TPS was issued.", s: { plan: "STD", rating: "24K", closeout: true, runway: "WET", tow: "147000", atow: "150500", mtow: "157000", oat: "14", at: "39", rwy: "27", windDir: "260", windSpd: "11" } },
+    { t: "Contaminated runway", d: "Slush on the runway; CRC/MEL message in use.", s: { plan: "MAX", rating: "26K", closeout: true, runway: "CONTAM", antiIce: true, tpsAntiIce: true, tow: "141000", ptow: "142000", mtow: "146500", oat: "-3", planTemp: "-1", rwy: "4R", windDir: "030", windSpd: "7" } },
+  ];
+  $("#scn-list").innerHTML = SCENARIOS.map((x, i) => `<button type="button" class="scn" data-scn="${i}"><b>${esc(x.t)}</b><span>${esc(x.d)}</span></button>`).join("");
+  const dlg = $("#dlg-scn");
+  $("#btn-scn").addEventListener("click", () => dlg.showModal());
+  $("#scn-close").addEventListener("click", () => dlg.close());
+  $("#scn-list").addEventListener("click", (e) => {
+    const b = e.target.closest("[data-scn]");
+    if (!b) return;
+    S = { ...blank(), ...SCENARIOS[Number(b.dataset.scn)].s };
+    checks = {};
+    dlg.close();
+    go(0);
+  });
+
+  $("#rev").textContent = CARD_REV;
+  render();
+})();
+</script>
+</body>
+</html>
