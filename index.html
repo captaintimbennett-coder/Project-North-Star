@@ -226,6 +226,35 @@
   .chk[aria-checked="true"] .t { text-decoration: line-through; color: var(--muted); }
   .key { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 13px; padding: 1px 6px; border-radius: 6px; background: var(--line); }
 
+  .tailcard > .seg { margin-bottom: 4px; }
+  ol.msteps { list-style: none; margin: 16px 0 0; padding: 0; display: grid; gap: 4px; }
+  .mstep { display: grid; grid-template-columns: 36px minmax(0, 1fr); gap: 12px; position: relative; padding-bottom: 14px; }
+  .mstep:not(:last-child)::before {
+    content: ""; position: absolute; left: 17px; top: 38px; bottom: 0; width: 2px; background: var(--line);
+  }
+  .mnum {
+    width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center;
+    font-weight: 800; background: var(--accent); color: var(--accent-ink); font-variant-numeric: tabular-nums;
+  }
+  .mstep.done .mnum { background: var(--go); color: var(--panel); }
+  .mstep.fail .mnum { background: var(--red); color: var(--panel); }
+  .mbody { display: grid; gap: 8px; }
+  .mbody h4 { margin: 6px 0 0; font-size: 17px; }
+  .mtext { margin: 0; font-size: 15px; color: var(--muted); }
+  .mtext .pill { margin-right: 4px; }
+  .calc { border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+  .crow { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 10px 14px; background: var(--panel-2); }
+  .crow + .crow { border-top: 1px solid var(--line); }
+  .crow span { min-width: 0; }
+  .crow small { display: block; font-size: 13px; color: var(--muted); }
+  .crow b { font-variant-numeric: tabular-nums; white-space: nowrap; font-size: 17px; }
+  .crow.total { background: var(--panel); }
+  .crow.total b { color: var(--accent); }
+  .btn.small { min-height: 48px; font-size: 15px; justify-self: start; }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  .chk { margin-bottom: 0; }
+  .fmc-page .chk { margin-bottom: 6px; }
+
   footer.nav {
     position: fixed; left: 0; right: 0; bottom: 0; z-index: 5;
     background: color-mix(in srgb, var(--panel) 94%, transparent);
@@ -318,7 +347,7 @@
     oat: "", at: "", planTemp: "",
     rwy: "", windDir: "", windSpd: "", windGust: "", calm: false,
     tpsWind: "NONE", tpsWindKt: "",
-    zwMax: "", twCorr: "",
+    zwMax: "", twCorr: "", twMethod: "", twSpeeds: "QRH",
     aa: "",
   });
 
@@ -582,25 +611,33 @@
         if (s.tpsWind === "TAIL" && tail <= tpsKt) {
           why(WIND, `Tailwind ${tail} kt is within the TPS tailwind ${tpsKt} kt.`);
           caution("The tailwind branch of the Wind Variation chart was cropped on the supplied card. Verify this case against the full card.");
-        } else if (s.ip) {
-          why(UT, `Unplanned tailwind ${tail} kt with Improved Performance: Method 1 is required.`, "red");
-          act("Request a TPS based on the tailwind via ACARS, or contact Dispatch.");
         } else {
-          max(1); R.speedChange = true;
           const zw = num(s.zwMax), corr = num(s.twCorr);
-          if (zw != null && corr != null && tow != null) {
-            const lim = zw - corr * tail;
-            if (tow <= lim) {
-              why(UT, `Method 2: max allowable weight ${fmt(zw)} − (${fmt(corr)} × ${tail} kt) = ${fmt(lim)} lb. Takeoff weight ${fmt(tow)} is within it. Use maximum thrust for the rating.`, "amber");
-              R.alts.push("Method 1: request a TPS based on the tailwind via ACARS, or contact Dispatch.");
-            } else {
-              why(UT, `Method 2: max allowable weight is ${fmt(lim)} lb; takeoff weight ${fmt(tow)} is heavier.`, "red");
-              act("Method 1: request a TPS based on the tailwind via ACARS, or contact Dispatch.");
-            }
+          const lim = zw != null && corr != null ? zw - corr * tail : null;
+          const T = R.tail = {
+            tail, lim, zw, corr, ip: !!s.ip, m2: false,
+            basis: s.tpsWind === "HEAD" ? "a headwind" : "zero wind",
+            ok: lim != null && tow != null ? tow <= lim : null,
+          };
+          if (s.ip || s.twMethod === "M1") {
+            why(UT, s.ip
+              ? `Unplanned tailwind ${tail} kt with Improved Performance required: Method 1 must be used.`
+              : `Unplanned tailwind ${tail} kt: Method 1 selected.`, "red");
+            act("Request a TPS based on the tailwind via ACARS, or contact Dispatch.");
+            if (!R.speedsOnly) R.speedsOnly = "From the new tailwind TPS";
           } else {
-            why(UT, `Unplanned tailwind ${tail} kt: TPS was based on ${s.tpsWind === "HEAD" ? "a headwind" : "zero wind"}.`, "red");
-            act("Method 1: request a TPS based on the tailwind via ACARS, or contact Dispatch.");
-            R.alts.push("Method 2: enter the Airport Analysis zero-wind max weight and tailwind correction on the Wind step to check manually.");
+            max(1); R.speedChange = true;
+            if (T.ok === true) {
+              T.m2 = true;
+              why(UT, `Method 2: max allowable weight ${fmt(zw)} − (${fmt(corr)} × ${tail} kt) = ${fmt(lim)} lb. Takeoff weight ${fmt(tow)} is within it. Use maximum thrust for the rating.`, "amber");
+            } else if (T.ok === false) {
+              why(UT, `Method 2: max allowable weight is ${fmt(lim)} lb; takeoff weight ${fmt(tow)} is ${fmt(tow - lim)} lb heavier. Method 2 cannot be used.`, "red");
+              act("Use Method 1: request a TPS based on the tailwind via ACARS, or contact Dispatch.");
+              if (!R.speedsOnly) R.speedsOnly = "From the new tailwind TPS";
+            } else {
+              why(UT, `Unplanned tailwind ${tail} kt: the TPS was based on ${T.basis}. Use Method 1 or Method 2 below.`, "amber");
+              R.missing.push(s.twMethod === "M2" ? "Airport Analysis values for Method 2 (Wind step)" : "Tailwind method (Method 1 or Method 2)");
+            }
           }
         }
       }
@@ -610,6 +647,12 @@
     let speeds;
     let qrhSteps = false;
     if (R.speedsOnly) speeds = R.speedsOnly;
+    else if (R.tail && R.tail.m2) {
+      R.tail.forceAOM = R.noQRH.length > 0;
+      speeds = R.tail.forceAOM || s.twSpeeds === "AOM"
+        ? "AOM Takeoff chapter, V1 corrected for tailwind"
+        : "FMC QRH V-speeds with tailwind entered";
+    }
     else if (!R.speedChange) speeds = "Uplinked, FMC QRH, or TPS Thrust/V-speed section";
     else if (R.noQRH.length) speeds = "AOM 6p.7 Takeoff Data (FMC QRH not permitted)";
     else { speeds = "FMC QRH V-speeds (or AOM 6p.7 Takeoff Data)"; qrhSteps = true; }
@@ -728,8 +771,8 @@
         ${S.tpsWind !== "NONE" ? `<div class="grid2" style="margin-top:12px">${field("tpsWindKt", "TPS wind component", "kt")}</div>` : ""}
       </div>
       <div class="card" data-live-show="tail">
-        <h3>Unplanned tailwind · Method 2 check</h3>
-        <p class="hint">From the TPS Airport Analysis: max weight − (tailwind correction × tailwind).</p>
+        <h3>Unplanned tailwind · Method 2 values</h3>
+        <p class="hint">Only needed for Method 2. Take both numbers from the TPS Airport Analysis for this runway. The guide computes: zero-wind max weight − (tailwind correction × tailwind).</p>
         <div class="grid2">
           ${field("zwMax", "Zero-wind max weight", "lb")}
           ${field("twCorr", "Tailwind correction", "lb / kt")}
@@ -751,7 +794,7 @@
           <p class="hint">Check AIRPORT ANALYSIS DATA for a Flap/Bleed/Temp combination (corrected for wind/anti-ice) that allows the takeoff. The weight can be accommodated…</p>
           ${seg("aa", [["NOIP", "Yes", "Without Improved Perf."], ["IP", "Only with IP", "Improved Performance"], ["NO", "No", "Cannot be accommodated"]], "Airport Analysis result")}
         </div>` : "";
-      const fmc = E.qrhSteps && E.status !== "red" ? fmcSteps(E) : "";
+      const fmc = E.qrhSteps && !E.tail && E.status !== "red" ? fmcSteps(E) : "";
       return `
       <section class="verdict ${cls}" aria-live="polite">
         <div class="kicker">${esc(head[1])}</div>
@@ -761,6 +804,7 @@
           <div class="vbox"><div class="k">V-speeds</div><div class="v">${esc(E.speeds)}</div></div>
         </div>
       </section>
+      ${E.tail ? tailCard(E) : ""}
       ${E.missing.length ? `<div class="card"><h3>Still needed</h3><p class="hint">${esc(E.missing.join(" · "))}</p></div>` : ""}
       ${aa}
       ${E.actions.length ? `<div class="card"><h3>What to do</h3>
@@ -780,11 +824,97 @@
     },
   };
 
+  const chkBtn = (id, html) =>
+    `<button type="button" class="chk" role="checkbox" data-check="${id}" aria-checked="${!!checks[id]}"><span class="box" aria-hidden="true">${checks[id] ? "✓" : ""}</span><span class="t">${html}</span></button>`;
+
+  function atcWind(w) {
+    if (w.calm) return "calm";
+    return w.ok && num(S.windDir) != null ? `${String(Math.round(num(S.windDir))).padStart(3, "0")}/${num(S.windSpd)}` : "ATC wind";
+  }
+
+  // Unplanned tailwind: method choice, then Method 2 as numbered, checkable steps.
+  function tailCard(E) {
+    const T = E.tail;
+    const rtg = esc(S.rating === "27K" ? "27K Bump" : S.rating || "");
+    const rwy = S.rwy ? `runway ${esc(S.rwy.toUpperCase())}` : "the runway";
+    const intro = `<p class="hint">The TPS was based on ${T.basis}, but the actual wind gives a <b>${T.tail} kt tailwind</b>. Compute takeoff data with Method 1 or Method 2. If Improved Performance is required, use Method 1.</p>`;
+    const m1 = `<ol class="msteps">
+        ${mstep(1, "Request tailwind takeoff data", "", [chkBtn("m1a", "Send an ACARS Takeoff Data Request with the actual wind, or contact Dispatch")], ["m1a"])}
+        ${mstep(2, "Run the guide with the new TPS", "", [chkBtn("m1b", "When the new TPS arrives, tap <b>New takeoff</b> and enter its data")], ["m1b"])}
+      </ol>`;
+    if (T.ip) {
+      return `<section class="card tailcard"><h3>Unplanned tailwind · Method 1 required</h3>${intro}${m1}</section>`;
+    }
+    const choice = seg("twMethod", [["M1", "Method 1", "Request a tailwind TPS"], ["M2", "Method 2", "Manual tailwind data"]], "Tailwind method");
+    let body = "";
+    if (S.twMethod === "M1") body = m1;
+    else if (S.twMethod === "M2") {
+      // Step 2: the weight calculation
+      let calc;
+      if (T.lim == null) {
+        calc = `<p class="mtext">Enter the zero-wind max weight and tailwind correction from the TPS Airport Analysis.</p>
+          <button type="button" class="btn small" data-goto="4">Enter Airport Analysis values</button>`;
+      } else {
+        const tow = num(S.tow);
+        const verdict = T.ok == null ? `<p class="mtext">Enter the actual takeoff weight on the Weight step to compare.</p>`
+          : T.ok ? `<p class="mtext"><span class="pill go">Within limit</span> ${fmt(T.lim - tow)} lb margin.</p>`
+          : `<p class="mtext"><span class="pill red">Too heavy</span> ${fmt(tow - T.lim)} lb over. Method 2 can't be used: switch to Method 1.</p>`;
+        calc = `<div class="calc">
+            <div class="crow"><span>Zero-wind max weight, ${rwy}</span><b>${fmt(T.zw)} lb</b></div>
+            <div class="crow"><span>Tailwind correction<small>${fmt(T.corr)} lb/kt × ${T.tail} kt</small></span><b>− ${fmt(T.corr * T.tail)} lb</b></div>
+            <div class="crow total"><span>Max allowable takeoff weight</span><b>${fmt(T.lim)} lb</b></div>
+            ${tow != null ? `<div class="crow"><span>Actual takeoff weight</span><b>${fmt(tow)} lb</b></div>` : ""}
+          </div>${verdict}
+          ${chkBtn("m2c", "Values confirmed against the TPS Airport Analysis")}`;
+      }
+      const steps = [
+        mstep(1, "Set maximum thrust", "Method 2 always uses max thrust for the TPS thrust rating.", [
+          chkBtn("m2a", `N1 LIMIT: DELETE the SEL temperature <span class="key">1L</span>`),
+          chkBtn("m2b", `N1 LIMIT: select thrust rating <b>${rtg}</b>`),
+        ], ["m2a", "m2b"]),
+        mstep(2, "Check the max allowable weight", "", [calc], T.lim == null ? ["m2c-x"] : ["m2c"], T.ok === false),
+      ];
+      if (T.ok !== false) {
+        const aom = T.forceAOM || S.twSpeeds === "AOM";
+        const pick = T.forceAOM
+          ? `<p class="mtext"><span class="pill red">FMC QRH not permitted</span> Look up V-speeds in the AOM.</p>`
+          : seg("twSpeeds", [["QRH", "FMC QRH", "Preferred"], ["AOM", "AOM lookup", "Takeoff chapter"]], "V-speed source");
+        const cond = S.runway === "WET" ? (S.grooved ? "SK-R" : "WET") : "DRY";
+        const oat = num(S.oat);
+        const rows = aom ? [
+          chkBtn("m2s1", `Look up V-speeds in the AOM Takeoff chapter for <b>${num(S.tow) != null ? fmt(num(S.tow)) + " lb" : "the takeoff weight"}</b> at the actual temperature <b>${oat != null ? oat + "°C" : ""}</b>`),
+          chkBtn("m2s2", `Correct V1 for the <b>${T.tail} kt tailwind</b>`),
+          chkBtn("m2s3", `TAKEOFF REF 1/2: enter V1, VR and V2 <span class="key">1R–3R</span>`),
+        ] : [
+          chkBtn("m2q1", `TAKEOFF REF 2/2: enter ATC wind <b>${esc(atcWind(E.wind))}</b> <span class="key">1L</span>`),
+          chkBtn("m2q2", `TAKEOFF REF 2/2: verify or enter runway slope from Airport Analysis <span class="key">2L</span>`),
+          chkBtn("m2q3", `TAKEOFF REF 2/2: select runway condition <b>${cond}</b> <span class="key">1R</span>`),
+          chkBtn("m2q4", `TAKEOFF REF 1/2: select QRH ON <span class="key">6R</span>`),
+          chkBtn("m2q5", `TAKEOFF REF 1/2: select the QRH speeds into the active fields <span class="key">1R–3R</span>`),
+        ];
+        const ids = aom ? ["m2s1", "m2s2", "m2s3"] : ["m2q1", "m2q2", "m2q3", "m2q4", "m2q5"];
+        steps.push(mstep(3, "Set V-speeds", "", [pick, ...rows], ids));
+        steps.push(mstep(4, "Cross-check", "", [
+          chkBtn("m2x", `Max thrust at <b>${rtg}</b> and the new V-speeds are set on TAKEOFF REF 1/2`),
+        ], ["m2x"]));
+      }
+      body = `<ol class="msteps">${steps.join("")}</ol>`;
+    }
+    return `<section class="card tailcard"><h3>Unplanned tailwind · ${T.tail} kt</h3>${intro}${choice}${body}</section>`;
+  }
+
+  function mstep(n, title, hint, parts, ids, failed) {
+    const done = !failed && ids.every((id) => checks[id]);
+    return `<li class="mstep${done ? " done" : ""}${failed ? " fail" : ""}">
+      <span class="mnum" aria-hidden="true">${done ? "✓" : failed ? "!" : n}</span>
+      <div class="mbody"><h4>${esc(title)}${done ? `<span class="sr"> (done)</span>` : ""}</h4>${hint ? `<p class="mtext">${esc(hint)}</p>` : ""}${parts.join("")}</div>
+    </li>`;
+  }
+
   function fmcSteps(E) {
     const w = E.wind;
     const maxThrust = !/^Standard/.test(E.thrust);
-    const windTxt = w.ok && !w.calm && num(S.windDir) != null
-      ? `${String(Math.round(num(S.windDir))).padStart(3, "0")}/${num(S.windSpd)}` : w.calm ? "calm" : "ATC wind";
+    const windTxt = atcWind(w);
     const cond = S.runway === "WET" ? (S.grooved ? "SK-R" : "WET") : "DRY";
     const items = [
       ["N1 LIMIT", [
@@ -802,8 +932,7 @@
       ]],
     ];
     return `<div class="card"><h3>Selecting FMC QRH V-speeds</h3><p class="hint">Tap each step as you complete it.</p>
-      ${items.map(([page, rows]) => `<div class="fmc-page"><h4>${page}</h4>${rows.map(([id, t]) =>
-        `<button type="button" class="chk" role="checkbox" data-check="${id}" aria-checked="${!!checks[id]}"><span class="box" aria-hidden="true">${checks[id] ? "✓" : ""}</span><span class="t">${t}</span></button>`).join("")}</div>`).join("")}
+      ${items.map(([page, rows]) => `<div class="fmc-page"><h4>${page}</h4>${rows.map(([id, t]) => chkBtn(id, t)).join("")}</div>`).join("")}
     </div>`;
   }
 
