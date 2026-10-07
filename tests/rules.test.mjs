@@ -107,10 +107,31 @@ test("Improved Performance beyond PTOW + 2,000 lb: new TPS", () => {
   assert.equal(E.status, "red");
 });
 
-test("windshear on a 24K standard TPS: new TPS at 26K or TO", () => {
+test("windshear on a -NG 24K standard TPS: new TPS at 26K", () => {
   const E = run(STD, { windshear: true });
   assert.equal(E.status, "red");
-  assert.ok(said(E, /26K or TO/));
+  assert.ok(said(E, /new TPS at 26K maximum thrust/));
+  assert.equal(E.thrust, "Maximum at 26K (new TPS)");
+});
+
+test("windshear on a -NG 26K standard TPS: max 26K with QRH V-speeds", () => {
+  const E = run(STD, { rating: "26K", windshear: true });
+  assert.equal(E.status, "amber");
+  assert.equal(E.thrust, "Maximum at 26K");
+  assert.ok(E.cautions.some((c) => /flaps 5 or 15/.test(c)));
+});
+
+test("windshear on a -MAX 8 TO2 standard TPS: new TPS at TO", () => {
+  const E = run(STD, { aircraft: "MAX8", rating: "TO2", windshear: true });
+  assert.equal(E.status, "red");
+  assert.ok(said(E, /new TPS at TO maximum thrust/));
+});
+
+test("windshear on a -MAX 8 TO standard TPS: max TO, flaps 5, 10 or 15", () => {
+  const E = run(STD, { aircraft: "MAX8", rating: "TO", windshear: true });
+  assert.equal(E.status, "amber");
+  assert.equal(E.thrust, "Maximum at TO");
+  assert.ok(E.cautions.some((c) => /flaps 5, 10 or 15/.test(c)));
 });
 
 test("wet runway with a dry TPS: new wet-runway TPS", () => {
@@ -170,9 +191,9 @@ test("no Load Closeout: stop", () => {
   assert.equal(run(STD, { closeout: false }).status, "red");
 });
 
-test("gusty crosswind (the card's own example): 26K or TO max recommended", () => {
+test("gusty crosswind (the card's own example): 26K max recommended on the -NG", () => {
   const E = run(MAX, { windDir: "300", windSpd: "10", windGust: "22" });
-  assert.ok(E.cautions.some((c) => /Gust increment 12 kt/.test(c)));
+  assert.ok(E.cautions.some((c) => /Gust increment 12 kt.*26K maximum thrust/.test(c)));
 });
 
 test("27K Bump without authorization: stop", () => {
