@@ -1,10 +1,11 @@
 // Offline support for the B737 Takeoff Guide.
 // Bump VERSION whenever any app file changes so devices pick up the update.
-const VERSION = "2026-10-06.2";
+const VERSION = "2026-10-07.1";
 const CACHE = `takeoff-guide-${VERSION}`;
 const FILES = [
   "./",
   "./index.html",
+  "./rules.js",
   "./manifest.webmanifest",
   "./icons/icon-192.png",
   "./icons/icon-512.png",
