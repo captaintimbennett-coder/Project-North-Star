@@ -229,6 +229,7 @@
   .chk[aria-checked="true"] { border-color: var(--go); }
   .chk[aria-checked="true"] .box { background: var(--go); border-color: var(--go); color: var(--panel); }
   .chk[aria-checked="true"] .t { text-decoration: line-through; color: var(--muted); }
+  .linkbtn { border: 0; background: none; color: var(--accent); font-weight: 700; padding: 0 4px; cursor: pointer; text-decoration: underline; }
   .key { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 13px; padding: 1px 6px; border-radius: 6px; background: var(--line); }
 
   .tailcard > .seg { margin-bottom: 4px; }
@@ -334,8 +335,8 @@
   "use strict";
 
   const CARD_REV = "24 JUN 26";
-  const APP_VERSION = "2026-10-07.2"; // keep in step with VERSION in sw.js
-  const { RATINGS, HIGH, MAXRATING, CONTAM, blank, num, fmt, r1, wnum, fmtW, windCalc, evaluate } = window.TakeoffRules;
+  const APP_VERSION = "2026-10-07.3"; // keep in step with VERSION in sw.js
+  const { validate, RATINGS, HIGH, MAXRATING, CONTAM, blank, num, fmt, r1, wnum, fmtW, windCalc, evaluate } = window.TakeoffRules;
   const STEPS = [
     { id: "setup", label: "Setup" },
     { id: "conditions", label: "Conditions" },
@@ -448,10 +449,11 @@
 
     wind: () => `
       <h2 class="step-title">3 · Wind variation</h2>
-      <p class="lead">Enter the ATC wind. The guide works out headwind, crosswind and gust increment.</p>
+      <p class="lead">Enter the runway heading from the Jeppesen airport chart and the ATC wind. The guide works out headwind, crosswind and gust increment.</p>
       <div class="card">
         <div class="grid2">
           ${field("rwy", "Runway", "", "e.g. 36L", "text")}
+          ${field("rwyHdg", "Runway heading (Jeppesen)", "°M", "e.g. 357")}
           ${field("windDir", "Wind direction", "°", "300")}
           ${field("windSpd", "Wind speed", "kt", "10")}
           ${field("windGust", "Gusting to", "kt", "optional")}
@@ -482,7 +484,19 @@
         pending: ["More information needed", "Incomplete"],
       }[E.status];
       if (E.noGo) { head[0] = "Takeoff not authorized"; head[1] = "Stop · Limitation"; }
+      if (E.invalid.length) { head[0] = "Check your entries"; head[1] = "Entry check"; }
       const cls = E.status === "pending" ? "amber" : E.status;
+      // Bad entries: show only what to fix. Findings built on them would mislead.
+      if (E.invalid.length) {
+        return `
+      <section class="verdict amber" aria-live="polite">
+        <div class="kicker">${esc(head[1])}</div>
+        <h2>${esc(head[0])}</h2>
+        <p style="margin:0">These numbers look wrong, so no verdict is shown. Fix them and come back.</p>
+      </section>
+      <div class="card"><ul class="list">${E.invalid.map((v) => `<li class="red"><span class="dot"></span><span class="body">${esc(v.msg)} <button type="button" class="linkbtn" data-goto="${FIELD_STEP[v.field]}">Fix</button></span></li>`).join("")}</ul></div>
+      <p class="disclaimer">Demonstration prototype built from B737 Takeoff Card rev. ${CARD_REV}. Not approved for operational use.<br>App version ${APP_VERSION}</p>`;
+      }
       const aa = E.needAA ? `
         <div class="card"><h3>Airport Analysis check</h3>
           <p class="hint">Check AIRPORT ANALYSIS DATA for a Flap/Bleed/Temp combination (corrected for wind/anti-ice) that allows the takeoff. The weight can be accommodated…</p>
@@ -655,13 +669,21 @@
     </div>`;
   }
 
+  // Which step each checked field lives on (for the "Fix" buttons).
+  const FIELD_STEP = { tow: 2, ptow: 2, mtow: 2, oat: 3, at: 3, planTemp: 3, rwyHdg: 4, windDir: 4, windSpd: 4, windGust: 4, tpsWindKt: 4, zwMax: 4, twCorr: 4 };
+  const warnings = (stepNo) => validate(S).filter((v) => FIELD_STEP[v.field] === stepNo)
+    .map((v) => `<br><span class="pill red">Check</span> ${esc(v.msg)}`).join("");
+
   // ---------- live readouts (update without re-rendering inputs) ----------
   function updateLive() {
     const el = (k) => document.querySelector(`[data-live="${k}"]`);
-    const tow = wnum(S.tow), mtow = wnum(S.mtow);
+    // A comparison built on a number that failed the entry check would mislead: hide it.
+    const bad = new Set(validate(S).map((v) => v.field));
+    const ok = (k) => !bad.has(k);
+    const tow = ok("tow") ? wnum(S.tow) : null, mtow = ok("mtow") ? wnum(S.mtow) : null;
     const w = el("weight");
     if (w) {
-      const ptow = wnum(S.ptow);
+      const ptow = ok("ptow") ? wnum(S.ptow) : null;
       const ref = ptow == null ? null : S.plan === "STD" ? ptow + 2000 : ptow;
       const refName = S.plan === "STD" ? "ATOW" : "PTOW";
       let out = ptow != null ? `ATOW (PTOW + 2,000 lb) = <b>${fmtW(ptow + 2000)}</b><br>` : "";
@@ -672,11 +694,12 @@
         if (S.plan === "MAX" && d > 0) out += ` ${d <= 2000 ? "(within the 2,000 lb allowance)" : "(beyond PTOW + 2,000)"}`;
       }
       if (tow != null && mtow != null && tow > mtow) out += `<br><span class="pill red">Over MTOW</span> by <b>${fmt(tow - mtow)} lb</b>.`;
-      w.innerHTML = out;
+      w.innerHTML = (out + warnings(2)).replace(/(<br>)+/g, "<br>").replace(/^<br>|<br>$/g, "");
     }
     const t = el("temp");
     if (t) {
-      const oat = num(S.oat), ref = S.plan === "STD" ? num(S.at) : num(S.planTemp);
+      const oat = ok("oat") ? num(S.oat) : null;
+      const ref = S.plan === "STD" ? (ok("at") ? num(S.at) : null) : (ok("planTemp") ? num(S.planTemp) : null);
       let out = "";
       if (oat != null && ref != null) {
         const d = r1(oat - ref);
@@ -684,17 +707,17 @@
         else if (S.plan === "MAX" && d <= 2) out = `<span class="pill amber">Warmer by ${d}°C</span> Within 2°C: new TPS, or check Airport Analysis.`;
         else out = `<span class="pill red">Warmer by ${d}°C</span> Request a new TPS.`;
       }
-      t.innerHTML = out;
+      t.innerHTML = (out + warnings(3)).replace(/(<br>)+/g, "<br>").replace(/^<br>|<br>$/g, "");
     }
     const wc = windCalc(S);
     const wo = el("wind");
     if (wo) {
-      if (!wc.ok) wo.innerHTML = "";
+      if (!wc.ok) wo.innerHTML = warnings(4).replace(/(<br>)+/g, "<br>").replace(/^<br>|<br>$/g, "");
       else {
         const comp = wc.hw >= 0 ? `Headwind <b>${wc.hw} kt</b>` : `<span class="pill amber">Tailwind</span> <b>${r1(-wc.hw)} kt</b>`;
         let out = `${comp} · Crosswind <b>${wc.xw} kt</b>${wc.gi ? ` · Gust increment <b>${wc.gi} kt</b>` : ""}`;
         if (wc.gi > 10 || wc.xw > 15) out += `<br><span class="pill amber">Recommend</span> ${MAXRATING[S.aircraft]} maximum thrust (gusts &gt; 10 kt or crosswind &gt; 15 kt).`;
-        wo.innerHTML = out;
+        wo.innerHTML = (out + warnings(4)).replace(/(<br>)+/g, "<br>");
       }
     }
     const tailCard = document.querySelector('[data-live-show="tail"]');
@@ -738,6 +761,7 @@
     next.textContent = last ? "New takeoff" : step === STEPS.length - 2 ? "See result" : "Next";
     next.disabled = !canNext();
     updateLive();
+    save();
     if (focusSel) { const f = document.querySelector(focusSel); if (f) f.focus({ preventScroll: true }); }
   }
 
@@ -746,6 +770,21 @@
     render();
     window.scrollTo({ top: 0, behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
     $("#app").focus({ preventScroll: true });
+  }
+
+  // Keep the takeoff on this device if the app is closed or reloaded mid-entry
+  // (switching to ACARS, for example). Cleared by New takeoff or Restart.
+  const SAVE_KEY = "takeoffGuide.v1";
+  function save() {
+    try { localStorage.setItem(SAVE_KEY, JSON.stringify({ S, step, checks, at: Date.now() })); } catch (e) { /* storage unavailable */ }
+  }
+  function restore() {
+    try {
+      const d = JSON.parse(localStorage.getItem(SAVE_KEY) || "null");
+      // Ignore anything older than 12 hours: that's a different takeoff.
+      if (!d || Date.now() - d.at > 12 * 3600 * 1000) return;
+      S = { ...blank(), ...d.S }; step = d.step || 0; checks = d.checks || {};
+    } catch (e) { /* ignore a damaged save */ }
   }
 
   function reset() { S = blank(); checks = {}; go(0); }
@@ -775,6 +814,7 @@
     if (!k) return;
     S[k] = e.target.value.trim();
     updateLive();
+    save();
   });
   $("#btn-back").addEventListener("click", () => go(step - 1));
   $("#btn-next").addEventListener("click", () => (step === STEPS.length - 1 ? reset() : go(step + 1)));
@@ -782,16 +822,16 @@
 
   // ---------- demo scenarios ----------
   const SCENARIOS = [
-    { t: "Routine standard-thrust takeoff", d: "Everything within TPS limits.", s: { plan: "STD", rating: "24K", closeout: true, tow: "148.2", ptow: "149.0", mtow: "158.4", oat: "18", at: "44", rwy: "36", windDir: "010", windSpd: "8" } },
-    { t: "Heavier than ATOW", d: "Late bags push weight over the assumed takeoff weight.", s: { plan: "STD", rating: "24K", closeout: true, tow: "152.9", ptow: "149.0", mtow: "158.4", oat: "22", at: "41", rwy: "17R", windDir: "160", windSpd: "9" } },
-    { t: "Heavier and warmer", d: "Standard thrust planned; weight above ATOW and it's warmer than the assumed temperature.", s: { plan: "STD", rating: "24K", closeout: true, tow: "152.9", ptow: "149.0", mtow: "158.4", oat: "44", at: "41", rwy: "17R", windDir: "160", windSpd: "9" } },
-    { t: "Windshear advisory", d: "Standard thrust planned at 26K; windshear advisory issued.", s: { plan: "STD", rating: "26K", closeout: true, windshear: true, tow: "149.5", ptow: "149.0", mtow: "158.4", oat: "29", at: "48", rwy: "35C", windDir: "330", windSpd: "14", windGust: "24" } },
-    { t: "Gusty crosswind (card example)", d: "Runway 36, wind 300° at 10 gusting 22.", s: { plan: "MAX", rating: "24K", closeout: true, tow: "150.1", ptow: "151.2", mtow: "157.8", oat: "12", planTemp: "15", rwy: "36", windDir: "300", windSpd: "10", windGust: "22" } },
-    { t: "Warmer than plan temperature", d: "Max thrust planned; it's 1.5°C warmer than planned.", s: { plan: "MAX", rating: "26K", closeout: true, tow: "154.0", ptow: "154.3", mtow: "157.9", oat: "35.5", planTemp: "34", rwy: "8", windDir: "090", windSpd: "6" } },
-    { t: "Unplanned tailwind", d: "TPS based on zero wind; tower reports a 6 kt tailwind.", s: { plan: "MAX", rating: "24K", closeout: true, tow: "150.0", ptow: "151.5", mtow: "158.0", oat: "16", planTemp: "20", rwy: "18", windDir: "360", windSpd: "6", zwMax: "160.0", twCorr: "1100" } },
-    { t: "Tailwind beyond the TPS", d: "TPS planned a 3 kt tailwind; the wind has swung to a 9 kt tailwind.", s: { plan: "MAX", rating: "26K", closeout: true, tow: "149.0", ptow: "150.2", mtow: "156.5", oat: "21", planTemp: "24", rwy: "27", windDir: "090", windSpd: "9", tpsWind: "TAIL", tpsWindKt: "3" } },
-    { t: "Wet runway, dry TPS", d: "Light rain began after the TPS was issued.", s: { plan: "STD", rating: "24K", closeout: true, runway: "WET", tow: "147.0", ptow: "148.5", mtow: "157.0", oat: "14", at: "39", rwy: "27", windDir: "260", windSpd: "11" } },
-    { t: "Contaminated runway", d: "Slush on the runway; CRC/MEL message in use.", s: { plan: "MAX", rating: "26K", closeout: true, runway: "CONTAM", contam: "S25", antiIce: true, tpsAntiIce: true, tow: "141.0", ptow: "142.0", mtow: "146.5", oat: "-3", planTemp: "-1", rwy: "4R", windDir: "030", windSpd: "7" } },
+    { t: "Routine standard-thrust takeoff", d: "Everything within TPS limits.", s: { plan: "STD", rating: "24K", closeout: true, tow: "148.2", ptow: "149.0", mtow: "158.4", oat: "18", at: "44", rwy: "36", rwyHdg: "357", windDir: "010", windSpd: "8" } },
+    { t: "Heavier than ATOW", d: "Late bags push weight over the assumed takeoff weight.", s: { plan: "STD", rating: "24K", closeout: true, tow: "152.9", ptow: "149.0", mtow: "158.4", oat: "22", at: "41", rwy: "17R", rwyHdg: "175", windDir: "160", windSpd: "9" } },
+    { t: "Heavier and warmer", d: "Standard thrust planned; weight above ATOW and it's warmer than the assumed temperature.", s: { plan: "STD", rating: "24K", closeout: true, tow: "152.9", ptow: "149.0", mtow: "158.4", oat: "44", at: "41", rwy: "17R", rwyHdg: "175", windDir: "160", windSpd: "9" } },
+    { t: "Windshear advisory", d: "Standard thrust planned at 26K; windshear advisory issued.", s: { plan: "STD", rating: "26K", closeout: true, windshear: true, tow: "149.5", ptow: "149.0", mtow: "158.4", oat: "29", at: "48", rwy: "35C", rwyHdg: "355", windDir: "330", windSpd: "14", windGust: "24" } },
+    { t: "Gusty crosswind (card example)", d: "Runway 36, wind 300° at 10 gusting 22.", s: { plan: "MAX", rating: "24K", closeout: true, tow: "150.1", ptow: "151.2", mtow: "157.8", oat: "12", planTemp: "15", rwy: "36", rwyHdg: "357", windDir: "300", windSpd: "10", windGust: "22" } },
+    { t: "Warmer than plan temperature", d: "Max thrust planned; it's 1.5°C warmer than planned.", s: { plan: "MAX", rating: "26K", closeout: true, tow: "154.0", ptow: "154.3", mtow: "157.9", oat: "35.5", planTemp: "34", rwy: "8", rwyHdg: "082", windDir: "090", windSpd: "6" } },
+    { t: "Unplanned tailwind", d: "TPS based on zero wind; tower reports a 6 kt tailwind.", s: { plan: "MAX", rating: "24K", closeout: true, tow: "150.0", ptow: "151.5", mtow: "158.0", oat: "16", planTemp: "20", rwy: "18", rwyHdg: "177", windDir: "360", windSpd: "6", zwMax: "160.0", twCorr: "1100" } },
+    { t: "Tailwind beyond the TPS", d: "TPS planned a 3 kt tailwind; the wind has swung to a 9 kt tailwind.", s: { plan: "MAX", rating: "26K", closeout: true, tow: "149.0", ptow: "150.2", mtow: "156.5", oat: "21", planTemp: "24", rwy: "27", rwyHdg: "268", windDir: "090", windSpd: "9", tpsWind: "TAIL", tpsWindKt: "3" } },
+    { t: "Wet runway, dry TPS", d: "Light rain began after the TPS was issued.", s: { plan: "STD", rating: "24K", closeout: true, runway: "WET", tow: "147.0", ptow: "148.5", mtow: "157.0", oat: "14", at: "39", rwy: "27", rwyHdg: "268", windDir: "260", windSpd: "11" } },
+    { t: "Contaminated runway", d: "Slush on the runway; CRC/MEL message in use.", s: { plan: "MAX", rating: "26K", closeout: true, runway: "CONTAM", contam: "S25", antiIce: true, tpsAntiIce: true, tow: "141.0", ptow: "142.0", mtow: "146.5", oat: "-3", planTemp: "-1", rwy: "4R", rwyHdg: "043", windDir: "030", windSpd: "7" } },
   ];
   $("#scn-list").innerHTML = SCENARIOS.map((x, i) => `<button type="button" class="scn" data-scn="${i}"><b>${esc(x.t)}</b><span>${esc(x.d)}</span></button>`).join("");
   const dlg = $("#dlg-scn");
@@ -807,6 +847,7 @@
   });
 
   $("#rev").textContent = CARD_REV;
+  restore();
   render();
 
   // Offline support: only when served from a web address.

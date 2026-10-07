@@ -71,6 +71,10 @@ Use **Demo scenarios** to load pre-filled takeoffs for a walkthrough:
 - When FMC QRH V-speeds may and may never be used
 - FMC QRH V-speed entry steps as a tap-through checklist
 - Wet runway rules
+- Runway heading entered from the Jeppesen airport chart for the wind components
+- Entry checks: implausible weights, temperatures or winds stop the result until fixed
+- The current takeoff is kept on the device for 12 hours if the app is closed or
+  reloaded, and cleared by New takeoff or Restart
 
 ## Open items
 
