@@ -334,8 +334,8 @@
   "use strict";
 
   const CARD_REV = "24 JUN 26";
-  const APP_VERSION = "2026-10-07.1"; // keep in step with VERSION in sw.js
-  const { RATINGS, HIGH, CONTAM, blank, num, fmt, r1, wnum, fmtW, windCalc, evaluate } = window.TakeoffRules;
+  const APP_VERSION = "2026-10-07.2"; // keep in step with VERSION in sw.js
+  const { RATINGS, HIGH, MAXRATING, CONTAM, blank, num, fmt, r1, wnum, fmtW, windCalc, evaluate } = window.TakeoffRules;
   const STEPS = [
     { id: "setup", label: "Setup" },
     { id: "conditions", label: "Conditions" },
@@ -380,11 +380,11 @@
       <div class="card"><h3>Thrust planned by TPS</h3><p class="hint">A TPS that shows “STD N/A” in place of ATOW has maximum thrust planned for all runways.</p>
         ${seg("plan", [["STD", "Standard", "Assumed temp"], ["MAX", "Maximum"]], "Planned thrust")}</div>
       <div class="card"><h3>TPS thrust rating</h3>
-        ${seg("rating", RATINGS.map((r) => [r, r === "27K" ? "27K Bump" : r]), "Thrust rating")}
+        ${seg("rating", RATINGS[S.aircraft].map((r) => [r, r === "27K" ? "27K Bump" : r]), "Thrust rating")}
         ${S.rating === "27K" ? `<div class="sub">${tgl("bumpAuth", "27K Bump authorized", "SNA, or pre-authorized route with dispatch and load agent concurrence")}</div>` : ""}
       </div>
       <div class="card"><h3>TPS type</h3>
-        <div class="toggles">${tgl("ip", "Improved Performance TPS", "Requires 26K, 27K Bump or TO max thrust; TPS V-speeds only")}</div></div>`,
+        <div class="toggles">${tgl("ip", "Improved Performance TPS", S.aircraft === "MAX8" ? "Requires TO max thrust; TPS V-speeds only" : "Requires 26K or 27K Bump max thrust; TPS V-speeds only")}</div></div>`,
 
     conditions: () => `
       <h2 class="step-title">Runway &amp; conditions</h2>
@@ -693,7 +693,7 @@
       else {
         const comp = wc.hw >= 0 ? `Headwind <b>${wc.hw} kt</b>` : `<span class="pill amber">Tailwind</span> <b>${r1(-wc.hw)} kt</b>`;
         let out = `${comp} · Crosswind <b>${wc.xw} kt</b>${wc.gi ? ` · Gust increment <b>${wc.gi} kt</b>` : ""}`;
-        if (wc.gi > 10 || wc.xw > 15) out += `<br><span class="pill amber">Recommend</span> 26K max or TO max thrust (gusts &gt; 10 kt or crosswind &gt; 15 kt).`;
+        if (wc.gi > 10 || wc.xw > 15) out += `<br><span class="pill amber">Recommend</span> ${MAXRATING[S.aircraft]} maximum thrust (gusts &gt; 10 kt or crosswind &gt; 15 kt).`;
         wo.innerHTML = out;
       }
     }
@@ -757,6 +757,8 @@
     if (!b) return;
     if (b.dataset.set) {
       S[b.dataset.set] = parse(b.dataset.val);
+      // Switching aircraft clears a thrust rating the other type doesn't have.
+      if (b.dataset.set === "aircraft" && !RATINGS[S.aircraft].includes(S.rating)) S.rating = null;
       render(`[data-set="${b.dataset.set}"][data-val="${CSS.escape(b.dataset.val)}"]`);
     } else if (b.dataset.toggle) {
       S[b.dataset.toggle] = !S[b.dataset.toggle];

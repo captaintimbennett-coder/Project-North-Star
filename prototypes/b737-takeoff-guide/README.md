@@ -62,7 +62,8 @@ Use **Demo scenarios** to load pre-filled takeoffs for a walkthrough:
 
 ## What is covered
 
-- Takeoff thrust ratings and conditions that require maximum thrust
+- Takeoff thrust ratings by aircraft (-NG 22K/24K/26K/27K Bump, -MAX 8 TO2/TO1/TO)
+  and conditions that require maximum thrust (26K on the -NG, TO on the -MAX 8)
 - 27K Bump and Flaps 25 restrictions
 - Weight, temperature and wind variation flowcharts
 - Unplanned tailwind (Methods 1 and 2)
@@ -84,7 +85,6 @@ Still open:
   ATOW: max thrust and QRH V-speeds, plus an Airport Analysis check at the
   current temperature in place of the AT comparison. Confirm with the card owner.
 - Whether the TPS wind is a component or the reported wind.
-- Whether 27K is acceptable for windshear outside KSNA with a planned 27K TPS.
 - Not reviewed or approved for line use.
 
 ## Next steps toward a product

@@ -4,8 +4,12 @@
 (function (root) {
   "use strict";
 
-  const RATINGS = ["22K", "24K", "26K", "27K", "TO2", "TO1", "TO"];
-  const HIGH = ["26K", "27K", "TO"]; // ratings that satisfy "26K, 27K Bump, or TO" requirements
+  // Thrust ratings by aircraft: the -NG uses 22K/24K/26K/27K Bump, the -MAX 8 uses TO2/TO1/TO.
+  const RATINGS = { NG: ["22K", "24K", "26K", "27K"], MAX8: ["TO2", "TO1", "TO"] };
+  // Ratings that meet "maximum thrust at 26K, 27K Bump, or TO" (27K only where a 27K TPS is planned).
+  const HIGH = { NG: ["26K", "27K"], MAX8: ["TO"] };
+  // The rating to ask for when one of those is required: 26K on the -NG, TO on the -MAX 8.
+  const MAXRATING = { NG: "26K", MAX8: "TO" };
   // Takeoff on Contaminated Runways: Data Usage levels, plus the two over-limit cases.
   const CONTAM = [
     ["W25", "¼ in. standing water"], ["W50", "½ in. standing water"],
@@ -74,6 +78,8 @@
     const caution = (t) => { if (!R.cautions.includes(t)) R.cautions.push(t); };
     const max = (lvl) => { R.thrust = Math.max(R.thrust, lvl); };
     const rating = s.rating || "—";
+    const high = HIGH[s.aircraft] || HIGH.NG;
+    const need = MAXRATING[s.aircraft] || MAXRATING.NG;
     const contamOrCRC = s.runway === "CONTAM" || s.crcmel;
 
     // --- Preconditions
@@ -154,12 +160,12 @@
       max(2);
       R.noQRH.push("Improved Performance — only TPS V-speeds can be used");
       if (!R.speedsOnly) R.speedsOnly = "TPS Thrust/V-speed section only";
-      why("Use of Standard Thrust not authorized", "Improved Performance requires maximum thrust at 26K, 27K Bump or TO.", s.plan === "STD" ? "amber" : "go");
+      why("Use of Standard Thrust not authorized", `Improved Performance requires maximum thrust at ${s.aircraft === "MAX8" ? "TO" : "26K or 27K Bump"}.`, s.plan === "STD" ? "amber" : "go");
     }
     if (s.windshear) {
       max(2); noPenalty.push("windshear"); R.speedChange = true;
-      why("Use of Standard Thrust not authorized", "Windshear reported or expected (including advisories): maximum thrust at 26K (27K at KSNA or with a planned 27K TPS) or TO.", "amber");
-      caution("Windshear: if able, use flaps 5, 10 (-MAX 8 only) or 15 for takeoff.");
+      why("Use of Standard Thrust not authorized", `Windshear reported or expected (including advisories): maximum thrust at ${s.aircraft === "MAX8" ? "TO" : "26K (27K at KSNA or other airports with a planned 27K TPS)"}.`, "amber");
+      caution(`Windshear: if able, use flaps ${s.aircraft === "MAX8" ? "5, 10" : "5"} or 15 for takeoff.`);
     }
     if (s.adv7) {
       max(2); noPenalty.push("airport ops advisory");
@@ -195,15 +201,15 @@
         act("Check AIRPORT ANALYSIS DATA for maximum takeoff weight.");
       }
     }
-    if (R.thrust === 2 && !contamOrCRC && s.rating && !HIGH.includes(s.rating)) {
-      why("Takeoff Thrust Ratings", `Maximum thrust at 26K, 27K Bump or TO is required, but the TPS rating is ${rating}. Using any rating other than the current TPS rating requires a new TPS.`, "red");
-      act("Request a new TPS at 26K or TO maximum thrust.");
+    if (R.thrust === 2 && !contamOrCRC && s.rating && !high.includes(s.rating)) {
+      why("Takeoff Thrust Ratings", `Maximum thrust at ${need} is required, but the TPS rating is ${rating}. Using any rating other than the current TPS rating requires a new TPS.`, "red");
+      act(`Request a new TPS at ${need} maximum thrust.`);
     }
 
     // Gusts / crosswind (recommendation)
     const w = windCalc(s);
     if (w.ok && (w.gi > 10 || w.xw > 15)) {
-      caution(`Gust increment ${w.gi} kt / crosswind ${w.xw} kt: 26K max or TO max thrust is recommended to maximize available runway.`);
+      caution(`Gust increment ${w.gi} kt / crosswind ${w.xw} kt: ${need} maximum thrust is recommended to maximize available runway.`);
     }
 
     // --- 1. Weight variation
@@ -382,7 +388,7 @@
     if (R.thrustOverride) thrust = R.thrustOverride;
     else if (R.thrust === 0) thrust = `Standard (assumed temperature) at ${rating}`;
     else if (R.thrust === 1) thrust = `Maximum at ${rating}`;
-    else thrust = HIGH.includes(s.rating) ? `Maximum at ${rating}` : "Maximum at 26K or TO (new TPS)";
+    else thrust = high.includes(s.rating) ? `Maximum at ${rating}` : `Maximum at ${need} (new TPS)`;
 
     if (R.noGo) {
       thrust = "Not authorized";
@@ -397,5 +403,5 @@
     return { ...R, speeds, thrust, qrhSteps, wind: w };
   }
 
-  root.TakeoffRules = { RATINGS, HIGH, CONTAM, blank, num, fmt, r1, wnum, fmtW, rwyHeading, windCalc, evaluate };
+  root.TakeoffRules = { RATINGS, HIGH, MAXRATING, CONTAM, blank, num, fmt, r1, wnum, fmtW, rwyHeading, windCalc, evaluate };
 })(typeof window !== "undefined" ? window : globalThis);
