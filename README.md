@@ -8,9 +8,8 @@ finding.
 
 **Demonstration only. Not approved for operational use.**
 
-This prototype is separate from the Project North Star website. It is a single
-self-contained HTML file with no dependencies and no network calls, so it works
-offline.
+This prototype is separate from the Project North Star website. It has no
+dependencies and makes no network calls, so it works offline.
 
 ## Install on an iPad (works offline)
 
@@ -26,7 +25,10 @@ is shown at the bottom of the Result screen.
 
 ## Files
 
-- `index.html` — the whole app
+- `index.html` — the screens
+- `rules.js` — the takeoff rules, with no screen code, each citing its card or AOM section
+- `tests/rules.test.mjs` — one test per path through the card; run with
+  `node --test prototypes/b737-takeoff-guide/tests/rules.test.mjs`
 - `manifest.webmanifest` — Home Screen name, icon and full-screen display
 - `sw.js` — service worker that saves the app for offline use
 - `icons/` — Home Screen icons
@@ -48,7 +50,8 @@ Use **Demo scenarios** to load pre-filled takeoffs for a walkthrough:
 | Scenario | Expected result |
 |---|---|
 | Routine standard-thrust takeoff | Authorized, standard thrust |
-| Heavier than ATOW | Max thrust at planned rating, FMC QRH V-speeds |
+| Heavier than ATOW | Max thrust at planned rating, FMC QRH V-speeds, Airport Analysis check |
+| Heavier and warmer | Same; the assumed temperature no longer applies |
 | Windshear advisory | Max 26K, QRH V-speeds, flap advice |
 | Gusty crosswind (card example) | Authorized, 26K/TO max recommended |
 | Warmer than plan temperature | New TPS or Airport Analysis check |
@@ -70,17 +73,22 @@ Use **Demo scenarios** to load pre-filled takeoffs for a walkthrough:
 
 ## Open items
 
-All panels of the card (rev. 24 JUN 26) are now modeled, including the full
-Wind Variation chart, ACARS Takeoff Data Request, Manual Takeoff Calculation,
-and contaminated runway data usage and limitations. Still open:
+All panels of the card (rev. 24 JUN 26) are modeled. AOM passages confirmed via
+the crew's manuals: 1p.3.2 (ATOW = PTOW + 2,000 lb, so only PTOW is entered),
+1p.4.1 (weight and temperature variation), 1p.2.7 (Improved Performance within
+2°C of plan) and 1p.4.10 (TOW above ATOW is a weight-penalty limitation).
 
-- One interpretation to confirm with the card owner: with standard thrust
-  planned and takeoff weight above ATOW but within MTOW, the guide offers max
-  thrust at the planned rating with FMC QRH V-speeds, or a new TPS.
+Still open:
+
+- My reading of 1p.4.1 with 1p.4.10 for a standard-thrust TPS with TOW above
+  ATOW: max thrust and QRH V-speeds, plus an Airport Analysis check at the
+  current temperature in place of the AT comparison. Confirm with the card owner.
+- Whether the TPS wind is a component or the reported wind.
+- Whether 27K is acceptable for windshear outside KSNA with a planned 27K TPS.
 - Not reviewed or approved for line use.
 
 ## Next steps toward a product
 
 - Move the rules into a versioned data file reviewed by the card's owner.
-- Add automated tests for every path through the decision tree.
+- Have the card owner sign off the test matrix in `tests/`.
 - Deploy through the company's managed iPad system instead of GitHub Pages.
