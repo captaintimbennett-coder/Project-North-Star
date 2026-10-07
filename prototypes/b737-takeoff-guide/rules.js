@@ -28,7 +28,7 @@
     melWt: false, melAuto: false, crcmel: false, eecAlt: false, flaps25: false,
     tow: "", ptow: "", mtow: "", mtowCode: "",
     oat: "", at: "", planTemp: "",
-    rwy: "", windDir: "", windSpd: "", windGust: "", calm: false,
+    rwy: "", rwyHdg: "", windDir: "", windSpd: "", windGust: "", calm: false,
     tpsWind: "NONE", tpsWindKt: "",
     zwMax: "", twCorr: "", twMethod: "", twSpeeds: "QRH",
     aa: "",
@@ -52,7 +52,8 @@
   function windCalc(s) {
     const g = num(s.windGust), v = num(s.windSpd);
     if (s.calm) return { ok: true, hw: 0, xw: 0, gi: 0, calm: true };
-    const r = rwyHeading(s.rwy), d = num(s.windDir);
+    // Runway heading is entered from the Jeppesen airport chart (magnetic, like ATC winds).
+    const r = num(s.rwyHdg), d = num(s.windDir);
     if (r == null || d == null || v == null) return { ok: false };
     const a = ((d - r) * Math.PI) / 180;
     return {
@@ -63,9 +64,39 @@
     };
   }
 
+  // ---------- entry checks ----------
+  // Catches typos before they reach the rules: a weight missing a digit, °F for °C, and so on.
+  const RANGES = {
+    tow: ["Actual takeoff weight", 90000, 190000, "w"], ptow: ["PTOW", 90000, 190000, "w"],
+    mtow: ["MTOW", 90000, 190000, "w"], zwMax: ["Zero-wind max weight", 90000, 190000, "w"],
+    oat: ["Current temperature", -60, 55, "°C"], at: ["Assumed temperature", -60, 80, "°C"],
+    planTemp: ["Plan temperature", -60, 55, "°C"],
+    rwyHdg: ["Runway heading", 1, 360, "°"], windDir: ["Wind direction", 0, 360, "°"],
+    windSpd: ["Wind speed", 0, 80, "kt"], windGust: ["Gust", 0, 100, "kt"],
+    tpsWindKt: ["TPS wind", 0, 50, "kt"], twCorr: ["Tailwind correction", 1, 5000, "lb/kt"],
+  };
+  function validate(s) {
+    const out = [];
+    for (const [k, [label, lo, hi, unit]] of Object.entries(RANGES)) {
+      if (s[k] === "" || s[k] == null) continue;
+      const raw = num(s[k]);
+      if (raw == null) { out.push({ field: k, msg: `${label} isn't a number.` }); continue; }
+      const v = unit === "w" ? wnum(s[k]) : raw;
+      if (v < lo || v > hi) {
+        out.push({ field: k, msg: unit === "w"
+          ? `${label} ${s[k]} looks wrong. Enter it as on the TPS, between ${fmtW(lo)} and ${fmtW(hi)}.`
+          : `${label} ${s[k]} ${unit} is outside ${lo}–${hi} ${unit}.` });
+      }
+    }
+    const v = num(s.windSpd), g = num(s.windGust);
+    if (v != null && g != null && g <= v) out.push({ field: "windGust", msg: "Gust must be higher than the steady wind speed." });
+    return out;
+  }
+
   // ---------- rules engine ----------
   // Every rule cites the card section it comes from. Status: go < amber < red.
   function evaluate(s) {
+    const invalid = validate(s);
     const R = {
       status: "go", thrust: 0, thrustOverride: null,
       reasons: [], actions: [], alts: [], cautions: [], missing: [],
@@ -181,6 +212,7 @@
       R.noQRH.push("MEL/CDL V-speed correction — use V-speeds corrected by TPS or manually corrected");
       if (!R.speedsOnly) R.speedsOnly = "V-speeds corrected by TPS or manually corrected (no FMC QRH)";
       why("Use of Standard Thrust not authorized", "MEL/CDL item with a takeoff weight correction that TPS (TPAS) did not apply automatically: maximum thrust; do not use QRH V-speeds.", "amber");
+      if (s.plan !== "STD") act("Apply the MEL/CDL weight correction: confirm in the AIRPORT ANALYSIS DATA that takeoff weight does not exceed the maximum takeoff weight with the penalty.");
     }
     if (s.eecAlt) R.noQRH.push("EECs in Alternate mode");
 
@@ -315,7 +347,7 @@
       R.alts.push("Manually compute takeoff data with AOM 1p.4.8 Manual Takeoff Calculation (steps below).");
       R.showManual = true;
     };
-    if (!w.ok) R.missing.push("Wind (runway, direction, speed)");
+    if (!w.ok) R.missing.push("Wind (runway heading, direction, speed)");
     else {
       const tpsKt = num(s.tpsWindKt) || 0;
       if (w.hw >= 0) {
@@ -399,9 +431,15 @@
       R.showManual = false;
     }
     if (R.missing.length && R.status !== "red") R.status = "pending";
+    // Implausible entries: no verdict until they're fixed.
+    R.invalid = invalid;
+    if (invalid.length) {
+      R.status = "pending"; R.noGo = false; R.showManual = false;
+      thrust = "—"; speeds = "—"; qrhSteps = false;
+    }
     R.showAcars = [...R.actions, ...R.alts].some((a) => /\bTPS\b/.test(a));
     return { ...R, speeds, thrust, qrhSteps, wind: w };
   }
 
-  root.TakeoffRules = { RATINGS, HIGH, MAXRATING, CONTAM, blank, num, fmt, r1, wnum, fmtW, rwyHeading, windCalc, evaluate };
+  root.TakeoffRules = { validate, RATINGS, HIGH, MAXRATING, CONTAM, blank, num, fmt, r1, wnum, fmtW, rwyHeading, windCalc, evaluate };
 })(typeof window !== "undefined" ? window : globalThis);

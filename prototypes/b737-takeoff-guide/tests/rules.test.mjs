@@ -12,8 +12,8 @@ vm.runInNewContext(src, ctx);
 const { blank, evaluate } = ctx.TakeoffRules;
 
 // Baselines: a clean dry-runway takeoff with a 8 kt headwind and no TPS wind.
-const STD = { plan: "STD", rating: "24K", closeout: true, tow: "148.2", ptow: "149.0", mtow: "158.4", oat: "18", at: "44", rwy: "36", windDir: "360", windSpd: "8" };
-const MAX = { plan: "MAX", rating: "26K", closeout: true, tow: "150.0", ptow: "150.5", mtow: "157.8", oat: "15", planTemp: "18", rwy: "36", windDir: "360", windSpd: "8" };
+const STD = { plan: "STD", rating: "24K", closeout: true, tow: "148.2", ptow: "149.0", mtow: "158.4", oat: "18", at: "44", rwy: "36", rwyHdg: "360", windDir: "360", windSpd: "8" };
+const MAX = { plan: "MAX", rating: "26K", closeout: true, tow: "150.0", ptow: "150.5", mtow: "157.8", oat: "15", planTemp: "18", rwy: "36", rwyHdg: "360", windDir: "360", windSpd: "8" };
 const run = (base, extra = {}) => evaluate({ ...blank(), ...base, ...extra });
 const said = (E, re) => [...E.actions, ...E.alts].some((a) => re.test(a));
 const why = (E, re) => E.reasons.some((r) => re.test(r.text));
@@ -198,4 +198,44 @@ test("gusty crosswind (the card's own example): 26K max recommended on the -NG",
 
 test("27K Bump without authorization: stop", () => {
   assert.equal(run(MAX, { rating: "27K" }).status, "red");
+});
+
+test("runway heading comes from the Jeppesen chart: no heading, no wind result", () => {
+  const E = run(STD, { rwyHdg: "" });
+  assert.equal(E.status, "pending");
+  assert.ok(E.missing.some((m) => /runway heading/.test(m)));
+});
+
+test("exact runway heading changes the wind components", () => {
+  const E = run(STD, { rwyHdg: "355", windDir: "300", windSpd: "20" });
+  assert.equal(E.wind.hw, 11.5);
+  assert.equal(E.wind.xw, 16.4);
+});
+
+test("entry check: a weight missing a digit gives no verdict", () => {
+  const E = run(STD, { tow: "15.2" });
+  assert.equal(E.status, "pending");
+  assert.equal(E.thrust, "—");
+  assert.ok(E.invalid.some((v) => v.field === "tow"));
+});
+
+test("entry check: a temperature typed in °F gives no verdict", () => {
+  const E = run(MAX, { oat: "86" });
+  assert.equal(E.status, "pending");
+  assert.ok(E.invalid.some((v) => v.field === "oat"));
+});
+
+test("entry check: gust must be above the steady wind", () => {
+  assert.ok(run(STD, { windGust: "5" }).invalid.some((v) => v.field === "windGust"));
+});
+
+test("entry check: valid entries pass", () => {
+  assert.equal(run(STD).invalid.length, 0);
+  assert.equal(run(MAX, { windGust: "18", zwMax: "160.0", twCorr: "1100" }).invalid.length, 0);
+});
+
+test("MEL/CDL weight correction with a max-thrust TPS: Airport Analysis check with the penalty", () => {
+  const E = run(MAX, { melWt: true });
+  assert.ok(said(E, /MEL\/CDL weight correction.*AIRPORT ANALYSIS/));
+  assert.match(E.speeds, /no FMC QRH/);
 });
