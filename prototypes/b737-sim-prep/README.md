@@ -30,6 +30,8 @@ Bump `VERSION` in `sw.js` and `APP_VERSION` in `index.html` together on every ch
 
 ## Open items
 
-- The CDU drawing follows a generic 737 CDU photo, not the airline's CDU. The
-  AOM's ACARS step 16 names a VNAV key that photo doesn't have.
+- The CDU drawing matches the current (legacy) CDU from the crew's photos, with
+  the INIT/REF INDEX and -800 N1 LIMIT page layouts. The AOM's descent forecast
+  winds step names a VNAV key, which is only on the new CDU: confirm the key on
+  the current CDU.
 - Page names are shown only where the AOM states them.

@@ -48,9 +48,15 @@
     { id: "perfV", title: "Performance verification", ref: "3-32" },
   ];
 
-  // Page layouts known exactly (INIT/REF INDEX, from a photo of the CDU). Other pages show
+  // Page layouts known exactly, from photos of the current (legacy) CDU. Other pages show
   // only the prompt the step uses, so the drawing never invents a layout.
+  // `fleets` limits a layout to the ship numbers it was photographed on.
   const PAGES = {
+    "N1 LIMIT": {
+      fleets: ["A", "B"],
+      L: ["SEL/OAT", "<TO", "<TO-1", "<TO-2", "", "<PERF INIT"],
+      R: ["N1", "<SEL> CLB", "CLB-1>", "CLB-2>", "", "TAKEOFF>"],
+    },
     "INIT/REF INDEX": {
       L: ["<IDENT", "<POS", "<PERF", "<TAKEOFF", "<APPROACH", "<OFFSET"],
       R: ["NAV DATA>", "MSG RECALL>", "ALTN DEST>", "", "SEL CONFIG>", "MAINT>"],
@@ -118,7 +124,8 @@
     { g: "acWind", page: "LEGS", key: null, label: "RNP for the departure", action: "Verify" },
 
     // --- ACARS: descent forecast winds, if desired (3-22)
-    { g: "acFcst", key: { key: "VNAV" }, label: "VNAV key", action: "Press" },
+    { g: "acFcst", key: { key: "VNAV" }, label: "VNAV key", action: "Press",
+      notes: ["The AOM names a VNAV key here. That key is on the new CDU; the current CDU has CLB, CRZ and DES keys instead. Confirm the key for the current CDU with your instructor or the AOM."] },
     { g: "acFcst", key: { key: "PREV PAGE" }, label: "PREV PAGE key", action: "Select" },
     { g: "acFcst", key: { lsk: "6L" }, label: "FORECAST", action: "Select" },
     { g: "acFcst", key: { lsk: "6R" }, label: "LOAD", action: "Select" },
