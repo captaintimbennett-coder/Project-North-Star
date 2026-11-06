@@ -1,11 +1,12 @@
 // Offline support for B737 Sim Prep.
 // Bump VERSION whenever any app file changes so devices pick up the update.
-const VERSION = "2026-11-06.2";
+const VERSION = "2026-11-06.3";
 const CACHE = `sim-prep-${VERSION}`;
 const FILES = [
   "./",
   "./index.html",
   "./procedure.js",
+  "./perf.js",
   "./manifest.webmanifest",
   "./icons/icon-192.png",
   "./icons/icon-512.png",

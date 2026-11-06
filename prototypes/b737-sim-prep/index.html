@@ -160,6 +160,25 @@
   .q-opt.wrong { border-color: var(--red); background: var(--red-bg); }
   .score { font-variant-numeric: tabular-nums; font-weight: 800; }
 
+  .pitem { padding: 10px 0; border-top: 1px solid var(--line); }
+  .card .pitem:first-of-type { border-top: 0; }
+  .prow { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; width: 100%; }
+  .pval { font: 800 20px/1.2 ui-monospace, "SF Mono", Menlo, monospace; white-space: nowrap; }
+  .pfrom { margin: 4px 0 0; font-size: 14px; color: var(--muted); }
+  .paper summary { cursor: pointer; }
+  .paper h4 { margin: 12px 0 4px; font-size: 13px; text-transform: uppercase; letter-spacing: .6px; color: var(--muted); }
+  .paper pre { margin: 0; padding: 10px; border-radius: 10px; background: var(--panel-2); font: 12.5px/1.45 ui-monospace, "SF Mono", Menlo, monospace; overflow-x: auto; white-space: pre; }
+  .fmc { background: #05080b; border-color: #26303a; color: #e8f1ea; }
+  .fmc .eyebrow { color: #ffcf4a; }
+  .frow { display: block; width: 100%; text-align: left; background: transparent; color: #e8f1ea; border: 1.5px solid transparent; border-radius: 10px; padding: 10px; margin-top: 4px; cursor: pointer; }
+  .frow .kb { background: #26303a; color: #c4cbd3; }
+  .frow .pfrom { color: #c4cbd3; }
+  .frow.flag { border-color: #ffcf4a; background: rgba(255,207,74,.12); }
+  .frow.right { border-color: #3ddc84; background: rgba(61,220,132,.14); }
+  .frow.missed { border-color: #ff6b5e; background: rgba(255,107,94,.16); }
+  .frow.falseflag { border-color: #ffbe3d; background: rgba(255,190,61,.12); }
+  .frow:disabled { cursor: default; }
+
   footer.nav { position: fixed; left: 0; right: 0; bottom: 0; z-index: 5; background: color-mix(in srgb, var(--panel) 94%, transparent); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-top: 1px solid var(--line); padding: 12px 0 calc(12px + env(safe-area-inset-bottom)); }
   footer.nav .wrap { display: flex; gap: 10px; }
   .btn { min-height: 56px; border-radius: 14px; padding: 0 22px; font-weight: 700; font-size: 17px; cursor: pointer; border: 1.5px solid var(--line); background: var(--panel-2); }
@@ -193,14 +212,16 @@
 </footer>
 
 <script src="procedure.js"></script>
+<script src="perf.js"></script>
 <script>
 (() => {
   "use strict";
-  const APP_VERSION = "2026-11-06.2"; // keep in step with VERSION in sw.js
+  const APP_VERSION = "2026-11-06.3"; // keep in step with VERSION in sw.js
   const { FLEETS, DEFAULTS, GROUPS, PAGES, TIMING, buildFlow } = window.SimPrep;
+  const PERF = window.SimPerf;
 
   // ---------- state ----------
-  let st = { screen: "home", mode: null, opts: { ...DEFAULTS }, i: 0, done: {}, quiz: null, score: { right: 0, total: 0 } };
+  let st = { screen: "home", mode: null, opts: { ...DEFAULTS, perfAc: "NG", perfRwy: "17R" }, i: 0, done: {}, quiz: null, score: { right: 0, total: 0 }, drill: null, drillScore: { clean: 0, total: 0 } };
   const SAVE_KEY = "simPrep.v1";
   const save = () => { try { localStorage.setItem(SAVE_KEY, JSON.stringify(st)); } catch (e) { /* storage unavailable */ } };
   try { const d = JSON.parse(localStorage.getItem(SAVE_KEY) || "null"); if (d && d.opts) st = { ...st, ...d }; } catch (e) { /* ignore */ }
@@ -256,6 +277,10 @@
 
   const keyBadge = (s) => s.key && s.key.lsk ? `[${s.alt || s.key.lsk}]` : s.key && s.key.key ? `${s.key.key} key` : s.key && s.key.panel ? s.key.panel : "";
 
+  // The paperwork, collapsible, for the performance check screens.
+  const paperworkHtml = () => `<details class="card paper"${st.screen === "perfDrill" ? " open" : ""}><summary><b>Paperwork</b> · TPS, flight plan, ATIS</summary>
+    ${PERF.paperwork(st.opts.perfAc).map((p) => `<h4>${esc(p.title)}</h4><pre>${esc(p.text)}</pre>`).join("")}</details>`;
+
   // ---------- UI pieces ----------
   const seg = (k, opts, label) => `<div class="seg" role="group" aria-label="${esc(label)}">${opts.map(([v, t, sub]) =>
     `<button type="button" data-opt="${k}" data-val="${esc(v)}" aria-pressed="${String(st.opts[k]) === String(v)}">${esc(t)}${sub ? `<small>${esc(sub)}</small>` : ""}</button>`).join("")}</div>`;
@@ -271,11 +296,23 @@
         <button type="button" class="mode" data-mode="quiz"><b>Practice</b><span>“What comes next?” Pick the next step before the answer is shown.</span></button>
         <button type="button" class="mode" data-mode="overview"><b>Overview</b><span>The whole flow on one page for a quick review.</span></button>
       </div>
+      <span class="eyebrow" style="display:block;margin-top:26px">Study block 2</span>
+      <h2 class="title">Performance check</h2>
+      <p class="lead">AOM 3-32 Performance Verification, using your RNO–SFO training flight (AAL1080) paperwork for the NG or MAX.</p>
+      <div class="modes">
+        <button type="button" class="mode" data-mode="perfLearn"><b>Learn</b><span>Every item on the four FMC pages, this flight's correct value, and where it is on the paperwork.</span></button>
+        <button type="button" class="mode" data-mode="perfDrill"><b>Drill</b><span>The FMC is loaded with one or two planted mistakes. Find them.</span></button>
+      </div>
       <div class="card" style="margin-top:14px"><h3>Who and when</h3><ul class="plain">${TIMING.map((t) => `<li>${esc(t)}</li>`).join("")}</ul></div>
       <p class="disclaimer">Study aid built from the AOM. Always use the current AOM and company procedures.<br>App version ${APP_VERSION}</p>`,
 
     setup: () => {
       const o = st.opts;
+      if (String(st.mode).startsWith("perf")) return `
+      <h2 class="title">Set up the check</h2>
+      <p class="lead">RNO–SFO, AAL1080. Pick the aircraft and the departure runway.</p>
+      <div class="card"><h3>Aircraft</h3>${seg("perfAc", [["NG", "737-800", "Ship 3LE · 26K"], ["MAX", "737 MAX 8", "Ship 3RS · TO"]], "Aircraft")}</div>
+      <div class="card"><h3>Runway</h3><p class="hint">ATIS K: departing 17R and 17L. The two TPS lines differ, which is what the check catches.</p>${seg("perfRwy", [["17R", "17R"], ["17L", "17L"]], "Runway")}</div>`;
       return `
       <h2 class="title">Set up the flight</h2>
       <p class="lead">The steps change with the ship number, how the flight plan arrives, and a few options.</p>
@@ -328,6 +365,47 @@
       return `<h2 class="title">Overview</h2><p class="lead">${esc(FLEETS[st.opts.fleet].label)} · ${st.opts.source === "ACARS" ? "ACARS uplink" : "Manual entry"} · ${F.length} steps</p>${html}</div>`;
     },
 
+    perfLearn: () => {
+      const o = st.opts, list = PERF.items(o.perfAc, o.perfRwy);
+      let html = "", page = null;
+      for (const it of list) {
+        if (it.page !== page) { if (page) html += "</div>"; page = it.page; html += `<div class="card"><span class="eyebrow">${esc(page)}</span>`; }
+        html += `<div class="pitem"><div class="prow"><b>${it.lsk ? `<span class="kb">[${esc(it.lsk)}]</span>` : ""}${esc(it.label)}</b><span class="pval">${esc(it.value)}</span></div>
+          <p class="pfrom">${esc(it.from)}</p>${it.note ? `<p class="note">${esc(it.note)}</p>` : ""}</div>`;
+      }
+      html += "</div>";
+      const rv = PERF.review(o.perfAc, o.perfRwy).map((r) => `<div class="pitem"><b>${esc(r.label)}</b><p class="pfrom">${esc(r.text)}</p></div>`).join("");
+      return `<h2 class="title">Performance check</h2>
+        <p class="lead">${o.perfAc === "NG" ? "737-800, ship 3LE" : "737 MAX 8, ship 3RS"} · RWY ${esc(o.perfRwy)}. One pilot reads aloud the FMC data; the other verifies it against the TPS, flight plan and ATIS. (AOM 3-32)</p>
+        ${paperworkHtml()}${html}
+        <div class="card"><span class="eyebrow">Performance review</span><p class="hint" style="margin-top:6px">Evaluate ATIS and TPS for wind, runway conditions, temperature, maximum weights, flaps, and thrust. (AOM 3-32)</p>${rv}</div>
+        <p class="disclaimer">Values from the training flight paperwork. The MAX uses the NG flight plan figures for cost index, altitude and reserves (same flight).</p>`;
+    },
+
+    perfDrill: () => {
+      const o = st.opts;
+      if (!st.drill) st.drill = { rows: PERF.makeDrill(o.perfAc, o.perfRwy), flagged: {}, checked: false };
+      const d = st.drill;
+      let html = "", page = null;
+      for (const it of d.rows) {
+        if (it.page !== page) { if (page) html += "</div>"; page = it.page; html += `<div class="card fmc"><span class="eyebrow">${esc(page)}</span>`; }
+        const f = !!d.flagged[it.id];
+        let cls = f ? " flag" : "", verdict = "";
+        if (d.checked) {
+          if (it.wrong && f) { cls = " right"; verdict = `<p class="pfrom"><b>Caught.</b> ${esc(it.why)}</p>`; }
+          else if (it.wrong) { cls = " missed"; verdict = `<p class="pfrom"><b>Missed.</b> ${esc(it.why)}</p>`; }
+          else if (f) { cls = " falseflag"; verdict = `<p class="pfrom"><b>This one was correct.</b> ${esc(it.from)}</p>`; }
+        }
+        html += `<button type="button" class="frow${cls}" data-flagrow="${it.id}" ${d.checked ? "disabled" : ""} aria-pressed="${f}">
+          <span class="prow"><span>${it.lsk ? `<span class="kb">[${esc(it.lsk)}]</span>` : ""}${esc(it.label)}</span><span class="pval">${esc(it.shown)}</span></span>${verdict}</button>`;
+      }
+      html += "</div>";
+      const nWrong = d.rows.filter((r) => r.wrong).length;
+      return `<h2 class="title">Find the mistakes</h2>
+        <p class="lead">${o.perfAc === "NG" ? "737-800, ship 3LE" : "737 MAX 8, ship 3RS"} · RWY ${esc(o.perfRwy)}. Tap each FMC entry that doesn't match the paperwork, then tap <b>Check</b>.${d.checked ? ` This drill had ${nWrong} mistake${nWrong > 1 ? "s" : ""}.` : ""} Score: <span class="score">${st.drillScore.clean} / ${st.drillScore.total}</span> clean.</p>
+        ${paperworkHtml()}${html}`;
+    },
+
     quiz: () => {
       const q = st.quiz || newQuestion();
       st.quiz = q;
@@ -372,11 +450,16 @@
     const nav = $("#nav"); nav.hidden = scr === "home";
     const back = $("#btn-back"), next = $("#btn-next");
     back.textContent = "Back";
-    if (scr === "setup") { next.textContent = st.mode === "overview" ? "Show overview" : st.mode === "quiz" ? "Start practice" : "Start"; }
+    if (scr === "setup") { next.textContent = st.mode === "overview" ? "Show overview" : st.mode === "quiz" ? "Start practice" : st.mode === "perfDrill" ? "Start drill" : st.mode === "perfLearn" ? "Show the check" : "Start"; }
     else if (scr === "sim") { next.textContent = st.i >= F.length ? "Home" : st.i === F.length - 1 ? "Finish" : "Next step"; }
     else if (scr === "quiz") { next.textContent = st.quiz && st.quiz.picked != null ? "Next question" : "Skip"; }
     else if (scr === "overview") { next.textContent = "Step by step"; }
-    $("#sub").textContent = scr === "home" ? "Study aid · Not for operational use" : `FMS Preflight · ${FLEETS[st.opts.fleet].label} · ${st.opts.source === "ACARS" ? "ACARS" : "Manual"}`;
+    else if (scr === "perfLearn") { next.textContent = "Try a drill"; }
+    else if (scr === "perfDrill") { next.textContent = st.drill && st.drill.checked ? "New drill" : "Check"; }
+    const perf = scr.startsWith("perf") || (scr === "setup" && String(st.mode).startsWith("perf"));
+    $("#sub").textContent = scr === "home" ? "Study aid · Not for operational use"
+      : perf ? `Performance check · RNO–SFO · ${st.opts.perfAc === "NG" ? "737-800" : "737 MAX 8"} · ${st.opts.perfRwy}`
+      : `FMS Preflight · ${FLEETS[st.opts.fleet].label} · ${st.opts.source === "ACARS" ? "ACARS" : "Manual"}`;
     save();
   }
   const go = (screen) => { st.screen = screen; render(); window.scrollTo(0, 0); $("#app").focus({ preventScroll: true }); };
@@ -385,7 +468,8 @@
   document.addEventListener("click", (e) => {
     const b = e.target.closest("button"); if (!b) return;
     if (b.dataset.mode) { st.mode = b.dataset.mode; go("setup"); }
-    else if (b.dataset.opt) { st.opts[b.dataset.opt] = b.dataset.val; st.i = 0; st.quiz = null; render(); }
+    else if (b.dataset.opt) { st.opts[b.dataset.opt] = b.dataset.val; st.i = 0; st.quiz = null; st.drill = null; render(); }
+    else if (b.dataset.flagrow && st.drill && !st.drill.checked) { st.drill.flagged[b.dataset.flagrow] = !st.drill.flagged[b.dataset.flagrow]; render(); }
     else if (b.dataset.flag) { st.opts[b.dataset.flag] = !st.opts[b.dataset.flag]; st.i = 0; st.quiz = null; render(); }
     else if (b.dataset.tick) { st.done[b.dataset.tick] = !st.done[b.dataset.tick]; render(); }
     else if (b.dataset.pick != null && st.quiz && st.quiz.picked == null) {
@@ -400,7 +484,16 @@
   });
   $("#btn-next").addEventListener("click", () => {
     const F = flow();
-    if (st.screen === "setup") { st.i = 0; st.done = {}; st.quiz = null; st.score = { right: 0, total: 0 }; go(st.mode); }
+    if (st.screen === "setup") { st.i = 0; st.done = {}; st.quiz = null; st.score = { right: 0, total: 0 }; st.drill = null; go(st.mode); }
+    else if (st.screen === "perfLearn") { st.mode = "perfDrill"; st.drill = null; go("perfDrill"); }
+    else if (st.screen === "perfDrill") {
+      const d = st.drill;
+      if (d && !d.checked) {
+        d.checked = true; st.drillScore.total++;
+        if (d.rows.every((r) => !!d.flagged[r.id] === r.wrong)) st.drillScore.clean++;
+        render();
+      } else { st.drill = null; render(); window.scrollTo(0, 0); }
+    }
     else if (st.screen === "sim") {
       if (st.i >= F.length) { go("home"); return; }
       st.done[F[st.i].id] = true; st.i++; render(); window.scrollTo(0, 0);
