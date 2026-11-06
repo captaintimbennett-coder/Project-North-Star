@@ -63,10 +63,26 @@ test("ACARS without takeoff data: request the TPS by ACARS and enter it (3-24)",
 test("optional ACARS items appear only when chosen", () => {
   const base = buildFlow({ source: "ACARS" });
   assert.equal(find(base, "FORECAST"), undefined);
-  assert.equal(find(base, "CPDLC"), undefined);
+  assert.equal(find(base, "LOGON SEND"), undefined);
   assert.equal(find(base, "Intersection takeoff"), undefined);
   const all = buildFlow({ source: "ACARS", forecastWinds: true, cpdlc: true, intersection: true });
-  assert.ok(find(all, "FORECAST") && find(all, "CPDLC") && find(all, "Intersection takeoff"));
+  assert.ok(find(all, "FORECAST") && find(all, "LOGON SEND") && find(all, "Intersection takeoff"));
+});
+
+test("every line select key used on a drawn page lands on a prompt or label", () => {
+  const { STEPS, PAGES } = ctx.SimPrep;
+  for (const s of STEPS) {
+    const p = PAGES[s.page];
+    if (!p || !s.key || !s.key.lsk) continue;
+    const side = s.key.lsk.slice(-1), row = Number(s.key.lsk[0]);
+    const text = (s.scr && s.scr[s.key.lsk]) || p[side][row - 1];
+    assert.ok(text, `${s.page} ${s.key.lsk} (${s.label}) is blank on the drawing`);
+  }
+});
+
+test("ACARS takeoff data request follows MENU → ACARS → AOC AAL → T/O DATA (AOM 5-14)", () => {
+  const F = buildFlow({ source: "ACARS", toData: false }).filter((s) => s.g === "acToReq").slice(0, 4);
+  assert.deepEqual(labels(F), ["MENU", "ACARS", "AOC AAL", "T/O DATA"]);
 });
 
 test("manual flow: RTE, PERF INIT, N1 LIMIT, TAKEOFF REF 1/2 and 2/2 (3-25, 3-26)", () => {

@@ -216,7 +216,7 @@
 <script>
 (() => {
   "use strict";
-  const APP_VERSION = "2026-11-06.3"; // keep in step with VERSION in sw.js
+  const APP_VERSION = "2026-11-06.4"; // keep in step with VERSION in sw.js
   const { FLEETS, DEFAULTS, GROUPS, PAGES, TIMING, buildFlow } = window.SimPrep;
   const PERF = window.SimPerf;
 
@@ -230,11 +230,11 @@
   const esc = (v) => String(v).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   const flow = () => buildFlow(st.opts);
 
-  // ---------- CDU drawing (layout from photos of the current 737 CDU) ----------
+  // ---------- CDU drawing (key layout from the AA CDU training guide, AOM Rev 10) ----------
   const FKEYS = [
-    ["INIT REF", "RTE", "CLB", "CRZ", "DES", ""],
-    ["MENU", "LEGS", "DEP ARR", "HOLD", "PROG", "EXEC"],
-    ["N1 LIMIT", "FIX", "", "", "", ""],
+    ["INIT REF", "RTE", "DEP ARR", "ATC", "VNAV", ""],
+    ["FIX", "LEGS", "HOLD", "FMC COMM", "PROG", "EXEC"],
+    ["MENU", "N1 LIMIT", "", "", "", ""],
     ["PREV PAGE", "NEXT PAGE", "", "", "", ""],
   ];
   const ALL_KEYS = new Set(FKEYS.flat().filter(Boolean));
@@ -248,8 +248,9 @@
     const lsk = k.lsk ? { side: k.lsk.slice(-1), row: Number(k.lsk[0]) } : null;
     const known = PAGES[s.page];
     const layout = known && (!known.fleets || known.fleets.includes(st.opts.fleet)) ? known : null;
+    const ov = s.scr || {};
     const row = (r) => {
-      const L = layout ? layout.L[r - 1] : "", R = layout ? layout.R[r - 1] : "";
+      const L = ov[r + "L"] ?? (layout ? layout.L[r - 1] : ""), R = ov[r + "R"] ?? (layout ? layout.R[r - 1] : "");
       const onL = lsk && lsk.side === "L" && lsk.row === r, onR = lsk && lsk.side === "R" && lsk.row === r;
       const isPrompt = /^(Select|Press)/.test(s.action);
       const txt = (side, base, on) => on ? (layout ? base : side === "L" ? (isPrompt ? "<" : "") + s.label.toUpperCase() : s.label.toUpperCase() + (isPrompt ? ">" : "")) : base;
@@ -260,7 +261,7 @@
       return `<div class="lsk${on ? " hot" : ""}" ${on ? `role="img" aria-label="Line select key ${r}${side}"` : 'aria-hidden="true"'}>${on ? `<span class="lsk-n">${r}${side}</span>` : ""}</div>`;
     }).join("")}</div>`;
     const hotKey = k.key && ALL_KEYS.has(k.key) ? k.key : null;
-    const missing = k.key && !ALL_KEYS.has(k.key) ? `<p class="where" style="margin:10px 0 0;text-align:center;color:#e9edf2"><span class="chip">${esc(k.key)} key</span><br><small>Not on the current CDU</small></p>` : "";
+    const missing = k.key && !ALL_KEYS.has(k.key) ? `<p class="where" style="margin:10px 0 0;text-align:center;color:#e9edf2"><span class="chip">${esc(k.key)} key</span><br><small>Not on this CDU</small></p>` : "";
     const alpha = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
     return `<div class="cdu" aria-label="CDU">
       <div class="cdu-top">${lskCol("L")}

@@ -48,18 +48,76 @@
     { id: "perfV", title: "Performance verification", ref: "3-32" },
   ];
 
-  // Page layouts known exactly, from photos of the current (legacy) CDU. Other pages show
-  // only the prompt the step uses, so the drawing never invents a layout.
-  // `fleets` limits a layout to the ship numbers it was photographed on.
+  // Page layouts from the AA "B737 CDU Load Closeout and Performance Guide" (AOM Rev 10
+  // pictures of the current CDU). Only labels and prompts are drawn, never flight data.
+  // Prompts that appear only at some moments (<LOAD, <REJECT, STEP>) come from the
+  // step's own `scr` override, e.g. scr: { "6L": "<LOAD" }.
+  // `fleets` limits a layout to the ship numbers it was pictured on.
   const PAGES = {
-    "N1 LIMIT": {
-      fleets: ["A", "B"],
-      L: ["SEL/OAT", "<TO", "<TO-1", "<TO-2", "", "<PERF INIT"],
-      R: ["N1", "<SEL> CLB", "CLB-1>", "CLB-2>", "", "TAKEOFF>"],
+    "IDENT": {
+      L: ["MODEL", "NAV DATA", "", "OP PROGRAM", "", "<INDEX"],
+      R: ["ENG RATING", "ACTIVE", "", "", "", "POS INIT>"],
+    },
+    "POS INIT": {
+      L: ["", "REF AIRPORT", "GATE", "", "GMT-MON/DY", "<INDEX"],
+      R: ["LAST POS", "", "", "SET IRS POS", "", "ROUTE>"],
     },
     "INIT/REF INDEX": {
       L: ["<IDENT", "<POS", "<PERF", "<TAKEOFF", "<APPROACH", "<OFFSET"],
       R: ["NAV DATA>", "MSG RECALL>", "ALTN DEST>", "", "SEL CONFIG>", "MAINT>"],
+    },
+    "RTE": {
+      L: ["ORIGIN", "CO ROUTE", "RUNWAY", "", "<ALTN DEST", "<RTE 2"],
+      R: ["DEST", "FLT NO", "FLT PLAN REQUEST>", "", "", "ACTIVATE>"],
+    },
+    "DEP/ARR INDEX": {
+      L: ["<DEP", "", "<DEP", "", "", "<DEP"],
+      R: ["ARR>", "ARR>", "ARR>", "ARR>", "", "ARR>"],
+    },
+    "LEGS": {
+      L: ["", "", "", "", "RNP/ACTUAL", "<RTE 2 LEGS"],
+      R: ["", "", "", "", "", "RTE DATA>"],
+    },
+    "RTE DATA": {
+      L: ["", "", "", "", "", "<LOAD"],
+      R: ["", "", "", "", "", "WINDS REQUEST>"],
+    },
+    "PERF INIT": {
+      L: ["GW/CRZ CG", "FUEL", "ZFW", "RESERVES", "COST INDEX", "<INDEX"],
+      R: ["TRIP/CRZ ALT", "CRZ WIND", "T/C OAT", "TRANS ALT", "PERF INIT REQUEST>", "N1 LIMIT>"],
+    },
+    "N1 LIMIT": {
+      fleets: ["A", "B"],
+      L: ["SEL/OAT", "<TO", "<TO-1", "<TO-2", "<TO-B", "<PERF INIT"],
+      R: ["RED N1", "CLB>", "CLB-1>", "CLB-2>", "", "TAKEOFF>"],
+    },
+    "TAKEOFF REF 1/2": {
+      L: ["FLAPS", "N1", "CG  TRIM", "<REQUEST", "INTERSECT", "<INDEX"],
+      R: ["V1", "VR", "V2", "GW / TOW", "", "QRH ON/OFF>"],
+    },
+    "TAKEOFF REF 2/2": {
+      L: ["RW WIND", "RW SLOPE/HDG", "", "ACCEL HT", "REDUCTION", "<INDEX"],
+      R: ["RW COND>", "SEL/OAT", "", "EO ACCEL HT", "THR", "CUTBACK ON/OFF"],
+    },
+    "MENU": {
+      L: ["<FMC", "<ACARS", "<ACMS", "", "<HGS", ""],
+      R: ["", "", "", "", "", ""],
+    },
+    "ACARS-APPLICATION MENU": {
+      L: ["", "", "", "", "", ""],
+      R: ["", "AOC AAL>", "ATS>", "TECHNICAL>", "", ""],
+    },
+    "ACARS-INDEX": {
+      L: ["<PREFLIGHT", "<OOOI", "<DELAYS", "<T/O DATA", "*FLT PROG", "<RETURN"],
+      R: ["WX REQUEST>", "MESSAGES>", "CHANGEOVER>", "POSTFLIGHT>", "MISC>", ""],
+    },
+    "ACARS TAKEOFF DATA": {
+      L: ["RUNWAY", "TEMP", "HWIND/TWIND", "ANTI-ICE", "", "<RETURN"],
+      R: ["FLAPS", "THRUST RTG", "QNH (IN)", "RWY CONDITION", "SEND*", ""],
+    },
+    "ATC LOGON/STATUS": {
+      L: ["LOGON TO", "FLT NO", "TAIL NO", "MAX U/L DELAY", "", "<ATC INDEX"],
+      R: ["LOGON SEND>", "", "", "", "", ""],
     },
   };
 
@@ -106,12 +164,12 @@
       notes: ["Request will be sent for flight plan, cruise winds, descent forecast winds, performance initialization, and takeoff data.", "The next leg flight information is available for upload 8 minutes after the IN event is sent. Prior to this time, either the current segment or nothing at all would occur.", "Verify FLT NO. is as shown on flight plan header.", "Flight 13 is used by maintenance for towing and taxiing."] },
 
     // --- ACARS: route (3-21)
-    { g: "acRte", page: "RTE", key: { lsk: "4L" }, label: "LOAD", action: "Select" },
+    { g: "acRte", page: "RTE", key: { lsk: "4L" }, scr: { "4L": "<LOAD" }, label: "LOAD", action: "Select" },
     { g: "acRte", key: { key: "DEP ARR" }, label: "DEP/ARR key", action: "Press" },
     { g: "acRte", page: "DEP/ARR INDEX", key: { lsk: "1L" }, label: "DEP", action: "Select", notes: ["Select appropriate SIDS, TRANS and RUNWAYS, as desired."] },
     { g: "acRte", key: { key: "DEP ARR" }, label: "DEP/ARR key", action: "Press" },
     { g: "acRte", page: "DEP/ARR INDEX", key: { lsk: "2R" }, label: "ARR", action: "Select", notes: ["Select appropriate STARS / TRANS and APPROACHES / TRANS, as desired."] },
-    { g: "acRte", key: { lsk: "6R" }, label: "ACTIVATE", action: "Select" },
+    { g: "acRte", page: "RTE", key: { lsk: "6R" }, label: "ACTIVATE", action: "Select" },
     { g: "acRte", key: { key: "EXEC" }, label: "EXEC key", action: "Press", notes: ["Follow the prompts as they appear."] },
 
     // --- ACARS: cruise winds (3-22)
@@ -124,25 +182,24 @@
     { g: "acWind", page: "LEGS", key: null, label: "RNP for the departure", action: "Verify" },
 
     // --- ACARS: descent forecast winds, if desired (3-22)
-    { g: "acFcst", key: { key: "VNAV" }, label: "VNAV key", action: "Press",
-      notes: ["The AOM names a VNAV key here. That key is on the new CDU; the current CDU has CLB, CRZ and DES keys instead. Confirm the key for the current CDU with your instructor or the AOM."] },
+    { g: "acFcst", key: { key: "VNAV" }, label: "VNAV key", action: "Press", notes: ["The CLB page is displayed."] },
     { g: "acFcst", key: { key: "PREV PAGE" }, label: "PREV PAGE key", action: "Select" },
-    { g: "acFcst", key: { lsk: "6L" }, label: "FORECAST", action: "Select" },
-    { g: "acFcst", key: { lsk: "6R" }, label: "LOAD", action: "Select" },
+    { g: "acFcst", page: "DES", key: { lsk: "6L" }, label: "FORECAST", action: "Select" },
+    { g: "acFcst", page: "DES FORECASTS", key: { lsk: "6R" }, label: "LOAD", action: "Select" },
 
     // --- ACARS: performance (3-22)
     { g: "acPerf", key: { key: "INIT REF" }, label: "INIT REF key", action: "Press" },
     { g: "acPerf", key: { lsk: "6L" }, label: "INDEX", action: "Select" },
     { g: "acPerf", page: "INIT/REF INDEX", key: { lsk: "3L" }, label: "PERF", action: "Select" },
     { g: "acPerf", page: "PERF INIT", key: { lsk: "4L" }, label: "RESERVES", action: "Enter", notes: [N_RSV] },
-    { g: "acPerf", page: "PERF INIT", key: { lsk: "6L" }, label: "LOAD", action: "Select" },
+    { g: "acPerf", page: "PERF INIT", key: { lsk: "6L" }, scr: { "6L": "<LOAD" }, label: "LOAD", action: "Select" },
     { g: "acPerf", page: "PERF INIT", key: null, label: "Other entries", action: "Ensure correct" },
     { g: "acPerf", key: { key: "EXEC" }, label: "EXEC key", action: "Press" },
 
     // --- ACARS: takeoff data uplinked (3-22, 3-23)
     { g: "acTo", page: "PERF INIT", key: { lsk: "6R" }, label: "N1 LIMIT", action: "Select", notes: ["Verify OAT is reasonable. Specifically ± value."] },
     { g: "acTo", page: "N1 LIMIT", key: { lsk: "6R" }, label: "TAKEOFF", action: "Select" },
-    { g: "acTo", page: "TAKEOFF REF 1/2", key: { lsk: "5L" }, label: "TAKEOFF REF data", action: "ACCEPT or REJECT", alt: "[5L] or [5R]" },
+    { g: "acTo", page: "TAKEOFF REF 1/2", key: { lsk: "5R" }, scr: { "5L": "<REJECT", "5R": "ACCEPT>" }, label: "TAKEOFF REF data", action: "ACCEPT or REJECT", alt: "[5R] or [5L]" },
     { g: "acTo", page: "TAKEOFF REF 1/2", key: null, label: "Flap setting / thrust", action: "Ensure loaded" },
     { g: "acTo", page: "TAKEOFF REF 1/2", key: { panel: "MCP speed window" }, label: "V2 speed", action: "Note and enter in MCP" },
     { g: "acTo", key: { panel: "Stabilizer trim" }, label: "Trim", action: "Set" },
@@ -152,9 +209,10 @@
 
     // --- ACARS: takeoff data not available (3-24)
     { g: "acToReq", key: { key: "MENU" }, label: "MENU", action: "Select" },
-    { g: "acToReq", page: "MENU", key: { lsk: "1R" }, label: "AOC AAL", action: "Select (if required)" },
-    { g: "acToReq", key: { lsk: "2L" }, label: "ACARS", action: "Select" },
-    { g: "acToReq", key: { lsk: "4L" }, label: "T/O DATA", action: "Select (if required)" },
+    { g: "acToReq", page: "MENU", key: { lsk: "2L" }, label: "ACARS", action: "Select" },
+    { g: "acToReq", page: "ACARS-APPLICATION MENU", key: { lsk: "2R" }, label: "AOC AAL", action: "Select (if required)",
+      notes: ["AOM 21d.2.2 and the training guide picture show AOC AAL at [2R]. AOM 5-14 lists [1R]: use the prompt where it appears."] },
+    { g: "acToReq", page: "ACARS-INDEX", key: { lsk: "4L" }, label: "T/O DATA", action: "Select (if required)" },
     { g: "acToReq", page: "ACARS TAKEOFF DATA", key: null, label: "ACARS TAKEOFF DATA page", action: "Enter",
       notes: ["Fill in appropriate fields to request new TPS (see TPS Request).", "If the runway does not have a L, C or R designation the third digit must remain blank (e.g. 33_X). Enter a space (SP)X."] },
     { g: "acToReq", page: "ACARS TAKEOFF DATA", key: { lsk: "5R" }, label: "SEND", action: "Press",
@@ -165,12 +223,18 @@
     { g: "acToReq", page: "TAKEOFF REF 1/2", key: { lsk: "1L" }, label: "FLAPS", action: "Enter" },
     { g: "acToReq", key: { panel: "MCP speed window" }, label: "V2 speed", action: "Note and enter in MCP" },
     { g: "acToReq", key: { panel: "Stabilizer trim" }, label: "Trim", action: "Set" },
-    { g: "acToReq", page: "TAKEOFF REF 2/2", key: null, label: "Acceleration height", action: "Verify/Enter", notes: N_ALT },
-    { g: "acToReq", page: "TAKEOFF REF 2/2", key: null, label: "Engine-out acceleration height", action: "Verify/Enter" },
-    { g: "acToReq", page: "TAKEOFF REF 2/2", key: null, label: "Thrust reduction altitude", action: "Verify/Enter" },
+    { g: "acToReq", page: "TAKEOFF REF 2/2", key: { lsk: "4L" }, label: "Acceleration height", action: "Verify/Enter", notes: N_ALT },
+    { g: "acToReq", page: "TAKEOFF REF 2/2", key: { lsk: "4R" }, label: "Engine-out acceleration height", action: "Verify/Enter" },
+    { g: "acToReq", page: "TAKEOFF REF 2/2", key: { lsk: "5L" }, label: "Thrust reduction altitude", action: "Verify/Enter" },
 
     // --- CPDLC (3-24)
-    { g: "cpdlc", key: null, label: "CPDLC", action: "LOGON", notes: ["See 21d.3.2 CPDLC Log-On."] },
+    { g: "cpdlc", key: { key: "ATC" }, label: "ATC key", action: "Press", notes: ["See 21d.3.2 CPDLC Log-On (3DM–3VM)."] },
+    { g: "cpdlc", page: "ATC LOGON/STATUS", key: { lsk: "1L" }, label: "LOGON TO", action: "Enter KUSA" },
+    { g: "cpdlc", page: "ATC LOGON/STATUS", key: { lsk: "2L" }, label: "FLT NO", action: "Verify",
+      notes: ["Copied from ACT RTE 1: three letter airline identifier plus the flight number, no leading zeros (e.g., AAL1080)."] },
+    { g: "cpdlc", page: "ATC LOGON/STATUS", key: { lsk: "3L" }, label: "TAIL NO", action: "Verify" },
+    { g: "cpdlc", page: "ATC LOGON/STATUS", key: { lsk: "4L" }, label: "MAX U/L DELAY", action: "Leave blank" },
+    { g: "cpdlc", page: "ATC LOGON/STATUS", key: { lsk: "1R" }, label: "LOGON SEND", action: "Select", notes: ["DATA LINK READY is displayed."] },
 
     // --- Manual: RTE (3-25)
     { g: "mRte", key: { key: "RTE" }, label: "RTE key", action: "Press" },
@@ -183,7 +247,7 @@
     { g: "mRte", page: "DEP/ARR INDEX", key: { lsk: "1L" }, label: "DEP", action: "Select", notes: ["Select SIDS/TRANS/RUNWAYS as required."] },
     { g: "mRte", key: { key: "DEP ARR" }, label: "DEP/ARR key", action: "Press" },
     { g: "mRte", page: "DEP/ARR INDEX", key: { lsk: "2R" }, label: "ARR", action: "Select", notes: ["Select STARS/TRANS and APPROACHES/TRANS or RUNWAYS as required."] },
-    { g: "mRte", key: { lsk: "6R" }, label: "ACTIVATE", action: "Select" },
+    { g: "mRte", page: "RTE", key: { lsk: "6R" }, label: "ACTIVATE", action: "Select" },
     { g: "mRte", key: { key: "EXEC" }, label: "EXEC key", action: "Press" },
 
     // --- Manual: PERF INIT (3-25, 3-26)
@@ -211,9 +275,9 @@
     { g: "mTo1", page: "TAKEOFF REF 1/2", key: { lsk: "1R" }, label: "Takeoff V-speeds", action: "Enter from TPS", alt: "[1R], [2R] and [3R]" },
 
     // --- TAKEOFF REF 2/2 (3-23 uplinked, 3-26 manual)
-    { g: "to2", page: "TAKEOFF REF 2/2", key: null, label: "Acceleration height", action: "Verify/Enter", notes: N_ALT },
-    { g: "to2", page: "TAKEOFF REF 2/2", key: null, label: "Engine-out acceleration height", action: "Verify/Enter" },
-    { g: "to2", page: "TAKEOFF REF 2/2", key: null, label: "Thrust reduction altitude", action: "Verify/Enter" },
+    { g: "to2", page: "TAKEOFF REF 2/2", key: { lsk: "4L" }, label: "Acceleration height", action: "Verify/Enter", notes: N_ALT },
+    { g: "to2", page: "TAKEOFF REF 2/2", key: { lsk: "4R" }, label: "Engine-out acceleration height", action: "Verify/Enter" },
+    { g: "to2", page: "TAKEOFF REF 2/2", key: { lsk: "5L" }, label: "Thrust reduction altitude", action: "Verify/Enter" },
 
     // --- RNAV SID (3-27)
     { g: "rnav", key: { key: "DEP ARR" }, label: "DEP/ARR key", action: "Press",
@@ -236,20 +300,20 @@
     { g: "eosid", page: "DEPARTURES", key: null, label: "EO SID", action: "Select" },
     { g: "eosid", key: { panel: "EFIS control panel" }, label: "ND mode selector", action: "PLN" },
     { g: "eosid", key: { key: "LEGS" }, label: "LEGS key", action: "Press" },
-    { g: "eosid", page: "LEGS", key: { lsk: "6R" }, label: "STEP", action: "Step through EO SID",
+    { g: "eosid", page: "LEGS", key: { lsk: "6R" }, scr: { "6R": "STEP>" }, label: "STEP", action: "Step through EO SID",
       notes: ["One pilot reads each waypoint from the ND, while the other pilot compares it against the Ops Advisory pages (##-7E).", "Confirm that each ND waypoint is connected with a white dash line."] },
-    { g: "eosid", page: "LEGS", key: { lsk: "6L" }, label: "ERASE", action: "Press" },
+    { g: "eosid", page: "LEGS", key: { lsk: "6L" }, scr: { "6L": "<ERASE" }, label: "ERASE", action: "Press" },
     { g: "eosid", key: { panel: "EFIS control panel" }, label: "ND mode selector", action: "MAP" },
 
     // --- Route verification (3-29)
     { g: "rteV", page: "RTE 1", key: null, label: "Route on RTE 1 vs ATC clearance / flight plan", action: "Verify",
-      notes: ["One pilot reads aloud the route on the CDU, while the other verifies it against the flight plan and current ATC departure clearance.", "Working from the FMC display to the ATC departure clearance lessens the risk of seeing what is expected versus what is actually displayed.", "Ensure FLT NO on ACT RTE 1 page 1 is the three letter airline identifier plus the flight number with no leading zeros (e.g., AAL50 or AAL50P). It is copied to the ATC LOGON/STATUS page.", "If no ATC departure clearance yet: use the flight plan/dispatch release. When the clearance arrives, the first officer verifies the FMC routing; if it differs, update the FMC and verify the changed portion with both pilots (parking brake set)."] },
+      notes: ["One pilot reads aloud the route on the CDU, while the other verifies it against the flight plan and current ATC departure clearance.", "Working from the FMC display to the ATC departure clearance lessens the risk of seeing what is expected versus what is actually displayed.", "Ensure FLT NO on ACT RTE 1 page 1 is the three letter airline identifier plus the flight number with no leading zeros (e.g., AAL50 or AAL50P). It is copied to the ATC LOGON/STATUS page.", "ADS-B call sign mismatch: if ATC says the flight number they see does not match the one filed, correct the flight number and file an ASAP (14 CFR 91.227(d)(8)).", "If no ATC departure clearance yet: use the flight plan/dispatch release. When the clearance arrives, the first officer verifies the FMC routing; if it differs, update the FMC and verify the changed portion with both pilots (parking brake set)."] },
 
     // --- Legs verification (3-30)
     { g: "legsV", key: { panel: "EFIS control panel" }, label: "ND mode selector", action: "PLN" },
     { g: "legsV", key: { panel: "EFIS control panel" }, label: "ND range selector", action: "As desired" },
     { g: "legsV", key: { key: "LEGS" }, label: "LEGS key", action: "Press" },
-    { g: "legsV", page: "LEGS", key: { lsk: "6R" }, label: "STEP", action: "Step through",
+    { g: "legsV", page: "LEGS", key: { lsk: "6R" }, scr: { "6R": "STEP>" }, label: "STEP", action: "Step through",
       notes: ["One pilot reads each waypoint from the ND, while the other checks it against the departure procedure, flight plan or ATC departure clearance.", "Confirm that each ND waypoint is connected with a solid magenta line."] },
     { g: "legsV", key: { key: "PROG" }, page: "PROG 1", label: "Total distance (DTG) at [4L]", action: "Check", notes: ["Confirm total distance to destination is reasonable with flight plan distance."] },
     { g: "legsV", key: { panel: "EFIS control panel" }, label: "ND mode selector", action: "MAP" },

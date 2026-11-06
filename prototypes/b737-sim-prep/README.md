@@ -39,8 +39,11 @@ Bump `VERSION` in `sw.js` and `APP_VERSION` in `index.html` together on every ch
 
 ## Open items
 
-- The CDU drawing matches the current (legacy) CDU from the crew's photos, with
-  the INIT/REF INDEX and -800 N1 LIMIT page layouts. The AOM's descent forecast
-  winds step names a VNAV key, which is only on the new CDU: confirm the key on
-  the current CDU.
+- The CDU drawing follows the AA "B737 CDU Load Closeout and Performance Guide"
+  (AOM Rev 10 pictures): INIT REF, RTE, DEP ARR, ATC, VNAV / FIX, LEGS, HOLD,
+  FMC COMM, PROG, EXEC / MENU, N1 LIMIT / PREV PAGE, NEXT PAGE. Page layouts are
+  drawn from the same pictures (labels and prompts only). The N1 LIMIT layout is
+  the -800 one; MAX pages show only the prompt used.
+- ACARS AOC AAL prompt: AOM 21d.2.2 and the guide picture show [2R]; AOM 5-14
+  lists [1R]. The app shows [2R] with a note.
 - Page names are shown only where the AOM states them.
