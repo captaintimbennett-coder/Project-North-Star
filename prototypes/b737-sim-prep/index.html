@@ -1,0 +1,423 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0b111c">
+<title>B737 Sim Prep</title>
+<meta name="apple-mobile-web-app-title" content="Sim Prep">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" href="icons/icon-192.png">
+<style>
+  /* Layout: one focused card per screen; the CDU drawing is the hero of each step. */
+  :root {
+    --bg: #eef1f5; --panel: #ffffff; --panel-2: #f5f7fa; --line: #d5dbe4;
+    --text: #0e1622; --muted: #5a6577; --accent: #1d5fd1; --accent-ink: #ffffff;
+    --go: #11804a; --go-bg: #e3f5eb; --amber: #9a5b00; --amber-bg: #fff2d6; --red: #b42318; --red-bg: #fde6e4;
+    --focus: #1d5fd1;
+    /* The CDU keeps its own colors in both themes, like the real box. */
+    --cdu-body: #3a4049; --cdu-bezel: #2b3038; --cdu-key: #1d2127; --cdu-key-ink: #e9edf2;
+    --cdu-screen: #05080b; --cdu-text: #e8f1ea; --cdu-dim: #7c8791; --cdu-hot: #ffcf4a; --cdu-hot-ink: #1a1300;
+    --radius: 14px;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0b111c; --panel: #131b29; --panel-2: #1a2436; --line: #2a364c;
+      --text: #e8edf5; --muted: #94a1b8; --accent: #5b9bff; --accent-ink: #06101f;
+      --go: #3ddc84; --go-bg: #0f2a1d; --amber: #ffbe3d; --amber-bg: #2d2210; --red: #ff6b5e; --red-bg: #321615;
+      --focus: #8fbcff; color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0b111c; --panel: #131b29; --panel-2: #1a2436; --line: #2a364c;
+    --text: #e8edf5; --muted: #94a1b8; --accent: #5b9bff; --accent-ink: #06101f;
+    --go: #3ddc84; --go-bg: #0f2a1d; --amber: #ffbe3d; --amber-bg: #2d2210; --red: #ff6b5e; --red-bg: #321615;
+    --focus: #8fbcff; color-scheme: dark;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    background: var(--bg); color: var(--text);
+    font: 16px/1.45 -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
+    -webkit-text-size-adjust: 100%; min-height: 100vh;
+    padding-bottom: calc(88px + env(safe-area-inset-bottom));
+  }
+  button, input { font: inherit; color: inherit; }
+  :focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+  .wrap { max-width: 900px; margin: 0 auto; padding: 0 16px; }
+
+  header.top {
+    position: sticky; top: 0; z-index: 5; padding-top: env(safe-area-inset-top);
+    background: color-mix(in srgb, var(--bg) 90%, transparent);
+    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--line);
+  }
+  .top-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; padding: 12px 0 10px; }
+  .brand { flex: 1; min-width: 0; }
+  .brand h1 { margin: 0; font-size: 19px; }
+  .brand p { margin: 2px 0 0; font-size: 13px; color: var(--muted); }
+  .icon-btn { border: 1px solid var(--line); background: var(--panel); border-radius: 10px; padding: 8px 12px; font-size: 14px; font-weight: 600; cursor: pointer; }
+  .progress { height: 5px; border-radius: 3px; background: var(--line); margin-bottom: 10px; overflow: hidden; }
+  .progress span { display: block; height: 100%; background: var(--accent); transition: width .2s; }
+
+  main { padding: 18px 0 24px; }
+  h2.title { font-size: 26px; margin: 0 0 4px; text-wrap: balance; }
+  p.lead { margin: 0 0 18px; color: var(--muted); }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px; margin-bottom: 14px; }
+  .card h3 { margin: 0 0 4px; font-size: 16px; }
+  .hint { margin: 0 0 12px; font-size: 14px; color: var(--muted); }
+  .eyebrow { font-size: 12px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; color: var(--accent); }
+
+  .modes { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+  .mode { text-align: left; border: 1.5px solid var(--line); background: var(--panel); border-radius: var(--radius); padding: 18px; cursor: pointer; display: grid; gap: 6px; }
+  .mode b { font-size: 18px; }
+  .mode span { color: var(--muted); font-size: 14px; }
+  .mode:hover { border-color: var(--accent); }
+
+  .seg { display: flex; flex-wrap: wrap; gap: 8px; }
+  .seg button { flex: 1 1 120px; min-width: 0; min-height: 52px; padding: 10px 6px; border: 1.5px solid var(--line); border-radius: 12px; background: var(--panel-2); font-weight: 600; cursor: pointer; }
+  .seg button small { display: block; font-weight: 500; font-size: 12px; color: var(--muted); }
+  .seg button[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+  .seg button[aria-pressed="true"] small { color: inherit; opacity: .85; }
+  .toggles { display: grid; gap: 8px; }
+  .tgl { display: flex; align-items: center; gap: 14px; width: 100%; text-align: left; border: 1.5px solid var(--line); background: var(--panel-2); border-radius: 12px; padding: 12px 14px; cursor: pointer; min-height: 56px; }
+  .tgl .txt { flex: 1; }
+  .tgl .txt b { display: block; font-weight: 600; }
+  .tgl .txt span { font-size: 13px; color: var(--muted); }
+  .tgl .sw { flex: none; width: 50px; height: 30px; border-radius: 15px; background: var(--line); position: relative; transition: background .15s; }
+  .tgl .sw::after { content: ""; position: absolute; top: 3px; left: 3px; width: 24px; height: 24px; border-radius: 50%; background: #fff; transition: transform .15s; box-shadow: 0 1px 3px rgba(0,0,0,.3); }
+  .tgl[aria-checked="true"] { border-color: var(--accent); }
+  .tgl[aria-checked="true"] .sw { background: var(--accent); }
+  .tgl[aria-checked="true"] .sw::after { transform: translateX(20px); }
+  .sub { margin: 8px 0 0 18px; padding-left: 12px; border-left: 3px solid var(--line); }
+  ul.plain { margin: 0; padding-left: 20px; display: grid; gap: 6px; }
+
+  /* Step layout: CDU beside the instruction on wide screens, stacked on narrow. */
+  .step { display: grid; gap: 16px; grid-template-columns: minmax(0, 1fr); }
+  @media (min-width: 820px) { .step { grid-template-columns: 360px minmax(0, 1fr); align-items: start; } }
+  @media (max-width: 819px) { .instr { order: -1; } }
+  .instr .section { font-size: 13px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .6px; }
+  .instr h2 { margin: 6px 0 4px; font-size: 30px; line-height: 1.15; text-wrap: balance; }
+  .instr .act { display: inline-block; margin: 6px 0 12px; padding: 6px 12px; border-radius: 999px; background: var(--accent); color: var(--accent-ink); font-weight: 800; font-size: 18px; }
+  .instr .val { font-size: 22px; font-weight: 800; margin: 0 0 10px; font-family: ui-monospace, "SF Mono", Menlo, monospace; }
+  .instr .val small { display: block; font-size: 12px; font-weight: 700; color: var(--muted); font-family: inherit; text-transform: uppercase; letter-spacing: .6px; }
+  .where { font-size: 15px; color: var(--muted); margin: 0 0 12px; }
+  .where b { color: var(--text); }
+  .note { margin: 8px 0 0; padding: 10px 12px; border-radius: 10px; background: var(--panel-2); font-size: 15px; }
+  .caution { margin: 8px 0 0; padding: 10px 12px; border-radius: 10px; background: var(--amber-bg); color: var(--text); border-left: 5px solid var(--amber); font-size: 15px; }
+  .caution b { color: var(--amber); }
+  .ref { font-size: 12px; color: var(--muted); margin-top: 12px; }
+  .tick { display: flex; gap: 10px; align-items: center; width: 100%; margin-top: 14px; padding: 12px 14px; border-radius: 12px; border: 1.5px solid var(--line); background: var(--panel-2); cursor: pointer; font-weight: 600; text-align: left; }
+  .tick .box { width: 24px; height: 24px; border-radius: 6px; border: 2px solid var(--muted); display: grid; place-items: center; font-weight: 900; flex: none; }
+  .tick[aria-checked="true"] { border-color: var(--go); }
+  .tick[aria-checked="true"] .box { background: var(--go); border-color: var(--go); color: var(--panel); }
+
+  /* ---------- CDU drawing ---------- */
+  .cdu { background: var(--cdu-body); border-radius: 16px; padding: 14px 10px 16px; box-shadow: inset 0 0 0 2px #4a515b, 0 6px 18px rgba(0,0,0,.25); user-select: none; max-width: 360px; margin: 0 auto; width: 100%; }
+  .cdu-top { display: grid; grid-template-columns: 30px minmax(0, 1fr) 30px; gap: 6px; }
+  .lsks { display: grid; grid-template-rows: 22px repeat(6, 1fr); gap: 0; padding-bottom: 18px; }
+  .lsk { width: 28px; height: 16px; border-radius: 3px; background: var(--cdu-key); border: 1px solid #000; align-self: center; position: relative; }
+  .lsk.hot { background: var(--cdu-hot); box-shadow: 0 0 0 3px rgba(255,207,74,.45), 0 0 14px rgba(255,207,74,.7); }
+  .lsk-n { position: absolute; top: -13px; left: 0; right: 0; text-align: center; font-size: 9px; color: #c4cbd3; }
+  .screen { background: var(--cdu-screen); border-radius: 6px; border: 3px solid var(--cdu-bezel); padding: 6px 6px 4px; color: var(--cdu-text); font: 12px/1 ui-monospace, "SF Mono", Menlo, Consolas, monospace; display: grid; grid-template-rows: 22px repeat(6, 1fr) 18px; min-height: 206px; }
+  .scr-title { text-align: center; font-size: 12px; letter-spacing: .5px; align-self: center; color: var(--cdu-text); }
+  .scr-row { display: flex; justify-content: space-between; align-items: center; gap: 4px; min-width: 0; }
+  .scr-row span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--cdu-dim); }
+  .scr-row span.on { color: var(--cdu-hot-ink); background: var(--cdu-hot); padding: 1px 3px; border-radius: 2px; font-weight: 700; }
+  .scr-row span.lit { color: var(--cdu-text); }
+  .scratch { border-top: 1px dashed #26303a; font-size: 10px; color: var(--cdu-dim); text-align: center; align-self: end; padding-top: 3px; }
+  .keys { margin-top: 12px; display: grid; gap: 6px; }
+  .krow { display: flex; gap: 6px; justify-content: flex-start; }
+  .key { flex: 1 1 0; min-width: 0; height: 30px; border-radius: 5px; background: var(--cdu-key); color: var(--cdu-key-ink); border: 1px solid #000; display: grid; place-items: center; text-align: center; font: 700 8.5px/1.05 -apple-system, "Segoe UI", sans-serif; letter-spacing: .2px; padding: 0 2px; }
+  .key.hot { background: var(--cdu-hot); color: var(--cdu-hot-ink); box-shadow: 0 0 0 3px rgba(255,207,74,.45), 0 0 14px rgba(255,207,74,.7); }
+  .key.ghost { visibility: hidden; }
+  .pad { display: grid; grid-template-columns: 3fr 5fr; gap: 10px; margin-top: 8px; }
+  .pad .num, .pad .abc { display: grid; gap: 5px; }
+  .pad .num { grid-template-columns: repeat(3, 1fr); grid-auto-rows: 24px; }
+  .pad .abc { grid-template-columns: repeat(5, 1fr); grid-auto-rows: 24px; }
+  .pad .key { height: 24px; border-radius: 50%; font-size: 9px; opacity: .8; }
+  .offcdu { display: grid; place-items: center; gap: 8px; min-height: 160px; text-align: center; padding: 18px; border-radius: 14px; border: 2px dashed var(--line); background: var(--panel-2); }
+  .offcdu b { font-size: 20px; }
+  .chip { display: inline-block; padding: 4px 10px; border-radius: 8px; background: var(--cdu-hot); color: var(--cdu-hot-ink); font-weight: 800; }
+
+  /* Overview */
+  .ov-group { margin-bottom: 14px; }
+  .ov-group h3 { margin: 0 0 6px; font-size: 15px; }
+  .ov-group h3 small { font-weight: 500; color: var(--muted); }
+  .ov-row { display: grid; grid-template-columns: 28px minmax(0, 1fr) auto; gap: 10px; align-items: baseline; padding: 7px 10px; border-radius: 8px; background: var(--panel-2); margin-bottom: 4px; }
+  .ov-row .n { color: var(--muted); font-variant-numeric: tabular-nums; font-size: 13px; }
+  .ov-row .a { font-weight: 700; font-size: 14px; text-align: right; }
+  .kb { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 12px; padding: 1px 6px; border-radius: 6px; background: var(--line); margin-right: 6px; white-space: nowrap; }
+
+  /* Practice */
+  .q-opts { display: grid; gap: 8px; }
+  .q-opt { text-align: left; border: 1.5px solid var(--line); background: var(--panel-2); border-radius: 12px; padding: 12px 14px; cursor: pointer; font-weight: 600; min-height: 52px; }
+  .q-opt.right { border-color: var(--go); background: var(--go-bg); }
+  .q-opt.wrong { border-color: var(--red); background: var(--red-bg); }
+  .score { font-variant-numeric: tabular-nums; font-weight: 800; }
+
+  footer.nav { position: fixed; left: 0; right: 0; bottom: 0; z-index: 5; background: color-mix(in srgb, var(--panel) 94%, transparent); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-top: 1px solid var(--line); padding: 12px 0 calc(12px + env(safe-area-inset-bottom)); }
+  footer.nav .wrap { display: flex; gap: 10px; }
+  .btn { min-height: 56px; border-radius: 14px; padding: 0 22px; font-weight: 700; font-size: 17px; cursor: pointer; border: 1.5px solid var(--line); background: var(--panel-2); }
+  .btn.primary { flex: 1; background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+  .btn:disabled { opacity: .45; cursor: not-allowed; }
+  .disclaimer { font-size: 12px; color: var(--muted); text-align: center; margin: 18px 0 0; }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <div class="top-row">
+      <div class="brand">
+        <h1>B737 Sim Prep</h1>
+        <p id="sub">Study aid · Not for operational use</p>
+      </div>
+      <button class="icon-btn" id="btn-home" type="button">Home</button>
+    </div>
+    <div class="progress" id="prog" hidden><span></span></div>
+  </div>
+</header>
+
+<main class="wrap" id="app" tabindex="-1"></main>
+
+<footer class="nav" id="nav">
+  <div class="wrap">
+    <button class="btn" id="btn-back" type="button">Back</button>
+    <button class="btn primary" id="btn-next" type="button">Next</button>
+  </div>
+</footer>
+
+<script src="procedure.js"></script>
+<script>
+(() => {
+  "use strict";
+  const APP_VERSION = "2026-11-06.1"; // keep in step with VERSION in sw.js
+  const { FLEETS, DEFAULTS, GROUPS, PAGES, TIMING, buildFlow } = window.SimPrep;
+
+  // ---------- state ----------
+  let st = { screen: "home", mode: null, opts: { ...DEFAULTS }, i: 0, done: {}, quiz: null, score: { right: 0, total: 0 } };
+  const SAVE_KEY = "simPrep.v1";
+  const save = () => { try { localStorage.setItem(SAVE_KEY, JSON.stringify(st)); } catch (e) { /* storage unavailable */ } };
+  try { const d = JSON.parse(localStorage.getItem(SAVE_KEY) || "null"); if (d && d.opts) st = { ...st, ...d }; } catch (e) { /* ignore */ }
+
+  const $ = (s) => document.querySelector(s);
+  const esc = (v) => String(v).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const flow = () => buildFlow(st.opts);
+
+  // ---------- CDU drawing (layout from a photo of the 737 CDU) ----------
+  const FKEYS = [
+    ["INIT REF", "RTE", "CLB", "CRZ", "DES", ""],
+    ["MENU", "LEGS", "DEP ARR", "HOLD", "PROG", "EXEC"],
+    ["N1 LIMIT", "FIX", "", "", "", ""],
+    ["PREV PAGE", "NEXT PAGE", "", "", "", ""],
+  ];
+  const ALL_KEYS = new Set(FKEYS.flat().filter(Boolean));
+  const keyHtml = (k, hot) => k ? `<div class="key${hot === k ? " hot" : ""}" ${hot === k ? 'aria-label="Press ' + esc(k) + '"' : 'aria-hidden="true"'}>${esc(k).replace(" ", "<br>")}</div>` : `<div class="key ghost"></div>`;
+
+  function cdu(s) {
+    const k = s.key || {};
+    if (k.panel) {
+      return `<div class="offcdu"><span class="eyebrow">Not on the CDU</span><b>${esc(k.panel)}</b><span class="chip">${esc(s.action)}</span></div>`;
+    }
+    const lsk = k.lsk ? { side: k.lsk.slice(-1), row: Number(k.lsk[0]) } : null;
+    const layout = PAGES[s.page];
+    const row = (r) => {
+      const L = layout ? layout.L[r - 1] : "", R = layout ? layout.R[r - 1] : "";
+      const onL = lsk && lsk.side === "L" && lsk.row === r, onR = lsk && lsk.side === "R" && lsk.row === r;
+      const isPrompt = /^(Select|Press)/.test(s.action);
+      const txt = (side, base, on) => on ? (layout ? base : side === "L" ? (isPrompt ? "<" : "") + s.label.toUpperCase() : s.label.toUpperCase() + (isPrompt ? ">" : "")) : base;
+      return `<div class="scr-row"><span class="${onL ? "on" : layout ? "lit" : ""}">${esc(txt("L", L, onL))}</span><span class="${onR ? "on" : layout ? "lit" : ""}">${esc(txt("R", R, onR))}</span></div>`;
+    };
+    const lskCol = (side) => `<div class="lsks"><div></div>${[1, 2, 3, 4, 5, 6].map((r) => {
+      const on = lsk && lsk.side === side && lsk.row === r;
+      return `<div class="lsk${on ? " hot" : ""}" ${on ? `role="img" aria-label="Line select key ${r}${side}"` : 'aria-hidden="true"'}>${on ? `<span class="lsk-n">${r}${side}</span>` : ""}</div>`;
+    }).join("")}</div>`;
+    const hotKey = k.key && ALL_KEYS.has(k.key) ? k.key : null;
+    const missing = k.key && !ALL_KEYS.has(k.key) ? `<p class="where" style="margin:10px 0 0;text-align:center;color:#e9edf2"><span class="chip">${esc(k.key)} key</span></p>` : "";
+    const alpha = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+    return `<div class="cdu" aria-label="CDU">
+      <div class="cdu-top">${lskCol("L")}
+        <div class="screen"><div class="scr-title">${esc(s.page || "")}</div>${[1, 2, 3, 4, 5, 6].map(row).join("")}<div class="scratch">scratchpad</div></div>
+      ${lskCol("R")}</div>
+      <div class="keys">${FKEYS.map((r) => `<div class="krow">${r.map((x) => keyHtml(x, hotKey)).join("")}</div>`).join("")}</div>
+      ${missing}
+      <div class="pad" aria-hidden="true">
+        <div class="num">${["", "", "", "", "", "", "1", "2", "3", "4", "5", "6", "7", "8", "9", ".", "0", "+/-"].map((n) => n ? `<div class="key round">${n}</div>` : `<div class="key ghost"></div>`).join("")}</div>
+        <div class="abc">${[...alpha, "SP", "DEL", "/", "CLR"].map((a) => `<div class="key round">${a}</div>`).join("")}</div>
+      </div>
+    </div>`;
+  }
+
+  const keyBadge = (s) => s.key && s.key.lsk ? `[${s.alt || s.key.lsk}]` : s.key && s.key.key ? `${s.key.key} key` : s.key && s.key.panel ? s.key.panel : "";
+
+  // ---------- UI pieces ----------
+  const seg = (k, opts, label) => `<div class="seg" role="group" aria-label="${esc(label)}">${opts.map(([v, t, sub]) =>
+    `<button type="button" data-opt="${k}" data-val="${esc(v)}" aria-pressed="${String(st.opts[k]) === String(v)}">${esc(t)}${sub ? `<small>${esc(sub)}</small>` : ""}</button>`).join("")}</div>`;
+  const tgl = (k, title, hint) => `<button type="button" class="tgl" role="switch" data-flag="${k}" aria-checked="${!!st.opts[k]}"><span class="txt"><b>${esc(title)}</b>${hint ? `<span>${esc(hint)}</span>` : ""}</span><span class="sw" aria-hidden="true"></span></button>`;
+
+  const views = {
+    home: () => `
+      <span class="eyebrow">Study block 1</span>
+      <h2 class="title">FMS Preflight</h2>
+      <p class="lead">Loading the FMC before the Before Start Checklist, by ACARS uplink or manual entry. From AOM 3.5 Preflight Tasks, pages 3-18 to 3-32.</p>
+      <div class="modes">
+        <button type="button" class="mode" data-mode="sim"><b>Step by step</b><span>For the sim: one step per screen with the key to press lit up on the CDU.</span></button>
+        <button type="button" class="mode" data-mode="quiz"><b>Practice</b><span>“What comes next?” Pick the next step before the answer is shown.</span></button>
+        <button type="button" class="mode" data-mode="overview"><b>Overview</b><span>The whole flow on one page for a quick review.</span></button>
+      </div>
+      <div class="card" style="margin-top:14px"><h3>Who and when</h3><ul class="plain">${TIMING.map((t) => `<li>${esc(t)}</li>`).join("")}</ul></div>
+      <p class="disclaimer">Study aid built from the AOM. Always use the current AOM and company procedures.<br>App version ${APP_VERSION}</p>`,
+
+    setup: () => {
+      const o = st.opts;
+      return `
+      <h2 class="title">Set up the flight</h2>
+      <p class="lead">The steps change with the ship number, how the flight plan arrives, and a few options.</p>
+      <div class="card"><h3>Ship number</h3><p class="hint">Sets the IDENT model, engine rating and POS INIT steps.</p>
+        ${seg("fleet", Object.entries(FLEETS).map(([k, f]) => [k, f.label, `${f.model} · ${f.rating}`]), "Ship number")}</div>
+      <div class="card"><h3>Flight plan source</h3>
+        ${seg("source", [["ACARS", "ACARS uplink"], ["MANUAL", "Manual entry", "No uplink available"]], "Flight plan source")}
+        ${o.source === "ACARS" ? `<div class="sub toggles" style="margin-top:10px">
+          ${tgl("toData", "Takeoff data uplink available", "Off: request the TPS by ACARS and enter it")}
+          ${o.toData ? tgl("intersection", "Intersection takeoff", "Enter X/, Y/ or Z/ at [5L]") : ""}
+          ${tgl("forecastWinds", "Load VNAV descent forecast winds", "If desired")}
+          ${tgl("cpdlc", "CPDLC equipped")}
+        </div>` : ""}
+      </div>
+      <div class="card"><h3>Departure</h3><div class="toggles">
+        ${tgl("rnavSid", "RNAV SID assigned")}
+        ${tgl("eoSid", "FMS engine-out SID available")}
+      </div></div>
+      <p class="hint">${flow().length} steps with these settings.</p>`;
+    },
+
+    sim: () => {
+      const F = flow(); const s = F[st.i];
+      if (!s) return `<h2 class="title">Done</h2><p class="lead">That's the FMS preflight. Ready for the Before Start Checklist.</p>`;
+      const groupSteps = F.filter((x) => x.g === s.g);
+      const gi = groupSteps.indexOf(s) + 1;
+      const done = !!st.done[s.id];
+      return `<div class="step">
+        <div>${cdu(s)}</div>
+        <div class="instr card">
+          <div class="section">${esc(s.group.title)} · ${gi} of ${groupSteps.length}</div>
+          <h2>${s.key && s.key.lsk ? `<span class="kb" style="font-size:20px">${esc(s.alt || "[" + s.key.lsk + "]")}</span>` : ""}${esc(s.label)}</h2>
+          <span class="act">${esc(s.action)}</span>
+          ${s.value ? `<p class="val"><small>Should read</small>${esc(s.value)}</p>` : ""}
+          ${s.page ? `<p class="where">Page: <b>${esc(s.page)}</b></p>` : ""}
+          ${s.caution ? `<p class="caution"><b>Caution:</b> ${esc(s.caution)}</p>` : ""}
+          ${(s.notes || []).map((n) => `<p class="note">${esc(n)}</p>`).join("")}
+          <button type="button" class="tick" role="checkbox" data-tick="${s.id}" aria-checked="${done}"><span class="box" aria-hidden="true">${done ? "✓" : ""}</span>Done</button>
+          <p class="ref">AOM ${esc(s.ref)} · step ${s.n} of ${F.length}</p>
+        </div>
+      </div>`;
+    },
+
+    overview: () => {
+      const F = flow(); let html = "", g = null;
+      for (const s of F) {
+        if (s.g !== g) { if (g) html += "</div>"; g = s.g; html += `<div class="ov-group card"><h3>${esc(s.group.title)} <small>· AOM ${esc(s.ref)}</small></h3>`; }
+        html += `<div class="ov-row"><span class="n">${s.n}</span><span>${keyBadge(s) ? `<span class="kb">${esc(keyBadge(s))}</span>` : ""}${esc(s.label)}${s.value ? ` <b>${esc(s.value)}</b>` : ""}</span><span class="a">${esc(s.action)}</span></div>`;
+      }
+      return `<h2 class="title">Overview</h2><p class="lead">${esc(FLEETS[st.opts.fleet].label)} · ${st.opts.source === "ACARS" ? "ACARS uplink" : "Manual entry"} · ${F.length} steps</p>${html}</div>`;
+    },
+
+    quiz: () => {
+      const q = st.quiz || newQuestion();
+      st.quiz = q;
+      const F = flow(); const prev = F[q.at];
+      return `<h2 class="title">What comes next?</h2>
+        <p class="lead">Score <span class="score">${st.score.right} / ${st.score.total}</span></p>
+        <div class="card"><span class="eyebrow">${esc(prev.group.title)}</span>
+          <p style="margin:6px 0 0;font-size:18px">You just did: ${keyBadge(prev) ? `<span class="kb">${esc(keyBadge(prev))}</span>` : ""}<b>${esc(prev.label)}</b> — ${esc(prev.action)}</p></div>
+        <div class="q-opts">${q.options.map((o, i) => {
+          const cls = q.picked == null ? "" : i === q.answer ? " right" : i === q.picked ? " wrong" : "";
+          return `<button type="button" class="q-opt${cls}" data-pick="${i}" ${q.picked != null ? "disabled" : ""}>${keyBadge(o) ? `<span class="kb">${esc(keyBadge(o))}</span>` : ""}${esc(o.label)} — ${esc(o.action)}</button>`;
+        }).join("")}</div>
+        ${q.picked != null ? `<p class="note" style="margin-top:12px">${q.picked === q.answer ? "Correct." : "Not quite."} AOM ${esc(F[q.at + 1].ref)}.</p>` : ""}`;
+    },
+  };
+
+  // Practice: the correct next step plus three other steps from the same flow.
+  function newQuestion() {
+    const F = flow();
+    const at = Math.floor(Math.random() * (F.length - 1));
+    const right = F[at + 1];
+    const sig = (s) => `${keyBadge(s)}|${s.label}|${s.action}`;
+    const pool = F.filter((s) => sig(s) !== sig(right) && sig(s) !== sig(F[at]));
+    const near = pool.filter((s) => Math.abs(s.n - right.n) <= 8);
+    const pick = [];
+    for (const src of [near, pool]) {
+      const p = src.slice().sort(() => Math.random() - 0.5);
+      for (const s of p) if (pick.length < 3 && !pick.some((x) => sig(x) === sig(s))) pick.push(s);
+    }
+    const options = [right, ...pick].sort(() => Math.random() - 0.5);
+    return { at, options, answer: options.indexOf(right), picked: null };
+  }
+
+  // ---------- render ----------
+  function render() {
+    const scr = st.screen;
+    $("#app").innerHTML = views[scr]();
+    const F = flow();
+    const prog = $("#prog");
+    prog.hidden = scr !== "sim";
+    if (scr === "sim") prog.firstElementChild.style.width = `${Math.min(100, (st.i / F.length) * 100)}%`;
+    const nav = $("#nav"); nav.hidden = scr === "home";
+    const back = $("#btn-back"), next = $("#btn-next");
+    back.textContent = "Back";
+    if (scr === "setup") { next.textContent = st.mode === "overview" ? "Show overview" : st.mode === "quiz" ? "Start practice" : "Start"; }
+    else if (scr === "sim") { next.textContent = st.i >= F.length ? "Home" : st.i === F.length - 1 ? "Finish" : "Next step"; }
+    else if (scr === "quiz") { next.textContent = st.quiz && st.quiz.picked != null ? "Next question" : "Skip"; }
+    else if (scr === "overview") { next.textContent = "Step by step"; }
+    $("#sub").textContent = scr === "home" ? "Study aid · Not for operational use" : `FMS Preflight · ${FLEETS[st.opts.fleet].label} · ${st.opts.source === "ACARS" ? "ACARS" : "Manual"}`;
+    save();
+  }
+  const go = (screen) => { st.screen = screen; render(); window.scrollTo(0, 0); $("#app").focus({ preventScroll: true }); };
+
+  // ---------- events ----------
+  document.addEventListener("click", (e) => {
+    const b = e.target.closest("button"); if (!b) return;
+    if (b.dataset.mode) { st.mode = b.dataset.mode; go("setup"); }
+    else if (b.dataset.opt) { st.opts[b.dataset.opt] = b.dataset.val; st.i = 0; st.quiz = null; render(); }
+    else if (b.dataset.flag) { st.opts[b.dataset.flag] = !st.opts[b.dataset.flag]; st.i = 0; st.quiz = null; render(); }
+    else if (b.dataset.tick) { st.done[b.dataset.tick] = !st.done[b.dataset.tick]; render(); }
+    else if (b.dataset.pick != null && st.quiz && st.quiz.picked == null) {
+      st.quiz.picked = Number(b.dataset.pick); st.score.total++; if (st.quiz.picked === st.quiz.answer) st.score.right++; render();
+    }
+  });
+  $("#btn-home").addEventListener("click", () => go("home"));
+  $("#btn-back").addEventListener("click", () => {
+    if (st.screen === "sim" && st.i > 0) { st.i--; render(); window.scrollTo(0, 0); }
+    else if (st.screen === "setup") go("home");
+    else go("setup");
+  });
+  $("#btn-next").addEventListener("click", () => {
+    const F = flow();
+    if (st.screen === "setup") { st.i = 0; st.done = {}; st.quiz = null; st.score = { right: 0, total: 0 }; go(st.mode); }
+    else if (st.screen === "sim") {
+      if (st.i >= F.length) { go("home"); return; }
+      st.done[F[st.i].id] = true; st.i++; render(); window.scrollTo(0, 0);
+    }
+    else if (st.screen === "quiz") { st.quiz = null; render(); }
+    else if (st.screen === "overview") { st.mode = "sim"; st.i = 0; go("sim"); }
+  });
+  document.addEventListener("keydown", (e) => {
+    if (st.screen !== "sim") return;
+    if (e.key === "ArrowRight") $("#btn-next").click();
+    if (e.key === "ArrowLeft") $("#btn-back").click();
+  });
+
+  render();
+  if ("serviceWorker" in navigator && (location.protocol === "https:" || location.hostname === "localhost")) {
+    navigator.serviceWorker.register("sw.js").catch(() => {});
+  }
+})();
+</script>
+</body>
+</html>
