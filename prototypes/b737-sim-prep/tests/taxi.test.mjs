@@ -95,3 +95,17 @@ test("briefing numbers come from the right TPS line", () => {
 test("no blank CDU in the closeout and runway change blocks", () => {
   for (const s of [...ctx.SimTaxi.CO_STEPS, ...ctx.SimTaxi.RC_STEPS]) if (s.key && s.key.lsk) assert.ok(PAGES[s.page], `${s.g} ${s.key.lsk} ${s.label}`);
 });
+
+test("no blank CDU anywhere: every on-CDU step in every flow draws a page", () => {
+  const { buildFlow } = ctx.SimPrep;
+  const flows = [
+    buildFlow({ source: "ACARS", forecastWinds: true, cpdlc: true, intersection: true, rnavSid: true, eoSid: true }),
+    buildFlow({ source: "ACARS", toData: false }), buildFlow({ source: "MANUAL", fleet: "D" }),
+    closeoutFlow({}), closeoutFlow({ coSource: "MANUAL" }),
+    changeFlow({ rcOpt: "A", rcIntersection: true }), changeFlow({ rcOpt: "B" }), changeFlow({ rcOpt: "C" }),
+  ];
+  for (const F of flows) for (const s of F) {
+    if (s.key && s.key.panel) continue;
+    assert.ok(PAGES[s.page], `${s.g} "${s.label}" draws no page (${s.page || "none"})`);
+  }
+});

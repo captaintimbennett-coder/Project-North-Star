@@ -41,37 +41,37 @@
 
   // ---------------- Load Closeout (AOM 21j.2.1) ----------------
   const CO_GROUPS = [
-    { id: "coLoad", title: "Load the closeout", ref: "21j-16" },
+    { id: "coLoad", title: "Load the closeout", ref: "21j-16", pad: "PERF INIT UPLINK READY" },
     { id: "coN1", title: "N1 LIMIT", ref: "21j-16" },
     { id: "coTo", title: "TAKEOFF REF", ref: "21j-16" },
     { id: "coSet", title: "Set and brief", ref: "21j-16" },
   ];
   const up = (o) => o.coSource !== "MANUAL", man = (o) => o.coSource === "MANUAL";
   const CO_STEPS = [
-    { g: "coLoad", key: { key: "INIT REF" }, label: "INIT REF key", action: "Select",
+    { g: "coLoad", page: "TAKEOFF REF 1/2", key: { key: "INIT REF" }, label: "INIT REF key", action: "Select",
       notes: ["PERF INIT UPLINK READY is displayed when the closeout uplink is available."] },
-    { g: "coLoad", page: "PERF INIT", key: { lsk: "6L" }, scr: { "6L": "<LOAD" }, label: "LOAD", action: "Press", when: up },
-    { g: "coLoad", key: { key: "EXEC" }, label: "EXEC key", action: "Select", when: up },
+    { g: "coLoad", page: "PERF INIT", key: { lsk: "6L" }, scr: { "6L": "<LOAD" }, pad: "PERF INIT UPLINK READY", result: "The closeout ZFW loads; the title reads MOD PERF INIT and 6L shows <ERASE.", label: "LOAD", action: "Press", when: up },
+    { g: "coLoad", key: { key: "EXEC" }, result: "ACT PERF INIT, with the new GW. VERIFY TAKEOFF SPEEDS appears in the scratchpad.", resultPage: "PERF INIT", resultPad: "VERIFY TAKEOFF SPEEDS", label: "EXEC key", action: "Select", when: up },
     { g: "coLoad", page: "PERF INIT", key: { lsk: "3L" }, label: "ZFW", action: "Enter", value: (o, d) => d.wb.zfw.toFixed(1), when: man,
       caution: "Do not enter the ZFW into the GW boxes. The FMC will calculate performance data with significant errors." },
-    { g: "coLoad", key: { key: "EXEC" }, label: "EXEC key", action: "Select", when: man },
+    { g: "coLoad", key: { key: "EXEC" }, result: "ACT PERF INIT, with the new GW. VERIFY TAKEOFF SPEEDS appears in the scratchpad.", resultPage: "PERF INIT", resultPad: "VERIFY TAKEOFF SPEEDS", label: "EXEC key", action: "Select", when: man },
     { g: "coLoad", page: "PERF INIT", key: { lsk: "3L" }, label: "ZFW is same as closeout", action: "Verify", value: (o, d) => d.wb.zfw.toFixed(1) },
     { g: "coN1", page: "PERF INIT", key: { lsk: "6R" }, label: "N1 LIMIT", action: "Select" },
     { g: "coN1", page: "N1 LIMIT", key: null, label: "Thrust and assumed temperature against the TPS · climb thrust", action: "Check",
       value: (o, d) => `${d.a.rating}, AT ${d.r.at}°C`, notes: ["Check thrust and assumed temperature against TPS. Check climb thrust."] },
     { g: "coTo", page: "N1 LIMIT", key: { lsk: "6R" }, label: "TAKEOFF", action: "Select" },
-    { g: "coTo", page: "TAKEOFF REF 1/2", key: { lsk: "5R" }, scr: { "5L": "<REJECT", "5R": "ACCEPT>" }, label: "ACCEPT", action: "Select", when: up,
+    { g: "coTo", page: "TAKEOFF REF 1/2", key: { lsk: "5R" }, scr: { "5L": "<REJECT", "5R": "ACCEPT>" }, pad: "VERIFY TAKEOFF SPEEDS", result: "After a few seconds the prompt comes back as RWxx/--- TAKEOFF DATA with ACCEPT> again.", resultPad: "TAKEOFF DATA UPLINK", label: "ACCEPT", action: "Select", when: up,
       notes: ["The scratchpad shows RWxx TAKEOFF SPDS."] },
-    { g: "coTo", page: "TAKEOFF REF 1/2", key: { lsk: "5R" }, scr: { "5L": "<REJECT", "5R": "ACCEPT>" }, label: "ACCEPT (again)", action: "Select", when: up,
+    { g: "coTo", page: "TAKEOFF REF 1/2", key: { lsk: "5R" }, scr: { "5L": "<REJECT", "5R": "ACCEPT>" }, pad: "TAKEOFF DATA UPLINK", result: "V-speeds load and the VERIFY TAKEOFF SPEEDS message clears.", label: "ACCEPT (again)", action: "Select", when: up,
       notes: ["After a few seconds the TAKEOFF DATA prompt returns. Accept it."] },
-    { g: "coTo", page: "TAKEOFF REF 1/2", key: { lsk: "5R" }, scr: { "5L": "<REJECT", "5R": "ACCEPT>" }, label: "ACCEPT", action: "Select", when: man },
+    { g: "coTo", page: "TAKEOFF REF 1/2", key: { lsk: "5R" }, scr: { "5L": "<REJECT", "5R": "ACCEPT>" }, pad: "VERIFY TAKEOFF SPEEDS", result: "The speeds are accepted. Now enter the CG.", label: "ACCEPT", action: "Select", when: man },
     { g: "coTo", page: "TAKEOFF REF 1/2", key: { lsk: "3L" }, label: "CG", action: "Enter", value: (o, d) => d.wb.cg.toFixed(1), when: man },
     { g: "coSet", page: "TAKEOFF REF 1/2", key: { panel: "Stabilizer trim" }, label: "CG is same as closeout · set trim", action: "Confirm and set",
       value: (o, d) => `CG ${d.wb.cg.toFixed(1)}`, notes: ["Trim is shown next to CG on TAKEOFF REF 1/2."] },
     { g: "coSet", key: { panel: "MCP speed window" }, label: "V2 speed on MCP", action: "Verify", value: (o, d) => String(d.r.v2) },
-    { g: "coSet", key: null, label: "PF: TAKEOFF REF page · PM: LEGS page", action: "Select",
+    { g: "coSet", page: "TAKEOFF REF 1/2", key: { key: "LEGS" }, label: "PF: TAKEOFF REF page · PM: LEGS page", action: "Select",
       notes: ["3AA–3PX: a difference of more than 500 pounds between the takeoff weight (TOW) and actual gross weight makes the FMC show the VERIFY T/O SPEEDS message at engine start (FMC U11.0 and U12.0)."] },
-    { g: "coSet", key: null, label: "Load Closeout briefing (if no change)", action: "First officer briefs",
+    { g: "coSet", key: { panel: "First officer briefs" }, label: "Load Closeout briefing (if no change)", action: "First officer briefs",
       value: (o, d) => `Weights · Winds · N1s`, notes: ["Weights: compare GW to PTOW/ATOW/MTOW. Winds: headwind or tailwind. N1s: compare N1s to TPS.", "After a runway or TPS change, brief the 7-item Performance Review instead."] },
   ];
 
@@ -86,12 +86,13 @@
   ];
   const CONSIDER = "Before starting, check the Takeoff Considerations as required: Contaminated Runways · Engine-Out SID · FMC QRH V-Speeds · Manual Takeoff Calculation · Normal/Noise Abatement Takeoff · Severe Weather/Windshear Flow Chart · SPAR Matrix Chart · TPS Quick Reference Guide · Unplanned Tailwind Takeoff.";
   const RC_STEPS = [
-    { g: "rc1", key: { key: "DEP ARR" }, label: "DEP/ARR key", action: "Press", notes: [CONSIDER] },
+    { g: "rc1", page: "TAKEOFF REF 1/2", key: { key: "DEP ARR" }, label: "DEP/ARR key", action: "Press", notes: [CONSIDER] },
     { g: "rc1", page: "DEP/ARR INDEX", key: { lsk: "1L" }, label: "DEPARTURES page", action: "Select" },
-    { g: "rc1", page: "DEPARTURES", key: null, label: "RWY", action: "Select", value: () => CHANGE.to, notes: ["Runways are listed on the right side."] },
+    { g: "rc1", page: "DEPARTURES", key: { lsk: "2R" }, scr: { "1R": "17R", "2R": "17L" }, label: "RWY", action: "Select", value: () => CHANGE.to, alt: "[R] 17L",
+      notes: ["Runways are listed on the right side. Select 17L wherever it appears; the order on the list may differ."] },
     { g: "rc1", page: "DEPARTURES", key: null, label: "SID", action: "Select", notes: ["As cleared. SIDs are listed on the left side."] },
     { g: "rc1", page: "DEPARTURES", key: null, label: "TRANSITION", action: "Select", notes: ["If required."] },
-    { g: "rc1", key: { key: "EXEC" }, label: "EXEC key", action: "Press" },
+    { g: "rc1", key: { key: "EXEC" }, result: "The new runway and SID are active. Takeoff speeds are cleared until new data is accepted or entered.", label: "EXEC key", action: "Press" },
 
     { g: "rcX", key: { key: "INIT REF" }, label: "TAKEOFF REF page", action: "Select" },
     { g: "rcX", page: "TAKEOFF REF 1/2", key: { lsk: "5L" }, label: "INTERSECT", action: "Enter X",
@@ -132,7 +133,7 @@
     { g: "rcC", page: "TAKEOFF REF 1/2", key: { lsk: "1R" }, label: "QRH speeds", action: "Select", alt: "[1R]–[3R]",
       notes: ["Uplinked TPS speeds can't be used: the FMC QRH V-speeds are."] },
 
-    { g: "rc3", key: null, label: "Flap setting / thrust", action: "Ensure loaded" },
+    { g: "rc3", page: "TAKEOFF REF 1/2", key: { look: "1L" }, label: "Flap setting / thrust", action: "Ensure loaded" },
     { g: "rc3", key: { panel: "Stabilizer trim" }, label: "Trim", action: "Set" },
     { g: "rc3", key: { panel: "MCP speed window" }, label: "V2 speed", action: "Note and enter in MCP" },
     { g: "rc3", page: "TAKEOFF REF 2/2", key: { lsk: "4R" }, label: "EO ACCEL ALT", action: "Verify", notes: ["BARO and TAKEOFF REF page 2/2."],
@@ -141,8 +142,8 @@
     { g: "rc3", key: { panel: "MCP" }, label: "COURSE · HEADING · ALTITUDE", action: "Set" },
     { g: "rc3", key: { key: "LEGS" }, label: "Amended portion of route and legs", action: "Verify",
       notes: ["Assess your Area of Vulnerability before the route/legs verification and performance review. Only the amended portion needs verifying."] },
-    { g: "rc3", key: null, label: "Performance Review", action: "Complete", notes: ["The 7-item review, now with gross weight and N1s. No further Performance Verification and no separate Load Closeout briefing are needed."] },
-    { g: "rc3", key: null, label: "Before Takeoff Checklist", action: "Complete", notes: ["If a runway or flap setting change happens after any part of the Before Takeoff Checklist, reset and re-accomplish it in its entirety."] },
+    { g: "rc3", key: { panel: "Both pilots brief" }, label: "Performance Review", action: "Complete", notes: ["The 7-item review, now with gross weight and N1s. No further Performance Verification and no separate Load Closeout briefing are needed."] },
+    { g: "rc3", key: { panel: "Checklist" }, label: "Before Takeoff Checklist", action: "Complete", notes: ["If a runway or flap setting change happens after any part of the Before Takeoff Checklist, reset and re-accomplish it in its entirety."] },
   ];
 
   function build(groups, steps, opts) {
@@ -150,11 +151,15 @@
     const a = F[o.perfAc] || F.NG;
     const d = { a, r: a.rwy[o.perfRwy] || a.rwy["17R"], to: a.rwy[CHANGE.to], wb: WB[o.perfAc] || WB.NG, aa: AA[o.perfAc] || AA.NG };
     const out = [];
+    let last = null;
     for (const g of groups) {
       if (g.when && !g.when(o)) continue;
       for (const s of steps) {
         if (s.g !== g.id || (s.when && !s.when(o))) continue;
-        out.push({ ...s, group: g, ref: g.ref, value: typeof s.value === "function" ? s.value(o, d) : s.value || "" });
+        const page = s.page || (s.key && s.key.key ? last : undefined);
+        const pad = s.pad || (g.pad && !out.some((x) => x.g === g.id) ? g.pad : "");
+        if (page) last = page;
+        out.push({ ...s, page, pad, group: g, ref: g.ref, value: typeof s.value === "function" ? s.value(o, d) : s.value || "" });
       }
     }
     return out.map((s, i) => ({ ...s, n: i + 1, id: `${s.g}-${i}` }));
