@@ -165,6 +165,14 @@
   .prow { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; width: 100%; }
   .pval { font: 800 20px/1.2 ui-monospace, "SF Mono", Menlo, monospace; white-space: nowrap; }
   .pfrom { margin: 4px 0 0; font-size: 14px; color: var(--muted); }
+  .bitem { padding: 12px 0; border-top: 1px solid var(--line); }
+  .card .bitem:first-of-type { border-top: 0; padding-top: 2px; }
+  .bhead { display: flex; align-items: center; gap: 10px; }
+  .bnum { flex: none; width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; background: var(--accent); color: var(--accent-ink); font-weight: 700; font-size: 14px; }
+  .say { margin: 8px 0 0; font-size: 19px; line-height: 1.35; font-weight: 600; }
+  .reveal { margin-top: 8px; width: 100%; }
+  .count { display: inline-block; min-width: 1.6em; padding: 0 6px; border-radius: 6px; background: var(--amber-bg); color: var(--amber); font-weight: 800; text-align: center; }
+  .method pre { margin: 8px 0 0; padding: 10px 12px; border-radius: 10px; background: var(--panel-2); font: 14px/1.45 ui-monospace, "SF Mono", Menlo, Consolas, monospace; white-space: pre; overflow-x: auto; }
   .paper summary { cursor: pointer; }
   .paper h4 { margin: 12px 0 4px; font-size: 13px; text-transform: uppercase; letter-spacing: .6px; color: var(--muted); }
   .paper pre { margin: 0; padding: 10px; border-radius: 10px; background: var(--panel-2); font: 12.5px/1.45 ui-monospace, "SF Mono", Menlo, monospace; overflow-x: auto; white-space: pre; }
@@ -213,22 +221,30 @@
 
 <script src="procedure.js"></script>
 <script src="perf.js"></script>
+<script src="taxi.js"></script>
 <script>
 (() => {
   "use strict";
-  const APP_VERSION = "2026-11-06.4"; // keep in step with VERSION in sw.js
+  const APP_VERSION = "2026-11-07.1"; // keep in step with VERSION in sw.js
   const { FLEETS, DEFAULTS, GROUPS, PAGES, TIMING, buildFlow } = window.SimPrep;
   const PERF = window.SimPerf;
+  const TAXI = window.SimTaxi;
 
   // ---------- state ----------
-  let st = { screen: "home", mode: null, opts: { ...DEFAULTS, perfAc: "NG", perfRwy: "17R" }, i: 0, done: {}, quiz: null, score: { right: 0, total: 0 }, drill: null, drillScore: { clean: 0, total: 0 } };
+  let st = { screen: "home", mode: null, block: "fms", briefHide: false, revealed: {}, opts: { ...DEFAULTS, perfAc: "NG", perfRwy: "17R", coSource: "UPLINK", rcOpt: "A", rcIntersection: false, briefKind: "preflight" }, i: 0, done: {}, quiz: null, score: { right: 0, total: 0 }, drill: null, drillScore: { clean: 0, total: 0 } };
   const SAVE_KEY = "simPrep.v1";
   const save = () => { try { localStorage.setItem(SAVE_KEY, JSON.stringify(st)); } catch (e) { /* storage unavailable */ } };
-  try { const d = JSON.parse(localStorage.getItem(SAVE_KEY) || "null"); if (d && d.opts) st = { ...st, ...d }; } catch (e) { /* ignore */ }
+  try { const d = JSON.parse(localStorage.getItem(SAVE_KEY) || "null"); if (d && d.opts) st = { ...st, ...d, opts: { ...st.opts, ...d.opts } }; } catch (e) { /* ignore */ }
 
   const $ = (s) => document.querySelector(s);
   const esc = (v) => String(v).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
-  const flow = () => buildFlow(st.opts);
+  const flow = () => st.block === "closeout" ? TAXI.closeoutFlow(st.opts) : st.block === "change" ? TAXI.changeFlow(st.opts) : buildFlow(st.opts);
+  const BLOCKS = {
+    fms: { name: "FMS Preflight", done: "That's the FMS preflight. Ready for the Before Start Checklist." },
+    closeout: { name: "Load Closeout", done: "Closeout loaded and checked. Brief Weights, Winds and N1s if nothing changed." },
+    change: { name: "Runway change", done: "Runway change complete. Brief the 7-item Performance Review, then the Before Takeoff Checklist." },
+  };
+  const acName = (ac) => ac === "NG" ? "737-800 · 3LE" : "737 MAX 8 · 3RS";
 
   // ---------- CDU drawing (key layout from the AA CDU training guide, AOM Rev 10) ----------
   const FKEYS = [
@@ -304,11 +320,43 @@
         <button type="button" class="mode" data-mode="perfLearn"><b>Learn</b><span>Every item on the four FMC pages, this flight's correct value, and where it is on the paperwork.</span></button>
         <button type="button" class="mode" data-mode="perfDrill"><b>Drill</b><span>The FMC is loaded with one or two planted mistakes. Find them.</span></button>
       </div>
+      <span class="eyebrow" style="display:block;margin-top:26px">Study block 3</span>
+      <h2 class="title">Load Closeout, runway change, briefings</h2>
+      <p class="lead">After pushback: AOM 21j.2.1 When Load Closeout is Received and AOM 5-14 Runway/Departure Change, with the briefing pattern from the AA CDU training guide, on your RNO–SFO paperwork.</p>
+      <div class="modes">
+        <button type="button" class="mode" data-mode="sim" data-block="closeout"><b>Load Closeout</b><span>Uplink or manual, step by step on the CDU: ZFW, N1 LIMIT, ACCEPT, CG and trim, V2.</span></button>
+        <button type="button" class="mode" data-mode="sim" data-block="change"><b>Runway change</b><span>17R to 17L: the three steps, and the three takeoff performance options.</span></button>
+        <button type="button" class="mode" data-mode="brief" data-block="brief"><b>Briefings</b><span>7 items at preflight, 3 at closeout, 7 after a change. Say them aloud, then check.</span></button>
+        <button type="button" class="mode" data-mode="quiz" data-block="change"><b>Practice</b><span>“What comes next?” on the runway change.</span></button>
+      </div>
       <div class="card" style="margin-top:14px"><h3>Who and when</h3><ul class="plain">${TIMING.map((t) => `<li>${esc(t)}</li>`).join("")}</ul></div>
       <p class="disclaimer">Study aid built from the AOM. Always use the current AOM and company procedures.<br>App version ${APP_VERSION}</p>`,
 
     setup: () => {
       const o = st.opts;
+      if (st.block === "closeout") return `
+      <h2 class="title">Load Closeout</h2>
+      <p class="lead">AOM 21j.2.1. Practice values come from the planned W&amp;B printed with your TPS; in the sim use the closeout printout.</p>
+      <div class="card"><h3>Aircraft</h3>${seg("perfAc", [["NG", "737-800", "Ship 3LE · ZFW 125.0"], ["MAX", "737 MAX 8", "Ship 3RS · ZFW 129.3"]], "Aircraft")}</div>
+      <div class="card"><h3>Runway</h3>${seg("perfRwy", [["17R", "17R"], ["17L", "17L"]], "Runway")}</div>
+      <div class="card"><h3>Closeout</h3>${seg("coSource", [["UPLINK", "Uplink available"], ["MANUAL", "Uplink not available", "Enter ZFW and CG"]], "Closeout")}</div>
+      <p class="hint">${flow().length} steps with these settings.</p>`;
+      if (st.block === "change") return `
+      <h2 class="title">Runway/Departure Change</h2>
+      <p class="lead">AOM 5-14 and 5-15. Practice scenario: after pushback, with the closeout in, ATIS L moves you from 17R to 17L.</p>
+      <div class="card"><h3>Aircraft</h3>${seg("perfAc", [["NG", "737-800", "Ship 3LE"], ["MAX", "737 MAX 8", "Ship 3RS"]], "Aircraft")}</div>
+      <div class="card"><h3>Takeoff performance: choose one</h3>
+        ${seg("rcOpt", [["A", "New runway is one of the first four on the TPS", "Use the uplinked data. 17L is on your TPS."], ["B", "Not on the TPS, or a new TPS wanted", "Request a new TPS by ACARS (tailwind Method 1, new thrust/flaps, wet, anti-ice)"], ["C", "Uplinked data not desired or unavailable", "FMC QRH V-speeds (tailwind Method 2)"]], "Takeoff performance option")}
+        <div class="sub toggles" style="margin-top:10px">${tgl("rcIntersection", "Intersection departure", "Enter X at [5L] from the TPS Airport Notes")}</div>
+      </div>
+      ${st.opts.rcOpt === "C" ? methodCard() : ""}
+      <p class="hint">${flow().length} steps with these settings.</p>`;
+      if (st.block === "brief") return `
+      <h2 class="title">Briefings</h2>
+      <p class="lead">The Performance Review follows a 7–3–7 pattern: 7 items at preflight, 3 items at Load Closeout if nothing changed, 7 items again only after a change.</p>
+      <div class="card"><h3>Aircraft</h3>${seg("perfAc", [["NG", "737-800", "Ship 3LE"], ["MAX", "737 MAX 8", "Ship 3RS"]], "Aircraft")}</div>
+      <div class="card"><h3>Which briefing</h3>${seg("briefKind", [["preflight", "Preflight · 7", "Performance Review"], ["closeout", "Load Closeout · 3", "No change since preflight"], ["changeA", "After change · 7", "17L, uplinked data"], ["changeC", "After change · 7", "17L, tailwind, Method 2"]], "Briefing")}</div>
+      ${["preflight", "closeout"].includes(st.opts.briefKind) ? `<div class="card"><h3>Runway</h3>${seg("perfRwy", [["17R", "17R"], ["17L", "17L"]], "Runway")}</div>` : ""}`;
       if (String(st.mode).startsWith("perf")) return `
       <h2 class="title">Set up the check</h2>
       <p class="lead">RNO–SFO, AAL1080. Pick the aircraft and the departure runway.</p>
@@ -337,7 +385,7 @@
 
     sim: () => {
       const F = flow(); const s = F[st.i];
-      if (!s) return `<h2 class="title">Done</h2><p class="lead">That's the FMS preflight. Ready for the Before Start Checklist.</p>`;
+      if (!s) return `<h2 class="title">Done</h2><p class="lead">${esc((BLOCKS[st.block] || BLOCKS.fms).done)}</p>`;
       const groupSteps = F.filter((x) => x.g === s.g);
       const gi = groupSteps.indexOf(s) + 1;
       const done = !!st.done[s.id];
@@ -353,6 +401,7 @@
           ${(s.notes || []).map((n) => `<p class="note">${esc(n)}</p>`).join("")}
           <button type="button" class="tick" role="checkbox" data-tick="${s.id}" aria-checked="${done}"><span class="box" aria-hidden="true">${done ? "✓" : ""}</span>Done</button>
           <p class="ref">AOM ${esc(s.ref)} · step ${s.n} of ${F.length}</p>
+          ${st.block === "change" && st.opts.rcOpt === "C" && s.g === "rcC" && s.n === F.find((x) => x.g === "rcC").n ? methodCard() : ""}
         </div>
       </div>`;
     },
@@ -363,7 +412,7 @@
         if (s.g !== g) { if (g) html += "</div>"; g = s.g; html += `<div class="ov-group card"><h3>${esc(s.group.title)} <small>· AOM ${esc(s.ref)}</small></h3>`; }
         html += `<div class="ov-row"><span class="n">${s.n}</span><span>${keyBadge(s) ? `<span class="kb">${esc(keyBadge(s))}</span>` : ""}${esc(s.label)}${s.value ? ` <b>${esc(s.value)}</b>` : ""}</span><span class="a">${esc(s.action)}</span></div>`;
       }
-      return `<h2 class="title">Overview</h2><p class="lead">${esc(FLEETS[st.opts.fleet].label)} · ${st.opts.source === "ACARS" ? "ACARS uplink" : "Manual entry"} · ${F.length} steps</p>${html}</div>`;
+      return `<h2 class="title">Overview</h2><p class="lead">${esc(subLine())} · ${F.length} steps</p>${html}</div>`;
     },
 
     perfLearn: () => {
@@ -407,6 +456,22 @@
         ${paperworkHtml()}${html}`;
     },
 
+    brief: () => {
+      const o = st.opts, B = TAXI.briefing(o.briefKind, o.perfAc, o.perfRwy);
+      const items = B.items.map((it, i) => {
+        const shown = !st.briefHide || st.revealed[i];
+        return `<div class="bitem"><div class="bhead"><span class="bnum">${i + 1}</span><b>${esc(it.label)}</b></div>
+          ${shown ? `<p class="say">“${esc(it.say)}”</p><p class="pfrom">${esc(it.check)}</p>` : `<button type="button" class="btn reveal" data-reveal="${i}">Say it, then tap to check</button>`}</div>`;
+      }).join("");
+      return `<h2 class="title">${esc(B.title)}</h2>
+        <p class="lead"><span class="count">${B.count}</span> items · ${esc(acName(o.perfAc))}. ${esc(B.who)}</p>
+        <div class="card"><span class="eyebrow">Situation</span><p style="margin:6px 0 0">${esc(B.setting)}</p></div>
+        ${paperworkHtml()}
+        <div class="card">${items}</div>
+        <div class="card"><span class="eyebrow">Also discuss, if applicable</span><ul class="plain">${B.extra.map((x) => `<li>${esc(x)}</li>`).join("")}</ul></div>
+        <p class="disclaimer">Wording follows the examples in the AA CDU training guide. Numbers from your RNO–SFO paperwork; the runway change is a practice scenario.</p>`;
+    },
+
     quiz: () => {
       const q = st.quiz || newQuestion();
       st.quiz = q;
@@ -422,6 +487,25 @@
         ${q.picked != null ? `<p class="note" style="margin-top:12px">${q.picked === q.answer ? "Correct." : "Not quite."} AOM ${esc(F[q.at + 1].ref)}.</p>` : ""}`;
     },
   };
+
+  // The Method 2 arithmetic for the tailwind option, from the TPS Airport Analysis data.
+  function methodCard() {
+    const m = TAXI.method2(st.opts.perfAc);
+    return `<div class="card method"><span class="eyebrow">Unplanned tailwind · Method 2 · 17L</span>
+      <p class="hint" style="margin-top:6px">${esc(TAXI.CHANGE.atisC)}</p>
+      <pre>  ${m.zeroWind.toFixed(1)}  17L RWY limit, 5°C
+- ${(m.sub / 1000).toFixed(2).padStart(5)}  ${m.perKt} × ${m.kt} kt tailwind
+- ${m.aiSub.toFixed(2).padStart(5)}  A/I ON SUB
+= ${m.rwy.toFixed(1)}  RUNWAY LIMIT
+  ${m.climb.toFixed(1)}  CLIMB LIMIT − A/I
+  ${m.mtow.toFixed(1)}  MTOW
+GW ${m.gw.toFixed(1)}: ${m.ok ? "below all three" : "OVER A LIMIT"}</pre>
+      <p class="note">Maximum thrust at the planned rating, FMC QRH V-speeds. Check the runway, climb and MTOW limits.</p></div>`;
+  }
+  const subLine = () => st.block === "closeout" ? `Load Closeout · ${acName(st.opts.perfAc)} · ${st.opts.perfRwy} · ${st.opts.coSource === "MANUAL" ? "Manual" : "Uplink"}`
+    : st.block === "change" ? `Runway change 17R → 17L · ${acName(st.opts.perfAc)} · option ${st.opts.rcOpt}`
+    : st.block === "brief" ? `Briefings · ${acName(st.opts.perfAc)}`
+    : `${FLEETS[st.opts.fleet].label} · ${st.opts.source === "ACARS" ? "ACARS uplink" : "Manual entry"}`;
 
   // Practice: the correct next step plus three other steps from the same flow.
   function newQuestion() {
@@ -451,14 +535,17 @@
     const nav = $("#nav"); nav.hidden = scr === "home";
     const back = $("#btn-back"), next = $("#btn-next");
     back.textContent = "Back";
-    if (scr === "setup") { next.textContent = st.mode === "overview" ? "Show overview" : st.mode === "quiz" ? "Start practice" : st.mode === "perfDrill" ? "Start drill" : st.mode === "perfLearn" ? "Show the check" : "Start"; }
+    if (scr === "setup") { next.textContent = st.mode === "overview" ? "Show overview" : st.mode === "quiz" ? "Start practice" : st.mode === "perfDrill" ? "Start drill" : st.mode === "perfLearn" ? "Show the check" : st.mode === "brief" ? "Show the briefing" : "Start"; }
+    else if (scr === "brief") { next.textContent = st.briefHide ? "Show all the words" : "Practice: hide the words"; }
     else if (scr === "sim") { next.textContent = st.i >= F.length ? "Home" : st.i === F.length - 1 ? "Finish" : "Next step"; }
     else if (scr === "quiz") { next.textContent = st.quiz && st.quiz.picked != null ? "Next question" : "Skip"; }
     else if (scr === "overview") { next.textContent = "Step by step"; }
     else if (scr === "perfLearn") { next.textContent = "Try a drill"; }
     else if (scr === "perfDrill") { next.textContent = st.drill && st.drill.checked ? "New drill" : "Check"; }
     const perf = scr.startsWith("perf") || (scr === "setup" && String(st.mode).startsWith("perf"));
+    const blk = st.block && st.block !== "fms" && scr !== "home" && !perf;
     $("#sub").textContent = scr === "home" ? "Study aid · Not for operational use"
+      : blk ? subLine()
       : perf ? `Performance check · RNO–SFO · ${st.opts.perfAc === "NG" ? "737-800" : "737 MAX 8"} · ${st.opts.perfRwy}`
       : `FMS Preflight · ${FLEETS[st.opts.fleet].label} · ${st.opts.source === "ACARS" ? "ACARS" : "Manual"}`;
     save();
@@ -468,8 +555,9 @@
   // ---------- events ----------
   document.addEventListener("click", (e) => {
     const b = e.target.closest("button"); if (!b) return;
-    if (b.dataset.mode) { st.mode = b.dataset.mode; go("setup"); }
-    else if (b.dataset.opt) { st.opts[b.dataset.opt] = b.dataset.val; st.i = 0; st.quiz = null; st.drill = null; render(); }
+    if (b.dataset.mode) { st.mode = b.dataset.mode; st.block = b.dataset.block || (b.dataset.mode.startsWith("perf") ? "perf" : "fms"); go("setup"); }
+    else if (b.dataset.reveal != null) { st.revealed[b.dataset.reveal] = true; render(); }
+    else if (b.dataset.opt) { st.opts[b.dataset.opt] = b.dataset.val; st.i = 0; st.quiz = null; st.drill = null; st.revealed = {}; render(); }
     else if (b.dataset.flagrow && st.drill && !st.drill.checked) { st.drill.flagged[b.dataset.flagrow] = !st.drill.flagged[b.dataset.flagrow]; render(); }
     else if (b.dataset.flag) { st.opts[b.dataset.flag] = !st.opts[b.dataset.flag]; st.i = 0; st.quiz = null; render(); }
     else if (b.dataset.tick) { st.done[b.dataset.tick] = !st.done[b.dataset.tick]; render(); }
@@ -486,6 +574,7 @@
   $("#btn-next").addEventListener("click", () => {
     const F = flow();
     if (st.screen === "setup") { st.i = 0; st.done = {}; st.quiz = null; st.score = { right: 0, total: 0 }; st.drill = null; go(st.mode); }
+    else if (st.screen === "brief") { st.briefHide = !st.briefHide; st.revealed = {}; render(); window.scrollTo(0, 0); }
     else if (st.screen === "perfLearn") { st.mode = "perfDrill"; st.drill = null; go("perfDrill"); }
     else if (st.screen === "perfDrill") {
       const d = st.drill;

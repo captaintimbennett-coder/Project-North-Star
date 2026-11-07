@@ -31,13 +31,23 @@ publishing it anywhere public.
 - `perf.js` — performance check values from the training paperwork, and the drill
 - `procedure.js` — the steps, each tied to its AOM page; shown only for the
   setups the AOM applies them to
+- `taxi.js` — Load Closeout (AOM 21j.2.1), Runway/Departure Change (AOM 5-14, 5-15),
+  the Method 2 tailwind check from the TPS Airport Analysis, and the 7–3–7 briefings
 - `index.html` — the screens and the CDU drawing
-- `tests/` — `node --test prototypes/b737-sim-prep/tests/procedure.test.mjs prototypes/b737-sim-prep/tests/perf.test.mjs`
+- `tests/` — `node --test prototypes/b737-sim-prep/tests/*.mjs`
 - `manifest.webmanifest`, `sw.js`, `icons/` — Home Screen install and offline use
 
 Bump `VERSION` in `sw.js` and `APP_VERSION` in `index.html` together on every change.
 
 ## Open items
+
+- The closeout block uses the planned W&B printed with the TPS (ZFW, TOW, TOW CG
+  25.6) as practice values; the real closeout printout replaces them.
+- The runway change (ATIS L, 17R to 17L, 340/06 for the tailwind case) is a
+  practice scenario, not on the paperwork. The tailwind component assumes about
+  6 kt; use the Jeppesen runway heading.
+- Method 2 subtracts the TPS A/I ON SUB from the runway and climb limits because
+  engine anti-ice is on (5°C, rain). Confirm with an instructor.
 
 - The CDU drawing follows the AA "B737 CDU Load Closeout and Performance Guide"
   (AOM Rev 10 pictures): INIT REF, RTE, DEP ARR, ATC, VNAV / FIX, LEGS, HOLD,
