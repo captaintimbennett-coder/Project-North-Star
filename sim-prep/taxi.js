@@ -98,7 +98,7 @@
     { g: "rcX", page: "TAKEOFF REF 1/2", key: { lsk: "5L" }, label: "INTERSECT", action: "Enter X",
       notes: ["The entry in [5L] will appear as X/17L. The 17L is automatically loaded from the route page and cannot be modified.", "Some runways have more than one intersection option: see the TPS Airport Notes for the entry."] },
 
-    { g: "rcA", page: "TAKEOFF REF 1/2", key: { lsk: "5R" }, scr: { "5L": "<REJECT", "5R": "ACCEPT>" }, label: "TAKEOFF REF data", action: "Accept or Reject", alt: "[5R] or [5L]",
+    { g: "rcA", page: "TAKEOFF REF 1/2", key: { lsk: "5R" }, fills: ["TAKEOFF REF 1/2|1R", "TAKEOFF REF 1/2|2R", "TAKEOFF REF 1/2|3R"], scr: { "5L": "<REJECT", "5R": "ACCEPT>" }, label: "TAKEOFF REF data", action: "Accept or Reject", alt: "[5R] or [5L]",
       value: (o, d) => `${d.to.v1} / ${d.to.vr} / ${d.to.v2}`, notes: ["Uses the uplinked data as written on the TPS. 17L is the second line on this TPS."] },
 
     { g: "rcB", key: { key: "MENU" }, label: "MENU", action: "Select" },
@@ -117,7 +117,7 @@
     { g: "rcB", key: { key: "INIT REF" }, label: "INIT/REF", action: "Press" },
     { g: "rcB", page: "TAKEOFF REF 1/2", key: { lsk: "6L" }, label: "INDEX", action: "Select" },
     { g: "rcB", page: "INIT/REF INDEX", key: { lsk: "4L" }, label: "TAKEOFF", action: "Select" },
-    { g: "rcB", page: "TAKEOFF REF 1/2", key: { lsk: "5R" }, scr: { "5L": "<REJECT", "5R": "ACCEPT>" }, label: "TAKEOFF REF data", action: "Accept or Reject", alt: "[5R] or [5L]",
+    { g: "rcB", page: "TAKEOFF REF 1/2", key: { lsk: "5R" }, fills: ["TAKEOFF REF 1/2|1R", "TAKEOFF REF 1/2|2R", "TAKEOFF REF 1/2|3R"], scr: { "5L": "<REJECT", "5R": "ACCEPT>" }, label: "TAKEOFF REF data", action: "Accept or Reject", alt: "[5R] or [5L]",
       caution: "Requested TPS data is uplinked to the FMC and must be ACCEPTED or REJECTED. Failure to do so may cause a buffer overflow of the FMC memory." },
 
     { g: "rcC", key: { key: "N1 LIMIT" }, label: "N1 LIMIT", action: "Select" },
@@ -130,7 +130,7 @@
     { g: "rcC", page: "TAKEOFF REF 2/2", key: { lsk: "2L" }, label: "Runway slope", action: "Enter", value: (o, d) => `${d.aa.slope[CHANGE.to]} % (TPS: SLOPE - PCT)` },
     { g: "rcC", page: "TAKEOFF REF 2/2", key: { key: "PREV PAGE" }, label: "PREV PAGE", action: "Select" },
     { g: "rcC", page: "TAKEOFF REF 1/2", key: { lsk: "6R" }, label: "QRH ON", action: "Select" },
-    { g: "rcC", page: "TAKEOFF REF 1/2", key: { lsk: "1R" }, label: "QRH speeds", action: "Select", alt: "[1R]–[3R]",
+    { g: "rcC", page: "TAKEOFF REF 1/2", key: { lsk: "1R" }, fills: ["TAKEOFF REF 1/2|1R", "TAKEOFF REF 1/2|2R", "TAKEOFF REF 1/2|3R"], label: "QRH speeds", action: "Select", alt: "[1R]–[3R]",
       notes: ["Uplinked TPS speeds can't be used: the FMC QRH V-speeds are."] },
 
     { g: "rc3", page: "TAKEOFF REF 1/2", key: { look: "1L" }, label: "Flap setting / thrust", action: "Ensure loaded" },
