@@ -88,7 +88,7 @@
   const RC_STEPS = [
     { g: "rc1", page: "TAKEOFF REF 1/2", key: { key: "DEP ARR" }, label: "DEP/ARR key", action: "Press", notes: [CONSIDER] },
     { g: "rc1", page: "DEP/ARR INDEX", key: { lsk: "1L" }, label: "DEPARTURES page", action: "Select" },
-    { g: "rc1", page: "DEPARTURES", key: { lsk: "2R" }, scr: { "1R": "17R", "2R": "17L" }, label: "RWY", action: "Select", value: () => CHANGE.to, alt: "[R] 17L",
+    { g: "rc1", page: "DEPARTURES", key: { lsk: "2R" }, label: "RWY", action: "Select", value: () => CHANGE.to, result: "17L shows <SEL> beside it; the SIDs for 17L are listed on the left.",
       notes: ["Runways are listed on the right side. Select 17L wherever it appears; the order on the list may differ."] },
     { g: "rc1", page: "DEPARTURES", key: null, label: "SID", action: "Select", notes: ["As cleared. SIDs are listed on the left side."] },
     { g: "rc1", page: "DEPARTURES", key: null, label: "TRANSITION", action: "Select", notes: ["If required."] },

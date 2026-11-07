@@ -1,6 +1,6 @@
 // Offline support for B737 Sim Prep.
 // Bump VERSION whenever any app file changes so devices pick up the update.
-const VERSION = "2026-11-07.4";
+const VERSION = "2026-11-07.5";
 const CACHE = `sim-prep-${VERSION}`;
 const FILES = [
   "./",
@@ -14,8 +14,13 @@ const FILES = [
   "./icons/apple-touch-icon.png",
 ];
 
+// Save a fresh copy of every file, skipping the browser's own cache.
 self.addEventListener("install", (event) => {
-  event.waitUntil(caches.open(CACHE).then((c) => c.addAll(FILES)).then(() => self.skipWaiting()));
+  event.waitUntil(
+    caches.open(CACHE)
+      .then((c) => Promise.all(FILES.map((f) => fetch(new Request(f, { cache: "reload" })).then((res) => c.put(f, res)))))
+      .then(() => self.skipWaiting())
+  );
 });
 
 self.addEventListener("activate", (event) => {
@@ -27,23 +32,19 @@ self.addEventListener("activate", (event) => {
   );
 });
 
-// Pages: try the network briefly so updates arrive, otherwise use the saved copy.
-// Everything else: saved copy first.
+// Online: always the latest files (asking the server, not the browser cache), saved for later.
+// Offline or slow (4 s): the saved copy.
 self.addEventListener("fetch", (event) => {
   const req = event.request;
-  if (req.method !== "GET") return;
-  if (req.mode === "navigate") {
-    event.respondWith(
-      Promise.race([
-        fetch(req).then((res) => {
-          const copy = res.clone();
-          caches.open(CACHE).then((c) => c.put("./index.html", copy));
-          return res;
-        }),
-        new Promise((_, reject) => setTimeout(reject, 3000)),
-      ]).catch(() => caches.match("./index.html"))
-    );
-    return;
-  }
-  event.respondWith(caches.match(req).then((hit) => hit || fetch(req)));
+  if (req.method !== "GET" || new URL(req.url).origin !== location.origin) return;
+  const key = req.mode === "navigate" ? "./index.html" : req;
+  event.respondWith(
+    Promise.race([
+      fetch(req, { cache: "no-cache" }).then((res) => {
+        if (res.ok) { const copy = res.clone(); caches.open(CACHE).then((c) => c.put(key, copy)); }
+        return res;
+      }),
+      new Promise((_, reject) => setTimeout(reject, 4000)),
+    ]).catch(() => caches.match(key, { ignoreSearch: true }).then((hit) => hit || caches.match("./index.html")))
+  );
 });

@@ -53,7 +53,8 @@ test("every lit line select key lands on a drawn prompt", () => {
   for (const F of [closeoutFlow({}), closeoutFlow({ coSource: "MANUAL" }), changeFlow({ rcOpt: "A", rcIntersection: true }), changeFlow({ rcOpt: "B" }), changeFlow({ rcOpt: "C" })]) {
     for (const s of F) {
       const p = PAGES[s.page];
-      if (!p || !s.key || !s.key.lsk) continue;
+      // DEPARTURES lists runways and SIDs from the nav database: the screen draws them as data.
+      if (!p || !s.key || !s.key.lsk || s.page === "DEPARTURES") continue;
       const text = (s.scr && s.scr[s.key.lsk]) || p[s.key.lsk.slice(-1)][Number(s.key.lsk[0]) - 1];
       assert.ok(text, `${s.page} ${s.key.lsk} (${s.label})`);
     }

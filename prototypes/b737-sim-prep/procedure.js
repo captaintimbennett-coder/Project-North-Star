@@ -79,8 +79,8 @@
       R: ["DEST", "FLT NO", "FLT PLAN REQUEST>", "", "RTE COPY>", "TAKEOFF>"],
     },
     "DEPARTURES": {
-      L: ["SID", "SID", "SID", "SID", "SID", "<INDEX"],
-      R: ["RUNWAY", "RUNWAY", "RUNWAY", "RUNWAY", "RUNWAY", "ROUTE>"],
+      L: ["SIDS", "", "", "", "", "<INDEX"],
+      R: ["RUNWAYS", "", "", "", "", "ROUTE>"],
     },
     "CLB": {
       L: ["CRZ ALT", "TGT SPD", "SPD REST", "", "<MAX RATE", "<MAX ANGLE"],
@@ -108,7 +108,7 @@
     },
     "RTE DATA": {
       L: ["", "", "", "", "", "<LOAD"],
-      R: ["", "", "", "", "", "WINDS REQUEST>"],
+      R: ["WIND", "", "", "", "", "WINDS REQUEST>"],
     },
     "PERF INIT": {
       L: ["GW/CRZ CG", "FUEL", "ZFW", "RESERVES", "COST INDEX", "<INDEX"],
@@ -195,7 +195,7 @@
       notes: ["Request will be sent for flight plan, cruise winds, descent forecast winds, performance initialization, and takeoff data.", "The next leg flight information is available for upload 8 minutes after the IN event is sent. Prior to this time, either the current segment or nothing at all would occur.", "Verify FLT NO. is as shown on flight plan header.", "Flight 13 is used by maintenance for towing and taxiing."] },
 
     // --- ACARS: route (3-21)
-    { g: "acRte", page: "RTE", key: { lsk: "4L" }, fills: ["RTE|1L", "RTE|1R", "RTE|2R", "RTE|3L"], scr: { "4L": "<LOAD" }, result: "ORIGIN, DEST, FLT NO and RUNWAY fill in on RTE 1.", label: "LOAD", action: "Select" },
+    { g: "acRte", page: "RTE", key: { lsk: "4L" }, fills: ["RTE|1L", "RTE|1R", "RTE|2R", "RTE|3L", "@route"], scr: { "4L": "<LOAD" }, result: "ORIGIN, DEST, FLT NO and RUNWAY fill in on RTE 1.", label: "LOAD", action: "Select" },
     { g: "acRte", key: { key: "DEP ARR" }, label: "DEP/ARR key", action: "Press" },
     { g: "acRte", page: "DEP/ARR INDEX", key: { lsk: "1L" }, label: "DEP", action: "Select", notes: ["Select appropriate SIDS, TRANS and RUNWAYS, as desired."] },
     { g: "acRte", key: { key: "DEP ARR" }, label: "DEP/ARR key", action: "Press" },
@@ -206,7 +206,7 @@
     // --- ACARS: cruise winds (3-22)
     { g: "acWind", key: { key: "LEGS" }, label: "LEGS key", action: "Press" },
     { g: "acWind", page: "LEGS", key: { lsk: "6R" }, label: "RTE DATA", action: "Select" },
-    { g: "acWind", page: "RTE DATA", key: { lsk: "6L" }, result: "Cruise winds fill in by waypoint (up to 1 minute). <ERASE appears at 6L until you EXEC.", resultPad: "CRZ WINDS UPLINK", label: "LOAD", action: "Select",
+    { g: "acWind", page: "RTE DATA", key: { lsk: "6L" }, fills: ["@winds"], result: "Cruise winds fill in by waypoint (up to 1 minute). <ERASE appears at 6L until you EXEC.", resultPad: "CRZ WINDS UPLINK", label: "LOAD", action: "Select",
       notes: ["May take up to 1 minute. DECS uploads the winds based upon the highest altitude on the flight plan. If the crew desires to have the winds for a different altitude loaded, request a WINDS REQUEST on the RTE DATA page."] },
     { g: "acWind", key: { key: "EXEC" }, result: "Winds are executed; 6L changes back to <LEGS.", label: "EXEC key", action: "Press" },
     { g: "acWind", key: { key: "LEGS" }, label: "LEGS key", action: "Press" },
@@ -273,7 +273,7 @@
     { g: "mRte", page: "RTE", key: { lsk: "1R" }, label: "DEST", action: "Enter" },
     { g: "mRte", page: "RTE", key: { lsk: "2R" }, label: "FLT NO.", action: "Enter", notes: ["Enter FLT NO. as shown on the flight plan header (e.g. AAL50)."] },
     { g: "mRte", page: "RTE", key: { lsk: "3L" }, label: "RUNWAY", action: "Enter (if desired)" },
-    { g: "mRte", page: "RTE", key: null, label: "Route", action: "Enter" },
+    { g: "mRte", page: "RTE", key: null, fills: ["@route"], label: "Route", action: "Enter" },
     { g: "mRte", key: { key: "DEP ARR" }, label: "DEP/ARR key", action: "Press" },
     { g: "mRte", page: "DEP/ARR INDEX", key: { lsk: "1L" }, label: "DEP", action: "Select", notes: ["Select SIDS/TRANS/RUNWAYS as required."] },
     { g: "mRte", key: { key: "DEP ARR" }, label: "DEP/ARR key", action: "Press" },

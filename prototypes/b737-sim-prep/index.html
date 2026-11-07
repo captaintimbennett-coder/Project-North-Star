@@ -234,7 +234,7 @@
 <script>
 (() => {
   "use strict";
-  const APP_VERSION = "2026-11-07.4"; // keep in step with VERSION in sw.js
+  const APP_VERSION = "2026-11-07.5"; // keep in step with VERSION in sw.js
   const { FLEETS, DEFAULTS, GROUPS, PAGES, TIMING, buildFlow } = window.SimPrep;
   const PERF = window.SimPerf;
   const TAXI = window.SimTaxi;
@@ -291,13 +291,34 @@
       "TAKEOFF REF 1/2|4R": `${tow}/ ${tow}`, "TAKEOFF REF 1/2|5L": "---/RW" + rwy,
       "TAKEOFF REF 2/2|1R": "WET", "TAKEOFF REF 2/2|2R": (thrust === "max" ? "--" : `+${r.at}°`) + "/ +5°C",
       "TAKEOFF REF 2/2|4L": `${r.accel}AGL`, "TAKEOFF REF 2/2|4R": `${r.accel}AGL`, "TAKEOFF REF 2/2|5L": `${r.accel}AGL`,
-      "PROGRESS|4L": `KSFO  ${F.distance}`,
+      "PROGRESS|1L": "RW" + rwy, "PROGRESS|2L": "MRLET", "PROGRESS|2R": "23", "PROGRESS|4L": `KSFO  ${F.distance}`,
+      "DEP/ARR INDEX|1L": "KRNO", "DEP/ARR INDEX|2R": "KSFO",
+      "DEPARTURES|1L": "ZEFFR", "DEPARTURES|1R": "08", "DEPARTURES|2R": rwy === "17L" ? "<SEL> 17L" : "17L", "DEPARTURES|3R": rwy === "17R" ? "<ACT> 17R" : "17R", "DEPARTURES|4R": "26", "DEPARTURES|5R": "35L",
+      "LEGS|1L": ["23NM", "MRLET"], "LEGS|2L": ["89NM", "DYAMD"], "LEGS|3L": ["72NM", "ARCHI"], "LEGS|4L": ["26NM", "KSFO"], "LEGS|5L": "1.00/0.02NM",
+      "RTE DATA|1L": "MRLET", "RTE DATA|2L": "DYAMD", "RTE DATA|3L": "ARCHI", "RTE DATA|4L": "KSFO",
+      "RTE DATA|1R": "212°/  7", "RTE DATA|2R": "295°/ 17", "RTE DATA|3R": "165°/  4",
+      "POS INIT|5L": "2045.0z 06/05", "ATC LOGON/STATUS|4L": "--- SEC",
       "ATC LOGON/STATUS|1L": "KUSA", "ATC LOGON/STATUS|2L": "AAL1080", ...(ac === "NG" ? { "ATC LOGON/STATUS|3L": "N941NN" } : {}),
     };
   }
   // Fields shown before anything is entered: from the aircraft, the GPS, or FMC defaults.
-  const STATIC = ["IDENT|1L", "IDENT|1R", "POS INIT|1R", "POS REF 2/3|1L", "POS REF 2/3|4L", "POS REF 2/3|5L", "PERF INIT|4R", "PROGRESS|4L", "ATC LOGON/STATUS|2L", "ATC LOGON/STATUS|3L"];
-  const fillsOf = (s) => s.fills || (s.key && s.key.lsk && s.page && /enter|set/i.test(s.action) ? [`${s.page}|${s.key.lsk}`] : []);
+  const STATIC = ["IDENT|1L", "IDENT|1R", "POS INIT|1R", "POS INIT|5L", "POS REF 2/3|1L", "POS REF 2/3|4L", "POS REF 2/3|5L", "PERF INIT|2L", "PERF INIT|4R",
+    "ATC LOGON/STATUS|2L", "ATC LOGON/STATUS|3L", "ATC LOGON/STATUS|4L", "DEPARTURES|1L", "DEPARTURES|1R", "DEPARTURES|2R", "DEPARTURES|3R", "DEPARTURES|4R", "DEPARTURES|5R"];
+  // What the CDU shows in a field before it is filled: boxes where an entry is required, dashes where it is optional.
+  const EMPTY = {
+    "POS INIT|2L": "----", "POS INIT|3L": "-----", "POS INIT|4R": "□□□°□□.□ □□□□°□□.□",
+    "RTE|1L": "□□□□", "RTE|1R": "□□□□", "RTE|2L": "----------", "RTE|2R": "--------", "RTE|3L": "-----",
+    "PERF INIT|1L": "---.-/", "PERF INIT|3L": "□□□.□", "PERF INIT|4L": "□□.□", "PERF INIT|5L": "□□□□", "PERF INIT|1R": "□□□□□", "PERF INIT|2R": "---°/---", "PERF INIT|3R": "---°",
+    "N1 LIMIT|1L": "--/ +5°C", "N1 LIMIT|1R": "--.-/ --.-",
+    "TAKEOFF REF 1/2|1L": "□□°", "TAKEOFF REF 1/2|2L": "--.-/ --.-", "TAKEOFF REF 1/2|3L": "□□.□%", "TAKEOFF REF 1/2|1R": "---", "TAKEOFF REF 1/2|2R": "---", "TAKEOFF REF 1/2|3R": "---", "TAKEOFF REF 1/2|4R": "---.-/", "TAKEOFF REF 1/2|5L": "---/-----",
+    "TAKEOFF REF 2/2|1L": "---°/---", "TAKEOFF REF 2/2|1R": "DRY", "TAKEOFF REF 2/2|2L": "--.--%/---°", "TAKEOFF REF 2/2|2R": "--/ +5°C", "TAKEOFF REF 2/2|4L": "1000AGL", "TAKEOFF REF 2/2|4R": "1000AGL", "TAKEOFF REF 2/2|5L": "1000AGL",
+    "ATC LOGON/STATUS|1L": "----",
+  };
+  const TOKENS = {
+    "@route": ["DEP/ARR INDEX|1L", "DEP/ARR INDEX|2R", "LEGS|1L", "LEGS|2L", "LEGS|3L", "LEGS|4L", "LEGS|5L", "RTE DATA|1L", "RTE DATA|2L", "RTE DATA|3L", "RTE DATA|4L", "PROGRESS|1L", "PROGRESS|2L", "PROGRESS|2R", "PROGRESS|4L"],
+    "@winds": ["RTE DATA|1R", "RTE DATA|2R", "RTE DATA|3R"],
+  };
+  const fillsOf = (s) => (s.fills || (s.key && s.key.lsk && s.page && /enter|set/i.test(s.action) ? [`${s.page}|${s.key.lsk}`] : [])).flatMap((k) => TOKENS[k] || [k]);
   // The CDU's data after the first n steps of the flow.
   function cduState(F, n) {
     const fms = st.block === "fms";
@@ -318,9 +339,12 @@
     const vals = flightValues(ac, rwy, speeds, thrust);
     // Load Closeout and runway change start after a complete preflight: everything is loaded.
     const all = !fms;
-    return { get: (page, lsk) => { const key = `${ALIAS[page] || page}|${lsk}`; return all || filled.has(key) ? vals[key] || "" : ""; } };
+    return { get: (page, lsk) => { const key = `${ALIAS[page] || page}|${lsk}`; return (all || filled.has(key)) && vals[key] ? vals[key] : EMPTY[key] || ""; } };
   }
-  const cellHtml = (label, data) => data ? `<small class="lb">${esc(label)}</small><b class="dv">${esc(data)}</b>` : esc(label);
+  const cellHtml = (label, data) => {
+    if (Array.isArray(data)) { label = label || data[0]; data = data[1]; }
+    return data ? `<small class="lb">${esc(label)}</small><b class="dv">${esc(data)}</b>` : esc(label);
+  };
 
   // A small, read-only screen: what the CDU shows after the step.
   function miniScreen(page, pad, state) {
@@ -339,7 +363,7 @@
     if (!page && !s.result) return "";
     const after = cduState(F, i + 1);
     const v = page === s.page && s.key && s.key.lsk ? after.get(page, s.key.lsk) : "";
-    const text = s.result || (page !== s.page ? `The ${page} page is displayed.` : v ? `${s.label} now reads ${v}.` : "The page after this step:");
+    const text = s.result || (page !== s.page ? `The ${page} page is displayed.` : v ? `${s.label} now reads ${v}.` : pad && pad !== s.pad ? `Next, ${pad} appears in the scratchpad.` : "The page after this step:");
     return `<div class="result"><span class="eyebrow">Result</span><p>${esc(text)}</p>${page && layoutFor(page) ? miniScreen(page, pad, after) : ""}</div>`;
   }
 
@@ -374,6 +398,7 @@
       ${lskCol("R")}</div>
       <div class="keys">${FKEYS.map((r) => `<div class="krow">${r.map((x) => keyHtml(x, hotKey)).join("")}</div>`).join("")}</div>
       ${missing}
+      ${/^(LEGS|RTE DATA)$/.test(s.page || "") ? `<p class="where" style="margin:8px 0 0;text-align:center;color:#c4cbd3"><small>Fixes from your flight plan. SID and STAR fixes come from the database and aren't printed on the paperwork.</small></p>` : ""}
       <div class="pad" aria-hidden="true">
         <div class="num">${["", "", "", "", "", "", "1", "2", "3", "4", "5", "6", "7", "8", "9", ".", "0", "+/-"].map((n) => n ? `<div class="key round">${n}</div>` : `<div class="key ghost"></div>`).join("")}</div>
         <div class="abc">${[...alpha, "SP", "DEL", "/", "CLR"].map((a) => `<div class="key round">${a}</div>`).join("")}</div>
@@ -419,7 +444,8 @@
         <button type="button" class="mode" data-mode="quiz" data-block="change"><b>Practice</b><span>“What comes next?” on the runway change.</span></button>
       </div>
       <div class="card" style="margin-top:14px"><h3>Who and when</h3><ul class="plain">${TIMING.map((t) => `<li>${esc(t)}</li>`).join("")}</ul></div>
-      <p class="disclaimer">Study aid built from the AOM. Always use the current AOM and company procedures.<br>App version ${APP_VERSION}</p>`,
+      <p class="disclaimer">Study aid built from the AOM. Always use the current AOM and company procedures.<br>App version ${APP_VERSION}</p>
+      <button type="button" class="btn" id="btn-update" style="display:block;margin:10px auto 0">Check for update</button>`,
 
     setup: () => {
       const o = st.opts;
@@ -687,8 +713,23 @@ GW ${m.gw.toFixed(1)}: ${m.ok ? "below all three" : "OVER A LIMIT"}</pre>
 
   render();
   if ("serviceWorker" in navigator && (location.protocol === "https:" || location.hostname === "localhost")) {
-    navigator.serviceWorker.register("sw.js").catch(() => {});
+    navigator.serviceWorker.register("sw.js", { updateViaCache: "none" }).then((r) => r.update()).catch(() => {});
+    // When a new version takes over, reload once so the screen shows it.
+    let reloaded = false;
+    navigator.serviceWorker.addEventListener("controllerchange", () => { if (!reloaded) { reloaded = true; location.reload(); } });
   }
+  // Check for update: drop this app's saved copy and load the latest from the internet.
+  document.addEventListener("click", async (e) => {
+    if (!e.target.closest("#btn-update")) return;
+    e.target.closest("#btn-update").textContent = "Updating…";
+    try {
+      const keys = await caches.keys();
+      await Promise.all(keys.filter((k) => k.startsWith("sim-prep-")).map((k) => caches.delete(k)));
+      const regs = navigator.serviceWorker ? await navigator.serviceWorker.getRegistrations() : [];
+      await Promise.all(regs.filter((r) => r.scope.includes("/sim-prep/")).map((r) => r.unregister()));
+    } catch (err) { /* offline or not supported: just reload */ }
+    location.reload();
+  });
 })();
 </script>
 </body>
