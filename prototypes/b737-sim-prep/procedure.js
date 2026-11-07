@@ -185,7 +185,7 @@
     { g: "posinit", page: "POS REF 2/3", key: { lsk: "4L" }, resultPage: "POS REF 2/3", resultPad: "N39°29.9 W119°46.1", result: "The GPS position is copied into the scratchpad (example: Reno).", label: "GPS L or R", action: "Select", alt: "[4L] or [5L]",
       notes: ["Use GPS position, if available, otherwise see Manual Alignment.", "Selecting GPS L [4L] or GPS R [5L] copies that GPS position into the scratchpad. The next two steps paste it into SET IRS POS on POS INIT."], when: (o, f) => !f.hybrid },
     { g: "posinit", page: "POS REF 2/3", key: { key: "PREV PAGE" }, pad: "N39°29.9 W119°46.1", resultPage: "POS INIT", resultPad: "N39°29.9 W119°46.1", result: "Back on POS INIT with the position still in the scratchpad.", label: "PREV PAGE", action: "Press", notes: ["Back to POS INIT, with the GPS position still in the scratchpad."], when: (o, f) => !f.hybrid },
-    { g: "posinit", page: "POS INIT", key: { lsk: "4R" }, pad: "N39°29.9 W119°46.1", result: "The position moves into SET IRS POS and the scratchpad clears. The IRS finishes aligning.", label: "IRS POS", action: "Set", notes: ["Press [4R] to put the scratchpad GPS position into SET IRS POS."], when: (o, f) => !f.hybrid },
+    { g: "posinit", page: "POS INIT", key: { lsk: "4R" }, fills: ["POS INIT|4R"], pad: "N39°29.9 W119°46.1", result: "The position moves into SET IRS POS and the scratchpad clears. The IRS finishes aligning.", label: "IRS POS", action: "Set", notes: ["Press [4R] to put the scratchpad GPS position into SET IRS POS."], when: (o, f) => !f.hybrid },
     { g: "posinit", page: "POS INIT", key: null, label: "Present position", action: "Auto-populated",
       notes: ["3RH–3VR are equipped with a Hybrid GPS IRS and present position is auto-populated."], when: (o, f) => f.hybrid },
 
@@ -195,7 +195,7 @@
       notes: ["Request will be sent for flight plan, cruise winds, descent forecast winds, performance initialization, and takeoff data.", "The next leg flight information is available for upload 8 minutes after the IN event is sent. Prior to this time, either the current segment or nothing at all would occur.", "Verify FLT NO. is as shown on flight plan header.", "Flight 13 is used by maintenance for towing and taxiing."] },
 
     // --- ACARS: route (3-21)
-    { g: "acRte", page: "RTE", key: { lsk: "4L" }, scr: { "4L": "<LOAD" }, result: "ORIGIN, DEST, FLT NO and RUNWAY fill in on RTE 1.", label: "LOAD", action: "Select" },
+    { g: "acRte", page: "RTE", key: { lsk: "4L" }, fills: ["RTE|1L", "RTE|1R", "RTE|2R", "RTE|3L"], scr: { "4L": "<LOAD" }, result: "ORIGIN, DEST, FLT NO and RUNWAY fill in on RTE 1.", label: "LOAD", action: "Select" },
     { g: "acRte", key: { key: "DEP ARR" }, label: "DEP/ARR key", action: "Press" },
     { g: "acRte", page: "DEP/ARR INDEX", key: { lsk: "1L" }, label: "DEP", action: "Select", notes: ["Select appropriate SIDS, TRANS and RUNWAYS, as desired."] },
     { g: "acRte", key: { key: "DEP ARR" }, label: "DEP/ARR key", action: "Press" },
@@ -223,14 +223,14 @@
     { g: "acPerf", page: "POS INIT", key: { lsk: "6L" }, label: "INDEX", action: "Select" },
     { g: "acPerf", page: "INIT/REF INDEX", key: { lsk: "3L" }, label: "PERF", action: "Select" },
     { g: "acPerf", page: "PERF INIT", key: { lsk: "4L" }, label: "RESERVES", action: "Enter", notes: [N_RSV] },
-    { g: "acPerf", page: "PERF INIT", key: { lsk: "6L" }, scr: { "6L": "<LOAD" }, result: "ZFW, fuel, cost index and cruise altitude fill in; the page shows MOD until you EXEC.", label: "LOAD", action: "Select" },
+    { g: "acPerf", page: "PERF INIT", key: { lsk: "6L" }, fills: ["PERF INIT|1L", "PERF INIT|2L", "PERF INIT|3L", "PERF INIT|5L", "PERF INIT|1R"], scr: { "6L": "<LOAD" }, result: "ZFW, fuel, cost index and cruise altitude fill in; the page shows MOD until you EXEC.", label: "LOAD", action: "Select" },
     { g: "acPerf", page: "PERF INIT", key: null, label: "Other entries", action: "Ensure correct" },
     { g: "acPerf", key: { key: "EXEC" }, result: "PERF INIT is executed (ACT PERF INIT).", label: "EXEC key", action: "Press" },
 
     // --- ACARS: takeoff data uplinked (3-22, 3-23)
     { g: "acTo", page: "PERF INIT", key: { lsk: "6R" }, label: "N1 LIMIT", action: "Select", notes: ["Verify OAT is reasonable. Specifically ± value."] },
     { g: "acTo", page: "N1 LIMIT", key: { lsk: "6R" }, label: "TAKEOFF", action: "Select" },
-    { g: "acTo", page: "TAKEOFF REF 1/2", key: { lsk: "5R" }, scr: { "5L": "<REJECT", "5R": "ACCEPT>" }, result: "Flaps, V1, VR and V2 load from the TPS; the ACCEPT/REJECT prompts go away.", label: "TAKEOFF REF data", action: "ACCEPT or REJECT", alt: "[5R] or [5L]" },
+    { g: "acTo", page: "TAKEOFF REF 1/2", key: { lsk: "5R" }, fills: ["TAKEOFF REF 1/2|1L", "TAKEOFF REF 1/2|2L", "TAKEOFF REF 1/2|3L", "TAKEOFF REF 1/2|1R", "TAKEOFF REF 1/2|2R", "TAKEOFF REF 1/2|3R", "TAKEOFF REF 1/2|4R", "TAKEOFF REF 1/2|5L", "N1 LIMIT|1L", "N1 LIMIT|1R", "N1 LIMIT|2L", "TAKEOFF REF 2/2|1R", "TAKEOFF REF 2/2|2R", "TAKEOFF REF 2/2|4L", "TAKEOFF REF 2/2|4R", "TAKEOFF REF 2/2|5L"], scr: { "5L": "<REJECT", "5R": "ACCEPT>" }, result: "Flaps, V1, VR and V2 load from the TPS; the ACCEPT/REJECT prompts go away.", label: "TAKEOFF REF data", action: "ACCEPT or REJECT", alt: "[5R] or [5L]" },
     { g: "acTo", page: "TAKEOFF REF 1/2", key: null, label: "Flap setting / thrust", action: "Ensure loaded" },
     { g: "acTo", page: "TAKEOFF REF 1/2", key: { panel: "MCP speed window" }, label: "V2 speed", action: "Note and enter in MCP" },
     { g: "acTo", key: { panel: "Stabilizer trim" }, label: "Trim", action: "Set" },
@@ -249,7 +249,7 @@
     { g: "acToReq", page: "ACARS TAKEOFF DATA", key: { lsk: "5R" }, result: "The TPS prints. Then enter the data from the new TPS on N1 LIMIT and TAKEOFF REF.", label: "SEND", action: "Press",
       notes: ["If the TEMP field [2L] is left blank, the TPS Planned Temp will be used."] },
     { g: "acToReq", key: { key: "N1 LIMIT" }, label: "N1 LIMIT key", action: "Select" },
-    { g: "acToReq", page: "N1 LIMIT", key: { lsk: "2L" }, label: "Thrust rating", action: "Select", alt: "[2L], [3L], [4L] or [5L]" },
+    { g: "acToReq", page: "N1 LIMIT", key: { lsk: "2L" }, fills: ["N1 LIMIT|1L", "N1 LIMIT|1R", "N1 LIMIT|2L", "TAKEOFF REF 1/2|2L", "TAKEOFF REF 1/2|4R", "TAKEOFF REF 1/2|5L"], label: "Thrust rating", action: "Select", alt: "[2L], [3L], [4L] or [5L]" },
     { g: "acToReq", page: "N1 LIMIT", key: { lsk: "6R" }, label: "TAKEOFF", action: "Select" },
     { g: "acToReq", page: "TAKEOFF REF 1/2", key: { lsk: "1L" }, label: "FLAPS", action: "Enter" },
     { g: "acToReq", key: { panel: "MCP speed window" }, label: "V2 speed", action: "Note and enter in MCP" },
@@ -283,7 +283,7 @@
 
     // --- Manual: PERF INIT (3-25, 3-26)
     { g: "mPerf", page: "RTE", key: { lsk: "6R" }, scr: { "6R": "PERF INIT>" }, label: "PERF INIT", action: "Select" },
-    { g: "mPerf", page: "PERF INIT", key: { lsk: "3L" }, label: "ZFW", action: "Enter",
+    { g: "mPerf", page: "PERF INIT", key: { lsk: "3L" }, fills: ["PERF INIT|3L", "PERF INIT|1L", "PERF INIT|2L"], label: "ZFW", action: "Enter",
       caution: "Do not enter the ZFW into the GW boxes. The FMC will calculate performance data with significant errors." },
     { g: "mPerf", page: "PERF INIT", key: null, label: "FUEL", action: "Verify",
       notes: ["FUEL on the CDU, the Flight Plan/Dispatch Release, and the fuel quantity indicators agree.", "Gross weight and cruise CG (GW/CRZ CG) on the CDU and the Flight Plan/Dispatch Release agree.", "Fuel is sufficient for flight."] },
@@ -296,14 +296,14 @@
     // --- Manual: N1 LIMIT (3-26)
     { g: "mN1", page: "PERF INIT", key: { lsk: "6R" }, label: "N1 LIMIT", action: "Select" },
     { g: "mN1", page: "N1 LIMIT", key: null, label: "OAT", action: "Check", notes: ["Check that OAT is reasonable for the ambient conditions. Specifically the ± value."] },
-    { g: "mN1", page: "N1 LIMIT", key: null, label: "Assumed temp / fixed derate takeoff, or both", action: "Select as needed" },
+    { g: "mN1", page: "N1 LIMIT", key: null, fills: ["N1 LIMIT|1L", "N1 LIMIT|1R", "N1 LIMIT|2L"], label: "Assumed temp / fixed derate takeoff, or both", action: "Select as needed" },
     { g: "mN1", page: "N1 LIMIT", key: null, label: "Full / derated climb thrust", action: "Select as needed" },
 
     // --- Manual: TAKEOFF REF 1/2 (3-26)
     { g: "mTo1", page: "N1 LIMIT", key: { lsk: "6R" }, label: "TAKEOFF", action: "Select" },
     { g: "mTo1", page: "TAKEOFF REF 1/2", key: { lsk: "1L" }, label: "FLAPS", action: "Enter" },
-    { g: "mTo1", page: "TAKEOFF REF 1/2", key: null, label: "CG", action: "Enter", notes: ["Trim value is displayed."] },
-    { g: "mTo1", page: "TAKEOFF REF 1/2", key: { lsk: "1R" }, label: "Takeoff V-speeds", action: "Enter from TPS", alt: "[1R], [2R] and [3R]" },
+    { g: "mTo1", page: "TAKEOFF REF 1/2", key: null, fills: ["TAKEOFF REF 1/2|3L", "TAKEOFF REF 1/2|2L", "TAKEOFF REF 1/2|4R", "TAKEOFF REF 1/2|5L"], label: "CG", action: "Enter", notes: ["Trim value is displayed."] },
+    { g: "mTo1", page: "TAKEOFF REF 1/2", key: { lsk: "1R" }, fills: ["TAKEOFF REF 1/2|1R", "TAKEOFF REF 1/2|2R", "TAKEOFF REF 1/2|3R"], label: "Takeoff V-speeds", action: "Enter from TPS", alt: "[1R], [2R] and [3R]" },
 
     // --- TAKEOFF REF 2/2 (3-23 uplinked, 3-26 manual)
     { g: "to2", page: "TAKEOFF REF 2/2", key: { lsk: "4L" }, label: "Acceleration height", action: "Verify/Enter", notes: N_ALT },

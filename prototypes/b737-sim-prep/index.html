@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
+<meta name="robots" content="noindex, nofollow">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -130,10 +131,13 @@
   .scr-row span.on { color: var(--cdu-hot-ink); background: var(--cdu-hot); padding: 1px 3px; border-radius: 2px; font-weight: 700; }
   .scr-row span.lit { color: var(--cdu-text); }
   .scratch { border-top: 1px dashed #26303a; font-size: 10px; color: var(--cdu-dim); text-align: center; align-self: end; padding-top: 3px; }
+  .scr-row span .lb { display: block; font-size: 9px; color: var(--cdu-dim); line-height: 1.1; }
+  .scr-row span .dv { display: block; font-weight: 400; font-size: 12px; line-height: 1.2; color: var(--cdu-text); }
+  .scr-row span.on .lb, .scr-row span.on .dv { color: var(--cdu-hot-ink); }
   .scratch.msg { font-size: 12px; color: var(--cdu-text); text-align: left; letter-spacing: .3px; }
   .result { margin-top: 14px; padding: 12px; border-radius: 12px; border: 1.5px solid var(--go); background: var(--go-bg); }
   .result p { margin: 4px 0 0; font-size: 15px; }
-  .result .screen.mini { margin-top: 10px; min-height: 0; grid-template-rows: 20px repeat(6, 18px) 18px; font-size: 11px; max-width: 360px; }
+  .result .screen.mini { margin-top: 10px; min-height: 0; grid-template-rows: 20px repeat(6, minmax(18px, auto)) 18px; font-size: 11px; max-width: 360px; }
   .keys { margin-top: 12px; display: grid; gap: 6px; }
   .krow { display: flex; gap: 6px; justify-content: flex-start; }
   .key { flex: 1 1 0; min-width: 0; height: 30px; border-radius: 5px; background: var(--cdu-key); color: var(--cdu-key-ink); border: 1px solid #000; display: grid; place-items: center; text-align: center; font: 700 8.5px/1.05 -apple-system, "Segoe UI", sans-serif; letter-spacing: .2px; padding: 0 2px; }
@@ -230,7 +234,7 @@
 <script>
 (() => {
   "use strict";
-  const APP_VERSION = "2026-11-07.3"; // keep in step with VERSION in sw.js
+  const APP_VERSION = "2026-11-07.4"; // keep in step with VERSION in sw.js
   const { FLEETS, DEFAULTS, GROUPS, PAGES, TIMING, buildFlow } = window.SimPrep;
   const PERF = window.SimPerf;
   const TAXI = window.SimTaxi;
@@ -265,10 +269,63 @@
   const isMax = () => (st.block === "closeout" || st.block === "change") ? st.opts.perfAc === "MAX" : ["C", "D"].includes(st.opts.fleet);
   const layoutFor = (page) => (isMax() && PAGES[page + " MAX"]) || PAGES[page] || null;
 
+  // ---------- this flight's data on the CDU (RNO–SFO, AAL1080) ----------
+  const POSN = "N39°29.9 W119°46.1"; // Reno, as an example position
+  const ALIAS = { "ACT RTE 1": "RTE" };
+  // Every field value for the flight, keyed "PAGE|LSK". speeds: tps | none | new | qrh. thrust: std | max.
+  function flightValues(ac, rwy, speeds, thrust) {
+    const F = PERF.FLIGHT, a = F[ac], r = a.rwy[rwy], fl = st.block === "fms" ? FLEETS[st.opts.fleet] : FLEETS[ac === "MAX" ? "C" : "A"];
+    const tow = TAXI.WB[ac].tow.toFixed(1), gw = (a.zfw + a.fuelLoad).toFixed(1);
+    const n1 = thrust === "max" ? TAXI.AA[ac].maxN1 : r.n1;
+    const sp = (v) => speeds === "tps" ? String(v) : speeds === "qrh" ? "QRH" : speeds === "new" ? "NEW" : "---";
+    return {
+      "IDENT|1L": fl.model, "IDENT|1R": fl.rating,
+      "POS INIT|1R": POSN, "POS INIT|4R": POSN,
+      "POS REF 2/3|1L": POSN, "POS REF 2/3|4L": POSN, "POS REF 2/3|5L": POSN,
+      "RTE|1L": "KRNO", "RTE|1R": "KSFO", "RTE|2R": "AAL1080", "RTE|3L": "RW" + rwy,
+      "PERF INIT|1L": gw + "/", "PERF INIT|2L": a.fuelLoad.toFixed(1), "PERF INIT|3L": a.zfw.toFixed(1),
+      "PERF INIT|4L": PERF.reserves().toFixed(1), "PERF INIT|5L": F.costIndex, "PERF INIT|1R": F.crzAlt, "PERF INIT|4R": "18000",
+      "N1 LIMIT|1L": (thrust === "max" ? "--" : `+${r.at}°`) + "/ +5°C", "N1 LIMIT|1R": `${n1}/ ${n1}`, "N1 LIMIT|2L": `${a.rating} <ACT>`,
+      "TAKEOFF REF 1/2|1L": "5°", "TAKEOFF REF 1/2|2L": `${n1}/ ${n1}`, "TAKEOFF REF 1/2|3L": "25.6%",
+      "TAKEOFF REF 1/2|1R": sp(r.v1), "TAKEOFF REF 1/2|2R": sp(r.vr), "TAKEOFF REF 1/2|3R": sp(r.v2),
+      "TAKEOFF REF 1/2|4R": `${tow}/ ${tow}`, "TAKEOFF REF 1/2|5L": "---/RW" + rwy,
+      "TAKEOFF REF 2/2|1R": "WET", "TAKEOFF REF 2/2|2R": (thrust === "max" ? "--" : `+${r.at}°`) + "/ +5°C",
+      "TAKEOFF REF 2/2|4L": `${r.accel}AGL`, "TAKEOFF REF 2/2|4R": `${r.accel}AGL`, "TAKEOFF REF 2/2|5L": `${r.accel}AGL`,
+      "PROGRESS|4L": `KSFO  ${F.distance}`,
+      "ATC LOGON/STATUS|1L": "KUSA", "ATC LOGON/STATUS|2L": "AAL1080", ...(ac === "NG" ? { "ATC LOGON/STATUS|3L": "N941NN" } : {}),
+    };
+  }
+  // Fields shown before anything is entered: from the aircraft, the GPS, or FMC defaults.
+  const STATIC = ["IDENT|1L", "IDENT|1R", "POS INIT|1R", "POS REF 2/3|1L", "POS REF 2/3|4L", "POS REF 2/3|5L", "PERF INIT|4R", "PROGRESS|4L", "ATC LOGON/STATUS|2L", "ATC LOGON/STATUS|3L"];
+  const fillsOf = (s) => s.fills || (s.key && s.key.lsk && s.page && /enter|set/i.test(s.action) ? [`${s.page}|${s.key.lsk}`] : []);
+  // The CDU's data after the first n steps of the flow.
+  function cduState(F, n) {
+    const fms = st.block === "fms";
+    const ac = fms ? (isMax() ? "MAX" : "NG") : st.opts.perfAc;
+    let rwy = st.block === "change" ? "17R" : st.opts.perfRwy || "17R", speeds = "tps", thrust = "std";
+    const filled = new Set(STATIC);
+    for (let j = 0; j < n && j < F.length; j++) {
+      const s = F[j];
+      for (const k of fillsOf(s)) filled.add(k);
+      if (st.block === "change") {
+        if (s.g === "rc1" && s.label === "EXEC key") { rwy = "17L"; speeds = "none"; }
+        if (s.g === "rcA" && s.label === "TAKEOFF REF data") speeds = "tps";
+        if (s.g === "rcB" && s.label === "TAKEOFF REF data") speeds = "new";
+        if (s.g === "rcC" && s.label === "QRH speeds") speeds = "qrh";
+        if (s.g === "rcC" && /^Thrust rating/.test(s.label)) thrust = "max";
+      }
+    }
+    const vals = flightValues(ac, rwy, speeds, thrust);
+    // Load Closeout and runway change start after a complete preflight: everything is loaded.
+    const all = !fms;
+    return { get: (page, lsk) => { const key = `${ALIAS[page] || page}|${lsk}`; return all || filled.has(key) ? vals[key] || "" : ""; } };
+  }
+  const cellHtml = (label, data) => data ? `<small class="lb">${esc(label)}</small><b class="dv">${esc(data)}</b>` : esc(label);
+
   // A small, read-only screen: what the CDU shows after the step.
-  function miniScreen(page, pad) {
+  function miniScreen(page, pad, state) {
     const L = layoutFor(page);
-    const rows = [0, 1, 2, 3, 4, 5].map((i) => `<div class="scr-row"><span class="lit">${esc(L ? L.L[i] : "")}</span><span class="lit">${esc(L ? L.R[i] : "")}</span></div>`).join("");
+    const rows = [0, 1, 2, 3, 4, 5].map((i) => `<div class="scr-row"><span class="lit">${cellHtml(L ? L.L[i] : "", state ? state.get(page, `${i + 1}L`) : "")}</span><span class="lit">${cellHtml(L ? L.R[i] : "", state ? state.get(page, `${i + 1}R`) : "")}</span></div>`).join("");
     return `<div class="screen mini" aria-hidden="true"><div class="scr-title">${esc(page)}</div>${rows}<div class="scratch${pad ? " msg" : ""}">${esc(pad || "scratchpad")}</div></div>`;
   }
   // What the pilot sees after this step: the step's own result, or the next screen in the flow.
@@ -276,15 +333,17 @@
     const s = F[i], nx = F[i + 1];
     if (s.key && s.key.panel) return s.result ? `<div class="result"><span class="eyebrow">Result</span><p>${esc(s.result)}</p></div>` : "";
     const nxOn = nx && !(nx.key && nx.key.panel) && layoutFor(nx.page);
-    let page = s.resultPage || null, pad = s.resultPad || "";
+    let page = s.resultPage || (fillsOf(s).length && layoutFor(s.page) ? s.page : null), pad = s.resultPad || "";
     if (!page && nxOn && (nx.page !== s.page || (nx.pad && nx.pad !== s.pad))) { page = nx.page; pad = pad || nx.pad || ""; }
-    if (!page && pad) page = s.page;
+    if (!page && (pad || fillsOf(s).length) && layoutFor(s.page)) page = s.page;
     if (!page && !s.result) return "";
-    const text = s.result || `The ${page} page is displayed.`;
-    return `<div class="result"><span class="eyebrow">Result</span><p>${esc(text)}</p>${page && layoutFor(page) ? miniScreen(page, pad) : ""}</div>`;
+    const after = cduState(F, i + 1);
+    const v = page === s.page && s.key && s.key.lsk ? after.get(page, s.key.lsk) : "";
+    const text = s.result || (page !== s.page ? `The ${page} page is displayed.` : v ? `${s.label} now reads ${v}.` : "The page after this step:");
+    return `<div class="result"><span class="eyebrow">Result</span><p>${esc(text)}</p>${page && layoutFor(page) ? miniScreen(page, pad, after) : ""}</div>`;
   }
 
-  function cdu(s) {
+  function cdu(s, state) {
     const k = s.key || {};
     if (k.panel) {
       return `<div class="offcdu"><span class="eyebrow">Not on the CDU</span><b>${esc(k.panel)}</b><span class="chip">${esc(s.action)}</span></div>`;
@@ -299,7 +358,8 @@
       const onL = lsk && lsk.side === "L" && lsk.row === r, onR = lsk && lsk.side === "R" && lsk.row === r;
       const isPrompt = /^(Select|Press)/.test(s.action);
       const txt = (side, base, on) => on ? (layout ? base : side === "L" ? (isPrompt ? "<" : "") + s.label.toUpperCase() : s.label.toUpperCase() + (isPrompt ? ">" : "")) : base;
-      return `<div class="scr-row"><span class="${onL ? "on" : layout ? "lit" : ""}">${esc(txt("L", L, onL))}</span><span class="${onR ? "on" : layout ? "lit" : ""}">${esc(txt("R", R, onR))}</span></div>`;
+      const dL = state ? state.get(s.page, `${r}L`) : "", dR = state ? state.get(s.page, `${r}R`) : "";
+      return `<div class="scr-row"><span class="${onL ? "on" : layout ? "lit" : ""}">${cellHtml(txt("L", L, onL), dL)}</span><span class="${onR ? "on" : layout ? "lit" : ""}">${cellHtml(txt("R", R, onR), dR)}</span></div>`;
     };
     const lskCol = (side) => `<div class="lsks"><div></div>${[1, 2, 3, 4, 5, 6].map((r) => {
       const on = k.lsk && lsk.side === side && lsk.row === r;
@@ -418,7 +478,7 @@
       const groupSteps = F.filter((x) => x.g === s.g);
       const gi = groupSteps.indexOf(s) + 1;
       return `<div class="step">
-        <div>${cdu(s)}</div>
+        <div>${cdu(s, cduState(F, st.i))}</div>
         <div class="instr card">
           <div class="section">${esc(s.group.title)} · ${gi} of ${groupSteps.length}</div>
           <h2>${s.key && s.key.lsk ? `<span class="kb" style="font-size:20px">${esc(s.alt || "[" + s.key.lsk + "]")}</span>` : ""}${esc(s.label)}</h2>

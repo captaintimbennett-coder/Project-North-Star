@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Publish the prototypes to the gh-pages branch (GitHub Pages):
 #   /           B737 Takeoff Guide   (prototypes/b737-takeoff-guide)
-#   /sim-prep/  B737 Sim Prep        (prototypes/b737-sim-prep), only with PUBLISH_SIM_PREP=yes
+#   /sim-prep/  B737 Sim Prep        (prototypes/b737-sim-prep); PUBLISH_SIM_PREP=no leaves it out
 # Run from the repository root on the branch that holds the prototypes.
 set -euo pipefail
 root=$(git rev-parse --show-toplevel)
@@ -17,8 +17,8 @@ fi
 
 find "$out" -mindepth 1 -maxdepth 1 ! -name .git -exec rm -rf {} +
 cp -R "$root/prototypes/b737-takeoff-guide/." "$out/"
-# B737 Sim Prep follows the airline's AOM closely: publish it only when the owner decides to.
-if [ "${PUBLISH_SIM_PREP:-no}" = "yes" ] && [ -d "$root/prototypes/b737-sim-prep" ]; then
+# B737 Sim Prep follows the airline's AOM closely; its owner chose to publish it (Nov 2026).
+if [ "${PUBLISH_SIM_PREP:-yes}" = "yes" ] && [ -d "$root/prototypes/b737-sim-prep" ]; then
   mkdir -p "$out/sim-prep"
   cp -R "$root/prototypes/b737-sim-prep/." "$out/sim-prep/"
 fi
