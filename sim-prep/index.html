@@ -225,7 +225,7 @@
 <script>
 (() => {
   "use strict";
-  const APP_VERSION = "2026-11-07.1"; // keep in step with VERSION in sw.js
+  const APP_VERSION = "2026-11-07.2"; // keep in step with VERSION in sw.js
   const { FLEETS, DEFAULTS, GROUPS, PAGES, TIMING, buildFlow } = window.SimPrep;
   const PERF = window.SimPerf;
   const TAXI = window.SimTaxi;
@@ -388,7 +388,6 @@
       if (!s) return `<h2 class="title">Done</h2><p class="lead">${esc((BLOCKS[st.block] || BLOCKS.fms).done)}</p>`;
       const groupSteps = F.filter((x) => x.g === s.g);
       const gi = groupSteps.indexOf(s) + 1;
-      const done = !!st.done[s.id];
       return `<div class="step">
         <div>${cdu(s)}</div>
         <div class="instr card">
@@ -399,7 +398,6 @@
           ${s.page ? `<p class="where">Page: <b>${esc(s.page)}</b></p>` : ""}
           ${s.caution ? `<p class="caution"><b>Caution:</b> ${esc(s.caution)}</p>` : ""}
           ${(s.notes || []).map((n) => `<p class="note">${esc(n)}</p>`).join("")}
-          <button type="button" class="tick" role="checkbox" data-tick="${s.id}" aria-checked="${done}"><span class="box" aria-hidden="true">${done ? "✓" : ""}</span>Done</button>
           <p class="ref">AOM ${esc(s.ref)} · step ${s.n} of ${F.length}</p>
           ${st.block === "change" && st.opts.rcOpt === "C" && s.g === "rcC" && s.n === F.find((x) => x.g === "rcC").n ? methodCard() : ""}
         </div>
