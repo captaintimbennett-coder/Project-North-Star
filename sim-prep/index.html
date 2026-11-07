@@ -130,6 +130,10 @@
   .scr-row span.on { color: var(--cdu-hot-ink); background: var(--cdu-hot); padding: 1px 3px; border-radius: 2px; font-weight: 700; }
   .scr-row span.lit { color: var(--cdu-text); }
   .scratch { border-top: 1px dashed #26303a; font-size: 10px; color: var(--cdu-dim); text-align: center; align-self: end; padding-top: 3px; }
+  .scratch.msg { font-size: 12px; color: var(--cdu-text); text-align: left; letter-spacing: .3px; }
+  .result { margin-top: 14px; padding: 12px; border-radius: 12px; border: 1.5px solid var(--go); background: var(--go-bg); }
+  .result p { margin: 4px 0 0; font-size: 15px; }
+  .result .screen.mini { margin-top: 10px; min-height: 0; grid-template-rows: 20px repeat(6, 18px) 18px; font-size: 11px; max-width: 360px; }
   .keys { margin-top: 12px; display: grid; gap: 6px; }
   .krow { display: flex; gap: 6px; justify-content: flex-start; }
   .key { flex: 1 1 0; min-width: 0; height: 30px; border-radius: 5px; background: var(--cdu-key); color: var(--cdu-key-ink); border: 1px solid #000; display: grid; place-items: center; text-align: center; font: 700 8.5px/1.05 -apple-system, "Segoe UI", sans-serif; letter-spacing: .2px; padding: 0 2px; }
@@ -152,6 +156,7 @@
   .ov-row .n { color: var(--muted); font-variant-numeric: tabular-nums; font-size: 13px; }
   .ov-row .a { font-weight: 700; font-size: 14px; text-align: right; }
   .kb { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 12px; padding: 1px 6px; border-radius: 6px; background: var(--line); margin-right: 6px; white-space: nowrap; }
+  .instr h2 .kb { white-space: normal; display: inline-block; max-width: 100%; }
 
   /* Practice */
   .q-opts { display: grid; gap: 8px; }
@@ -225,7 +230,7 @@
 <script>
 (() => {
   "use strict";
-  const APP_VERSION = "2026-11-07.2"; // keep in step with VERSION in sw.js
+  const APP_VERSION = "2026-11-07.3"; // keep in step with VERSION in sw.js
   const { FLEETS, DEFAULTS, GROUPS, PAGES, TIMING, buildFlow } = window.SimPrep;
   const PERF = window.SimPerf;
   const TAXI = window.SimTaxi;
@@ -256,14 +261,38 @@
   const ALL_KEYS = new Set(FKEYS.flat().filter(Boolean));
   const keyHtml = (k, hot) => k ? `<div class="key${hot === k ? " hot" : ""}" ${hot === k ? 'aria-label="Press ' + esc(k) + '"' : 'aria-hidden="true"'}>${esc(k).replace(" ", "<br>")}</div>` : `<div class="key ghost"></div>`;
 
+  // MAX ships use the "<page> MAX" layout where one exists (no 27K Bump line on N1 LIMIT).
+  const isMax = () => (st.block === "closeout" || st.block === "change") ? st.opts.perfAc === "MAX" : ["C", "D"].includes(st.opts.fleet);
+  const layoutFor = (page) => (isMax() && PAGES[page + " MAX"]) || PAGES[page] || null;
+
+  // A small, read-only screen: what the CDU shows after the step.
+  function miniScreen(page, pad) {
+    const L = layoutFor(page);
+    const rows = [0, 1, 2, 3, 4, 5].map((i) => `<div class="scr-row"><span class="lit">${esc(L ? L.L[i] : "")}</span><span class="lit">${esc(L ? L.R[i] : "")}</span></div>`).join("");
+    return `<div class="screen mini" aria-hidden="true"><div class="scr-title">${esc(page)}</div>${rows}<div class="scratch${pad ? " msg" : ""}">${esc(pad || "scratchpad")}</div></div>`;
+  }
+  // What the pilot sees after this step: the step's own result, or the next screen in the flow.
+  function resultHtml(F, i) {
+    const s = F[i], nx = F[i + 1];
+    if (s.key && s.key.panel) return s.result ? `<div class="result"><span class="eyebrow">Result</span><p>${esc(s.result)}</p></div>` : "";
+    const nxOn = nx && !(nx.key && nx.key.panel) && layoutFor(nx.page);
+    let page = s.resultPage || null, pad = s.resultPad || "";
+    if (!page && nxOn && (nx.page !== s.page || (nx.pad && nx.pad !== s.pad))) { page = nx.page; pad = pad || nx.pad || ""; }
+    if (!page && pad) page = s.page;
+    if (!page && !s.result) return "";
+    const text = s.result || `The ${page} page is displayed.`;
+    return `<div class="result"><span class="eyebrow">Result</span><p>${esc(text)}</p>${page && layoutFor(page) ? miniScreen(page, pad) : ""}</div>`;
+  }
+
   function cdu(s) {
     const k = s.key || {};
     if (k.panel) {
       return `<div class="offcdu"><span class="eyebrow">Not on the CDU</span><b>${esc(k.panel)}</b><span class="chip">${esc(s.action)}</span></div>`;
     }
-    const lsk = k.lsk ? { side: k.lsk.slice(-1), row: Number(k.lsk[0]) } : null;
-    const known = PAGES[s.page];
-    const layout = known && (!known.fleets || known.fleets.includes(st.opts.fleet)) ? known : null;
+    // lsk: a line select key to press. look: a line to read, with no key to press.
+    const at = k.lsk || k.look;
+    const lsk = at ? { side: at.slice(-1), row: Number(at[0]) } : null;
+    const layout = layoutFor(s.page);
     const ov = s.scr || {};
     const row = (r) => {
       const L = ov[r + "L"] ?? (layout ? layout.L[r - 1] : ""), R = ov[r + "R"] ?? (layout ? layout.R[r - 1] : "");
@@ -273,7 +302,7 @@
       return `<div class="scr-row"><span class="${onL ? "on" : layout ? "lit" : ""}">${esc(txt("L", L, onL))}</span><span class="${onR ? "on" : layout ? "lit" : ""}">${esc(txt("R", R, onR))}</span></div>`;
     };
     const lskCol = (side) => `<div class="lsks"><div></div>${[1, 2, 3, 4, 5, 6].map((r) => {
-      const on = lsk && lsk.side === side && lsk.row === r;
+      const on = k.lsk && lsk.side === side && lsk.row === r;
       return `<div class="lsk${on ? " hot" : ""}" ${on ? `role="img" aria-label="Line select key ${r}${side}"` : 'aria-hidden="true"'}>${on ? `<span class="lsk-n">${r}${side}</span>` : ""}</div>`;
     }).join("")}</div>`;
     const hotKey = k.key && ALL_KEYS.has(k.key) ? k.key : null;
@@ -281,7 +310,7 @@
     const alpha = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
     return `<div class="cdu" aria-label="CDU">
       <div class="cdu-top">${lskCol("L")}
-        <div class="screen"><div class="scr-title">${esc(s.page || "")}</div>${[1, 2, 3, 4, 5, 6].map(row).join("")}<div class="scratch">scratchpad</div></div>
+        <div class="screen"><div class="scr-title">${esc(s.page || "")}</div>${[1, 2, 3, 4, 5, 6].map(row).join("")}<div class="scratch${s.pad ? " msg" : ""}">${esc(s.pad || "scratchpad")}</div></div>
       ${lskCol("R")}</div>
       <div class="keys">${FKEYS.map((r) => `<div class="krow">${r.map((x) => keyHtml(x, hotKey)).join("")}</div>`).join("")}</div>
       ${missing}
@@ -398,6 +427,7 @@
           ${s.page ? `<p class="where">Page: <b>${esc(s.page)}</b></p>` : ""}
           ${s.caution ? `<p class="caution"><b>Caution:</b> ${esc(s.caution)}</p>` : ""}
           ${(s.notes || []).map((n) => `<p class="note">${esc(n)}</p>`).join("")}
+          ${resultHtml(F, st.i)}
           <p class="ref">AOM ${esc(s.ref)} · step ${s.n} of ${F.length}</p>
           ${st.block === "change" && st.opts.rcOpt === "C" && s.g === "rcC" && s.n === F.find((x) => x.g === "rcC").n ? methodCard() : ""}
         </div>

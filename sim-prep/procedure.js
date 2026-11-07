@@ -29,11 +29,11 @@
     { id: "init", title: "Initial data", ref: "3-19" },
     { id: "posinit", title: "POS INIT", ref: "3-20" },
     { id: "acReq", title: "Request the uplink", ref: "3-21", when: (o) => o.source === "ACARS" },
-    { id: "acRte", title: "When ROUTE 1 UPLINK is displayed", ref: "3-21", when: (o) => o.source === "ACARS" },
-    { id: "acWind", title: "When CRZ WIND UPLINK READY is displayed", ref: "3-22", when: (o) => o.source === "ACARS" },
-    { id: "acFcst", title: "When FORECASTS UPLINK READY is displayed", ref: "3-22", when: (o) => o.source === "ACARS" && o.forecastWinds },
-    { id: "acPerf", title: "When PERF INIT UPLINK READY is displayed", ref: "3-22", when: (o) => o.source === "ACARS" },
-    { id: "acTo", title: "When TAKEOFF DATA UPLINK is displayed", ref: "3-22", when: (o) => o.source === "ACARS" && o.toData },
+    { id: "acRte", title: "When ROUTE 1 UPLINK is displayed", ref: "3-21", pad: "ROUTE 1 UPLINK READY", when: (o) => o.source === "ACARS" },
+    { id: "acWind", title: "When CRZ WIND UPLINK READY is displayed", ref: "3-22", pad: "CRZ WIND UPLINK READY", when: (o) => o.source === "ACARS" },
+    { id: "acFcst", title: "When FORECASTS UPLINK READY is displayed", ref: "3-22", pad: "FORECASTS UPLINK READY", when: (o) => o.source === "ACARS" && o.forecastWinds },
+    { id: "acPerf", title: "When PERF INIT UPLINK READY is displayed", ref: "3-22", pad: "PERF INIT UPLINK READY", when: (o) => o.source === "ACARS" },
+    { id: "acTo", title: "When TAKEOFF DATA UPLINK is displayed", ref: "3-22", pad: "TAKEOFF DATA UPLINK", when: (o) => o.source === "ACARS" && o.toData },
     { id: "acToReq", title: "Takeoff data not available: request by ACARS", ref: "3-24", when: (o) => o.source === "ACARS" && !o.toData },
     { id: "cpdlc", title: "CPDLC", ref: "3-24", when: (o) => o.source === "ACARS" && o.cpdlc },
     { id: "mRte", title: "RTE", ref: "3-25", when: (o) => o.source === "MANUAL" },
@@ -52,7 +52,7 @@
   // pictures of the current CDU). Only labels and prompts are drawn, never flight data.
   // Prompts that appear only at some moments (<LOAD, <REJECT, STEP>) come from the
   // step's own `scr` override, e.g. scr: { "6L": "<LOAD" }.
-  // `fleets` limits a layout to the ship numbers it was pictured on.
+  // "<page> MAX" is used instead on MAX ships (no 27K Bump line).
   const PAGES = {
     "IDENT": {
       L: ["MODEL", "NAV DATA", "", "OP PROGRAM", "", "<INDEX"],
@@ -73,6 +73,22 @@
     "DES FORECASTS": {
       L: ["TRANS LVL", "", "", "", "", ""],
       R: ["TAI ON/OFF", "", "", "", "", "LOAD>"],
+    },
+    "ACT RTE 1": {
+      L: ["ORIGIN", "CO ROUTE", "RUNWAY", "", "<ALTN DEST", "<RTE 2"],
+      R: ["DEST", "FLT NO", "FLT PLAN REQUEST>", "", "RTE COPY>", "TAKEOFF>"],
+    },
+    "DEPARTURES": {
+      L: ["SID", "SID", "SID", "SID", "SID", "<INDEX"],
+      R: ["RUNWAY", "RUNWAY", "RUNWAY", "RUNWAY", "RUNWAY", "ROUTE>"],
+    },
+    "CLB": {
+      L: ["CRZ ALT", "TGT SPD", "SPD REST", "", "<MAX RATE", "<MAX ANGLE"],
+      R: ["AT", "TO", "", "CLB N1", "", "RTA>"],
+    },
+    "PROGRESS": {
+      L: ["FROM", "NEXT WPT", "WPT", "DEST  DTG", "TO T/C", "WIND"],
+      R: ["ALT  ATA  FUEL", "DTG  ETA  FUEL", "", "ETA  FUEL", "FUEL QTY", "NAV STATUS>"],
     },
     "INIT/REF INDEX": {
       L: ["<IDENT", "<POS", "<PERF", "<TAKEOFF", "<APPROACH", "<OFFSET"],
@@ -98,8 +114,11 @@
       L: ["GW/CRZ CG", "FUEL", "ZFW", "RESERVES", "COST INDEX", "<INDEX"],
       R: ["TRIP/CRZ ALT", "CRZ WIND", "T/C OAT", "TRANS ALT", "PERF INIT REQUEST>", "N1 LIMIT>"],
     },
+    "N1 LIMIT MAX": {
+      L: ["SEL/OAT", "<TO", "<TO-1", "<TO-2", "", "<PERF INIT"],
+      R: ["RED N1", "CLB>", "CLB-1>", "CLB-2>", "", "TAKEOFF>"],
+    },
     "N1 LIMIT": {
-      fleets: ["A", "B"],
       L: ["SEL/OAT", "<TO", "<TO-1", "<TO-2", "<TO-B", "<PERF INIT"],
       R: ["RED N1", "CLB>", "CLB-1>", "CLB-2>", "", "TAKEOFF>"],
     },
@@ -148,7 +167,7 @@
       notes: ["ON DC lights: on, then off.", "ALIGN lights: on.", "Recommend full IRS alignment before each flight. If time does not allow a full alignment, see 21j.1.2 IRS Fast Realignment.", "The UNABLE REQD NAV PERF-RNP message may show until IRS alignment is complete."] },
 
     // --- Initial data (3-19, 3-20)
-    { g: "init", key: { key: "INIT REF" }, label: "INIT/REF key", action: "Press" },
+    { g: "init", page: "MENU", key: { key: "INIT REF" }, label: "INIT/REF key", action: "Press", notes: ["Whatever page is showing, INIT REF brings up the initialization pages."] },
     { g: "init", page: "IDENT", key: { lsk: "6L" }, label: "Index", action: "Select" },
     { g: "init", page: "INIT/REF INDEX", key: { lsk: "1L" }, label: "IDENT", action: "Select" },
     { g: "init", page: "IDENT", key: { lsk: "1L" }, label: "MODEL", action: "Ensure correct",
@@ -163,55 +182,55 @@
     // --- POS INIT (3-20)
     { g: "posinit", page: "POS INIT", key: { lsk: "5L" }, label: "Time", action: "Ensure correct", when: (o, f) => !f.hybrid },
     { g: "posinit", page: "POS INIT", key: { key: "NEXT PAGE" }, label: "NEXT PAGE", action: "Press", when: (o, f) => !f.hybrid },
-    { g: "posinit", page: "POS REF 2/3", key: { lsk: "4L" }, label: "GPS L or R", action: "Select", alt: "[4L] or [5L]",
+    { g: "posinit", page: "POS REF 2/3", key: { lsk: "4L" }, resultPage: "POS REF 2/3", resultPad: "N39°29.9 W119°46.1", result: "The GPS position is copied into the scratchpad (example: Reno).", label: "GPS L or R", action: "Select", alt: "[4L] or [5L]",
       notes: ["Use GPS position, if available, otherwise see Manual Alignment.", "Selecting GPS L [4L] or GPS R [5L] copies that GPS position into the scratchpad. The next two steps paste it into SET IRS POS on POS INIT."], when: (o, f) => !f.hybrid },
-    { g: "posinit", page: "POS REF 2/3", key: { key: "PREV PAGE" }, label: "PREV PAGE", action: "Press", notes: ["Back to POS INIT, with the GPS position still in the scratchpad."], when: (o, f) => !f.hybrid },
-    { g: "posinit", page: "POS INIT", key: { lsk: "4R" }, label: "IRS POS", action: "Set", notes: ["Press [4R] to put the scratchpad GPS position into SET IRS POS."], when: (o, f) => !f.hybrid },
+    { g: "posinit", page: "POS REF 2/3", key: { key: "PREV PAGE" }, pad: "N39°29.9 W119°46.1", resultPage: "POS INIT", resultPad: "N39°29.9 W119°46.1", result: "Back on POS INIT with the position still in the scratchpad.", label: "PREV PAGE", action: "Press", notes: ["Back to POS INIT, with the GPS position still in the scratchpad."], when: (o, f) => !f.hybrid },
+    { g: "posinit", page: "POS INIT", key: { lsk: "4R" }, pad: "N39°29.9 W119°46.1", result: "The position moves into SET IRS POS and the scratchpad clears. The IRS finishes aligning.", label: "IRS POS", action: "Set", notes: ["Press [4R] to put the scratchpad GPS position into SET IRS POS."], when: (o, f) => !f.hybrid },
     { g: "posinit", page: "POS INIT", key: null, label: "Present position", action: "Auto-populated",
       notes: ["3RH–3VR are equipped with a Hybrid GPS IRS and present position is auto-populated."], when: (o, f) => f.hybrid },
 
     // --- ACARS: request (3-21)
     { g: "acReq", key: { key: "RTE" }, label: "RTE key", action: "Press" },
-    { g: "acReq", page: "RTE", key: { lsk: "3R" }, label: "FLT PLAN REQUEST", action: "Select",
+    { g: "acReq", page: "RTE", key: { lsk: "3R" }, result: "The request is sent. When the flight plan arrives, ROUTE 1 UPLINK READY shows in the scratchpad.", label: "FLT PLAN REQUEST", action: "Select",
       notes: ["Request will be sent for flight plan, cruise winds, descent forecast winds, performance initialization, and takeoff data.", "The next leg flight information is available for upload 8 minutes after the IN event is sent. Prior to this time, either the current segment or nothing at all would occur.", "Verify FLT NO. is as shown on flight plan header.", "Flight 13 is used by maintenance for towing and taxiing."] },
 
     // --- ACARS: route (3-21)
-    { g: "acRte", page: "RTE", key: { lsk: "4L" }, scr: { "4L": "<LOAD" }, label: "LOAD", action: "Select" },
+    { g: "acRte", page: "RTE", key: { lsk: "4L" }, scr: { "4L": "<LOAD" }, result: "ORIGIN, DEST, FLT NO and RUNWAY fill in on RTE 1.", label: "LOAD", action: "Select" },
     { g: "acRte", key: { key: "DEP ARR" }, label: "DEP/ARR key", action: "Press" },
     { g: "acRte", page: "DEP/ARR INDEX", key: { lsk: "1L" }, label: "DEP", action: "Select", notes: ["Select appropriate SIDS, TRANS and RUNWAYS, as desired."] },
     { g: "acRte", key: { key: "DEP ARR" }, label: "DEP/ARR key", action: "Press" },
     { g: "acRte", page: "DEP/ARR INDEX", key: { lsk: "2R" }, label: "ARR", action: "Select", notes: ["Select appropriate STARS / TRANS and APPROACHES / TRANS, as desired."] },
     { g: "acRte", page: "RTE", key: { lsk: "6R" }, label: "ACTIVATE", action: "Select" },
-    { g: "acRte", key: { key: "EXEC" }, label: "EXEC key", action: "Press", notes: ["Follow the prompts as they appear."] },
+    { g: "acRte", key: { key: "EXEC" }, result: "The EXEC light goes out and the route is active: the title reads ACT RTE 1.", resultPage: "ACT RTE 1", label: "EXEC key", action: "Press", notes: ["Follow the prompts as they appear."] },
 
     // --- ACARS: cruise winds (3-22)
     { g: "acWind", key: { key: "LEGS" }, label: "LEGS key", action: "Press" },
     { g: "acWind", page: "LEGS", key: { lsk: "6R" }, label: "RTE DATA", action: "Select" },
-    { g: "acWind", page: "RTE DATA", key: { lsk: "6L" }, label: "LOAD", action: "Select",
+    { g: "acWind", page: "RTE DATA", key: { lsk: "6L" }, result: "Cruise winds fill in by waypoint (up to 1 minute). <ERASE appears at 6L until you EXEC.", resultPad: "CRZ WINDS UPLINK", label: "LOAD", action: "Select",
       notes: ["May take up to 1 minute. DECS uploads the winds based upon the highest altitude on the flight plan. If the crew desires to have the winds for a different altitude loaded, request a WINDS REQUEST on the RTE DATA page."] },
-    { g: "acWind", key: { key: "EXEC" }, label: "EXEC key", action: "Press" },
+    { g: "acWind", key: { key: "EXEC" }, result: "Winds are executed; 6L changes back to <LEGS.", label: "EXEC key", action: "Press" },
     { g: "acWind", key: { key: "LEGS" }, label: "LEGS key", action: "Press" },
     { g: "acWind", page: "LEGS", key: null, label: "RNP for the departure", action: "Verify" },
 
     // --- ACARS: descent forecast winds, if desired (3-22)
     { g: "acFcst", key: { key: "VNAV" }, label: "VNAV key", action: "Press", notes: ["The CLB page is displayed."] },
-    { g: "acFcst", key: { key: "PREV PAGE" }, label: "PREV PAGE key", action: "Select" },
+    { g: "acFcst", page: "CLB", key: { key: "PREV PAGE" }, label: "PREV PAGE key", action: "Select", notes: ["FORECASTS UPLINK READY stays in the scratchpad."] },
     { g: "acFcst", page: "DES", key: { lsk: "6L" }, label: "FORECAST", action: "Select" },
-    { g: "acFcst", page: "DES FORECASTS", key: { lsk: "6R" }, label: "LOAD", action: "Select" },
+    { g: "acFcst", page: "DES FORECASTS", key: { lsk: "6R" }, result: "Descent forecast winds load into the forecast table.", label: "LOAD", action: "Select" },
 
     // --- ACARS: performance (3-22)
     { g: "acPerf", key: { key: "INIT REF" }, label: "INIT REF key", action: "Press" },
     { g: "acPerf", page: "POS INIT", key: { lsk: "6L" }, label: "INDEX", action: "Select" },
     { g: "acPerf", page: "INIT/REF INDEX", key: { lsk: "3L" }, label: "PERF", action: "Select" },
     { g: "acPerf", page: "PERF INIT", key: { lsk: "4L" }, label: "RESERVES", action: "Enter", notes: [N_RSV] },
-    { g: "acPerf", page: "PERF INIT", key: { lsk: "6L" }, scr: { "6L": "<LOAD" }, label: "LOAD", action: "Select" },
+    { g: "acPerf", page: "PERF INIT", key: { lsk: "6L" }, scr: { "6L": "<LOAD" }, result: "ZFW, fuel, cost index and cruise altitude fill in; the page shows MOD until you EXEC.", label: "LOAD", action: "Select" },
     { g: "acPerf", page: "PERF INIT", key: null, label: "Other entries", action: "Ensure correct" },
-    { g: "acPerf", key: { key: "EXEC" }, label: "EXEC key", action: "Press" },
+    { g: "acPerf", key: { key: "EXEC" }, result: "PERF INIT is executed (ACT PERF INIT).", label: "EXEC key", action: "Press" },
 
     // --- ACARS: takeoff data uplinked (3-22, 3-23)
     { g: "acTo", page: "PERF INIT", key: { lsk: "6R" }, label: "N1 LIMIT", action: "Select", notes: ["Verify OAT is reasonable. Specifically ± value."] },
     { g: "acTo", page: "N1 LIMIT", key: { lsk: "6R" }, label: "TAKEOFF", action: "Select" },
-    { g: "acTo", page: "TAKEOFF REF 1/2", key: { lsk: "5R" }, scr: { "5L": "<REJECT", "5R": "ACCEPT>" }, label: "TAKEOFF REF data", action: "ACCEPT or REJECT", alt: "[5R] or [5L]" },
+    { g: "acTo", page: "TAKEOFF REF 1/2", key: { lsk: "5R" }, scr: { "5L": "<REJECT", "5R": "ACCEPT>" }, result: "Flaps, V1, VR and V2 load from the TPS; the ACCEPT/REJECT prompts go away.", label: "TAKEOFF REF data", action: "ACCEPT or REJECT", alt: "[5R] or [5L]" },
     { g: "acTo", page: "TAKEOFF REF 1/2", key: null, label: "Flap setting / thrust", action: "Ensure loaded" },
     { g: "acTo", page: "TAKEOFF REF 1/2", key: { panel: "MCP speed window" }, label: "V2 speed", action: "Note and enter in MCP" },
     { g: "acTo", key: { panel: "Stabilizer trim" }, label: "Trim", action: "Set" },
@@ -227,7 +246,7 @@
     { g: "acToReq", page: "ACARS-INDEX", key: { lsk: "4L" }, label: "T/O DATA", action: "Select (if required)" },
     { g: "acToReq", page: "ACARS TAKEOFF DATA", key: null, label: "ACARS TAKEOFF DATA page", action: "Enter",
       notes: ["Fill in appropriate fields to request new TPS (see TPS Request).", "If the runway does not have a L, C or R designation the third digit must remain blank (e.g. 33_X). Enter a space (SP)X."] },
-    { g: "acToReq", page: "ACARS TAKEOFF DATA", key: { lsk: "5R" }, label: "SEND", action: "Press",
+    { g: "acToReq", page: "ACARS TAKEOFF DATA", key: { lsk: "5R" }, result: "The TPS prints. Then enter the data from the new TPS on N1 LIMIT and TAKEOFF REF.", label: "SEND", action: "Press",
       notes: ["If the TEMP field [2L] is left blank, the TPS Planned Temp will be used."] },
     { g: "acToReq", key: { key: "N1 LIMIT" }, label: "N1 LIMIT key", action: "Select" },
     { g: "acToReq", page: "N1 LIMIT", key: { lsk: "2L" }, label: "Thrust rating", action: "Select", alt: "[2L], [3L], [4L] or [5L]" },
@@ -246,7 +265,7 @@
       notes: ["Copied from ACT RTE 1: three letter airline identifier plus the flight number, no leading zeros (e.g., AAL1080)."] },
     { g: "cpdlc", page: "ATC LOGON/STATUS", key: { lsk: "3L" }, label: "TAIL NO", action: "Verify" },
     { g: "cpdlc", page: "ATC LOGON/STATUS", key: { lsk: "4L" }, label: "MAX U/L DELAY", action: "Leave blank" },
-    { g: "cpdlc", page: "ATC LOGON/STATUS", key: { lsk: "1R" }, label: "LOGON SEND", action: "Select", notes: ["DATA LINK READY is displayed."] },
+    { g: "cpdlc", page: "ATC LOGON/STATUS", key: { lsk: "1R" }, result: "DATA LINK READY is displayed.", label: "LOGON SEND", action: "Select" },
 
     // --- Manual: RTE (3-25)
     { g: "mRte", key: { key: "RTE" }, label: "RTE key", action: "Press" },
@@ -260,7 +279,7 @@
     { g: "mRte", key: { key: "DEP ARR" }, label: "DEP/ARR key", action: "Press" },
     { g: "mRte", page: "DEP/ARR INDEX", key: { lsk: "2R" }, label: "ARR", action: "Select", notes: ["Select STARS/TRANS and APPROACHES/TRANS or RUNWAYS as required."] },
     { g: "mRte", page: "RTE", key: { lsk: "6R" }, label: "ACTIVATE", action: "Select" },
-    { g: "mRte", key: { key: "EXEC" }, label: "EXEC key", action: "Press" },
+    { g: "mRte", key: { key: "EXEC" }, result: "The route is active: the title reads ACT RTE 1, and 6R offers PERF INIT>.", label: "EXEC key", action: "Press" },
 
     // --- Manual: PERF INIT (3-25, 3-26)
     { g: "mPerf", page: "RTE", key: { lsk: "6R" }, scr: { "6R": "PERF INIT>" }, label: "PERF INIT", action: "Select" },
@@ -272,7 +291,7 @@
     { g: "mPerf", page: "PERF INIT", key: { lsk: "5L" }, label: "COST INDEX", action: "Enter" },
     { g: "mPerf", page: "PERF INIT", key: { lsk: "1R" }, label: "CRZ ALT", action: "Enter" },
     { g: "mPerf", page: "PERF INIT", key: { lsk: "4R" }, label: "TRANS ALT", action: "Verify" },
-    { g: "mPerf", key: { key: "EXEC" }, label: "EXEC key", action: "Press" },
+    { g: "mPerf", key: { key: "EXEC" }, result: "PERF INIT is executed (ACT PERF INIT).", label: "EXEC key", action: "Press" },
 
     // --- Manual: N1 LIMIT (3-26)
     { g: "mN1", page: "PERF INIT", key: { lsk: "6R" }, label: "N1 LIMIT", action: "Select" },
@@ -294,7 +313,7 @@
     // --- RNAV SID (3-27)
     { g: "rnav", key: { key: "DEP ARR" }, label: "DEP/ARR key", action: "Press",
       notes: ["Use when an RNAV SID is assigned, or the RNAV SID or transition is changed.", "RNAV SIDs must be loaded from a current navigation database; they may not be manually constructed (“built”) on the LEGS page. Manual modifications may be made as necessary to comply with ATC clearances (e.g., “direct to” routings).", "For an RNAV SID, a flight director must be operative and the LNAV roll mode must be used for departure."] },
-    { g: "rnav", page: "DEPARTURES", key: null, label: "DEPARTURES page", action: "Select" },
+    { g: "rnav", page: "DEP/ARR INDEX", key: { lsk: "1L" }, label: "DEP", action: "Select", notes: ["Opens the DEPARTURES page."] },
     { g: "rnav", page: "DEPARTURES", key: null, label: "RUNWAY", action: "Select" },
     { g: "rnav", page: "DEPARTURES", key: null, label: "SID", action: "Select" },
     { g: "rnav", page: "DEPARTURES", key: null, label: "TRANSITION", action: "Select (if required)" },
@@ -318,7 +337,7 @@
     { g: "eosid", key: { panel: "EFIS control panel" }, label: "ND mode selector", action: "MAP" },
 
     // --- Route verification (3-29)
-    { g: "rteV", page: "RTE 1", key: null, label: "Route on RTE 1 vs ATC clearance / flight plan", action: "Verify",
+    { g: "rteV", page: "ACT RTE 1", key: { look: "2R" }, label: "Route on RTE 1 vs ATC clearance / flight plan", action: "Verify",
       notes: ["One pilot reads aloud the route on the CDU, while the other verifies it against the flight plan and current ATC departure clearance.", "Working from the FMC display to the ATC departure clearance lessens the risk of seeing what is expected versus what is actually displayed.", "Ensure FLT NO on ACT RTE 1 page 1 is the three letter airline identifier plus the flight number with no leading zeros (e.g., AAL50 or AAL50P). It is copied to the ATC LOGON/STATUS page.", "ADS-B call sign mismatch: if ATC says the flight number they see does not match the one filed, correct the flight number and file an ASAP (14 CFR 91.227(d)(8)).", "If no ATC departure clearance yet: use the flight plan/dispatch release. When the clearance arrives, the first officer verifies the FMC routing; if it differs, update the FMC and verify the changed portion with both pilots (parking brake set)."] },
 
     // --- Legs verification (3-30)
@@ -327,10 +346,12 @@
     { g: "legsV", key: { key: "LEGS" }, label: "LEGS key", action: "Press" },
     { g: "legsV", page: "LEGS", key: { lsk: "6R" }, scr: { "6R": "STEP>" }, label: "STEP", action: "Step through",
       notes: ["One pilot reads each waypoint from the ND, while the other checks it against the departure procedure, flight plan or ATC departure clearance.", "Confirm that each ND waypoint is connected with a solid magenta line."] },
-    { g: "legsV", key: { key: "PROG" }, page: "PROG 1", label: "Total distance (DTG) at [4L]", action: "Check", notes: ["Confirm total distance to destination is reasonable with flight plan distance."] },
+    { g: "legsV", key: { key: "PROG" }, label: "PROG key", action: "Press" },
+    { g: "legsV", page: "PROGRESS", key: { look: "4L" }, label: "Total distance (DTG) at [4L]", action: "Check", notes: ["Confirm total distance to destination is reasonable with flight plan distance."] },
     { g: "legsV", key: { panel: "EFIS control panel" }, label: "ND mode selector", action: "MAP" },
     { g: "legsV", key: { panel: "EFIS control panel" }, label: "ND range selector", action: "As desired" },
-    { g: "legsV", key: null, label: "RTE COPY", action: "Press", notes: ["Copy the entire active route into RTE 2 or utilize as needed."] },
+    { g: "legsV", key: { key: "RTE" }, label: "RTE key", action: "Press" },
+    { g: "legsV", page: "ACT RTE 1", key: { lsk: "5R" }, result: "RTE COPY COMPLETE shows at 5R: RTE 2 now holds the active route.", label: "RTE COPY", action: "Press", notes: ["Copy the entire active route into RTE 2 or utilize as needed."] },
 
     // --- Performance verification (3-32)
     { g: "perfV", page: "PERF INIT", key: null, label: "ZFW · Reserves · Cost Index · CRZ altitude · Transition altitude", action: "Verify",
@@ -338,7 +359,7 @@
     { g: "perfV", page: "N1 LIMIT", key: null, label: "Assumed temperature · OAT · Proper engine thrust rating · Climb thrust", action: "Verify" },
     { g: "perfV", page: "TAKEOFF REF 1/2", key: null, label: "Flap setting · Correct runway · Takeoff V-speeds", action: "Verify" },
     { g: "perfV", page: "TAKEOFF REF 2/2", key: null, label: "Acceleration height · Thrust reduction altitude · Engine-out acceleration height", action: "Verify", notes: N_ALT },
-    { g: "perfV", key: null, label: "Performance review", action: "Evaluate",
+    { g: "perfV", key: { panel: "Both pilots: ATIS and TPS" }, label: "Performance review", action: "Evaluate",
       notes: ["Evaluate ATIS and TPS for wind, runway conditions, temperature, maximum weights, flaps, and thrust to verify they are valid and compatible for existing conditions, aircraft configuration, and runway or intersection to be used."] },
   ];
 
@@ -347,11 +368,16 @@
     const o = { ...DEFAULTS, ...opts };
     const f = FLEETS[o.fleet] || FLEETS.A;
     const out = [];
+    let last = null;
     for (const g of GROUPS) {
       if (g.when && !g.when(o)) continue;
       for (const s of STEPS) {
         if (s.g !== g.id || (s.when && !s.when(o, f))) continue;
-        out.push({ ...s, group: g, ref: g.ref, value: typeof s.value === "function" ? s.value(o, f) : s.value || "" });
+        // A CDU key is pressed on whatever page is showing: draw that page.
+        const page = s.page || (s.key && s.key.key ? last : undefined);
+        const pad = s.pad || (g.pad && !out.some((x) => x.g === g.id) ? g.pad : "");
+        if (page) last = page;
+        out.push({ ...s, page, pad, group: g, ref: g.ref, value: typeof s.value === "function" ? s.value(o, f) : s.value || "" });
       }
     }
     return out.map((s, i) => ({ ...s, n: i + 1, id: `${s.g}-${i}` }));
