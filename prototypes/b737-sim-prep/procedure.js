@@ -59,6 +59,7 @@
       R: ["ENG RATING", "ACTIVE", "", "", "", "POS INIT>"],
     },
     "POS INIT": {
+      title: "POS INIT 1/3",
       L: ["", "REF AIRPORT", "GATE", "", "GMT-MON/DY", "<INDEX"],
       R: ["LAST POS", "", "", "SET IRS POS", "", "ROUTE>"],
     },
@@ -181,7 +182,8 @@
 
     // --- POS INIT (3-20)
     { g: "posinit", page: "POS INIT", key: { lsk: "5L" }, label: "Time", action: "Ensure correct", when: (o, f) => !f.hybrid },
-    { g: "posinit", page: "POS INIT", key: { key: "NEXT PAGE" }, label: "NEXT PAGE", action: "Press", when: (o, f) => !f.hybrid },
+    { g: "posinit", page: "POS INIT", key: { key: "NEXT PAGE" }, label: "NEXT PAGE", action: "Press",
+      notes: ["How the IRS position is set, in four moves: (1) NEXT PAGE to POS REF 2/3. (2) Select GPS L [4L] (or GPS R [5L]): its position copies into the scratchpad. (3) PREV PAGE back to POS INIT 1/3. (4) SET IRS POS [4R]: the scratchpad position goes in."], when: (o, f) => !f.hybrid },
     { g: "posinit", page: "POS REF 2/3", key: { lsk: "4L" }, resultPage: "POS REF 2/3", resultPad: "N39°29.9 W119°46.1", result: "The GPS position is copied into the scratchpad (example: Reno).", label: "GPS L or R", action: "Select", alt: "[4L] or [5L]",
       notes: ["Use GPS position, if available, otherwise see Manual Alignment.", "Selecting GPS L [4L] or GPS R [5L] copies that GPS position into the scratchpad. The next two steps paste it into SET IRS POS on POS INIT."], when: (o, f) => !f.hybrid },
     { g: "posinit", page: "POS REF 2/3", key: { key: "PREV PAGE" }, pad: "N39°29.9 W119°46.1", resultPage: "POS INIT", resultPad: "N39°29.9 W119°46.1", result: "Back on POS INIT with the position still in the scratchpad.", label: "PREV PAGE", action: "Press", notes: ["Back to POS INIT, with the GPS position still in the scratchpad."], when: (o, f) => !f.hybrid },
