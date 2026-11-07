@@ -1,6 +1,6 @@
 // Offline support for the B737 Takeoff Guide.
 // Bump VERSION whenever any app file changes so devices pick up the update.
-const VERSION = "2026-10-07.3";
+const VERSION = "2026-11-06.1";
 const CACHE = `takeoff-guide-${VERSION}`;
 const FILES = [
   "./",
@@ -19,7 +19,8 @@ self.addEventListener("install", (event) => {
 self.addEventListener("activate", (event) => {
   event.waitUntil(
     caches.keys()
-      .then((keys) => Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k))))
+      // Remove only this app's old copies; other apps on the same site keep theirs.
+      .then((keys) => Promise.all(keys.filter((k) => k.startsWith("takeoff-guide-") && k !== CACHE).map((k) => caches.delete(k))))
       .then(() => self.clients.claim())
   );
 });
@@ -29,6 +30,10 @@ self.addEventListener("activate", (event) => {
 self.addEventListener("fetch", (event) => {
   const req = event.request;
   if (req.method !== "GET") return;
+  // Only this app's own pages: another app published in a sub-folder (e.g. sim-prep/) has its own worker.
+  const scope = new URL(self.registration.scope);
+  const path = new URL(req.url).pathname;
+  if (path !== scope.pathname && path !== scope.pathname + "index.html" && !FILES.some((f) => new URL(f, scope).pathname === path)) return;
   if (req.mode === "navigate") {
     event.respondWith(
       Promise.race([
