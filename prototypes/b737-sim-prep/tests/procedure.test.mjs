@@ -113,3 +113,8 @@ test("every step cites an AOM page and has a label and action", () => {
   }
   assert.ok(GROUPS.every((g) => /^3-\d\d$/.test(g.ref)));
 });
+
+test("no blank CDU: every line select key step shows a drawn page", () => {
+  const { STEPS, PAGES } = ctx.SimPrep;
+  for (const s of STEPS) if (s.key && s.key.lsk) assert.ok(PAGES[s.page], `${s.g} ${s.key.lsk} ${s.label} has no drawn page`);
+});

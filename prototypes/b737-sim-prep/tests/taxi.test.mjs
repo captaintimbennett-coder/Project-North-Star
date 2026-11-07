@@ -91,3 +91,7 @@ test("briefing numbers come from the right TPS line", () => {
   assert.match(say("changeC", "NG", "17R", "Weights"), /climb limit 166\.5, adjusted runway limit 151\.8 and MTOW 150\.6/);
   assert.match(say("changeC", "NG", "17R", "Winds"), /tailwind/);
 });
+
+test("no blank CDU in the closeout and runway change blocks", () => {
+  for (const s of [...ctx.SimTaxi.CO_STEPS, ...ctx.SimTaxi.RC_STEPS]) if (s.key && s.key.lsk) assert.ok(PAGES[s.page], `${s.g} ${s.key.lsk} ${s.label}`);
+});

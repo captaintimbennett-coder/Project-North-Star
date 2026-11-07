@@ -114,7 +114,7 @@
     { g: "rcB", page: "ACARS TAKEOFF DATA", key: { lsk: "5R" }, label: "SEND", action: "Press",
       notes: ["A TPS requested by ACARS prints only for the requested runway.", "“UNABLE TO COMPUTE TPS” means the request failed on performance limits: review every result, not just the items you asked for."] },
     { g: "rcB", key: { key: "INIT REF" }, label: "INIT/REF", action: "Press" },
-    { g: "rcB", key: { lsk: "6L" }, label: "INDEX", action: "Select" },
+    { g: "rcB", page: "TAKEOFF REF 1/2", key: { lsk: "6L" }, label: "INDEX", action: "Select" },
     { g: "rcB", page: "INIT/REF INDEX", key: { lsk: "4L" }, label: "TAKEOFF", action: "Select" },
     { g: "rcB", page: "TAKEOFF REF 1/2", key: { lsk: "5R" }, scr: { "5L": "<REJECT", "5R": "ACCEPT>" }, label: "TAKEOFF REF data", action: "Accept or Reject", alt: "[5R] or [5L]",
       caution: "Requested TPS data is uplinked to the FMC and must be ACCEPTED or REJECTED. Failure to do so may cause a buffer overflow of the FMC memory." },

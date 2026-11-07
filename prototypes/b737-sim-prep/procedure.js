@@ -62,6 +62,18 @@
       L: ["", "REF AIRPORT", "GATE", "", "GMT-MON/DY", "<INDEX"],
       R: ["LAST POS", "", "", "SET IRS POS", "", "ROUTE>"],
     },
+    "POS REF 2/3": {
+      L: ["FMC POS", "IRS L", "IRS R", "GPS L", "GPS R", "RADIO"],
+      R: ["GS", "GS", "GS", "GS", "GS", ""],
+    },
+    "DES": {
+      L: ["", "", "", "", "", "<FORECAST"],
+      R: ["", "", "", "", "", ""],
+    },
+    "DES FORECASTS": {
+      L: ["TRANS LVL", "", "", "", "", ""],
+      R: ["TAI ON/OFF", "", "", "", "", "LOAD>"],
+    },
     "INIT/REF INDEX": {
       L: ["<IDENT", "<POS", "<PERF", "<TAKEOFF", "<APPROACH", "<OFFSET"],
       R: ["NAV DATA>", "MSG RECALL>", "ALTN DEST>", "", "SEL CONFIG>", "MAINT>"],
@@ -137,7 +149,7 @@
 
     // --- Initial data (3-19, 3-20)
     { g: "init", key: { key: "INIT REF" }, label: "INIT/REF key", action: "Press" },
-    { g: "init", key: { lsk: "6L" }, label: "Index", action: "Select" },
+    { g: "init", page: "IDENT", key: { lsk: "6L" }, label: "Index", action: "Select" },
     { g: "init", page: "INIT/REF INDEX", key: { lsk: "1L" }, label: "IDENT", action: "Select" },
     { g: "init", page: "IDENT", key: { lsk: "1L" }, label: "MODEL", action: "Ensure correct",
       value: (o, f) => f.model, notes: ["3AA–3LB: 737-800W · 3LC–3PX: 737-800W.1 · 3RA–3VR: 737-8.1"] },
@@ -151,10 +163,10 @@
     // --- POS INIT (3-20)
     { g: "posinit", page: "POS INIT", key: { lsk: "5L" }, label: "Time", action: "Ensure correct", when: (o, f) => !f.hybrid },
     { g: "posinit", page: "POS INIT", key: { key: "NEXT PAGE" }, label: "NEXT PAGE", action: "Press", when: (o, f) => !f.hybrid },
-    { g: "posinit", key: { lsk: "4L" }, label: "GPS L or R", action: "Select", alt: "[4L] or [5L]",
-      notes: ["Use GPS position, if available, otherwise see Manual Alignment."], when: (o, f) => !f.hybrid },
-    { g: "posinit", key: { key: "PREV PAGE" }, label: "PREV PAGE", action: "Press", when: (o, f) => !f.hybrid },
-    { g: "posinit", page: "POS INIT", key: { lsk: "4R" }, label: "IRS POS", action: "Set", when: (o, f) => !f.hybrid },
+    { g: "posinit", page: "POS REF 2/3", key: { lsk: "4L" }, label: "GPS L or R", action: "Select", alt: "[4L] or [5L]",
+      notes: ["Use GPS position, if available, otherwise see Manual Alignment.", "Selecting GPS L [4L] or GPS R [5L] copies that GPS position into the scratchpad. The next two steps paste it into SET IRS POS on POS INIT."], when: (o, f) => !f.hybrid },
+    { g: "posinit", page: "POS REF 2/3", key: { key: "PREV PAGE" }, label: "PREV PAGE", action: "Press", notes: ["Back to POS INIT, with the GPS position still in the scratchpad."], when: (o, f) => !f.hybrid },
+    { g: "posinit", page: "POS INIT", key: { lsk: "4R" }, label: "IRS POS", action: "Set", notes: ["Press [4R] to put the scratchpad GPS position into SET IRS POS."], when: (o, f) => !f.hybrid },
     { g: "posinit", page: "POS INIT", key: null, label: "Present position", action: "Auto-populated",
       notes: ["3RH–3VR are equipped with a Hybrid GPS IRS and present position is auto-populated."], when: (o, f) => f.hybrid },
 
@@ -189,7 +201,7 @@
 
     // --- ACARS: performance (3-22)
     { g: "acPerf", key: { key: "INIT REF" }, label: "INIT REF key", action: "Press" },
-    { g: "acPerf", key: { lsk: "6L" }, label: "INDEX", action: "Select" },
+    { g: "acPerf", page: "POS INIT", key: { lsk: "6L" }, label: "INDEX", action: "Select" },
     { g: "acPerf", page: "INIT/REF INDEX", key: { lsk: "3L" }, label: "PERF", action: "Select" },
     { g: "acPerf", page: "PERF INIT", key: { lsk: "4L" }, label: "RESERVES", action: "Enter", notes: [N_RSV] },
     { g: "acPerf", page: "PERF INIT", key: { lsk: "6L" }, scr: { "6L": "<LOAD" }, label: "LOAD", action: "Select" },
@@ -251,7 +263,7 @@
     { g: "mRte", key: { key: "EXEC" }, label: "EXEC key", action: "Press" },
 
     // --- Manual: PERF INIT (3-25, 3-26)
-    { g: "mPerf", key: { lsk: "6R" }, label: "PERF INIT", action: "Select" },
+    { g: "mPerf", page: "RTE", key: { lsk: "6R" }, scr: { "6R": "PERF INIT>" }, label: "PERF INIT", action: "Select" },
     { g: "mPerf", page: "PERF INIT", key: { lsk: "3L" }, label: "ZFW", action: "Enter",
       caution: "Do not enter the ZFW into the GW boxes. The FMC will calculate performance data with significant errors." },
     { g: "mPerf", page: "PERF INIT", key: null, label: "FUEL", action: "Verify",
