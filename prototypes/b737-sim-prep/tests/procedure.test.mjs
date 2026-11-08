@@ -108,13 +108,22 @@ test("every flow ends with route, legs and performance verification (3-29 to 3-3
 test("every step cites an AOM page and has a label and action", () => {
   const F = buildFlow({ forecastWinds: true, cpdlc: true, intersection: true, rnavSid: true, eoSid: true });
   for (const s of F) {
-    assert.match(s.ref, /^3-\d\d$/);
+    assert.match(s.ref, /^(3-\d\d|21d-41)$/);
     assert.ok(s.label && s.action, `step ${s.n}`);
   }
-  assert.ok(GROUPS.every((g) => /^3-\d\d$/.test(g.ref)));
+  assert.ok(GROUPS.every((g) => /^(3-\d\d|21d-41)$/.test(g.ref)));
 });
 
 test("no blank CDU: every line select key step shows a drawn page", () => {
   const { STEPS, PAGES } = ctx.SimPrep;
   for (const s of STEPS) if (s.key && s.key.lsk) assert.ok(PAGES[s.page], `${s.g} ${s.key.lsk} ${s.label} has no drawn page`);
+});
+
+test("CPDLC log-on follows AOM 21d.3.2: ATC, LOGON/STATUS [5L], LOGON TO, FLT NO, TAIL NO, MAX U/L DELAY, LOGON SEND", () => {
+  const F = buildFlow({ source: "ACARS", cpdlc: true }).filter((s) => s.g === "cpdlc");
+  assert.deepEqual(labels(F), ["ATC function key", "LOGON/STATUS", "LOGON TO", "FLT NO", "TAIL NO", "MAX U/L DELAY", "LOGON SEND"]);
+  assert.equal(F[1].key.lsk, "5L");
+  assert.deepEqual(plain(F.slice(2, 5).map((s) => s.action)), ["Enter", "Enter", "Enter"]);
+  assert.equal(F[2].value, "KUSA");
+  assert.equal(F[6].resultPad, "ATC COMM ESTABLISHED");
 });
