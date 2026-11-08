@@ -35,7 +35,7 @@
     { id: "acPerf", title: "When PERF INIT UPLINK READY is displayed", ref: "3-22", pad: "PERF INIT UPLINK READY", when: (o) => o.source === "ACARS" },
     { id: "acTo", title: "When TAKEOFF DATA UPLINK is displayed", ref: "3-22", pad: "TAKEOFF DATA UPLINK", when: (o) => o.source === "ACARS" && o.toData },
     { id: "acToReq", title: "Takeoff data not available: request by ACARS", ref: "3-24", when: (o) => o.source === "ACARS" && !o.toData },
-    { id: "cpdlc", title: "CPDLC", ref: "3-24", when: (o) => o.source === "ACARS" && o.cpdlc },
+    { id: "cpdlc", title: "CPDLC log-on", ref: "21d-41", when: (o) => o.source === "ACARS" && o.cpdlc },
     { id: "mRte", title: "RTE", ref: "3-25", when: (o) => o.source === "MANUAL" },
     { id: "mPerf", title: "PERF INIT", ref: "3-25", when: (o) => o.source === "MANUAL" },
     { id: "mN1", title: "N1 LIMIT", ref: "3-26", when: (o) => o.source === "MANUAL" },
@@ -146,6 +146,10 @@
     "ACARS TAKEOFF DATA": {
       L: ["RUNWAY", "TEMP", "HWIND/TWIND", "ANTI-ICE", "", "<RETURN"],
       R: ["FLAPS", "THRUST RTG", "QNH (IN)", "RWY CONDITION", "SEND*", ""],
+    },
+    "ATC INDEX": {
+      L: ["", "", "", "", "<LOGON/STATUS", ""],
+      R: ["", "", "", "", "", ""],
     },
     "ATC LOGON/STATUS": {
       L: ["LOGON TO", "FLT NO", "TAIL NO", "MAX U/L DELAY", "", "<ATC INDEX"],
@@ -261,13 +265,21 @@
     { g: "acToReq", page: "TAKEOFF REF 2/2", key: { lsk: "5L" }, label: "Thrust reduction altitude", action: "Verify/Enter" },
 
     // --- CPDLC (3-24)
-    { g: "cpdlc", key: { key: "ATC" }, label: "ATC key", action: "Press", notes: ["See 21d.3.2 CPDLC Log-On (3DM–3VM)."] },
-    { g: "cpdlc", page: "ATC LOGON/STATUS", key: { lsk: "1L" }, label: "LOGON TO", action: "Enter KUSA" },
-    { g: "cpdlc", page: "ATC LOGON/STATUS", key: { lsk: "2L" }, label: "FLT NO", action: "Verify",
-      notes: ["Copied from ACT RTE 1: three letter airline identifier plus the flight number, no leading zeros (e.g., AAL1080)."] },
-    { g: "cpdlc", page: "ATC LOGON/STATUS", key: { lsk: "3L" }, label: "TAIL NO", action: "Verify" },
-    { g: "cpdlc", page: "ATC LOGON/STATUS", key: { lsk: "4L" }, label: "MAX U/L DELAY", action: "Leave blank" },
-    { g: "cpdlc", page: "ATC LOGON/STATUS", key: { lsk: "1R" }, result: "DATA LINK READY is displayed.", label: "LOGON SEND", action: "Select" },
+    { g: "cpdlc", key: { key: "ATC" }, label: "ATC function key", action: "Select",
+      notes: ["AOM 21d.3.2 CPDLC Log-On (3DM–3VM). For DCL, log on at least 30 minutes prior to departure. En route, log on 10 to 25 minutes before initial entry into a CPDLC FIR."] },
+    { g: "cpdlc", page: "ATC INDEX", key: { lsk: "5L" }, label: "LOGON/STATUS", action: "Select" },
+    { g: "cpdlc", page: "ATC LOGON/STATUS", key: { lsk: "1L" }, label: "LOGON TO", action: "Enter", value: "KUSA",
+      notes: ["Enter the four letter ICAO identifier KUSA."] },
+    { g: "cpdlc", page: "ATC LOGON/STATUS", key: { lsk: "2L" }, label: "FLT NO", action: "Enter", value: "AAL1080",
+      notes: ["Enter as written on the flight plan (e.g., AAL102), with no leading zeros."] },
+    { g: "cpdlc", page: "ATC LOGON/STATUS", key: { lsk: "3L" }, label: "TAIL NO", action: "Enter", value: (o) => (["A", "B"].includes(o.fleet) ? "N941NN (ship 3LE)" : "Aircraft registration"),
+      notes: ["Six character alphanumeric format of the aircraft registration (e.g., N362AA)."] },
+    { g: "cpdlc", page: "ATC LOGON/STATUS", key: { look: "4L" }, label: "MAX U/L DELAY", action: "Leave blank",
+      notes: ["Do not enter anything in this field. Leave the default value of three dashes."] },
+    { g: "cpdlc", page: "ATC LOGON/STATUS", key: { lsk: "1R" }, label: "LOGON SEND", action: "Select",
+      resultPage: "ATC LOGON/STATUS", resultPad: "ATC COMM ESTABLISHED",
+      result: "The logon goes to ATC; after their response ACCEPTED or REJECTED shows. When connected, ATC COMM ESTABLISHED appears in the scratchpad, LOGON TO shows dashes, and the active facility shows at ACT CTR [3R].",
+      notes: ["En route: if you are already logged on and log on again, CPDLC will disconnect."] },
 
     // --- Manual: RTE (3-25)
     { g: "mRte", key: { key: "RTE" }, label: "RTE key", action: "Press" },
