@@ -180,6 +180,11 @@
   .bnum { flex: none; width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; background: var(--accent); color: var(--accent-ink); font-weight: 700; font-size: 14px; }
   .say { margin: 8px 0 0; font-size: 19px; line-height: 1.35; font-weight: 600; }
   .reveal { margin-top: 8px; width: 100%; }
+  .gouge .ggrid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-top: 8px; }
+  .gouge .g { padding: 10px; border-radius: 10px; background: var(--panel-2); display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+  .gouge .gcode { font-size: 26px; letter-spacing: 2px; color: var(--accent); }
+  .gouge .gwhat { font-size: 13px; font-weight: 700; }
+  .gouge .gitems { font-size: 13px; color: var(--muted); }
   .count { display: inline-block; min-width: 1.6em; padding: 0 6px; border-radius: 6px; background: var(--amber-bg); color: var(--amber); font-weight: 800; text-align: center; }
   .method pre { margin: 8px 0 0; padding: 10px 12px; border-radius: 10px; background: var(--panel-2); font: 14px/1.45 ui-monospace, "SF Mono", Menlo, Consolas, monospace; white-space: pre; overflow-x: auto; }
   .paper summary { cursor: pointer; }
@@ -234,7 +239,7 @@
 <script>
 (() => {
   "use strict";
-  const APP_VERSION = "2026-11-07.6"; // keep in step with VERSION in sw.js
+  const APP_VERSION = "2026-11-08.1"; // keep in step with VERSION in sw.js
   const { FLEETS, DEFAULTS, GROUPS, PAGES, TIMING, buildFlow } = window.SimPrep;
   const PERF = window.SimPerf;
   const TAXI = window.SimTaxi;
@@ -581,6 +586,7 @@
         <p class="lead"><span class="count">${B.count}</span> items · ${esc(acName(o.perfAc))}. ${esc(B.who)}</p>
         <div class="card"><span class="eyebrow">Situation</span><p style="margin:6px 0 0">${esc(B.setting)}</p></div>
         ${paperworkHtml()}
+        ${gougeHtml(B.count)}
         <div class="card">${items}</div>
         <div class="card"><span class="eyebrow">Also discuss, if applicable</span><ul class="plain">${B.extra.map((x) => `<li>${esc(x)}</li>`).join("")}</ul></div>
         <p class="disclaimer">Wording follows the examples in the AA CDU training guide. Numbers from your RNO–SFO paperwork; the runway change is a practice scenario.</p>`;
@@ -601,6 +607,16 @@
         ${q.picked != null ? `<p class="note" style="margin-top:12px">${q.picked === q.answer ? "Correct." : "Not quite."} AOM ${esc(F[q.at + 1].ref)}.</p>` : ""}`;
     },
   };
+
+  // Memory aid for the briefing order: WRT · WFT · R (7 items), W-W-N (3 items).
+  function gougeHtml(count) {
+    const grp = (code, what, items) => `<div class="g"><b class="gcode">${code}</b><span class="gwhat">${what}</span><span class="gitems">${items}</span></div>`;
+    if (count === 7) return `<div class="card gouge"><span class="eyebrow">Gouge · WRT · WFT · R</span>
+      <div class="ggrid">${grp("WRT", "Outside: the ATIS", "Wind · Runway conditions · Temperature")}${grp("WFT", "The airplane", "Weights · Flaps · Thrust")}${grp("R", "Where", "Runway")}</div></div>`;
+    if (count === 3) return `<div class="card gouge"><span class="eyebrow">Gouge · W-W-N</span>
+      <div class="ggrid">${grp("W", "", "Weights")}${grp("W", "", "Winds")}${grp("N", "", "N1s")}</div></div>`;
+    return "";
+  }
 
   // The Method 2 arithmetic for the tailwind option, from the TPS Airport Analysis data.
   function methodCard() {
