@@ -61,7 +61,7 @@ test("ACARS without takeoff data: request the TPS by ACARS and enter it (3-24)",
 });
 
 test("optional ACARS items appear only when chosen", () => {
-  const base = buildFlow({ source: "ACARS" });
+  const base = buildFlow({ source: "ACARS", cpdlc: false });
   assert.equal(find(base, "FORECAST"), undefined);
   assert.equal(find(base, "LOGON SEND"), undefined);
   assert.equal(find(base, "Intersection takeoff"), undefined);

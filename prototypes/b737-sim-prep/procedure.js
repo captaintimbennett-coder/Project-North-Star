@@ -18,7 +18,7 @@
     toData: true, // uplinked takeoff data available
     intersection: false,
     forecastWinds: false,
-    cpdlc: false,
+    cpdlc: true, // 3DM–3VM are CPDLC equipped
     rnavSid: false,
     eoSid: false,
   };

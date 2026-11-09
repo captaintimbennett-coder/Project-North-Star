@@ -239,7 +239,7 @@
 <script>
 (() => {
   "use strict";
-  const APP_VERSION = "2026-11-08.2"; // keep in step with VERSION in sw.js
+  const APP_VERSION = "2026-11-09.1"; // keep in step with VERSION in sw.js
   const { FLEETS, DEFAULTS, GROUPS, PAGES, TIMING, buildFlow } = window.SimPrep;
   const PERF = window.SimPerf;
   const TAXI = window.SimTaxi;
@@ -431,6 +431,7 @@
         <button type="button" class="mode" data-mode="sim"><b>Step by step</b><span>For the sim: one step per screen with the key to press lit up on the CDU.</span></button>
         <button type="button" class="mode" data-mode="quiz"><b>Practice</b><span>“What comes next?” Pick the next step before the answer is shown.</span></button>
         <button type="button" class="mode" data-mode="overview"><b>Overview</b><span>The whole flow on one page for a quick review.</span></button>
+        <button type="button" class="mode" data-jump="cpdlc"><b>CPDLC log-on</b><span>Straight to the 7 log-on steps, AOM 21d.3.2.</span></button>
       </div>
       <span class="eyebrow" style="display:block;margin-top:26px">Study block 2</span>
       <h2 class="title">Performance check</h2>
@@ -686,6 +687,11 @@ GW ${m.gw.toFixed(1)}: ${m.ok ? "below all three" : "OVER A LIMIT"}</pre>
   document.addEventListener("click", (e) => {
     const b = e.target.closest("button"); if (!b) return;
     if (b.dataset.mode) { st.mode = b.dataset.mode; st.block = b.dataset.block || (b.dataset.mode.startsWith("perf") ? "perf" : "fms"); go("setup"); }
+    else if (b.dataset.jump) {
+      // Go straight to one section of the FMS preflight, with the options it needs switched on.
+      st.mode = "sim"; st.block = "fms"; st.opts.source = "ACARS"; st.opts[b.dataset.jump] = true;
+      st.i = Math.max(0, flow().findIndex((s) => s.g === b.dataset.jump)); st.done = {}; go("sim");
+    }
     else if (b.dataset.reveal != null) { st.revealed[b.dataset.reveal] = true; render(); }
     else if (b.dataset.opt) { st.opts[b.dataset.opt] = b.dataset.val; st.i = 0; st.quiz = null; st.drill = null; st.revealed = {}; render(); }
     else if (b.dataset.flagrow && st.drill && !st.drill.checked) { st.drill.flagged[b.dataset.flagrow] = !st.drill.flagged[b.dataset.flagrow]; render(); }
