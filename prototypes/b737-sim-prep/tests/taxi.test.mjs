@@ -110,3 +110,9 @@ test("no blank CDU anywhere: every on-CDU step in every flow draws a page", () =
     assert.ok(PAGES[s.page], `${s.g} "${s.label}" draws no page (${s.page || "none"})`);
   }
 });
+
+test("runway change to 17L: EO ACCEL 1260 AFL and MINS 5680 on the NG (1270/5690 on the MAX)", () => {
+  const v = (ac) => changeFlow({ perfAc: ac }).find((s) => s.label === "EO ACCEL ALT").value;
+  assert.equal(v("NG"), "1260 AFL · MINS 5680 MSL");
+  assert.equal(v("MAX"), "1270 AFL · MINS 5690 MSL");
+});

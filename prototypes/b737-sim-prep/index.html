@@ -239,14 +239,14 @@
 <script>
 (() => {
   "use strict";
-  const APP_VERSION = "2026-11-09.1"; // keep in step with VERSION in sw.js
+  const APP_VERSION = "2026-11-09.2"; // keep in step with VERSION in sw.js
   const { FLEETS, DEFAULTS, GROUPS, PAGES, TIMING, buildFlow } = window.SimPrep;
   const PERF = window.SimPerf;
   const TAXI = window.SimTaxi;
 
   // ---------- state ----------
   let st = { screen: "home", mode: null, block: "fms", briefHide: false, revealed: {}, opts: { ...DEFAULTS, perfAc: "NG", perfRwy: "17R", coSource: "UPLINK", rcOpt: "A", rcIntersection: false, briefKind: "preflight" }, i: 0, done: {}, quiz: null, score: { right: 0, total: 0 }, drill: null, drillScore: { clean: 0, total: 0 } };
-  const SAVE_KEY = "simPrep.v1";
+  const SAVE_KEY = "simPrep.v2"; // v2: NG ship 3LE defaults (3LC–3PX, EO SID on, CPDLC on)
   const save = () => { try { localStorage.setItem(SAVE_KEY, JSON.stringify(st)); } catch (e) { /* storage unavailable */ } };
   try { const d = JSON.parse(localStorage.getItem(SAVE_KEY) || "null"); if (d && d.opts) st = { ...st, ...d, opts: { ...st.opts, ...d.opts } }; } catch (e) { /* ignore */ }
 

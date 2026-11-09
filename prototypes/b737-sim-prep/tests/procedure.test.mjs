@@ -127,3 +127,18 @@ test("CPDLC log-on follows AOM 21d.3.2: ATC, LOGON/STATUS [5L], LOGON TO, FLT NO
   assert.equal(F[2].value, "KUSA");
   assert.equal(F[6].resultPad, "ATC COMM ESTABLISHED");
 });
+
+test("defaults fit the RNO–SFO NG: ship 3LE (3LC–3PX, 737-800W.1), EO SID and CPDLC on", () => {
+  const F = buildFlow({});
+  assert.equal(find(F, "MODEL").value, "737-800W.1");
+  assert.ok(F.some((s) => s.g === "eosid") && F.some((s) => s.g === "cpdlc"));
+});
+
+test("MINS selector set to the TPS E/O ACCEL MSL altitude after TAKEOFF REF 2/2", () => {
+  const F = buildFlow({});
+  const i = F.findIndex((s) => s.label === "MINS selector");
+  assert.ok(i > 0 && F[i - 1].label === "Thrust reduction altitude");
+  assert.equal(F[i].value, "5830 (17R) · 5680 (17L)");
+  assert.equal(buildFlow({ fleet: "C" }).find((s) => s.label === "MINS selector").value, "5830 (17R) · 5690 (17L)");
+  assert.equal(find(F, "Acceleration height").value, "1410 (17R) · 1260 (17L)");
+});

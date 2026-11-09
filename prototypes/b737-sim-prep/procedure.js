@@ -13,14 +13,14 @@
   };
 
   const DEFAULTS = {
-    fleet: "A",
+    fleet: "B", // ship 3LE (the RNO–SFO training flight) is in 3LC–3PX
     source: "ACARS", // or "MANUAL"
     toData: true, // uplinked takeoff data available
     intersection: false,
     forecastWinds: false,
     cpdlc: true, // 3DM–3VM are CPDLC equipped
     rnavSid: false,
-    eoSid: false,
+    eoSid: true, // special engine-failure procedures exist at RNO
   };
 
   // Sections, in the order they are flown. `when` limits a section to some setups.
@@ -260,9 +260,12 @@
     { g: "acToReq", page: "TAKEOFF REF 1/2", key: { lsk: "1L" }, label: "FLAPS", action: "Enter" },
     { g: "acToReq", key: { panel: "MCP speed window" }, label: "V2 speed", action: "Note and enter in MCP" },
     { g: "acToReq", key: { panel: "Stabilizer trim" }, label: "Trim", action: "Set" },
-    { g: "acToReq", page: "TAKEOFF REF 2/2", key: { lsk: "4L" }, label: "Acceleration height", action: "Verify/Enter", notes: N_ALT },
-    { g: "acToReq", page: "TAKEOFF REF 2/2", key: { lsk: "4R" }, label: "Engine-out acceleration height", action: "Verify/Enter" },
-    { g: "acToReq", page: "TAKEOFF REF 2/2", key: { lsk: "5L" }, label: "Thrust reduction altitude", action: "Verify/Enter" },
+    { g: "acToReq", page: "TAKEOFF REF 2/2", key: { lsk: "4L" }, value: (o) => (["C", "D"].includes(o.fleet) ? "1410 (17R) · 1270 (17L)" : "1410 (17R) · 1260 (17L)"), label: "Acceleration height", action: "Verify/Enter", notes: N_ALT },
+    { g: "acToReq", page: "TAKEOFF REF 2/2", key: { lsk: "4R" }, value: (o) => (["C", "D"].includes(o.fleet) ? "1410 (17R) · 1270 (17L)" : "1410 (17R) · 1260 (17L)"), label: "Engine-out acceleration height", action: "Verify/Enter" },
+    { g: "acToReq", page: "TAKEOFF REF 2/2", key: { lsk: "5L" }, value: (o) => (["C", "D"].includes(o.fleet) ? "1410 (17R) · 1270 (17L)" : "1410 (17R) · 1260 (17L)"), label: "Thrust reduction altitude", action: "Verify/Enter" },
+    { g: "acToReq", key: { panel: "EFIS control panel: MINS selector (BARO)" }, label: "MINS selector", action: "Set EO ACCEL altitude (MSL)",
+      value: (o) => (["C", "D"].includes(o.fleet) ? "5830 (17R) · 5690 (17L)" : "5830 (17R) · 5680 (17L)"),
+      notes: ["From the TPS E/O ACCEL /MSL/ FT line for the departure runway. AOM 5-15: EO ACCEL ALT (BARO and TAKEOFF REF page 2/2)."] },
 
     // --- CPDLC (3-24)
     { g: "cpdlc", key: { key: "ATC" }, label: "ATC function key", action: "Select",
@@ -320,9 +323,12 @@
     { g: "mTo1", page: "TAKEOFF REF 1/2", key: { lsk: "1R" }, fills: ["TAKEOFF REF 1/2|1R", "TAKEOFF REF 1/2|2R", "TAKEOFF REF 1/2|3R"], label: "Takeoff V-speeds", action: "Enter from TPS", alt: "[1R], [2R] and [3R]" },
 
     // --- TAKEOFF REF 2/2 (3-23 uplinked, 3-26 manual)
-    { g: "to2", page: "TAKEOFF REF 2/2", key: { lsk: "4L" }, label: "Acceleration height", action: "Verify/Enter", notes: N_ALT },
-    { g: "to2", page: "TAKEOFF REF 2/2", key: { lsk: "4R" }, label: "Engine-out acceleration height", action: "Verify/Enter" },
-    { g: "to2", page: "TAKEOFF REF 2/2", key: { lsk: "5L" }, label: "Thrust reduction altitude", action: "Verify/Enter" },
+    { g: "to2", page: "TAKEOFF REF 2/2", key: { lsk: "4L" }, value: (o) => (["C", "D"].includes(o.fleet) ? "1410 (17R) · 1270 (17L)" : "1410 (17R) · 1260 (17L)"), label: "Acceleration height", action: "Verify/Enter", notes: N_ALT },
+    { g: "to2", page: "TAKEOFF REF 2/2", key: { lsk: "4R" }, value: (o) => (["C", "D"].includes(o.fleet) ? "1410 (17R) · 1270 (17L)" : "1410 (17R) · 1260 (17L)"), label: "Engine-out acceleration height", action: "Verify/Enter" },
+    { g: "to2", page: "TAKEOFF REF 2/2", key: { lsk: "5L" }, value: (o) => (["C", "D"].includes(o.fleet) ? "1410 (17R) · 1270 (17L)" : "1410 (17R) · 1260 (17L)"), label: "Thrust reduction altitude", action: "Verify/Enter" },
+    { g: "to2", key: { panel: "EFIS control panel: MINS selector (BARO)" }, label: "MINS selector", action: "Set EO ACCEL altitude (MSL)",
+      value: (o) => (["C", "D"].includes(o.fleet) ? "5830 (17R) · 5690 (17L)" : "5830 (17R) · 5680 (17L)"),
+      notes: ["From the TPS E/O ACCEL /MSL/ FT line for the departure runway. AOM 5-15: EO ACCEL ALT (BARO and TAKEOFF REF page 2/2)."] },
 
     // --- RNAV SID (3-27)
     { g: "rnav", key: { key: "DEP ARR" }, label: "DEP/ARR key", action: "Press",
@@ -338,7 +344,7 @@
 
     // --- EO SID (3-28)
     { g: "eosid", key: { key: "RTE" }, label: "RTE key", action: "Press",
-      notes: ["Brief and review the EO SID by verifying the waypoint sequence (speed and/or altitude constraints) on the LEGS page and ND against the Ops Advisory pages (##-7E).", "Due to a U12.0/U13.0 anomaly, another page (e.g. RTE) must be selected prior to the departure page for the EO SID to load correctly.", "The departure runway must be selected for an EO SID to automatically populate."] },
+      notes: ["EO SID Takeoff – Preflight: brief the terrain and the plan to climb at the up bug if an engine fails.", "Brief and review the EO SID by verifying the waypoint sequence (speed and/or altitude constraints) on the LEGS page and ND against the Ops Advisory pages (##-7E).", "Due to a U12.0/U13.0 anomaly, another page (e.g. RTE) must be selected prior to the departure page for the EO SID to load correctly.", "The departure runway must be selected for an EO SID to automatically populate."] },
     { g: "eosid", key: { key: "DEP ARR" }, label: "DEP ARR key", action: "Press" },
     { g: "eosid", page: "DEP/ARR INDEX", key: { lsk: "1L" }, label: "DEP", action: "Press" },
     { g: "eosid", page: "DEPARTURES", key: null, label: "Departure runway", action: "Select" },
