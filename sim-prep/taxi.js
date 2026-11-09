@@ -136,14 +136,15 @@
     { g: "rc3", page: "TAKEOFF REF 1/2", key: { look: "1L" }, label: "Flap setting / thrust", action: "Ensure loaded" },
     { g: "rc3", key: { panel: "Stabilizer trim" }, label: "Trim", action: "Set" },
     { g: "rc3", key: { panel: "MCP speed window" }, label: "V2 speed", action: "Note and enter in MCP" },
-    { g: "rc3", page: "TAKEOFF REF 2/2", key: { lsk: "4R" }, label: "EO ACCEL ALT", action: "Verify", notes: ["BARO and TAKEOFF REF page 2/2."],
-      value: (o, d) => o.rcOpt === "A" ? `${d.to.accel} AFL (TPS 17L)` : "" },
+    { g: "rc3", page: "TAKEOFF REF 2/2", key: { lsk: "4R" }, label: "EO ACCEL ALT", action: "Verify", 
+      notes: ["BARO and TAKEOFF REF page 2/2.", "For the new runway: ACCEL HT, EO ACCEL HT and REDUCTION from the TPS 17L E/O ACCEL /AFL/ line, and the MINS selector (BARO) to the /MSL/ altitude.", "Then review the EO SID for 17L (EO SID Takeoff – Preflight)."],
+      value: (o, d) => `${d.to.accel} AFL · MINS ${d.to.accelMsl} MSL` },
     { g: "rc3", key: { panel: "HUD" }, label: "HUD", action: "Set" },
     { g: "rc3", key: { panel: "MCP" }, label: "COURSE · HEADING · ALTITUDE", action: "Set" },
     { g: "rc3", key: { key: "LEGS" }, label: "Amended portion of route and legs", action: "Verify",
       notes: ["Assess your Area of Vulnerability before the route/legs verification and performance review. Only the amended portion needs verifying."] },
     { g: "rc3", key: { panel: "Both pilots brief" }, label: "Performance Review", action: "Complete", notes: ["The 7-item review, now with gross weight and N1s. No further Performance Verification and no separate Load Closeout briefing are needed."] },
-    { g: "rc3", key: { panel: "Checklist" }, label: "Before Takeoff Checklist", action: "Complete", notes: ["If a runway or flap setting change happens after any part of the Before Takeoff Checklist, reset and re-accomplish it in its entirety."] },
+    { g: "rc3", key: { panel: "Checklist" }, label: "Before Takeoff Checklist", action: "Complete", notes: ["Crossing 17R to reach 17L: Captain “17R, clear left”, First Officer “clear right”. Before entering 17L: “17L, clear left” / “clear right”.", "If a runway or flap setting change happens after any part of the Before Takeoff Checklist, reset and re-accomplish it in its entirety."] },
   ];
 
   function build(groups, steps, opts) {

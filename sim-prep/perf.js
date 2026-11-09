@@ -18,15 +18,15 @@
     NG: {
       ship: "3LE", header: "737-NG 26K WET", rating: "26K", temp: 5, ptow: 139.7, atow: 141.7, zfw: 125.0, fuelLoad: 15.0, tow: 139.6,
       rwy: {
-        "17R": { flaps: 5, n1: "96.1", v1: 132, vr: 138, v2: 144, at: 32, mtow: "150.6L", accel: 1410 },
-        "17L": { flaps: 5, n1: "98.1", v1: 132, vr: 138, v2: 145, at: 23, mtow: "150.6L", accel: 1260 },
+        "17R": { flaps: 5, n1: "96.1", v1: 132, vr: 138, v2: 144, at: 32, mtow: "150.6L", accel: 1410, accelMsl: 5830 },
+        "17L": { flaps: 5, n1: "98.1", v1: 132, vr: 138, v2: 145, at: 23, mtow: "150.6L", accel: 1260, accelMsl: 5680 },
       },
     },
     MAX: {
       ship: "3RS", header: "737-MAX 8 TO WET", rating: "TO", temp: 5, ptow: 143.9, atow: 145.9, zfw: 129.3, fuelLoad: 15.0, tow: 143.9,
       rwy: {
-        "17R": { flaps: 5, n1: "89.2", v1: 131, vr: 138, v2: 145, at: 32, mtow: "156.5L", accel: 1410 },
-        "17L": { flaps: 5, n1: "92.1", v1: 130, vr: 137, v2: 145, at: 23, mtow: "156.5L", accel: 1270 },
+        "17R": { flaps: 5, n1: "89.2", v1: 131, vr: 138, v2: 145, at: 32, mtow: "156.5L", accel: 1410, accelMsl: 5830 },
+        "17L": { flaps: 5, n1: "92.1", v1: 130, vr: 137, v2: 145, at: 23, mtow: "156.5L", accel: 1270, accelMsl: 5690 },
       },
     },
   };
