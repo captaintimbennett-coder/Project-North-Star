@@ -185,6 +185,17 @@
   .gouge .gcode { font-size: 26px; letter-spacing: 2px; color: var(--accent); }
   .gouge .gwhat { font-size: 13px; font-weight: 700; }
   .gouge .gitems { font-size: 13px; color: var(--muted); }
+  .c3row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 8px; }
+  .c3in { display: flex; flex-direction: column; gap: 4px; font-size: 13px; font-weight: 700; }
+  .c3in input { font: 600 18px/1.2 ui-monospace, "SF Mono", Menlo, monospace; padding: 8px 10px; border-radius: 10px; border: 1.5px solid var(--line); background: var(--panel-2); color: var(--text); }
+  .c3v { margin: 10px 0 0; padding: 10px 12px; border-radius: 10px; font-weight: 700; }
+  .c3v.ok { background: var(--go-bg); color: var(--go); }
+  .c3v.bad { background: var(--red-bg); color: var(--red); }
+  .flow { margin: 8px 0 0; padding-left: 22px; } .flow li { margin: 6px 0; }
+  .eqgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 6px; margin-top: 8px; }
+  .eq { display: flex; justify-content: space-between; gap: 8px; padding: 8px 10px; border-radius: 8px; background: var(--panel-2); font-size: 14px; }
+  .eq b { text-align: right; }
+  .eq.hit { outline: 2px solid var(--amber); background: var(--amber-bg); }
   .count { display: inline-block; min-width: 1.6em; padding: 0 6px; border-radius: 6px; background: var(--amber-bg); color: var(--amber); font-weight: 800; text-align: center; }
   .method pre { margin: 8px 0 0; padding: 10px 12px; border-radius: 10px; background: var(--panel-2); font: 14px/1.45 ui-monospace, "SF Mono", Menlo, Consolas, monospace; white-space: pre; overflow-x: auto; }
   .paper summary { cursor: pointer; }
@@ -236,16 +247,18 @@
 <script src="procedure.js"></script>
 <script src="perf.js"></script>
 <script src="taxi.js"></script>
+<script src="arrival.js"></script>
 <script>
 (() => {
   "use strict";
-  const APP_VERSION = "2026-11-09.2"; // keep in step with VERSION in sw.js
+  const APP_VERSION = "2026-11-09.3"; // keep in step with VERSION in sw.js
   const { FLEETS, DEFAULTS, GROUPS, PAGES, TIMING, buildFlow } = window.SimPrep;
   const PERF = window.SimPerf;
   const TAXI = window.SimTaxi;
+  const ARR = window.SimArr;
 
   // ---------- state ----------
-  let st = { screen: "home", mode: null, block: "fms", briefHide: false, revealed: {}, opts: { ...DEFAULTS, perfAc: "NG", perfRwy: "17R", coSource: "UPLINK", rcOpt: "A", rcIntersection: false, briefKind: "preflight" }, i: 0, done: {}, quiz: null, score: { right: 0, total: 0 }, drill: null, drillScore: { clean: 0, total: 0 } };
+  let st = { screen: "home", mode: null, block: "fms", briefHide: false, revealed: {}, c3: { chart: "600", tdz: "600", mid: "1000", ro: "500", wdir: "010", wspd: "10", wgust: "", rhdg: "284", nn: "yaw", qrh: {} }, opts: { ...DEFAULTS, perfAc: "NG", perfRwy: "17R", coSource: "UPLINK", rcOpt: "A", rcIntersection: false, briefKind: "preflight" }, i: 0, done: {}, quiz: null, score: { right: 0, total: 0 }, drill: null, drillScore: { clean: 0, total: 0 } };
   const SAVE_KEY = "simPrep.v2"; // v2: NG ship 3LE defaults (3LC–3PX, EO SID on, CPDLC on)
   const save = () => { try { localStorage.setItem(SAVE_KEY, JSON.stringify(st)); } catch (e) { /* storage unavailable */ } };
   try { const d = JSON.parse(localStorage.getItem(SAVE_KEY) || "null"); if (d && d.opts) st = { ...st, ...d, opts: { ...st.opts, ...d.opts } }; } catch (e) { /* ignore */ }
@@ -448,6 +461,7 @@
         <button type="button" class="mode" data-mode="sim" data-block="change"><b>Runway change</b><span>17R to 17L: the three steps, and the three takeoff performance options.</span></button>
         <button type="button" class="mode" data-mode="brief" data-block="brief"><b>Briefings</b><span>7 items at preflight, 3 at closeout, 7 after a change. Say them aloud, then check.</span></button>
         <button type="button" class="mode" data-mode="quiz" data-block="change"><b>Practice</b><span>“What comes next?” on the runway change.</span></button>
+        <button type="button" class="mode" data-mode="cat3"><b>CAT III &amp; non-normals</b><span>SFO ILS 28R: RVR legality, required equipment, wind limits, and the three QRH non-normals.</span></button>
       </div>
       <div class="card" style="margin-top:14px"><h3>Who and when</h3><ul class="plain">${TIMING.map((t) => `<li>${esc(t)}</li>`).join("")}</ul></div>
       <p class="disclaimer">Study aid built from the AOM. Always use the current AOM and company procedures.<br>App version ${APP_VERSION}</p>
@@ -593,6 +607,52 @@
         <p class="disclaimer">Wording follows the examples in the AA CDU training guide. Numbers from your RNO–SFO paperwork; the runway change is a practice scenario.</p>`;
     },
 
+    cat3: () => {
+      const c = st.c3, num = (v) => (String(v).trim() === "" ? null : Number(v));
+      const rv = ARR.rvrCheck(Number(c.chart), num(c.tdz), num(c.mid), num(c.ro));
+      const wc = ARR.windCheck(Number(c.wdir), Number(c.wspd), num(c.wgust), Number(c.rhdg));
+      const nn = ARR.NONNORMALS[c.nn];
+      const inp = (k, label, w) => `<label class="c3in"><span>${esc(label)}</span><input inputmode="numeric" data-c3="${k}" value="${esc(c[k])}" style="width:${w || 5}em"></label>`;
+      const verdict = (ok, text) => `<p class="c3v ${ok ? "ok" : "bad"}">${ok ? "✓" : "✗"} ${esc(text)}</p>`;
+      const req = ARR.RVR_TABLE[c.chart];
+      const qrhSteps = nn.steps.map(([item, act], i) => {
+        const done = !!c.qrh[`${c.nn}-${i}`];
+        return `<button type="button" class="tick" role="checkbox" data-qrh="${c.nn}-${i}" aria-checked="${done}"><span class="box" aria-hidden="true">${done ? "✓" : i + 1}</span><span><b>${esc(item)}</b> · ${esc(act)}</span></button>`;
+      }).join("");
+      const equip = ARR.EQUIP.map(([item, min]) => `<div class="eq${nn.equip.includes(item) ? " hit" : ""}"><span>${esc(item)}</span><b>${esc(min)}</b></div>`).join("");
+      return `<h2 class="title">CAT III &amp; non-normals</h2>
+        <p class="lead">SFO ILS 28R CAT III, chart minimum RVR 600. CAT III ILS approaches must be flown using HUD to touchdown. (AOM 10.5.3)</p>
+        <div class="card"><span class="eyebrow">Situation</span><p style="margin:6px 0 0">${esc(ARR.SFO.atis)}</p></div>
+
+        <div class="card"><span class="eyebrow">Work it in this order</span><ol class="flow">${ARR.FLOW.map((f) => `<li>${esc(f)}</li>`).join("")}</ol></div>
+
+        <div class="card"><span class="eyebrow">Non-normal (the check airman picks one at 14,000 ft)</span>
+          ${seg3("nn", [["yaw", "Yaw damper", "QRH 9.79"], ["display", "Display L I/B", "QRH 10.86"], ["emdp", "EMDP low pressure", "QRH 13.1"]])}
+          <h3 style="margin:14px 0 2px">${esc(nn.title)} <small>· ${esc(nn.qrh)} · ${esc(nn.scenario)}</small></h3>
+          <p class="hint">Condition: ${esc(nn.condition)}</p>
+          ${qrhSteps}
+          ${nn.note ? `<p class="note"><b>Note:</b> ${esc(nn.note)}</p>` : ""}
+          ${verdict(true, "CAT III: " + nn.cat3)}
+          <p class="caution"><b>Gotcha:</b> ${esc(nn.gotcha)}</p>
+        </div>
+
+        <div class="card"><span class="eyebrow">Required equipment for CAT II/III (AOM 10.5.3)</span>
+          <p class="hint">Highlighted: the lines that matter for the ${esc(nn.title.toLowerCase())}.</p><div class="eqgrid">${equip}</div></div>
+
+        <div class="card"><span class="eyebrow">RVR legality (AOM 10-49)</span>
+          <div class="c3row">${inp("chart", "Chart min")}${inp("tdz", "TDZ")}${inp("mid", "MID")}${inp("ro", "RO")}</div>
+          ${req ? `<p class="hint">Chart ${esc(c.chart)} requires TDZ ${req.tdz} · MID ${req.mid} · RO ${req.ro}. ${esc(req.rule)}</p>` : `<p class="hint">Chart minimum must be 700, 600 or 300.</p>`}
+          ${verdict(rv.ok, rv.why)}
+          <p class="hint">Change the numbers to practice: try TDZ 500, or chart 700.</p></div>
+
+        <div class="card"><span class="eyebrow">Wind limits (AOM 18.2.4, peak gust)</span>
+          <div class="c3row">${inp("wdir", "Wind dir")}${inp("wspd", "Speed")}${inp("wgust", "Gust")}${inp("rhdg", "RWY hdg")}</div>
+          <p class="hint">Runway heading from the Jeppesen chart. ${wc.cross} kt crosswind ${esc(wc.side)}, ${wc.head >= 0 ? wc.head + " kt headwind" : -wc.head + " kt tailwind"} (using ${wc.peak} kt).</p>
+          ${wc.checks.map((k) => verdict(k.ok, `${k.label}: ${k.value} kt, limit ${k.max}`)).join("")}
+          <p class="hint">Reduce crosswind limits by 5 kt on wet or contaminated runways whenever asymmetric reverse thrust is used.</p></div>
+        <p class="disclaimer">From AOM 10.5.3, 18.2.4 and QRH 9.79, 10.86, 13.1 (NG 3AA–3PX). Always use the current AOM and QRH.</p>`;
+    },
+
     quiz: () => {
       const q = st.quiz || newQuestion();
       st.quiz = q;
@@ -618,6 +678,9 @@
       <div class="ggrid">${grp("W", "", "Weights")}${grp("W", "", "Winds")}${grp("N", "", "N1s")}</div></div>`;
     return "";
   }
+
+  // A segmented control bound to st.c3 (the CAT III screen's own state).
+  const seg3 = (k, opts) => `<div class="seg" role="group">${opts.map(([v, t, sub]) => `<button type="button" data-c3seg="${k}" data-val="${esc(v)}" aria-pressed="${st.c3[k] === v}">${esc(t)}${sub ? `<small>${esc(sub)}</small>` : ""}</button>`).join("")}</div>`;
 
   // The Method 2 arithmetic for the tailwind option, from the TPS Airport Analysis data.
   function methodCard() {
@@ -667,6 +730,7 @@ GW ${m.gw.toFixed(1)}: ${m.ok ? "below all three" : "OVER A LIMIT"}</pre>
     const back = $("#btn-back"), next = $("#btn-next");
     back.textContent = "Back";
     if (scr === "setup") { next.textContent = st.mode === "overview" ? "Show overview" : st.mode === "quiz" ? "Start practice" : st.mode === "perfDrill" ? "Start drill" : st.mode === "perfLearn" ? "Show the check" : st.mode === "brief" ? "Show the briefing" : "Start"; }
+    else if (scr === "cat3") { next.textContent = "Home"; }
     else if (scr === "brief") { next.textContent = st.briefHide ? "Show all the words" : "Practice: hide the words"; }
     else if (scr === "sim") { next.textContent = st.i >= F.length ? "Home" : st.i === F.length - 1 ? "Finish" : "Next step"; }
     else if (scr === "quiz") { next.textContent = st.quiz && st.quiz.picked != null ? "Next question" : "Skip"; }
@@ -676,6 +740,7 @@ GW ${m.gw.toFixed(1)}: ${m.ok ? "below all three" : "OVER A LIMIT"}</pre>
     const perf = scr.startsWith("perf") || (scr === "setup" && String(st.mode).startsWith("perf"));
     const blk = st.block && st.block !== "fms" && scr !== "home" && !perf;
     $("#sub").textContent = scr === "home" ? "Study aid · Not for operational use"
+      : scr === "cat3" ? "CAT III & non-normals · SFO ILS 28R"
       : blk ? subLine()
       : perf ? `Performance check · RNO–SFO · ${st.opts.perfAc === "NG" ? "737-800" : "737 MAX 8"} · ${st.opts.perfRwy}`
       : `FMS Preflight · ${FLEETS[st.opts.fleet].label} · ${st.opts.source === "ACARS" ? "ACARS" : "Manual"}`;
@@ -686,7 +751,10 @@ GW ${m.gw.toFixed(1)}: ${m.ok ? "below all three" : "OVER A LIMIT"}</pre>
   // ---------- events ----------
   document.addEventListener("click", (e) => {
     const b = e.target.closest("button"); if (!b) return;
-    if (b.dataset.mode) { st.mode = b.dataset.mode; st.block = b.dataset.block || (b.dataset.mode.startsWith("perf") ? "perf" : "fms"); go("setup"); }
+    if (b.dataset.mode === "cat3") { st.mode = "cat3"; st.block = "cat3"; go("cat3"); }
+    else if (b.dataset.c3seg) { st.c3[b.dataset.c3seg] = b.dataset.val; render(); }
+    else if (b.dataset.qrh) { st.c3.qrh[b.dataset.qrh] = !st.c3.qrh[b.dataset.qrh]; render(); }
+    else if (b.dataset.mode) { st.mode = b.dataset.mode; st.block = b.dataset.block || (b.dataset.mode.startsWith("perf") ? "perf" : "fms"); go("setup"); }
     else if (b.dataset.jump) {
       // Go straight to one section of the FMS preflight, with the options it needs switched on.
       st.mode = "sim"; st.block = "fms"; st.opts.source = "ACARS"; st.opts[b.dataset.jump] = true;
@@ -702,14 +770,21 @@ GW ${m.gw.toFixed(1)}: ${m.ok ? "below all three" : "OVER A LIMIT"}</pre>
     }
   });
   $("#btn-home").addEventListener("click", () => go("home"));
+  // CAT III inputs: update when the field is left or Return is pressed, so typing isn't interrupted.
+  document.addEventListener("change", (e) => {
+    const k = e.target.dataset && e.target.dataset.c3;
+    if (k) { st.c3[k] = e.target.value.replace(/[^\d]/g, ""); render(); }
+  });
   $("#btn-back").addEventListener("click", () => {
     if (st.screen === "sim" && st.i > 0) { st.i--; render(); window.scrollTo(0, 0); }
+    else if (st.screen === "cat3") go("home");
     else if (st.screen === "setup") go("home");
     else go("setup");
   });
   $("#btn-next").addEventListener("click", () => {
     const F = flow();
     if (st.screen === "setup") { st.i = 0; st.done = {}; st.quiz = null; st.score = { right: 0, total: 0 }; st.drill = null; go(st.mode); }
+    else if (st.screen === "cat3") { go("home"); }
     else if (st.screen === "brief") { st.briefHide = !st.briefHide; st.revealed = {}; render(); window.scrollTo(0, 0); }
     else if (st.screen === "perfLearn") { st.mode = "perfDrill"; st.drill = null; go("perfDrill"); }
     else if (st.screen === "perfDrill") {
