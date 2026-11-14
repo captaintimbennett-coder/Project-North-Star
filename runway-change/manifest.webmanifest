@@ -1,7 +1,7 @@
 {
-  "name": "B737 Runway/Departure Change",
+  "name": "B737 Takeoff Data & Runway Change",
   "short_name": "Runway Change",
-  "description": "B737 Runway/Departure Change checklist (AOM 5.4.1), item by item. Not approved for operational use.",
+  "description": "B737 takeoff data check (Takeoff Card) and Runway/Departure Change (AOM 5.4.1), item by item. Not approved for operational use.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
