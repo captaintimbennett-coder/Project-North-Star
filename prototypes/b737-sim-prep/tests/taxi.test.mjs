@@ -116,3 +116,15 @@ test("runway change to 17L: EO ACCEL 1260 AFL and MINS 5680 on the NG (1270/5690
   assert.equal(v("NG"), "1260 AFL · MINS 5680 MSL");
   assert.equal(v("MAX"), "1270 AFL · MINS 5690 MSL");
 });
+
+test("runway change follows AOM 5.4.1 (24 JUN 26) item by item", () => {
+  const nums = (o) => JSON.parse(JSON.stringify(changeFlow(o).map((s) => s.num)));
+  const rc3 = ["3.1", "3.2", "3.3", "3.4", "3.5", "3.6", "3.7", "3.8", "3 · then", "3 · then", "3 · then"];
+  assert.deepEqual(nums({ rcOpt: "A" }), ["1.1", "1.2", "1.3", "1.4", "1.5", "1.6", "2 · uplinked data 1", ...rc3]);
+  assert.deepEqual(nums({ rcOpt: "C" }).slice(6, 16), ["2 · QRH 1", "2 · QRH 2", "2 · QRH 3", "2 · QRH 4", "2 · QRH 5", "2 · QRH 6", "2 · QRH 7", "2 · QRH 8", "2 · QRH 9", "2 · QRH 10"]);
+  const B = changeFlow({ rcOpt: "B" }).filter((s) => s.g === "rcB");
+  assert.equal(B.find((s) => s.label === "AOC AAL").key.lsk, "1R");
+  assert.deepEqual(JSON.parse(JSON.stringify(changeFlow({ rcOpt: "A" }).filter((s) => s.g === "rc3").map((s) => s.label))),
+    ["Flap Setting/Thrust", "Trim", "V2 speed", "EO ACCEL ALT", "HUD", "COURSE", "HEADING", "ALTITUDE", "Amended portion of route and legs", "Performance Review", "Before Takeoff Checklist"]);
+  assert.match(changeFlow({ rcOpt: "A" }).find((s) => s.label === "V2 speed").value, /^145 /);
+});

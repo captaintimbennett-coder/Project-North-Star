@@ -156,9 +156,14 @@
   .ov-group { margin-bottom: 14px; }
   .ov-group h3 { margin: 0 0 6px; font-size: 15px; }
   .ov-group h3 small { font-weight: 500; color: var(--muted); }
-  .ov-row { display: grid; grid-template-columns: 28px minmax(0, 1fr) auto; gap: 10px; align-items: baseline; padding: 7px 10px; border-radius: 8px; background: var(--panel-2); margin-bottom: 4px; }
+  .ov-row { display: grid; grid-template-columns: 34px minmax(0, 1fr) minmax(0, max-content); gap: 10px; align-items: baseline; padding: 7px 10px; border-radius: 8px; background: var(--panel-2); margin-bottom: 4px; }
   .ov-row .n { color: var(--muted); font-variant-numeric: tabular-nums; font-size: 13px; }
-  .ov-row .a { font-weight: 700; font-size: 14px; text-align: right; }
+  .ov-row .a { font-weight: 700; font-size: 14px; text-align: right; max-width: 9em; }
+  .ov-row .kb { white-space: normal; }
+  @media (max-width: 520px) {
+    .ov-row { grid-template-columns: 34px minmax(0, 1fr); }
+    .ov-row .a { grid-column: 2; text-align: left; max-width: none; color: var(--accent); }
+  }
   .kb { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 12px; padding: 1px 6px; border-radius: 6px; background: var(--line); margin-right: 6px; white-space: nowrap; }
   .instr h2 .kb { white-space: normal; display: inline-block; max-width: 100%; }
 
@@ -251,7 +256,7 @@
 <script>
 (() => {
   "use strict";
-  const APP_VERSION = "2026-11-09.3"; // keep in step with VERSION in sw.js
+  const APP_VERSION = "2026-11-14.1"; // keep in step with VERSION in sw.js
   const { FLEETS, DEFAULTS, GROUPS, PAGES, TIMING, buildFlow } = window.SimPrep;
   const PERF = window.SimPerf;
   const TAXI = window.SimTaxi;
@@ -458,7 +463,8 @@
       <p class="lead">After pushback: AOM 21j.2.1 When Load Closeout is Received and AOM 5-14 Runway/Departure Change, with the briefing pattern from the AA CDU training guide, on your RNO–SFO paperwork.</p>
       <div class="modes">
         <button type="button" class="mode" data-mode="sim" data-block="closeout"><b>Load Closeout</b><span>Uplink or manual, step by step on the CDU: ZFW, N1 LIMIT, ACCEPT, CG and trim, V2.</span></button>
-        <button type="button" class="mode" data-mode="sim" data-block="change"><b>Runway change</b><span>17R to 17L: the three steps, and the three takeoff performance options.</span></button>
+        <button type="button" class="mode" data-mode="sim" data-block="change"><b>Runway/Departure Change</b><span>AOM 5.4.1 step by step, 17R to 17L: the three steps and the three takeoff performance options.</span></button>
+        <button type="button" class="mode" data-mode="overview" data-block="change"><b>Runway change checklist</b><span>The whole AOM 5.4.1 procedure on one page, with item numbers.</span></button>
         <button type="button" class="mode" data-mode="brief" data-block="brief"><b>Briefings</b><span>7 items at preflight, 3 at closeout, 7 after a change. Say them aloud, then check.</span></button>
         <button type="button" class="mode" data-mode="quiz" data-block="change"><b>Practice</b><span>“What comes next?” on the runway change.</span></button>
         <button type="button" class="mode" data-mode="cat3"><b>CAT III &amp; non-normals</b><span>SFO ILS 28R: RVR legality, required equipment, wind limits, and the three QRH non-normals.</span></button>
@@ -534,7 +540,7 @@
           ${s.caution ? `<p class="caution"><b>Caution:</b> ${esc(s.caution)}</p>` : ""}
           ${(s.notes || []).map((n) => `<p class="note">${esc(n)}</p>`).join("")}
           ${resultHtml(F, st.i)}
-          <p class="ref">AOM ${esc(s.ref)} · step ${s.n} of ${F.length}</p>
+          <p class="ref">AOM ${esc(s.ref)}${s.num ? ` · item ${esc(s.num)}` : ""} · step ${s.n} of ${F.length}</p>
           ${st.block === "change" && st.opts.rcOpt === "C" && s.g === "rcC" && s.n === F.find((x) => x.g === "rcC").n ? methodCard() : ""}
         </div>
       </div>`;
@@ -544,7 +550,9 @@
       const F = flow(); let html = "", g = null;
       for (const s of F) {
         if (s.g !== g) { if (g) html += "</div>"; g = s.g; html += `<div class="ov-group card"><h3>${esc(s.group.title)} <small>· AOM ${esc(s.ref)}</small></h3>`; }
-        html += `<div class="ov-row"><span class="n">${s.n}</span><span>${keyBadge(s) ? `<span class="kb">${esc(keyBadge(s))}</span>` : ""}${esc(s.label)}${s.value ? ` <b>${esc(s.value)}</b>` : ""}</span><span class="a">${esc(s.action)}</span></div>`;
+        // AOM item number, compact: "2 · new TPS 3" → "2.3", "3 · then" → "3 ·".
+        const num = s.num ? s.num.replace(/^(\d) · \D+?(\d+)$/, "$1.$2").replace(/ · then$/, " ·") : s.n;
+        html += `<div class="ov-row"><span class="n">${esc(num)}</span><span>${keyBadge(s) ? `<span class="kb">${esc(keyBadge(s))}</span>` : ""}${esc(s.label)}${s.value ? ` <b>${esc(s.value)}</b>` : ""}</span><span class="a">${esc(s.action)}</span></div>`;
       }
       return `<h2 class="title">Overview</h2><p class="lead">${esc(subLine())} · ${F.length} steps</p>${html}</div>`;
     },
