@@ -95,7 +95,29 @@
   .ft .go:disabled { opacity: .5; }
   @media (prefers-reduced-motion: reduce) { * { transition: none !important; scroll-behavior: auto !important; } }
 
-  .home { display: grid; gap: 12px; margin-top: 6px; }
+  .home { display: grid; gap: 12px; margin-top: 18px; }
+  .hero { display: flex; gap: 16px; align-items: center; padding: 20px; border-radius: 18px; background: linear-gradient(135deg, color-mix(in srgb, var(--accent) 22%, var(--panel)), var(--panel)); border: 1px solid var(--line); }
+  .hero img { border-radius: 16px; flex: none; box-shadow: 0 4px 14px rgba(0,0,0,.25); }
+  .hero h2 { margin: 2px 0 6px; font-size: 24px; line-height: 1.2; }
+  .hero p { margin: 0; color: var(--muted); font-size: 15px; }
+  .eyebrow { margin: 0; font-size: 12px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--accent) !important; }
+  .big { display: grid; grid-template-columns: 52px minmax(0, 1fr) 20px; gap: 14px; align-items: center; }
+  .big .ic { width: 52px; height: 52px; border-radius: 14px; display: grid; place-items: center; background: color-mix(in srgb, var(--accent) 16%, transparent); color: var(--accent); }
+  .big .tx { display: flex; flex-direction: column; gap: 4px; }
+  .big .tx > b { color: var(--text); font-size: 20px; }
+  .big .tx > span { color: var(--muted); font-size: 15px; }
+  .big em { font-style: normal; font-size: 12px; font-weight: 700; color: var(--accent); letter-spacing: .03em; }
+  .big .chev { font-size: 30px; color: var(--muted); line-height: 1; }
+  .big:hover { border-color: var(--accent); }
+  .covers { list-style: none; padding: 0; margin: 18px 0 0; display: flex; flex-wrap: wrap; gap: 8px; }
+  .covers li { font-size: 13px; font-weight: 600; padding: 6px 10px; border-radius: 999px; background: var(--panel); border: 1px solid var(--line); color: var(--muted); }
+  .foot { margin-top: 22px; padding-top: 16px; border-top: 1px solid var(--line); text-align: center; color: var(--muted); font-size: 13px; }
+  .foot p { margin: 10px 0 0; } .foot .ver { font-variant-numeric: tabular-nums; }
+  .wcalc { margin: 10px 0 0; padding: 10px 12px; border-radius: 10px; background: var(--go-bg); color: var(--text); font-size: 15px; }
+  .wcalc.tail { background: var(--amber-bg); }
+  .wcalc.tail b { color: var(--amber); }
+  .wcalc.pend { background: var(--panel-2); color: var(--muted); }
+  @media (max-width: 520px) { .hero { flex-direction: column; align-items: flex-start; } }
   .big { text-align: left; padding: 18px; border-radius: var(--radius); border: 1.5px solid var(--line); background: var(--panel); cursor: pointer; }
   .big b { display: block; font-size: 20px; }
   .big span { color: var(--muted); font-size: 15px; }
@@ -148,7 +170,7 @@
 <script>
 (() => {
   "use strict";
-  const APP_VERSION = "2026-11-14.2"; // keep in step with VERSION in sw.js
+  const APP_VERSION = "2026-11-14.3"; // keep in step with VERSION in sw.js
   const RC = window.RwyChange, TR = window.TakeoffRules, TD = window.TakeoffDecide;
   const KEY = "rwyChange.v2";
   const KEEP_MS = 2 * 60 * 60 * 1000; // work in progress is kept for 2 hours
@@ -192,8 +214,16 @@
 
   // ---------- form pieces ----------
   const bad = (f) => E().invalid.some((v) => v.field === f);
-  const fld = (f, label, hint, mode = "decimal") => `<label class="fld${bad(f) ? " bad" : ""}"><span>${esc(label)}${hint ? ` <small>${esc(hint)}</small>` : ""}</span>
-    <input inputmode="${mode}" data-f="${f}" value="${esc(S()[f] ?? "")}" autocomplete="off"></label>`;
+  const fld = (f, label, hint, mode = "decimal", ph = "") => `<label class="fld${bad(f) ? " bad" : ""}"><span>${esc(label)}${hint ? ` <small>${esc(hint)}</small>` : ""}</span>
+    <input inputmode="${mode}" data-f="${f}" value="${esc(S()[f] ?? "")}" placeholder="${esc(ph)}" autocomplete="off"></label>`;
+  // The wind on the runway, worked out from the entries (runway heading from the Jeppesen chart).
+  function windLine() {
+    const w = TR.windCalc(S());
+    if (!w.ok) return `<p class="wcalc pend">Enter the runway heading, wind direction and speed to see the headwind or tailwind and crosswind.</p>`;
+    if (w.calm) return `<p class="wcalc">Wind calm: no headwind, tailwind or crosswind.</p>`;
+    const tail = w.hw < 0;
+    return `<p class="wcalc${tail ? " tail" : ""}" role="status"><b>${tail ? `${TR.r1(-w.hw)} kt tailwind` : `${w.hw} kt headwind`}</b> · ${w.xw} kt crosswind${w.gi ? ` · gust increment ${w.gi} kt` : ""}</p>`;
+  }
   const seg = (f, opts, label) => `<div class="q">${label ? `<b>${esc(label)}</b>` : ""}<div class="seg" role="group" aria-label="${esc(label || f)}">${opts.map(([v, t]) =>
     `<button type="button" data-fs="${f}" data-v="${esc(v)}" aria-pressed="${String(S()[f]) === String(v)}">${esc(t)}</button>`).join("")}</div></div>`;
   const tgl = (f, title, hint) => `<button type="button" class="tgl" role="switch" aria-checked="${!!S()[f]}" data-ft="${f}"><span><b>${esc(title)}</b>${hint ? `<br><span class="hint" style="margin:0">${esc(hint)}</span>` : ""}</span><span class="sw" aria-hidden="true"></span></button>`;
@@ -216,11 +246,13 @@
       h += seg("rating", ratings.map((r) => [r, r]), "TPS thrust rating");
       h += seg("closeout", [["true", "Received"], ["false", "Not received"]], "Load Closeout");
       h += `<div class="fgrid">${fld("rwy", "Runway", "e.g. 17L", "text")}${fld("rwyHdg", "Runway heading", "Jeppesen", "numeric")}</div>`;
-      h += `<div class="fgrid">${fld("tow", "Takeoff weight", "closeout")}${fld("ptow", "PTOW", "TPS")}${fld("mtow", "MTOW", "TPS line")}</div>`;
+      h += `<div class="q"><b>Weights <small style="font-weight:600;color:var(--muted)">in 1,000 lb, as on the TPS (139.6 = 139,600 lb)</small></b></div>`;
+      h += `<div class="fgrid">${fld("tow", "Takeoff weight", "×1,000 lb · closeout", "decimal", "139.6")}${fld("ptow", "PTOW", "×1,000 lb · TPS", "decimal", "139.7")}${fld("mtow", "MTOW", "×1,000 lb · TPS line", "decimal", "150.6")}</div>`;
       h += seg("mtowCode", [["", "No letter"], ["L", "L"], ["E", "E"], ["D", "D"], ["T", "Other"]], "MTOW limit letter");
       h += `<div class="fgrid">${fld("oat", "Temperature", "ATIS °C")}${s.plan === "MAX" ? fld("planTemp", "Plan temperature", "TPS TEMP °C") : fld("at", "Assumed temperature", "TPS AT °C")}</div>`;
       h += `<div class="fgrid">${fld("windDir", "Wind direction", "°", "numeric")}${fld("windSpd", "Wind speed", "kt", "numeric")}${fld("windGust", "Gust", "kt", "numeric")}</div>`;
       h += tgl("calm", "Wind calm");
+      h += windLine();
       h += seg("tpsWind", [["NONE", "Zero wind"], ["HEAD", "Headwind"], ["TAIL", "Tailwind"]], "TPS planned wind (no wind correction = zero wind)");
       if (s.tpsWind !== "NONE") h += `<div class="fgrid">${fld("tpsWindKt", s.tpsWind === "HEAD" ? "TPS headwind" : "TPS tailwind", "kt", "numeric")}</div>`;
       h += seg("runway", [["DRY", "Dry"], ["WET", "Wet"], ["CONTAM", "Contaminated"]], "Runway condition");
@@ -229,7 +261,7 @@
       // Follow-ups, only when the finding needs them.
       if (e.tail && !s.ip) {
         h += seg("twMethod", [["M1", "Method 1: new TPS"], ["M2", "Method 2: Airport Analysis"]], `Unplanned tailwind ${e.tail.tail} kt`);
-        if (s.twMethod === "M2") h += `<div class="fgrid">${fld("zwMax", "Zero-wind max weight", "Airport Analysis")}${fld("twCorr", "Tailwind correction", "lb per kt", "numeric")}</div>`
+        if (s.twMethod === "M2") h += `<div class="fgrid">${fld("zwMax", "Zero-wind max weight", "×1,000 lb · Airport Analysis")}${fld("twCorr", "Tailwind correction", "lb per kt", "numeric")}</div>`
           + seg("twSpeeds", [["QRH", "FMC QRH V-speeds"], ["AOM", "AOM V-speeds"]], "Method 2 V-speeds");
       }
       if (e.needAA) h += seg("aa", [["NOIP", "Yes, without IP"], ["IP", "Only with Improved Performance"], ["NO", "No"]], "Airport Analysis: can the weight be accommodated?");
@@ -260,6 +292,9 @@
       d.option === "newTps" ? "New takeoff data required" : e.status === "amber" ? "Authorized with changes" : "Takeoff data valid";
     let h = `<div class="verdict ${cls}" role="status"><h3>${esc(title)}</h3>`;
     if (d.kind !== "pending" && !(forChange && st.onTps !== "first4")) h += `<p class="kv"><b>Thrust</b> ${esc(e.thrust)}</p><p class="kv"><b>V-speeds</b> ${esc(e.speeds)}</p>`;
+    // The computed wind is shown at every stage, including while a tailwind method is still to be chosen.
+    if (e.wind && e.wind.ok && !e.wind.calm && !(forChange && st.onTps !== "first4"))
+      h += `<p class="kv"><b>Wind</b> ${e.wind.hw < 0 ? `<b style="min-width:0;color:var(--amber)">${TR.r1(-e.wind.hw)} kt tailwind</b>` : `${e.wind.hw} kt headwind`}, ${e.wind.xw} kt crosswind${e.wind.gi ? `, gust increment ${e.wind.gi} kt` : ""}</p>`;
     h += `<p style="margin:8px 0 0">${esc(d.why)}</p>`;
     if (e.invalid.length && !(forChange && st.onTps !== "first4")) h += `<ul class="why">${e.invalid.map((v) => `<li>${esc(v.msg)}</li>`).join("")}</ul>`;
     // A flagged entry shows only what to fix: no findings are drawn from a typo.
@@ -286,13 +321,31 @@
 
   // ---------- screens ----------
   const views = {
-    home: () => `<p class="lead">Takeoff data legality (the Takeoff Card) and the Runway/Departure Change (AOM 5.4.1) in one place.</p>
-      <div class="home">
-        <button type="button" class="big" data-go="change"><b>Runway change</b><span>Change the runway in the FMC, check the takeoff data for the new runway, and load it: the app picks the AOM option for you.</span></button>
-        <button type="button" class="big" data-go="check"><b>Check takeoff data</b><span>Is the TPS still valid for the conditions? Thrust, V-speeds and what to do, with the card section for each finding.</span></button>
+    home: () => `
+      <div class="hero">
+        <img src="icons/icon-192.png" alt="" width="64" height="64">
+        <div><p class="eyebrow">B737 · Taxi · Takeoff Data Entry</p><h2>Takeoff Data &amp; Runway Change</h2>
+        <p>Is the takeoff data still valid, and how to load it in the FMC: the Takeoff Card and AOM 5.4.1 together.</p></div>
       </div>
-      <button type="button" class="btn" id="btn-new" style="display:block;margin:14px auto 0">Start over</button>
-      <p class="disclaimer">From the B737 Takeoff Card and ${esc(RC.SOURCE)}. Not approved for operational use; always use the current AOM.<br>Version ${APP_VERSION}</p>`,
+      <div class="home">
+        <button type="button" class="big" data-go="change">
+          <span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3v18M18 3v18M9 12h6M13 9l3 3-3 3"/></svg></span>
+          <span class="tx"><b>Runway change</b><span>Change the runway in the FMC, check the takeoff data for the new runway, then load it. The app chooses the AOM option and shows why.</span><em>AOM 5.4.1 · 5-14 to 5-16</em></span>
+          <span class="chev" aria-hidden="true">›</span></button>
+        <button type="button" class="big" data-go="check">
+          <span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4h6M9 4a2 2 0 0 0-2 2v0H5v15h14V6h-2a2 2 0 0 0-2-2M8.5 13l2.5 2.5 4.5-5"/></svg></span>
+          <span class="tx"><b>Check takeoff data</b><span>Is the TPS still valid for the conditions? Thrust, V-speeds and what to do, with the card section behind each finding.</span><em>B737 Takeoff Card</em></span>
+          <span class="chev" aria-hidden="true">›</span></button>
+      </div>
+      <ul class="covers" aria-label="What it covers">
+        <li>Weight, temperature and wind variation</li><li>Unplanned tailwind, Methods 1 and 2</li><li>Wet and contaminated runways</li>
+        <li>Windshear, anti-ice, MEL/CDL, Improved Performance</li><li>FMC QRH V-speeds</li><li>Performance Review</li>
+      </ul>
+      <div class="foot">
+        <button type="button" class="btn" id="btn-new">Start over</button>
+        <p>Sources: B737 Takeoff Card; ${esc(RC.SOURCE)}.<br><b>Demonstration only. Not approved for operational use.</b> Always use the current AOM.</p>
+        <p class="ver">Version ${APP_VERSION}</p>
+      </div>`,
     check: () => form(false) + verdict(false) + `<p class="disclaimer">Not approved for operational use. Version ${APP_VERSION}</p>`,
     change: () => {
       const cur = current();
@@ -321,6 +374,9 @@
     const inChange = st.screen === "change";
     $("#foot").hidden = !inChange;
     $("#btn-home").hidden = st.screen === "home";
+    // The home screen has its own title block, so the top bar is only shown inside a flow.
+    document.querySelector("header").hidden = st.screen === "home";
+    document.querySelector("main").style.paddingTop = st.screen === "home" ? "calc(16px + env(safe-area-inset-top))" : "";
     $("#subtitle").textContent = st.screen === "change" ? "Runway/Departure Change · AOM 5.4.1" : st.screen === "check" ? "Check takeoff data · B737 Takeoff Card" : "B737 · AOM 5.4.1 and the Takeoff Card";
     const all = inChange ? items() : [], n = all.filter((it) => st.done[it.id]).length;
     $("#bar").style.width = inChange && all.length ? `${(n / all.length) * 100}%` : "0%";
