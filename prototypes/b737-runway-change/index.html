@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0b111c">
+<title>Runway Change</title>
+<meta name="apple-mobile-web-app-title" content="Runway Change">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" href="icons/icon-192.png">
+<style>
+  :root {
+    --bg: #eef1f5; --panel: #ffffff; --panel-2: #f5f7fa; --line: #d5dbe4; --text: #0e1622; --muted: #5a6577;
+    --accent: #1d5fd1; --accent-ink: #ffffff; --go: #11804a; --go-bg: #e3f5eb; --amber: #9a5b00; --amber-bg: #fff2d6;
+    --focus: #1d5fd1; --radius: 14px; color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0b111c; --panel: #131b29; --panel-2: #1a2436; --line: #2a364c; --text: #e8edf5; --muted: #94a1b8;
+      --accent: #5b9bff; --accent-ink: #06101f; --go: #3ddc84; --go-bg: #0f2a1d; --amber: #ffbe3d; --amber-bg: #2d2210;
+      --focus: #8fbcff; color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0b111c; --panel: #131b29; --panel-2: #1a2436; --line: #2a364c; --text: #e8edf5; --muted: #94a1b8;
+    --accent: #5b9bff; --accent-ink: #06101f; --go: #3ddc84; --go-bg: #0f2a1d; --amber: #ffbe3d; --amber-bg: #2d2210;
+    --focus: #8fbcff; color-scheme: dark;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 17px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+  button { font: inherit; color: inherit; }
+  :focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+  .wrap { max-width: 760px; margin: 0 auto; padding: 0 16px; }
+
+  header { position: sticky; top: 0; z-index: 5; background: var(--bg); border-bottom: 1px solid var(--line); padding-top: env(safe-area-inset-top); }
+  .hd { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 0 8px; }
+  .hd h1 { margin: 0; font-size: 19px; }
+  .hd small { display: block; color: var(--muted); font-size: 12px; font-weight: 500; }
+  .btn { min-height: 44px; padding: 8px 14px; border-radius: 12px; border: 1.5px solid var(--line); background: var(--panel); font-weight: 700; cursor: pointer; }
+  .bar { height: 5px; background: var(--line); border-radius: 3px; overflow: hidden; margin-bottom: 8px; }
+  .bar span { display: block; height: 100%; background: var(--go); width: 0; transition: width .2s; }
+
+  main { padding: 14px 0 150px; }
+  .sec { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px; margin-bottom: 14px; }
+  .sec h2 { margin: 0 0 4px; font-size: 18px; }
+  .sec h3 { margin: 14px 0 6px; font-size: 15px; color: var(--muted); }
+  .hint { margin: 0 0 8px; color: var(--muted); font-size: 14px; }
+
+  .item { display: grid; grid-template-columns: 30px 22px minmax(0, 1fr); gap: 10px; align-items: start; width: 100%; text-align: left;
+    padding: 12px 10px; margin-top: 6px; border-radius: 12px; border: 1.5px solid var(--line); background: var(--panel-2); cursor: pointer; }
+  .item .box { width: 28px; height: 28px; border-radius: 8px; border: 2px solid var(--muted); display: grid; place-items: center; font-weight: 900; }
+  .item .n { color: var(--muted); font-variant-numeric: tabular-nums; padding-top: 3px; font-size: 14px; }
+  .item .line { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; }
+  .item .t { font-weight: 600; flex: 1 1 auto; }
+  .item .dots { flex: 1 1 24px; border-bottom: 2px dotted var(--line); min-width: 24px; transform: translateY(-4px); }
+  .item .a { font-weight: 800; color: var(--accent); white-space: nowrap; }
+  .item .k { display: inline-block; font: 600 12px ui-monospace, "SF Mono", Menlo, monospace; padding: 1px 6px; border-radius: 6px; background: var(--line); margin-top: 4px; }
+  .item .note { margin: 6px 0 0; font-size: 14px; color: var(--muted); }
+  .item[aria-checked="true"] { border-color: var(--go); background: var(--go-bg); }
+  .item[aria-checked="true"] .box { background: var(--go); border-color: var(--go); color: var(--panel); }
+  .item[aria-checked="true"] .t { opacity: .75; }
+  .item.cur { border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 30%, transparent); background: var(--panel); }
+  .sub { margin: 8px 0 0; padding: 0; list-style: none; font-size: 14px; }
+  .sub li { padding: 4px 0; border-top: 1px solid var(--line); }
+  .sub li:first-child { border-top: 0; }
+  .sub b { display: inline-block; min-width: 9.5em; }
+  .wrt { display: inline-block; font-weight: 800; color: var(--accent); width: 2.4em; }
+
+  .choose { display: grid; gap: 8px; margin-top: 8px; }
+  .opt { text-align: left; padding: 12px 14px; border-radius: 12px; border: 1.5px solid var(--line); background: var(--panel-2); cursor: pointer; }
+  .opt b { display: block; }
+  .opt span { font-size: 14px; color: var(--muted); }
+  .opt[aria-pressed="true"] { border-color: var(--accent); background: var(--panel); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 25%, transparent); }
+  .tgl { display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%; text-align: left; padding: 12px 14px; border-radius: 12px; border: 1.5px solid var(--line); background: var(--panel-2); cursor: pointer; margin-top: 8px; }
+  .tgl .sw { width: 50px; height: 30px; border-radius: 15px; background: var(--line); position: relative; flex: none; }
+  .tgl .sw::after { content: ""; position: absolute; top: 3px; left: 3px; width: 24px; height: 24px; border-radius: 50%; background: #fff; transition: left .15s; }
+  .tgl[aria-checked="true"] .sw { background: var(--go); }
+  .tgl[aria-checked="true"] .sw::after { left: 23px; }
+  details.cons { margin-top: 8px; font-size: 15px; }
+  details.cons summary { cursor: pointer; font-weight: 700; color: var(--accent); }
+  details.cons ul { margin: 6px 0 0; padding-left: 20px; }
+  .done { text-align: center; padding: 18px; border-radius: var(--radius); background: var(--go-bg); color: var(--go); font-weight: 800; font-size: 18px; margin-bottom: 14px; }
+  .disclaimer { color: var(--muted); font-size: 13px; text-align: center; margin: 18px 0; }
+
+  footer { position: fixed; left: 0; right: 0; bottom: 0; z-index: 5; background: var(--bg); border-top: 1px solid var(--line); padding: 10px 0 calc(10px + env(safe-area-inset-bottom)); }
+  .ft { display: flex; gap: 10px; }
+  .ft .btn { flex: none; }
+  .ft .go { flex: 1; min-height: 56px; border: 0; background: var(--accent); color: var(--accent-ink); font-size: 17px; text-align: left; padding: 8px 16px; }
+  .ft .go small { display: block; font-size: 13px; font-weight: 600; opacity: .85; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .ft .go:disabled { opacity: .5; }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; scroll-behavior: auto !important; } }
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <div class="hd">
+      <h1>Runway/Departure Change<small>AOM 5.4.1 · Taxi · Takeoff Data Entry</small></h1>
+      <button class="btn" id="btn-reset" type="button">Reset</button>
+    </div>
+    <div class="bar" aria-hidden="true"><span id="bar"></span></div>
+  </div>
+</header>
+<main class="wrap" id="app"></main>
+<footer>
+  <div class="wrap ft">
+    <button class="btn" id="btn-undo" type="button">Undo</button>
+    <button class="btn go" id="btn-check" type="button">Check</button>
+  </div>
+</footer>
+
+<script src="checklist.js"></script>
+<script>
+(() => {
+  "use strict";
+  const APP_VERSION = "2026-11-14.1"; // keep in step with VERSION in sw.js
+  const RC = window.RwyChange;
+  const KEY = "rwyChange.v1";
+  const KEEP_MS = 2 * 60 * 60 * 1000; // a runway change in progress is kept for 2 hours
+
+  let st = { option: null, intersection: false, done: {}, order: [], at: Date.now() };
+  try {
+    const d = JSON.parse(localStorage.getItem(KEY) || "null");
+    if (d && Date.now() - d.at < KEEP_MS) st = { ...st, ...d };
+  } catch (e) { /* storage unavailable: start fresh */ }
+  const save = () => { st.at = Date.now(); try { localStorage.setItem(KEY, JSON.stringify(st)); } catch (e) { /* ignore */ } };
+
+  const $ = (s) => document.querySelector(s);
+  const esc = (v) => String(v).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const sections = () => RC.build({ option: st.option, intersection: st.intersection });
+  const items = () => RC.flat(sections());
+  // The next item to do. Section 2 waits for a choice before section 3 is reached.
+  function current() {
+    const S = sections();
+    for (const s of S) {
+      if (s.choose && !st.option) return { needChoice: true };
+      for (const it of s.parts ? s.parts.flatMap((p) => p.items) : s.items) if (!st.done[it.id]) return it;
+    }
+    return null;
+  }
+
+  const itemHtml = (it, cur) => {
+    const on = !!st.done[it.id];
+    const keyRef = it.key ? `${it.key} key` : it.lsk ? `LSK ${it.lsk}` : "";
+    const sub = it.fields ? `<ul class="sub">${it.fields.map(([f, d]) => `<li><b>${esc(f)}</b> ${esc(d)}</li>`).join("")}</ul>`
+      : it.review ? `<ul class="sub">${it.review.map(([f, d], i) => `<li><span class="wrt">${["W", "R", "T", "W", "F", "T", "R"][i]}</span><b>${esc(f)}</b> ${esc(d)}</li>`).join("")}</ul>` : "";
+    return `<button type="button" class="item${cur && cur.id === it.id ? " cur" : ""}" role="checkbox" aria-checked="${on}" data-id="${it.id}" id="i-${it.id.replace(/\W/g, "_")}">
+      <span class="box" aria-hidden="true">${on ? "✓" : ""}</span><span class="n">${esc(it.num)}</span>
+      <span><span class="line"><span class="t">${esc(it.text)}</span><span class="dots" aria-hidden="true"></span><span class="a">${esc(it.action)}</span></span>
+      ${keyRef ? `<span class="k">${esc(keyRef)}</span>` : ""}${it.note ? `<p class="note">${esc(it.note)}</p>` : ""}${sub}</span></button>`;
+  };
+
+  function render() {
+    const S = sections(), cur = current(), all = items();
+    const n = all.filter((it) => st.done[it.id]).length;
+    let html = "";
+    if (!cur) html += `<div class="done" role="status">✓ Runway/Departure Change complete</div>`;
+    for (const s of S) {
+      html += `<section class="sec"><h2>${esc(s.title)}</h2>`;
+      if (s.note) html += `<p class="hint">${esc(s.note)}</p>`;
+      if (s.id === "1") html += `<details class="cons"><summary>Takeoff Considerations</summary><ul>${RC.CONSIDERATIONS.map((c) => `<li>${esc(c)}</li>`).join("")}</ul></details>`;
+      if (s.choose) {
+        html += `<button type="button" class="tgl" role="switch" aria-checked="${st.intersection}" data-flag="intersection"><span><b>Loading intersection takeoff data</b><br><span class="hint" style="margin:0">e.g., RWY 32LX</span></span><span class="sw" aria-hidden="true"></span></button>`;
+        html += `<p class="hint" style="margin-top:12px"><b>Choose one:</b></p><div class="choose">${Object.entries(RC.OPTIONS).map(([k, v]) =>
+          `<button type="button" class="opt" data-opt="${k}" aria-pressed="${st.option === k}"><b>${esc(v.title)}</b><span>${esc(v.when)}</span></button>`).join("")}</div>`;
+        for (const p of s.parts) html += `<h3>${esc(p.title)}</h3>${p.items.map((it) => itemHtml(it, cur)).join("")}`;
+      } else {
+        html += s.items.map((it) => itemHtml(it, cur)).join("");
+      }
+      html += `</section>`;
+    }
+    html += `<p class="disclaimer">From ${esc(RC.SOURCE)}. Not approved for operational use; always use the current AOM.<br>Version ${APP_VERSION}</p>`;
+    $("#app").innerHTML = html;
+    $("#bar").style.width = `${all.length ? (n / all.length) * 100 : 0}%`;
+    const go = $("#btn-check");
+    if (!cur) { go.disabled = true; go.innerHTML = `Complete<small>${n} of ${all.length} items</small>`; }
+    else if (cur.needChoice) { go.disabled = true; go.innerHTML = `Choose takeoff performance<small>Section 2: choose one</small>`; }
+    else { go.disabled = false; go.innerHTML = `✓ ${esc(cur.text)}<small>${esc(cur.action)} · ${n} of ${all.length} done</small>`; }
+    $("#btn-undo").disabled = !st.order.length;
+    save();
+  }
+
+  const scrollToCurrent = () => {
+    const c = current();
+    const el = c && c.id ? document.getElementById(`i-${c.id.replace(/\W/g, "_")}`) : document.querySelector(".choose");
+    if (el) el.scrollIntoView({ block: "center", behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+  };
+  const check = (id) => { st.done[id] = true; st.order.push(id); };
+  // Clear every checked item whose id starts with the prefix (and its Undo history).
+  const clear = (prefix) => { for (const k of Object.keys(st.done)) if (k.startsWith(prefix)) delete st.done[k]; st.order = st.order.filter((k) => !k.startsWith(prefix)); };
+
+  document.addEventListener("click", (e) => {
+    const b = e.target.closest("button"); if (!b) return;
+    if (b.dataset.id) {
+      const id = b.dataset.id;
+      if (st.done[id]) { delete st.done[id]; st.order = st.order.filter((x) => x !== id); } else check(id);
+      render();
+    } else if (b.dataset.opt) {
+      // Changing the choice clears the items of the previous choice.
+      if (st.option && st.option !== b.dataset.opt) clear(`2${st.option}.`);
+      st.option = b.dataset.opt; render(); scrollToCurrent();
+    } else if (b.dataset.flag) {
+      st.intersection = !st.intersection;
+      if (!st.intersection) clear("2x.");
+      render();
+    }
+  });
+  $("#btn-check").addEventListener("click", () => { const c = current(); if (c && c.id) { check(c.id); render(); scrollToCurrent(); } });
+  $("#btn-undo").addEventListener("click", () => { const id = st.order.pop(); if (id) delete st.done[id]; render(); scrollToCurrent(); });
+  $("#btn-reset").addEventListener("click", () => {
+    if (!confirm("Reset the Runway/Departure Change checklist?")) return;
+    st = { option: null, intersection: false, done: {}, order: [], at: Date.now() }; render(); window.scrollTo(0, 0);
+  });
+
+  render();
+  if ("serviceWorker" in navigator && (location.protocol === "https:" || location.hostname === "localhost")) {
+    navigator.serviceWorker.register("sw.js", { updateViaCache: "none" }).then((r) => r.update()).catch(() => {});
+    let reloaded = false;
+    navigator.serviceWorker.addEventListener("controllerchange", () => { if (!reloaded) { reloaded = true; location.reload(); } });
+  }
+})();
+</script>
+</body>
+</html>

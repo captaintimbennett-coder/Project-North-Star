@@ -2,6 +2,7 @@
 # Publish the prototypes to the gh-pages branch (GitHub Pages):
 #   /           B737 Takeoff Guide   (prototypes/b737-takeoff-guide)
 #   /sim-prep/  B737 Sim Prep        (prototypes/b737-sim-prep); PUBLISH_SIM_PREP=no leaves it out
+#   /runway-change/  B737 Runway/Departure Change checklist (prototypes/b737-runway-change)
 # Run from the repository root on the branch that holds the prototypes.
 set -euo pipefail
 root=$(git rev-parse --show-toplevel)
@@ -22,7 +23,12 @@ if [ "${PUBLISH_SIM_PREP:-yes}" = "yes" ] && [ -d "$root/prototypes/b737-sim-pre
   mkdir -p "$out/sim-prep"
   cp -R "$root/prototypes/b737-sim-prep/." "$out/sim-prep/"
 fi
-rm -rf "$out/tests" "$out/sim-prep/tests"
+# B737 Runway/Departure Change checklist (generic, AOM 5.4.1).
+if [ -d "$root/prototypes/b737-runway-change" ]; then
+  mkdir -p "$out/runway-change"
+  cp -R "$root/prototypes/b737-runway-change/." "$out/runway-change/"
+fi
+rm -rf "$out/tests" "$out/sim-prep/tests" "$out/runway-change/tests"
 touch "$out/.nojekyll"
 
 git -C "$out" add -A
