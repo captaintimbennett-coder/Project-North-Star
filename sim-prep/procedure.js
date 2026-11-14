@@ -137,7 +137,7 @@
     },
     "ACARS-APPLICATION MENU": {
       L: ["", "", "", "", "", ""],
-      R: ["", "AOC AAL>", "ATS>", "TECHNICAL>", "", ""],
+      R: ["AOC AAL>", "ATS>", "TECHNICAL>", "", "", ""],
     },
     "ACARS-INDEX": {
       L: ["<PREFLIGHT", "<OOOI", "<DELAYS", "<T/O DATA", "*FLT PROG", "<RETURN"],
@@ -247,8 +247,8 @@
     // --- ACARS: takeoff data not available (3-24)
     { g: "acToReq", key: { key: "MENU" }, label: "MENU", action: "Select" },
     { g: "acToReq", page: "MENU", key: { lsk: "2L" }, label: "ACARS", action: "Select" },
-    { g: "acToReq", page: "ACARS-APPLICATION MENU", key: { lsk: "2R" }, label: "AOC AAL", action: "Select (if required)",
-      notes: ["AOM 21d.2.2 and the training guide picture show AOC AAL at [2R]. AOM 5-14 lists [1R]: use the prompt where it appears."] },
+    { g: "acToReq", page: "ACARS-APPLICATION MENU", key: { lsk: "1R" }, label: "AOC AAL", action: "Select (if required)",
+      notes: ["AOM 3-24 and 5-14 list AOC AAL at [1R]. (The training guide picture shows it one line lower: use the prompt where it appears.)"] },
     { g: "acToReq", page: "ACARS-INDEX", key: { lsk: "4L" }, label: "T/O DATA", action: "Select (if required)" },
     { g: "acToReq", page: "ACARS TAKEOFF DATA", key: null, label: "ACARS TAKEOFF DATA page", action: "Enter",
       notes: ["Fill in appropriate fields to request new TPS (see TPS Request).", "If the runway does not have a L, C or R designation the third digit must remain blank (e.g. 33_X). Enter a space (SP)X."] },
