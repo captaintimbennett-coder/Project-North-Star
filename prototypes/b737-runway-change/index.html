@@ -94,127 +94,279 @@
   .ft .go small { display: block; font-size: 13px; font-weight: 600; opacity: .85; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .ft .go:disabled { opacity: .5; }
   @media (prefers-reduced-motion: reduce) { * { transition: none !important; scroll-behavior: auto !important; } }
+
+  .home { display: grid; gap: 12px; margin-top: 6px; }
+  .big { text-align: left; padding: 18px; border-radius: var(--radius); border: 1.5px solid var(--line); background: var(--panel); cursor: pointer; }
+  .big b { display: block; font-size: 20px; }
+  .big span { color: var(--muted); font-size: 15px; }
+  .lead { color: var(--muted); margin: 0 0 12px; }
+  .fgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; margin-top: 8px; }
+  .fld { display: flex; flex-direction: column; gap: 4px; font-size: 13px; font-weight: 700; color: var(--muted); }
+  .fld input, .fld select { font: 600 18px/1.2 ui-monospace, "SF Mono", Menlo, monospace; padding: 9px 10px; border-radius: 10px; border: 1.5px solid var(--line); background: var(--panel-2); color: var(--text); width: 100%; min-height: 44px; }
+  .fld.bad input { border-color: var(--red); }
+  .fld small { font-weight: 500; }
+  .seg { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+  .seg button { flex: 1 1 auto; min-height: 44px; padding: 8px 12px; border-radius: 10px; border: 1.5px solid var(--line); background: var(--panel-2); font-weight: 700; cursor: pointer; }
+  .seg button[aria-pressed="true"] { border-color: var(--accent); background: var(--accent); color: var(--accent-ink); }
+  .q { margin-top: 12px; }
+  .q > b { display: block; font-size: 15px; }
+  .verdict { padding: 14px; border-radius: var(--radius); margin-top: 12px; border: 2px solid var(--line); }
+  .verdict h3 { margin: 0 0 6px; font-size: 19px; color: inherit; }
+  .verdict.ok { border-color: var(--go); background: var(--go-bg); }
+  .verdict.amber { border-color: var(--amber); background: var(--amber-bg); }
+  .verdict.stop { border-color: var(--red); background: var(--red-bg); }
+  .verdict.pend { border-style: dashed; }
+  .kv { margin: 4px 0; } .kv b { display: inline-block; min-width: 6.5em; }
+  .why { margin: 8px 0 0; padding-left: 18px; font-size: 15px; } .why li { margin: 4px 0; } .why small { color: var(--muted); }
+  .pick { margin-top: 10px; font-weight: 800; }
+  :root { --red: #b42318; --red-bg: #fde6e4; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --red: #ff6b5e; --red-bg: #321615; } }
+  :root[data-theme="dark"] { --red: #ff6b5e; --red-bg: #321615; }
 </style>
 </head>
 <body>
 <header>
   <div class="wrap">
     <div class="hd">
-      <h1>Runway/Departure Change<small>AOM 5.4.1 · Taxi · Takeoff Data Entry</small></h1>
-      <button class="btn" id="btn-reset" type="button">Reset</button>
+      <h1 id="title">Takeoff Data &amp; Runway Change<small id="subtitle">B737 · AOM 5.4.1 and the Takeoff Card</small></h1>
+      <button class="btn" id="btn-home" type="button">Home</button>
     </div>
     <div class="bar" aria-hidden="true"><span id="bar"></span></div>
   </div>
 </header>
 <main class="wrap" id="app"></main>
-<footer>
+<footer id="foot">
   <div class="wrap ft">
     <button class="btn" id="btn-undo" type="button">Undo</button>
     <button class="btn go" id="btn-check" type="button">Check</button>
   </div>
 </footer>
 
+<script src="rules.js"></script>
 <script src="checklist.js"></script>
+<script src="decide.js"></script>
 <script>
 (() => {
   "use strict";
-  const APP_VERSION = "2026-11-14.1"; // keep in step with VERSION in sw.js
-  const RC = window.RwyChange;
-  const KEY = "rwyChange.v1";
-  const KEEP_MS = 2 * 60 * 60 * 1000; // a runway change in progress is kept for 2 hours
+  const APP_VERSION = "2026-11-14.2"; // keep in step with VERSION in sw.js
+  const RC = window.RwyChange, TR = window.TakeoffRules, TD = window.TakeoffDecide;
+  const KEY = "rwyChange.v2";
+  const KEEP_MS = 2 * 60 * 60 * 1000; // work in progress is kept for 2 hours
 
-  let st = { option: null, intersection: false, done: {}, order: [], at: Date.now() };
+  const fresh = () => ({ screen: "home", option: null, manualOpt: false, intersection: false, done: {}, order: [], onTps: "first4", uplink: true, s: { ...TR.blank(), closeout: true, plan: "STD" }, at: Date.now() });
+  let st = fresh();
   try {
     const d = JSON.parse(localStorage.getItem(KEY) || "null");
-    if (d && Date.now() - d.at < KEEP_MS) st = { ...st, ...d };
+    if (d && Date.now() - d.at < KEEP_MS) st = { ...st, ...d, s: { ...st.s, ...d.s } };
   } catch (e) { /* storage unavailable: start fresh */ }
   const save = () => { st.at = Date.now(); try { localStorage.setItem(KEY, JSON.stringify(st)); } catch (e) { /* ignore */ } };
 
-  const $ = (s) => document.querySelector(s);
+  const $ = (q) => document.querySelector(q);
   const esc = (v) => String(v).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const S = () => st.s;
+  const E = () => TR.evaluate(S());
+  const decision = () => TD.decide(E(), st.screen === "change" ? { onTps: st.onTps, uplink: st.uplink } : { uplink: st.uplink });
+
+  // In the runway change, the takeoff data finding chooses item 2's option unless the crew overrides it.
+  function syncOption() {
+    if (st.manualOpt) return;
+    const d = decision();
+    const opt = d.option || null;
+    if (opt !== st.option) {
+      if (st.option) clear(`2${st.option}.`);
+      st.option = opt;
+    }
+  }
+
   const sections = () => RC.build({ option: st.option, intersection: st.intersection });
   const items = () => RC.flat(sections());
-  // The next item to do. Section 2 waits for a choice before section 3 is reached.
   function current() {
-    const S = sections();
-    for (const s of S) {
+    for (const s of sections()) {
       if (s.choose && !st.option) return { needChoice: true };
       for (const it of s.parts ? s.parts.flatMap((p) => p.items) : s.items) if (!st.done[it.id]) return it;
     }
     return null;
   }
+  const check = (id) => { st.done[id] = true; st.order.push(id); };
+  const clear = (prefix) => { for (const k of Object.keys(st.done)) if (k.startsWith(prefix)) delete st.done[k]; st.order = st.order.filter((k) => !k.startsWith(prefix)); };
+
+  // ---------- form pieces ----------
+  const bad = (f) => E().invalid.some((v) => v.field === f);
+  const fld = (f, label, hint, mode = "decimal") => `<label class="fld${bad(f) ? " bad" : ""}"><span>${esc(label)}${hint ? ` <small>${esc(hint)}</small>` : ""}</span>
+    <input inputmode="${mode}" data-f="${f}" value="${esc(S()[f] ?? "")}" autocomplete="off"></label>`;
+  const seg = (f, opts, label) => `<div class="q">${label ? `<b>${esc(label)}</b>` : ""}<div class="seg" role="group" aria-label="${esc(label || f)}">${opts.map(([v, t]) =>
+    `<button type="button" data-fs="${f}" data-v="${esc(v)}" aria-pressed="${String(S()[f]) === String(v)}">${esc(t)}</button>`).join("")}</div></div>`;
+  const tgl = (f, title, hint) => `<button type="button" class="tgl" role="switch" aria-checked="${!!S()[f]}" data-ft="${f}"><span><b>${esc(title)}</b>${hint ? `<br><span class="hint" style="margin:0">${esc(hint)}</span>` : ""}</span><span class="sw" aria-hidden="true"></span></button>`;
+  const stSeg = (k, opts, label) => `<div class="q"><b>${esc(label)}</b><div class="seg" role="group" aria-label="${esc(label)}">${opts.map(([v, t]) =>
+    `<button type="button" data-ss="${k}" data-v="${esc(v)}" aria-pressed="${String(st[k]) === String(v)}">${esc(t)}</button>`).join("")}</div></div>`;
+
+  // The takeoff data questions. Rare conditions are folded away; follow-ups appear only when needed.
+  function form(forChange) {
+    const s = S(), e = E();
+    const ratings = TR.RATINGS[s.aircraft] || TR.RATINGS.NG;
+    let h = `<div class="sec"><h2>${forChange ? "Takeoff data for the new runway" : "Takeoff data"}</h2>
+      <p class="hint">Enter the values from the TPS, the Load Closeout and the ATIS.</p>`;
+    if (forChange) {
+      h += stSeg("onTps", [["first4", "One of the first four"], ["notFirst4", "Not in the first four"], ["notOn", "Not on the TPS"]], "Is the new runway on the TPS?");
+      h += `<button type="button" class="tgl" role="switch" aria-checked="${st.uplink}" data-ust="uplink"><span><b>Takeoff data uplink available and desired</b></span><span class="sw" aria-hidden="true"></span></button>`;
+    }
+    if (!forChange || st.onTps === "first4") {
+      h += seg("aircraft", [["NG", "737-NG"], ["MAX8", "737 MAX 8"]], "Aircraft");
+      h += seg("plan", [["STD", "Standard thrust (AT)"], ["MAX", "Maximum thrust"]], "TPS line for the runway");
+      h += seg("rating", ratings.map((r) => [r, r]), "TPS thrust rating");
+      h += seg("closeout", [["true", "Received"], ["false", "Not received"]], "Load Closeout");
+      h += `<div class="fgrid">${fld("rwy", "Runway", "e.g. 17L", "text")}${fld("rwyHdg", "Runway heading", "Jeppesen", "numeric")}</div>`;
+      h += `<div class="fgrid">${fld("tow", "Takeoff weight", "closeout")}${fld("ptow", "PTOW", "TPS")}${fld("mtow", "MTOW", "TPS line")}</div>`;
+      h += seg("mtowCode", [["", "No letter"], ["L", "L"], ["E", "E"], ["D", "D"], ["T", "Other"]], "MTOW limit letter");
+      h += `<div class="fgrid">${fld("oat", "Temperature", "ATIS °C")}${s.plan === "MAX" ? fld("planTemp", "Plan temperature", "TPS TEMP °C") : fld("at", "Assumed temperature", "TPS AT °C")}</div>`;
+      h += `<div class="fgrid">${fld("windDir", "Wind direction", "°", "numeric")}${fld("windSpd", "Wind speed", "kt", "numeric")}${fld("windGust", "Gust", "kt", "numeric")}</div>`;
+      h += tgl("calm", "Wind calm");
+      h += seg("tpsWind", [["NONE", "Zero wind"], ["HEAD", "Headwind"], ["TAIL", "Tailwind"]], "TPS planned wind (no wind correction = zero wind)");
+      if (s.tpsWind !== "NONE") h += `<div class="fgrid">${fld("tpsWindKt", s.tpsWind === "HEAD" ? "TPS headwind" : "TPS tailwind", "kt", "numeric")}</div>`;
+      h += seg("runway", [["DRY", "Dry"], ["WET", "Wet"], ["CONTAM", "Contaminated"]], "Runway condition");
+      h += tgl("tpsWet", "TPS header says WET");
+      if (s.runway === "CONTAM") h += seg("contam", TR.CONTAM.map(([k, t]) => [k, t]), "Contaminant");
+      // Follow-ups, only when the finding needs them.
+      if (e.tail && !s.ip) {
+        h += seg("twMethod", [["M1", "Method 1: new TPS"], ["M2", "Method 2: Airport Analysis"]], `Unplanned tailwind ${e.tail.tail} kt`);
+        if (s.twMethod === "M2") h += `<div class="fgrid">${fld("zwMax", "Zero-wind max weight", "Airport Analysis")}${fld("twCorr", "Tailwind correction", "lb per kt", "numeric")}</div>`
+          + seg("twSpeeds", [["QRH", "FMC QRH V-speeds"], ["AOM", "AOM V-speeds"]], "Method 2 V-speeds");
+      }
+      if (e.needAA) h += seg("aa", [["NOIP", "Yes, without IP"], ["IP", "Only with Improved Performance"], ["NO", "No"]], "Airport Analysis: can the weight be accommodated?");
+      if (s.rating === "27K") h += tgl("bumpAuth", "27K Bump authorized", "SNA, or dispatch and load agent concurrence");
+      h += `<details class="cons"><summary>More conditions</summary>
+        ${tgl("windshear", "Windshear reported or expected", "Including advisories")}
+        ${tgl("adv7", "Airport ops advisory (##-7) requires max thrust")}
+        ${tgl("antiIce", "Engine anti-ice used for takeoff")}
+        ${s.antiIce ? tgl("tpsAntiIce", "TPS shows ANTI-ICE ON") : ""}
+        ${tgl("ip", "Improved Performance TPS")}
+        ${tgl("melWt", "MEL/CDL item with a takeoff weight correction")}
+        ${s.melWt ? tgl("melAuto", "Correction applied by TPS (TPAS)") : ""}
+        ${tgl("crcmel", "Takeoff data from a CRC/MEL message")}
+        ${tgl("flaps25", "Flaps 25 takeoff")}
+        ${tgl("eecAlt", "EECs in Alternate mode")}
+        ${tgl("trInop", "Thrust reverser inoperative")}
+        ${s.runway === "CONTAM" ? tgl("antiSkidInop", "Anti-skid inoperative") + tgl("contamChunks", "Chunks of hardened snow or ice") : ""}
+      </details>`;
+    }
+    return h + `</div>`;
+  }
+
+  // The finding, and for a runway change, the option it picks.
+  function verdict(forChange) {
+    const e = E(), d = decision();
+    const cls = d.kind === "pending" ? "pend" : d.kind === "stop" ? "stop" : d.kind === "dispatch" || e.status === "amber" || d.option === "newTps" ? "amber" : "ok";
+    const title = d.kind === "pending" ? "Not yet complete" : d.kind === "stop" ? "Stop: not authorized as entered" : d.kind === "dispatch" ? "Contact Dispatch" :
+      d.option === "newTps" ? "New takeoff data required" : e.status === "amber" ? "Authorized with changes" : "Takeoff data valid";
+    let h = `<div class="verdict ${cls}" role="status"><h3>${esc(title)}</h3>`;
+    if (d.kind !== "pending" && !(forChange && st.onTps !== "first4")) h += `<p class="kv"><b>Thrust</b> ${esc(e.thrust)}</p><p class="kv"><b>V-speeds</b> ${esc(e.speeds)}</p>`;
+    h += `<p style="margin:8px 0 0">${esc(d.why)}</p>`;
+    if (e.invalid.length && !(forChange && st.onTps !== "first4")) h += `<ul class="why">${e.invalid.map((v) => `<li>${esc(v.msg)}</li>`).join("")}</ul>`;
+    // A flagged entry shows only what to fix: no findings are drawn from a typo.
+    if (!(forChange && st.onTps !== "first4") && !e.invalid.length) {
+      const list = (t, xs) => xs.length ? `<p class="pick">${t}</p><ul class="why">${xs.map((x) => `<li>${x}</li>`).join("")}</ul>` : "";
+      h += list("Do", e.actions.map(esc)) + list("Or", e.alts.map(esc)) + list("Cautions", e.cautions.map(esc))
+        + list("Why", e.reasons.map((r) => `${esc(r.text)} <small>(${esc(r.sec)})</small>`));
+    }
+    if (forChange && d.option) h += `<p class="pick">→ Item 2: ${esc(RC.OPTIONS[d.option].title)}${d.manualSpeeds ? " (V-speeds not from the FMC QRH)" : ""}</p>`;
+    return h + `</div>`;
+  }
 
   const itemHtml = (it, cur) => {
     const on = !!st.done[it.id];
     const keyRef = it.key ? `${it.key} key` : it.lsk ? `LSK ${it.lsk}` : "";
+    const rows = it.review ? TD.review(S(), E()) : null;
     const sub = it.fields ? `<ul class="sub">${it.fields.map(([f, d]) => `<li><b>${esc(f)}</b> ${esc(d)}</li>`).join("")}</ul>`
-      : it.review ? `<ul class="sub">${it.review.map(([f, d], i) => `<li><span class="wrt">${["W", "R", "T", "W", "F", "T", "R"][i]}</span><b>${esc(f)}</b> ${esc(d)}</li>`).join("")}</ul>` : "";
+      : rows ? `<ul class="sub">${rows.map(([f, d], i) => `<li><span class="wrt">${["W", "R", "T", "W", "F", "T", "R"][i]}</span><b>${esc(f)}</b> ${esc(d)}</li>`).join("")}</ul>` : "";
     return `<button type="button" class="item${cur && cur.id === it.id ? " cur" : ""}" role="checkbox" aria-checked="${on}" data-id="${it.id}" id="i-${it.id.replace(/\W/g, "_")}">
       <span class="box" aria-hidden="true">${on ? "✓" : ""}</span><span class="n">${esc(it.num)}</span>
       <span><span class="line"><span class="t">${esc(it.text)}</span><span class="dots" aria-hidden="true"></span><span class="a">${esc(it.action)}</span></span>
       ${keyRef ? `<span class="k">${esc(keyRef)}</span>` : ""}${it.note ? `<p class="note">${esc(it.note)}</p>` : ""}${sub}</span></button>`;
   };
 
-  function render() {
-    const S = sections(), cur = current(), all = items();
-    const n = all.filter((it) => st.done[it.id]).length;
-    let html = "";
-    if (!cur) html += `<div class="done" role="status">✓ Runway/Departure Change complete</div>`;
-    for (const s of S) {
-      html += `<section class="sec"><h2>${esc(s.title)}</h2>`;
-      if (s.note) html += `<p class="hint">${esc(s.note)}</p>`;
-      if (s.id === "1") html += `<details class="cons"><summary>Takeoff Considerations</summary><ul>${RC.CONSIDERATIONS.map((c) => `<li>${esc(c)}</li>`).join("")}</ul></details>`;
-      if (s.choose) {
-        html += `<button type="button" class="tgl" role="switch" aria-checked="${st.intersection}" data-flag="intersection"><span><b>Loading intersection takeoff data</b><br><span class="hint" style="margin:0">e.g., RWY 32LX</span></span><span class="sw" aria-hidden="true"></span></button>`;
-        html += `<p class="hint" style="margin-top:12px"><b>Choose one:</b></p><div class="choose">${Object.entries(RC.OPTIONS).map(([k, v]) =>
-          `<button type="button" class="opt" data-opt="${k}" aria-pressed="${st.option === k}"><b>${esc(v.title)}</b><span>${esc(v.when)}</span></button>`).join("")}</div>`;
-        for (const p of s.parts) html += `<h3>${esc(p.title)}</h3>${p.items.map((it) => itemHtml(it, cur)).join("")}`;
-      } else {
-        html += s.items.map((it) => itemHtml(it, cur)).join("");
+  // ---------- screens ----------
+  const views = {
+    home: () => `<p class="lead">Takeoff data legality (the Takeoff Card) and the Runway/Departure Change (AOM 5.4.1) in one place.</p>
+      <div class="home">
+        <button type="button" class="big" data-go="change"><b>Runway change</b><span>Change the runway in the FMC, check the takeoff data for the new runway, and load it: the app picks the AOM option for you.</span></button>
+        <button type="button" class="big" data-go="check"><b>Check takeoff data</b><span>Is the TPS still valid for the conditions? Thrust, V-speeds and what to do, with the card section for each finding.</span></button>
+      </div>
+      <button type="button" class="btn" id="btn-new" style="display:block;margin:14px auto 0">Start over</button>
+      <p class="disclaimer">From the B737 Takeoff Card and ${esc(RC.SOURCE)}. Not approved for operational use; always use the current AOM.<br>Version ${APP_VERSION}</p>`,
+    check: () => form(false) + verdict(false) + `<p class="disclaimer">Not approved for operational use. Version ${APP_VERSION}</p>`,
+    change: () => {
+      const cur = current();
+      let html = cur ? "" : `<div class="done" role="status">✓ Runway/Departure Change complete</div>`;
+      for (const s of sections()) {
+        html += `<section class="sec"><h2>${esc(s.title)}</h2>`;
+        if (s.note) html += `<p class="hint">${esc(s.note)}</p>`;
+        if (s.id === "1") html += `<details class="cons"><summary>Takeoff Considerations</summary><ul>${RC.CONSIDERATIONS.map((c) => `<li>${esc(c)}</li>`).join("")}</ul></details>`;
+        if (s.choose) {
+          html += `<p class="hint">Check the takeoff data for the new runway below. The result picks how to load it.</p></section>${form(true)}${verdict(true)}<section class="sec"><h2>2. Takeoff Performance: load the data</h2>`;
+          html += `<button type="button" class="tgl" role="switch" aria-checked="${st.intersection}" data-flag="intersection"><span><b>Loading intersection takeoff data</b><br><span class="hint" style="margin:0">e.g., RWY 32LX</span></span><span class="sw" aria-hidden="true"></span></button>`;
+          html += `<p class="hint" style="margin-top:12px"><b>Choose one:</b> ${st.manualOpt ? "chosen by you" : st.option ? "chosen from the takeoff data" : "answer the takeoff data above"}</p><div class="choose">${Object.entries(RC.OPTIONS).map(([k, v]) =>
+            `<button type="button" class="opt" data-opt="${k}" aria-pressed="${st.option === k}"><b>${esc(v.title)}</b><span>${esc(v.when)}</span></button>`).join("")}</div>`;
+          if (st.manualOpt) html += `<button type="button" class="btn" data-auto="1" style="margin-top:8px">Use the option from the takeoff data</button>`;
+          for (const p of s.parts) html += `<h3>${esc(p.title)}</h3>${p.items.map((it) => itemHtml(it, cur)).join("")}`;
+        } else html += s.items.map((it) => itemHtml(it, cur)).join("");
+        html += `</section>`;
       }
-      html += `</section>`;
+      return html + `<p class="disclaimer">From ${esc(RC.SOURCE)} and the B737 Takeoff Card. Not approved for operational use.<br>Version ${APP_VERSION}</p>`;
+    },
+  };
+
+  function render() {
+    if (st.screen === "change") syncOption();
+    $("#app").innerHTML = views[st.screen]();
+    const inChange = st.screen === "change";
+    $("#foot").hidden = !inChange;
+    $("#btn-home").hidden = st.screen === "home";
+    $("#subtitle").textContent = st.screen === "change" ? "Runway/Departure Change · AOM 5.4.1" : st.screen === "check" ? "Check takeoff data · B737 Takeoff Card" : "B737 · AOM 5.4.1 and the Takeoff Card";
+    const all = inChange ? items() : [], n = all.filter((it) => st.done[it.id]).length;
+    $("#bar").style.width = inChange && all.length ? `${(n / all.length) * 100}%` : "0%";
+    if (inChange) {
+      const cur = current(), go = $("#btn-check");
+      if (!cur) { go.disabled = true; go.innerHTML = `Complete<small>${n} of ${all.length} items</small>`; }
+      else if (cur.needChoice) { go.disabled = true; go.innerHTML = `Takeoff data first<small>Answer the questions for the new runway</small>`; }
+      else { go.disabled = false; go.innerHTML = `✓ ${esc(cur.text)}<small>${esc(cur.action)} · ${n} of ${all.length} done</small>`; }
+      $("#btn-undo").disabled = !st.order.length;
     }
-    html += `<p class="disclaimer">From ${esc(RC.SOURCE)}. Not approved for operational use; always use the current AOM.<br>Version ${APP_VERSION}</p>`;
-    $("#app").innerHTML = html;
-    $("#bar").style.width = `${all.length ? (n / all.length) * 100 : 0}%`;
-    const go = $("#btn-check");
-    if (!cur) { go.disabled = true; go.innerHTML = `Complete<small>${n} of ${all.length} items</small>`; }
-    else if (cur.needChoice) { go.disabled = true; go.innerHTML = `Choose takeoff performance<small>Section 2: choose one</small>`; }
-    else { go.disabled = false; go.innerHTML = `✓ ${esc(cur.text)}<small>${esc(cur.action)} · ${n} of ${all.length} done</small>`; }
-    $("#btn-undo").disabled = !st.order.length;
     save();
   }
-
   const scrollToCurrent = () => {
     const c = current();
-    const el = c && c.id ? document.getElementById(`i-${c.id.replace(/\W/g, "_")}`) : document.querySelector(".choose");
+    const el = c && c.id ? document.getElementById(`i-${c.id.replace(/\W/g, "_")}`) : null;
     if (el) el.scrollIntoView({ block: "center", behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
   };
-  const check = (id) => { st.done[id] = true; st.order.push(id); };
-  // Clear every checked item whose id starts with the prefix (and its Undo history).
-  const clear = (prefix) => { for (const k of Object.keys(st.done)) if (k.startsWith(prefix)) delete st.done[k]; st.order = st.order.filter((k) => !k.startsWith(prefix)); };
 
+  // ---------- events ----------
+  const val = (v) => (v === "true" ? true : v === "false" ? false : v);
   document.addEventListener("click", (e) => {
     const b = e.target.closest("button"); if (!b) return;
-    if (b.dataset.id) {
+    if (b.dataset.go) { st.screen = b.dataset.go; render(); window.scrollTo(0, 0); }
+    else if (b.dataset.id) {
       const id = b.dataset.id;
       if (st.done[id]) { delete st.done[id]; st.order = st.order.filter((x) => x !== id); } else check(id);
       render();
     } else if (b.dataset.opt) {
-      // Changing the choice clears the items of the previous choice.
       if (st.option && st.option !== b.dataset.opt) clear(`2${st.option}.`);
-      st.option = b.dataset.opt; render(); scrollToCurrent();
-    } else if (b.dataset.flag) {
-      st.intersection = !st.intersection;
-      if (!st.intersection) clear("2x.");
-      render();
-    }
+      st.option = b.dataset.opt; st.manualOpt = true; render();
+    } else if (b.dataset.auto) { st.manualOpt = false; render(); }
+    else if (b.dataset.flag) { st.intersection = !st.intersection; if (!st.intersection) clear("2x."); render(); }
+    else if (b.dataset.fs) { S()[b.dataset.fs] = val(b.dataset.v); if (b.dataset.fs === "aircraft") S().rating = null; render(); }
+    else if (b.dataset.ft) { S()[b.dataset.ft] = !S()[b.dataset.ft]; render(); }
+    else if (b.dataset.ss) { st[b.dataset.ss] = b.dataset.v; render(); }
+    else if (b.dataset.ust) { st.uplink = !st.uplink; render(); }
   });
+  // Typed values update when the field is left or Return is pressed, so typing isn't interrupted.
+  document.addEventListener("change", (e) => { const f = e.target.dataset && e.target.dataset.f; if (f) { S()[f] = e.target.value.trim(); render(); } });
+  $("#btn-home").addEventListener("click", () => { st.screen = "home"; render(); window.scrollTo(0, 0); });
   $("#btn-check").addEventListener("click", () => { const c = current(); if (c && c.id) { check(c.id); render(); scrollToCurrent(); } });
   $("#btn-undo").addEventListener("click", () => { const id = st.order.pop(); if (id) delete st.done[id]; render(); scrollToCurrent(); });
-  $("#btn-reset").addEventListener("click", () => {
-    if (!confirm("Reset the Runway/Departure Change checklist?")) return;
-    st = { option: null, intersection: false, done: {}, order: [], at: Date.now() }; render(); window.scrollTo(0, 0);
+  // Start over: clears the checklist and the takeoff data.
+  document.addEventListener("click", (e) => {
+    if (!e.target.closest("#btn-new")) return;
+    if (confirm("Start over? This clears the checklist and the takeoff data.")) { st = fresh(); render(); }
   });
 
   render();

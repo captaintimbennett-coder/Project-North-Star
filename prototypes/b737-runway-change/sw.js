@@ -1,11 +1,13 @@
 // Offline support for B737 Runway Change.
 // Bump VERSION whenever any app file changes so devices pick up the update.
-const VERSION = "2026-11-14.1";
+const VERSION = "2026-11-14.2";
 const CACHE = `rwy-change-${VERSION}`;
 const FILES = [
   "./",
   "./index.html",
+  "./rules.js",
   "./checklist.js",
+  "./decide.js",
   "./manifest.webmanifest",
   "./icons/icon-192.png",
   "./icons/icon-512.png",
